@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, ArrowLeft, Briefcase } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +51,10 @@ const TXT = {
     specialty: "التخصص",
     allSpecialties: "كل التخصصات",
     all: "الكل",
+    home: "الرئيسية",
+    filters: "التصفية",
+    keyword: "كلمة البحث",
+    jobType: "نوع الوظيفة",
     results: "نتائج البحث",
     count: (n: number) => `${n} وظيفة متاحة`,
     employer: "أنت ناشر وظائف؟",
@@ -67,6 +71,10 @@ const TXT = {
     specialty: "Specialty",
     allSpecialties: "All specialties",
     all: "All",
+    home: "Home",
+    filters: "Filters",
+    keyword: "Keyword",
+    jobType: "Job type",
     results: "Search results",
     count: (n: number) => `${n} jobs available`,
     employer: "Hiring? See plans",
