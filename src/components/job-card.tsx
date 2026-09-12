@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Building2, MapPin, BriefcaseMedical, Clock3 } from "lucide-react";
+import { ArrowLeft, MapPin, BriefcaseMedical, Clock3, ShieldCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EMPLOYMENT_LABELS, formatSalary, relativeTime } from "@/lib/format";
 
@@ -14,32 +14,43 @@ export type JobRow = {
   employment_type: string;
   min_experience: number;
   created_at: string;
-  facilities: { name_ar: string; is_verified: boolean } | null;
+  expires_at?: string | null;
+  is_featured?: boolean | null;
+  facility_verified?: boolean | null;
+  applications_count?: number | null;
   specialties: { name_ar: string } | null;
 };
 
+const DAY = 86400000;
+
 export function JobCard({ job, match }: { job: JobRow; match?: number | null }) {
+  const isNew = Date.now() - new Date(job.created_at).getTime() < 2 * DAY;
+  const closingSoon =
+    !!job.expires_at && new Date(job.expires_at).getTime() - Date.now() < 5 * DAY;
+
   return (
     <Link
       to="/jobs/$jobId"
       params={{ jobId: job.id }}
       className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="font-display text-lg leading-snug font-bold group-hover:text-primary">
-            {job.title}
-          </h3>
-          <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Building2 className="size-4 shrink-0" />
-            <span className="truncate">{job.facilities?.name_ar}</span>
-            {job.facilities?.is_verified && (
-              <Badge variant="secondary" className="shrink-0 text-[10px]">
-                موثّقة
-              </Badge>
-            )}
-          </div>
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {job.is_featured && (
+          <Badge className="bg-primary text-primary-foreground">مميّزة</Badge>
+        )}
+        {isNew && <Badge className="bg-accent/15 text-accent hover:bg-accent/20">جديدة</Badge>}
+        {closingSoon && !isNew && <Badge variant="destructive">تغلق قريباً</Badge>}
+        {job.facility_verified && (
+          <Badge variant="secondary" className="gap-1">
+            <ShieldCheck className="size-3" /> ناشر موثّق
+          </Badge>
+        )}
+      </div>
+
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <h3 className="font-display text-lg leading-snug font-bold group-hover:text-primary">
+          {job.title}
+        </h3>
         {typeof match === "number" && (
           <div className="shrink-0 rounded-xl bg-accent/12 px-3 py-2 text-center">
             <div className="font-display text-lg font-bold text-accent">{match}%</div>
@@ -65,9 +76,17 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
         {job.specialties && <Badge variant="outline">{job.specialties.name_ar}</Badge>}
       </div>
 
-      <div className="mt-auto flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <Clock3 className="size-3.5" /> خبرة {job.min_experience}+ سنوات · {relativeTime(job.created_at)}
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="flex items-center gap-1.5">
+            <Clock3 className="size-3.5" /> خبرة {job.min_experience}+ سنوات ·{" "}
+            {relativeTime(job.created_at)}
+          </span>
+          {!!job.applications_count && (
+            <span className="flex items-center gap-1">
+              <Users className="size-3.5" /> تقدّم {job.applications_count}
+            </span>
+          )}
         </span>
         <span className="flex items-center gap-1 font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
           التفاصيل <ArrowLeft className="size-3.5" />

@@ -145,6 +145,60 @@ export type Database = {
         }
         Relationships: []
       }
+      facility_subscriptions: {
+        Row: {
+          billing_period: string
+          created_at: string
+          ends_at: string
+          facility_id: string
+          id: string
+          plan_code: string
+          searches_used: number
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          billing_period?: string
+          created_at?: string
+          ends_at?: string
+          facility_id: string
+          id?: string
+          plan_code: string
+          searches_used?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          billing_period?: string
+          created_at?: string
+          ends_at?: string
+          facility_id?: string
+          id?: string
+          plan_code?: string
+          searches_used?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facility_subscriptions_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: true
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facility_subscriptions_plan_code_fkey"
+            columns: ["plan_code"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       healthcare_professionals: {
         Row: {
           bio: string | null
@@ -215,15 +269,19 @@ export type Database = {
       }
       jobs: {
         Row: {
+          applications_count: number
           city: string
           country: string
           created_at: string
           currency: string
           description: string
           employment_type: Database["public"]["Enums"]["employment_type"]
+          expires_at: string | null
           facility_id: string
+          facility_verified: boolean
           id: string
           is_active: boolean
+          is_featured: boolean
           min_experience: number
           required_license: string | null
           salary_max: number
@@ -233,15 +291,19 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          applications_count?: number
           city: string
           country: string
           created_at?: string
           currency?: string
           description?: string
           employment_type?: Database["public"]["Enums"]["employment_type"]
+          expires_at?: string | null
           facility_id: string
+          facility_verified?: boolean
           id?: string
           is_active?: boolean
+          is_featured?: boolean
           min_experience?: number
           required_license?: string | null
           salary_max: number
@@ -251,15 +313,19 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          applications_count?: number
           city?: string
           country?: string
           created_at?: string
           currency?: string
           description?: string
           employment_type?: Database["public"]["Enums"]["employment_type"]
+          expires_at?: string | null
           facility_id?: string
+          facility_verified?: boolean
           id?: string
           is_active?: boolean
+          is_featured?: boolean
           min_experience?: number
           required_license?: string | null
           salary_max?: number
@@ -381,6 +447,7 @@ export type Database = {
       }
       shifts: {
         Row: {
+          applications_count: number
           booked_by: string | null
           city: string
           country: string
@@ -388,8 +455,10 @@ export type Database = {
           currency: string
           ends_at: string
           facility_id: string
+          facility_verified: boolean
           hourly_rate: number
           id: string
+          is_urgent: boolean
           notes: string | null
           specialty_id: string | null
           starts_at: string
@@ -398,6 +467,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          applications_count?: number
           booked_by?: string | null
           city: string
           country: string
@@ -405,8 +475,10 @@ export type Database = {
           currency?: string
           ends_at: string
           facility_id: string
+          facility_verified?: boolean
           hourly_rate: number
           id?: string
+          is_urgent?: boolean
           notes?: string | null
           specialty_id?: string | null
           starts_at: string
@@ -415,6 +487,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          applications_count?: number
           booked_by?: string | null
           city?: string
           country?: string
@@ -422,8 +495,10 @@ export type Database = {
           currency?: string
           ends_at?: string
           facility_id?: string
+          facility_verified?: boolean
           hourly_rate?: number
           id?: string
+          is_urgent?: boolean
           notes?: string | null
           specialty_id?: string | null
           starts_at?: string
@@ -469,6 +544,72 @@ export type Database = {
           name_ar?: string
           name_en?: string
           slug?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          active_jobs: number
+          active_shifts: number
+          ai_credits: number
+          candidate_searches: number
+          code: string
+          created_at: string
+          currency: string
+          description_ar: string
+          featured_jobs: number
+          grace_days: number
+          is_trial: boolean
+          list_price_monthly: number | null
+          name_ar: string
+          name_en: string
+          price_monthly: number
+          price_yearly: number
+          recruiter_seats: number
+          sort_order: number
+          urgent_shifts: number
+        }
+        Insert: {
+          active_jobs?: number
+          active_shifts?: number
+          ai_credits?: number
+          candidate_searches?: number
+          code: string
+          created_at?: string
+          currency?: string
+          description_ar?: string
+          featured_jobs?: number
+          grace_days?: number
+          is_trial?: boolean
+          list_price_monthly?: number | null
+          name_ar: string
+          name_en: string
+          price_monthly?: number
+          price_yearly?: number
+          recruiter_seats?: number
+          sort_order?: number
+          urgent_shifts?: number
+        }
+        Update: {
+          active_jobs?: number
+          active_shifts?: number
+          ai_credits?: number
+          candidate_searches?: number
+          code?: string
+          created_at?: string
+          currency?: string
+          description_ar?: string
+          featured_jobs?: number
+          grace_days?: number
+          is_trial?: boolean
+          list_price_monthly?: number | null
+          name_ar?: string
+          name_en?: string
+          price_monthly?: number
+          price_yearly?: number
+          recruiter_seats?: number
+          sort_order?: number
+          urgent_shifts?: number
         }
         Relationships: []
       }

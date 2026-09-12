@@ -27,7 +27,7 @@ function ApplicationsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select("id,status,created_at,cover_letter,jobs(id,title,city,country,facilities(name_ar))")
+        .select("id,status,created_at,cover_letter,jobs(id,title,city,country)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -55,7 +55,7 @@ function ApplicationsPage() {
                       {a.jobs?.title}
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      {a.jobs?.facilities?.name_ar} · {a.jobs?.city} · قُدّم {relativeTime(a.created_at)}
+                      {a.jobs?.city} · قُدّم {relativeTime(a.created_at)}
                     </p>
                   </div>
                   <Badge variant={rejected ? "destructive" : "secondary"}>

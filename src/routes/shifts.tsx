@@ -45,7 +45,7 @@ function ShiftsPage() {
       const { data, error } = await supabase
         .from("shifts")
         .select(
-          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,facilities(name_ar),specialties(name_ar)",
+          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialties(name_ar)",
         )
         .order("starts_at", { ascending: true });
       if (error) throw error;

@@ -46,7 +46,7 @@ function JobDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*,facilities(name_ar,city,country,description,is_verified),specialties(name_ar)")
+        .select("*,specialties(name_ar)")
         .eq("id", jobId)
         .maybeSingle();
       if (error) throw error;
@@ -92,10 +92,15 @@ function JobDetail() {
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="card-lift rounded-2xl border border-border bg-card p-6">
         <h1 className="font-display text-3xl font-extrabold">{job.title}</h1>
-        <p className="mt-2 flex items-center gap-2 text-muted-foreground">
-          <Building2 className="size-4" /> {job.facilities?.name_ar}
-          {job.facilities?.is_verified && <Badge variant="secondary">منشأة موثّقة</Badge>}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <Building2 className="size-4" /> ناشر الوظيفة محجوب لحماية خصوصية المنشأة
+          </span>
+          {job.facility_verified && <Badge variant="secondary">ناشر موثّق</Badge>}
+          {!!job.applications_count && (
+            <Badge variant="outline">تقدّم {job.applications_count}</Badge>
+          )}
+        </div>
 
         <div className="mt-5 flex flex-wrap gap-2 text-xs">
           <Badge variant="outline" className="gap-1"><MapPin className="size-3" /> {job.city}، {job.country}</Badge>
@@ -115,12 +120,10 @@ function JobDetail() {
           <li>إجادة العمل ضمن فريق متعدد التخصصات</li>
         </ul>
 
-        {job.facilities?.description && (
-          <>
-            <h2 className="mt-6 text-lg font-bold">عن المنشأة</h2>
-            <p className="mt-2 text-muted-foreground">{job.facilities.description}</p>
-          </>
-        )}
+        <div className="mt-6 rounded-xl bg-surface p-4 text-sm text-muted-foreground">
+          هوية المنشأة الناشرة تظهر لك مباشرة بعد قبول طلبك أو بدء التواصل معك — كل ناشر على
+          SyndeoCare تُراجَع اعتماداته قبل النشر.
+        </div>
       </div>
 
       <div className="card-lift mt-6 rounded-2xl border border-border bg-card p-6">

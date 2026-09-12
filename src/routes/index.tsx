@@ -106,7 +106,7 @@ function Home() {
       const { data, error } = await supabase
         .from("jobs")
         .select(
-          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,facilities(name_ar,is_verified),specialties(name_ar)",
+          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialties(name_ar)",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false })
@@ -127,15 +127,15 @@ function Home() {
   const { data: stats } = useQuery({
     queryKey: ["home-stats"],
     queryFn: async () => {
-      const [jobsCount, shiftsCount, facilitiesCount] = await Promise.all([
+      const [jobsCount, shiftsCount, specialtiesCount] = await Promise.all([
         supabase.from("jobs").select("*", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("shifts").select("*", { count: "exact", head: true }).eq("status", "open"),
-        supabase.from("facilities").select("*", { count: "exact", head: true }),
+        supabase.from("specialties").select("*", { count: "exact", head: true }),
       ]);
       return {
         jobs: jobsCount.count ?? 0,
         shifts: shiftsCount.count ?? 0,
-        facilities: facilitiesCount.count ?? 0,
+        specialties: specialtiesCount.count ?? 0,
       };
     },
   });
@@ -204,7 +204,7 @@ function Home() {
             <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
               <Stat value={stats?.jobs} label="وظيفة متاحة" />
               <Stat value={stats?.shifts} label="مناوبة مفتوحة" />
-              <Stat value={stats?.facilities} label="منشأة صحية" />
+              <Stat value={stats?.specialties} label="تخصصاً مغطّى" />
             </dl>
           </div>
 
