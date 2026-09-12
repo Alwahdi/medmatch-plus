@@ -206,11 +206,13 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
       license_country: form.country || null,
       is_open_to_shifts: form.is_open_to_shifts,
     });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast.error(t("ob.error"));
       return;
     }
+    await supabase.from("user_roles").insert({ user_id: user!.id, role: "professional" });
+    setBusy(false);
     toast.success(t("ob.done"));
     navigate({ to: "/dashboard", replace: true });
   }
