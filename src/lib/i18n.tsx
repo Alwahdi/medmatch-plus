@@ -42,6 +42,11 @@ export const DICT: Dict = {
   "nav.signIn": { ar: "تسجيل الدخول", en: "Sign in" },
   "nav.signUp": { ar: "إنشاء حساب", en: "Sign up" },
   "nav.menu": { ar: "القائمة", en: "Menu" },
+  "nav.myShifts": { ar: "مناوباتي", en: "My shifts" },
+  "nav.applicants": { ar: "المتقدمون", en: "Applicants" },
+  "nav.facilityHome": { ar: "لوحة المنشأة", en: "Facility dashboard" },
+  "dash.proArea": { ar: "حسابي", en: "My account" },
+  "dash.facilityArea": { ar: "منطقة المنشأة", en: "Employer area" },
   "lang.switch": { ar: "English", en: "العربية" },
   "lang.label": { ar: "تغيير اللغة", en: "Change language" },
 
