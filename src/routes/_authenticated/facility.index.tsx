@@ -9,12 +9,15 @@ import {
   Briefcase,
   Building2,
   CalendarClock,
+  Eye,
   PlusCircle,
   Sparkles,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -80,6 +83,17 @@ const TXT = {
     open: "متاحة",
     bookedStatus: "محجوزة",
     noShifts: "لا مناوبات منشورة.",
+    view: "عرض",
+    cancelledStatus: "ملغاة",
+    cancelShift: "إلغاء",
+    shiftCancelled: "تم إلغاء المناوبة",
+    confirmCloseTitle: "إغلاق هذه الوظيفة؟",
+    confirmCloseDesc: "لن تظهر للباحثين ولن تستقبل طلبات جديدة. يمكنك إعادة نشرها لاحقاً.",
+    confirmCloseCta: "نعم، أغلقها",
+    confirmCancelShiftTitle: "إلغاء هذه المناوبة؟",
+    confirmCancelShiftDesc: "سيتم إلغاء المناوبة وإخفاؤها عن الباحثين، ولا يمكن التراجع.",
+    confirmCancelShiftCta: "نعم، ألغِها",
+
     // Facility form
     registerTitle: "سجّل منشأتك",
     registerSub: "دقيقة واحدة وتستطيع نشر أول وظيفة أو مناوبة.",
@@ -166,6 +180,17 @@ const TXT = {
     open: "Open",
     bookedStatus: "Booked",
     noShifts: "No shifts posted.",
+    view: "View",
+    cancelledStatus: "Cancelled",
+    cancelShift: "Cancel",
+    shiftCancelled: "Shift cancelled",
+    confirmCloseTitle: "Close this job?",
+    confirmCloseDesc: "It will be hidden from seekers and stop receiving applications. You can republish later.",
+    confirmCloseCta: "Yes, close it",
+    confirmCancelShiftTitle: "Cancel this shift?",
+    confirmCancelShiftDesc: "The shift will be cancelled and hidden from seekers. This cannot be undone.",
+    confirmCancelShiftCta: "Yes, cancel it",
+
     // Facility form
     registerTitle: "Register your facility",
     registerSub: "One minute and you can post your first job or shift.",
@@ -246,6 +271,8 @@ type SubRow = {
 function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { confirm, confirmDialog } = useConfirm();
+
   const { user } = useSession();
   const queryClient = useQueryClient();
 
@@ -325,8 +352,21 @@ function FacilityDashboard() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["facility-jobs"] }),
   });
 
+  const cancelShift = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("shifts").update({ status: "cancelled" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.shiftCancelled);
+      queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (isLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
   if (!facility) return <FacilityForm />;
+
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
