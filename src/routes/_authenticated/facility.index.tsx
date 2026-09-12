@@ -372,8 +372,7 @@ function JobForm({
     city: defaults.city,
     salary_min: "",
     salary_max: "",
-    currency: "SAR",
-    min_experience: "0",
+    currency: "YER",
     required_license: "",
   });
 
