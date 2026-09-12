@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
+import { resolveLanding } from "@/lib/landing";
 import { DICT, useLang } from "@/lib/i18n";
 
 const searchSchema = z.object({
