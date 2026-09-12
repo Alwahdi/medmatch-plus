@@ -62,3 +62,12 @@ export async function markConversationRead(conversationId: string, userId: strin
     .neq("sender_id", userId)
     .is("read_at", null);
 }
+
+/** Marks every incoming message as delivered (recipient is online / app is open). */
+export async function markDelivered(userId: string) {
+  await supabase
+    .from("messages")
+    .update({ delivered_at: new Date().toISOString() })
+    .neq("sender_id", userId)
+    .is("delivered_at", null);
+}
