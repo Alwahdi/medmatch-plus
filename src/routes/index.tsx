@@ -417,15 +417,13 @@ function Home() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold tracking-wide text-accent">وظائف دائمة</p>
-              <h2 className="mt-2 font-display text-3xl font-extrabold">أحدث الوظائف الطبية</h2>
-              <p className="mt-2 text-muted-foreground">
-                فرص جديدة منشورة من مستشفيات وعيادات ومنشآت متخصصة موثّقة.
-              </p>
+              <p className="text-sm font-semibold tracking-wide text-accent">{t("home.jobs.label")}</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">{t("home.jobs.title")}</h2>
+              <p className="mt-2 text-muted-foreground">{t("home.jobs.subtitle")}</p>
             </div>
             <Button variant="ghost" asChild>
               <Link to="/jobs">
-                عرض كل الوظائف <ArrowLeft className="size-4" />
+                {t("home.jobs.cta")} <ArrowLeft className="size-4" />
               </Link>
             </Button>
           </div>
@@ -442,15 +440,13 @@ function Home() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold tracking-wide text-accent">عمل مرن</p>
-              <h2 className="mt-2 font-display text-3xl font-extrabold">شيفتات متاحة الآن</h2>
-              <p className="mt-2 text-muted-foreground">
-                احصل على دخل إضافي مع شيفتات حسب الطلب لدى ناشري وظائف موثّقين.
-              </p>
+              <p className="text-sm font-semibold tracking-wide text-accent">{t("home.shifts.label")}</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">{t("home.shifts.title")}</h2>
+              <p className="mt-2 text-muted-foreground">{t("home.shifts.subtitle")}</p>
             </div>
             <Button variant="ghost" asChild>
               <Link to="/shifts">
-                عرض كل الشيفتات <ArrowLeft className="size-4" />
+                {t("home.shifts.cta")} <ArrowLeft className="size-4" />
               </Link>
             </Button>
           </div>
@@ -467,15 +463,13 @@ function Home() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold tracking-wide text-accent">حسب التخصص</p>
-              <h2 className="mt-2 font-display text-3xl font-extrabold">تصفّح حسب التخصص الطبي</h2>
-              <p className="mt-2 text-muted-foreground">
-                ابحث عن الفرصة المناسبة في مجالك — من الطب العام إلى التخصصات الدقيقة.
-              </p>
+              <p className="text-sm font-semibold tracking-wide text-accent">{t("home.specialties.label")}</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">{t("home.specialties.title")}</h2>
+              <p className="mt-2 text-muted-foreground">{t("home.specialties.subtitle")}</p>
             </div>
             <Button variant="ghost" asChild>
               <Link to="/specialties">
-                عرض كل التخصصات <ArrowLeft className="size-4" />
+                {t("home.specialties.cta")} <ArrowLeft className="size-4" />
               </Link>
             </Button>
           </div>
@@ -499,15 +493,13 @@ function Home() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold tracking-wide text-accent">أدلة مهنية</p>
-              <h2 className="mt-2 font-display text-3xl font-extrabold">أحدث أدلة المهن الطبية</h2>
-              <p className="mt-2 text-muted-foreground">
-                إرشادات عملية حول التراخيص والرواتب وتطوير مسيرتك الصحية في المنطقة العربية.
-              </p>
+              <p className="text-sm font-semibold tracking-wide text-accent">{t("home.guides.label")}</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">{t("home.guides.title")}</h2>
+              <p className="mt-2 text-muted-foreground">{t("home.guides.subtitle")}</p>
             </div>
             <Button variant="ghost" asChild>
               <Link to="/guides">
-                تصفّح كل الأدلة <ArrowLeft className="size-4" />
+                {t("home.guides.cta")} <ArrowLeft className="size-4" />
               </Link>
             </Button>
           </div>
@@ -525,7 +517,7 @@ function Home() {
                   {g.description}
                 </p>
                 <span className="mt-4 block text-xs text-muted-foreground">
-                  {g.readMinutes} دقائق قراءة
+                  {t("home.guides.readMinutes").replace("{n}", String(g.readMinutes))}
                 </span>
               </Link>
             ))}
@@ -540,15 +532,15 @@ function Home() {
             <Bell className="size-6" />
           </span>
           <h2 className="font-display text-3xl font-extrabold text-white">
-            ابدأ رحلتك مع SyndeoCare اليوم
+            {t("home.cta.title")}
           </h2>
           <p className="max-w-xl text-white/85">
-            مجانية تماماً للكوادر الصحية، وتجربة 30 يوماً لناشري الوظائف.
+            {t("home.cta.subtitle")}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/auth" search={{ mode: "signup" }}>
-                إنشاء حساب مجاني
+                {t("home.cta.seeker")}
               </Link>
             </Button>
             <Button
@@ -556,7 +548,7 @@ function Home() {
               asChild
               className="border border-white/25 bg-white/10 text-white hover:bg-white/20"
             >
-              <Link to="/for-facilities">أنا ناشر وظائف</Link>
+              <Link to="/for-facilities">{t("home.cta.employer")}</Link>
             </Button>
           </div>
         </div>
