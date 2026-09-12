@@ -356,6 +356,7 @@ export type Database = {
       }
       healthcare_professionals: {
         Row: {
+          avatar_url: string | null
           bio: string | null
           city: string | null
           country: string | null
@@ -377,6 +378,7 @@ export type Database = {
           years_experience: number
         }
         Insert: {
+          avatar_url?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
@@ -398,6 +400,7 @@ export type Database = {
           years_experience?: number
         }
         Update: {
+          avatar_url?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
