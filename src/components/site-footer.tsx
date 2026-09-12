@@ -37,6 +37,7 @@ export function SiteFooter() {
         <div>
           <h3 className="text-sm font-bold">{t("footer.resources")}</h3>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li><Link to="/blog" className="hover:text-foreground">{t("footer.blog")}</Link></li>
             <li><Link to="/guides" className="hover:text-foreground">{t("footer.guides")}</Link></li>
             <li><Link to="/interview-questions" className="hover:text-foreground">{t("footer.questions")}</Link></li>
             <li><Link to="/specialties" className="hover:text-foreground">{t("footer.specialties")}</Link></li>
@@ -49,6 +50,7 @@ export function SiteFooter() {
             <li><Link to="/contact" className="hover:text-foreground">{t("footer.contact")}</Link></li>
             <li><Link to="/privacy" className="hover:text-foreground">{t("footer.privacy")}</Link></li>
             <li><Link to="/terms" className="hover:text-foreground">{t("footer.terms")}</Link></li>
+            <li><Link to="/cookies" className="hover:text-foreground">{t("footer.cookies")}</Link></li>
           </ul>
         </div>
       </div>
