@@ -365,7 +365,7 @@ function InvitePage() {
           </ul>
         ) : (
           <div className="mt-4">
-            <EmptyState icon={History} title={c.recentEmpty} body={c.recentEmptyBody} />
+            <EmptyState icon={History} title={c.recentEmpty} description={c.recentEmptyBody} />
           </div>
         )}
       </section>
