@@ -207,7 +207,7 @@ function JobDetail() {
     },
     onSuccess: (added) => {
       toast.success(added ? c.savedToast : c.removedToast);
-      queryClient.invalidateQueries({ queryKey: ["saved-job", jobId] });
+      queryClient.invalidateQueries({ queryKey: ["saved-job", realJobId] });
       queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
     },
     onError: () => toast.error(c.saveFailed),
@@ -219,12 +219,12 @@ function JobDetail() {
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
       const { error } = await supabase
         .from("applications")
-        .insert({ job_id: jobId, user_id: user!.id, cover_letter: parsed.data || null });
+        .insert({ job_id: realJobId!, user_id: user!.id, cover_letter: parsed.data || null });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.appliedToast);
-      queryClient.invalidateQueries({ queryKey: ["application", jobId] });
+      queryClient.invalidateQueries({ queryKey: ["application", realJobId] });
     },
     onError: (e: Error) => toast.error(e.message || c.applyFailed),
   });
