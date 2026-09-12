@@ -14,7 +14,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ForFacilitiesRouteImport } from './routes/for-facilities'
 import { Route as ShiftsRouteImport } from './routes/shifts'
+import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
+import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
@@ -43,9 +46,26 @@ const ShiftsRoute = ShiftsRouteImport.update({
   path: '/shifts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedApplicationsRoute =
+  AuthenticatedApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCredentialsRoute =
+  AuthenticatedCredentialsRouteImport.update({
+    id: '/credentials',
+    path: '/credentials',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyShiftsRoute = AuthenticatedMyShiftsRouteImport.update({
+  id: '/my-shifts',
+  path: '/my-shifts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
@@ -69,7 +89,10 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/shifts': typeof ShiftsRoute
+  '/applications': typeof AuthenticatedApplicationsRoute
+  '/credentials': typeof AuthenticatedCredentialsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs/': typeof JobsIndexRoute
@@ -79,7 +102,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/shifts': typeof ShiftsRoute
+  '/applications': typeof AuthenticatedApplicationsRoute
+  '/credentials': typeof AuthenticatedCredentialsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs': typeof JobsIndexRoute
@@ -91,7 +117,10 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/shifts': typeof ShiftsRoute
+  '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
+  '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs/': typeof JobsIndexRoute
@@ -103,7 +132,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/for-facilities'
     | '/shifts'
+    | '/applications'
+    | '/credentials'
     | '/dashboard'
+    | '/my-shifts'
     | '/profile'
     | '/jobs/$jobId'
     | '/jobs/'
@@ -113,7 +145,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/for-facilities'
     | '/shifts'
+    | '/applications'
+    | '/credentials'
     | '/dashboard'
+    | '/my-shifts'
     | '/profile'
     | '/jobs/$jobId'
     | '/jobs'
@@ -124,7 +159,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/for-facilities'
     | '/shifts'
+    | '/_authenticated/applications'
+    | '/_authenticated/credentials'
     | '/_authenticated/dashboard'
+    | '/_authenticated/my-shifts'
     | '/_authenticated/profile'
     | '/jobs/$jobId'
     | '/jobs/'
@@ -177,11 +215,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShiftsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/applications': {
+      id: '/_authenticated/applications'
+      path: '/applications'
+      fullPath: '/applications'
+      preLoaderRoute: typeof AuthenticatedApplicationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/credentials': {
+      id: '/_authenticated/credentials'
+      path: '/credentials'
+      fullPath: '/credentials'
+      preLoaderRoute: typeof AuthenticatedCredentialsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-shifts': {
+      id: '/_authenticated/my-shifts'
+      path: '/my-shifts'
+      fullPath: '/my-shifts'
+      preLoaderRoute: typeof AuthenticatedMyShiftsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/profile': {
@@ -209,12 +268,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
+  AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,
+  AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
 }
 
