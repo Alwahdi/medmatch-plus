@@ -37,6 +37,7 @@ import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_a
 import { Route as AuthenticatedFacilityCandidatesRouteImport } from './routes/_authenticated/facility.candidates'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
+import { Route as PublicFacilitiesFacilityIdRouteImport } from './routes/_public.facilities.$facilityId'
 import { Route as PublicGuidesIndexRouteImport } from './routes/_public.guides.index'
 import { Route as PublicGuidesSlugRouteImport } from './routes/_public.guides.$slug'
 import { Route as PublicInterviewQuestionsIndexRouteImport } from './routes/_public.interview-questions.index'
@@ -46,6 +47,7 @@ import { Route as PublicJobsJobIdRouteImport } from './routes/_public.jobs.$jobI
 import { Route as PublicRegisterIndexRouteImport } from './routes/_public.register.index'
 import { Route as PublicRegisterEmployerRouteImport } from './routes/_public.register.employer'
 import { Route as PublicShiftsIndexRouteImport } from './routes/_public.shifts.index'
+import { Route as PublicShiftsShiftIdRouteImport } from './routes/_public.shifts.$shiftId'
 import { Route as PublicSpecialtiesIndexRouteImport } from './routes/_public.specialties.index'
 import { Route as PublicSpecialtiesSlugRouteImport } from './routes/_public.specialties.$slug'
 import { Route as ApiPublicDispatchAlertsRouteImport } from './routes/api/public/dispatch-alerts'
@@ -194,6 +196,12 @@ const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicFacilitiesFacilityIdRoute =
+  PublicFacilitiesFacilityIdRouteImport.update({
+    id: '/facilities/$facilityId',
+    path: '/facilities/$facilityId',
+    getParentRoute: () => PublicRoute,
+  } as any)
 const PublicGuidesIndexRoute = PublicGuidesIndexRouteImport.update({
   id: '/guides/',
   path: '/guides/',
@@ -239,6 +247,11 @@ const PublicRegisterEmployerRoute = PublicRegisterEmployerRouteImport.update({
 const PublicShiftsIndexRoute = PublicShiftsIndexRouteImport.update({
   id: '/shifts/',
   path: '/shifts/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicShiftsShiftIdRoute = PublicShiftsShiftIdRouteImport.update({
+  id: '/shifts/$shiftId',
+  path: '/shifts/$shiftId',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicSpecialtiesIndexRoute = PublicSpecialtiesIndexRouteImport.update({
@@ -288,10 +301,12 @@ export interface FileRoutesByFullPath {
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
   '/blog/$slug': typeof PublicBlogSlugRoute
+  '/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/guides/$slug': typeof PublicGuidesSlugRoute
   '/interview-questions/$slug': typeof PublicInterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof PublicJobsJobIdRoute
   '/register/employer': typeof PublicRegisterEmployerRoute
+  '/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/facility/': typeof AuthenticatedFacilityIndexRoute
@@ -329,10 +344,12 @@ export interface FileRoutesByTo {
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
   '/blog/$slug': typeof PublicBlogSlugRoute
+  '/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/guides/$slug': typeof PublicGuidesSlugRoute
   '/interview-questions/$slug': typeof PublicInterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof PublicJobsJobIdRoute
   '/register/employer': typeof PublicRegisterEmployerRoute
+  '/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/facility': typeof AuthenticatedFacilityIndexRoute
@@ -373,10 +390,12 @@ export interface FileRoutesById {
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/_authenticated/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
+  '/_public/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/_public/guides/$slug': typeof PublicGuidesSlugRoute
   '/_public/interview-questions/$slug': typeof PublicInterviewQuestionsSlugRoute
   '/_public/jobs/$jobId': typeof PublicJobsJobIdRoute
   '/_public/register/employer': typeof PublicRegisterEmployerRoute
+  '/_public/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/_public/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
@@ -416,10 +435,12 @@ export interface FileRouteTypes {
     | '/facility/applicants'
     | '/facility/candidates'
     | '/blog/$slug'
+    | '/facilities/$facilityId'
     | '/guides/$slug'
     | '/interview-questions/$slug'
     | '/jobs/$jobId'
     | '/register/employer'
+    | '/shifts/$shiftId'
     | '/specialties/$slug'
     | '/api/public/dispatch-alerts'
     | '/facility/'
@@ -457,10 +478,12 @@ export interface FileRouteTypes {
     | '/facility/applicants'
     | '/facility/candidates'
     | '/blog/$slug'
+    | '/facilities/$facilityId'
     | '/guides/$slug'
     | '/interview-questions/$slug'
     | '/jobs/$jobId'
     | '/register/employer'
+    | '/shifts/$shiftId'
     | '/specialties/$slug'
     | '/api/public/dispatch-alerts'
     | '/facility'
@@ -500,10 +523,12 @@ export interface FileRouteTypes {
     | '/_authenticated/facility/applicants'
     | '/_authenticated/facility/candidates'
     | '/_public/blog/$slug'
+    | '/_public/facilities/$facilityId'
     | '/_public/guides/$slug'
     | '/_public/interview-questions/$slug'
     | '/_public/jobs/$jobId'
     | '/_public/register/employer'
+    | '/_public/shifts/$shiftId'
     | '/_public/specialties/$slug'
     | '/api/public/dispatch-alerts'
     | '/_authenticated/facility/'
@@ -721,6 +746,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBlogSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/facilities/$facilityId': {
+      id: '/_public/facilities/$facilityId'
+      path: '/facilities/$facilityId'
+      fullPath: '/facilities/$facilityId'
+      preLoaderRoute: typeof PublicFacilitiesFacilityIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/guides/': {
       id: '/_public/guides/'
       path: '/guides'
@@ -782,6 +814,13 @@ declare module '@tanstack/react-router' {
       path: '/shifts'
       fullPath: '/shifts/'
       preLoaderRoute: typeof PublicShiftsIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/shifts/$shiftId': {
+      id: '/_public/shifts/$shiftId'
+      path: '/shifts/$shiftId'
+      fullPath: '/shifts/$shiftId'
+      preLoaderRoute: typeof PublicShiftsShiftIdRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/specialties/': {
@@ -881,10 +920,12 @@ interface PublicRouteChildren {
   PublicTermsRoute: typeof PublicTermsRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
+  PublicFacilitiesFacilityIdRoute: typeof PublicFacilitiesFacilityIdRoute
   PublicGuidesSlugRoute: typeof PublicGuidesSlugRoute
   PublicInterviewQuestionsSlugRoute: typeof PublicInterviewQuestionsSlugRoute
   PublicJobsJobIdRoute: typeof PublicJobsJobIdRoute
   PublicRegisterEmployerRoute: typeof PublicRegisterEmployerRoute
+  PublicShiftsShiftIdRoute: typeof PublicShiftsShiftIdRoute
   PublicSpecialtiesSlugRoute: typeof PublicSpecialtiesSlugRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
   PublicGuidesIndexRoute: typeof PublicGuidesIndexRoute
@@ -906,10 +947,12 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicTermsRoute: PublicTermsRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
+  PublicFacilitiesFacilityIdRoute: PublicFacilitiesFacilityIdRoute,
   PublicGuidesSlugRoute: PublicGuidesSlugRoute,
   PublicInterviewQuestionsSlugRoute: PublicInterviewQuestionsSlugRoute,
   PublicJobsJobIdRoute: PublicJobsJobIdRoute,
   PublicRegisterEmployerRoute: PublicRegisterEmployerRoute,
+  PublicShiftsShiftIdRoute: PublicShiftsShiftIdRoute,
   PublicSpecialtiesSlugRoute: PublicSpecialtiesSlugRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
   PublicGuidesIndexRoute: PublicGuidesIndexRoute,
