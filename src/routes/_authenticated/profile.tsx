@@ -202,11 +202,19 @@ function ProfilePage() {
         const { error } = await supabase.from("healthcare_professionals").insert(payload);
         if (error) throw error;
       }
+
+      const { error: accErr } = await supabase
+        .from("profiles")
+        .update({ full_name: form.full_name.trim(), avatar_url: avatar || null })
+        .eq("id", user!.id);
+      if (accErr) throw accErr;
     },
     onSuccess: () => {
       toast.success(c.saved);
       queryClient.invalidateQueries({ queryKey: ["my-pro"] });
+      queryClient.invalidateQueries({ queryKey: ["my-account"] });
     },
+
     onError: (e: Error) => toast.error(e.message || c.saveFailed),
   });
 
