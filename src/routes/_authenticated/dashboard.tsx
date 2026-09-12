@@ -222,7 +222,7 @@ function Dashboard() {
       {ranked.length > 0 && (
         <section className="mt-10">
           <h2 className="font-display text-2xl font-extrabold">{c.recommended}</h2>
-          <div className="mt-6 grid gap-5 md:grid-cols-3">
+          <div className="mt-6 space-y-3">
             {ranked.map(({ job, score }) => (
               <JobCard key={job.id} job={job} match={profile ? score : null} />
             ))}

@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, MapPin, BriefcaseMedical, Clock3, ShieldCheck, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Building2, Clock3, MapPin, ShieldCheck } from "lucide-react";
 import {
   countryLabel,
   employmentLabel,
@@ -35,24 +34,16 @@ const TXT = {
   ar: {
     featured: "مميّزة",
     isNew: "جديدة",
-    closing: "تغلق قريباً",
-    verified: "ناشر موثّق",
+    closing: "يغلق قريباً",
+    verified: "موثّق",
     match: "توافق",
-    salary: "الراتب الشهري",
-    exp: (n: number) => `خبرة ${n}+ سنوات`,
-    applied: (n: number) => `تقدّم ${n}`,
-    details: "التفاصيل",
   },
   en: {
     featured: "Featured",
     isNew: "New",
     closing: "Closing soon",
-    verified: "Verified employer",
+    verified: "Verified",
     match: "Match",
-    salary: "Monthly salary",
-    exp: (n: number) => `${n}+ years experience`,
-    applied: (n: number) => `${n} applied`,
-    details: "View details",
   },
 } as const;
 
@@ -63,68 +54,73 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
   const closingSoon =
     !!job.expires_at && new Date(job.expires_at).getTime() - Date.now() < 5 * DAY;
 
+  const ribbon = job.is_featured
+    ? { label: c.featured, cls: "bg-primary text-primary-foreground" }
+    : closingSoon
+      ? { label: c.closing, cls: "bg-warning text-warning-foreground" }
+      : isNew
+        ? { label: c.isNew, cls: "bg-success text-success-foreground" }
+        : null;
+
   return (
-    <Link
-      to="/jobs/$jobId"
-      params={{ jobId: job.slug ?? job.id }}
-      className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5 hover:border-accent/30"
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        {job.is_featured && <Badge className="bg-primary text-primary-foreground">{c.featured}</Badge>}
-        {isNew && <Badge className="bg-accent/15 text-accent hover:bg-accent/20">{c.isNew}</Badge>}
-        {closingSoon && !isNew && <Badge variant="destructive">{c.closing}</Badge>}
-        {job.facility_verified && (
-          <Badge variant="secondary" className="gap-1">
-            <ShieldCheck className="size-3" /> {c.verified}
-          </Badge>
-        )}
-      </div>
-
-      <div className="mt-3 flex items-start justify-between gap-3">
-        <h3 className="font-display text-lg leading-snug font-bold group-hover:text-primary">
-          {job.title}
-        </h3>
-        {typeof match === "number" && (
-          <div className="shrink-0 rounded-xl bg-accent/12 px-3 py-2 text-center">
-            <div className="font-display text-lg font-bold text-accent">{match}%</div>
-            <div className="text-[10px] text-muted-foreground">{c.match}</div>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4 rounded-xl bg-surface px-4 py-3">
-        <div className="text-[11px] text-muted-foreground">{c.salary}</div>
-        <div className="font-display text-lg font-extrabold text-primary">
-          {formatSalary(job.salary_min, job.salary_max, job.currency, lang)}
+    <div className="relative pt-2">
+      {ribbon && (
+        <span
+          className={`absolute top-0 z-10 rounded-full px-3 py-1 text-[11px] font-bold shadow-sm ${ribbon.cls} start-4`}
+        >
+          {ribbon.label}
+        </span>
+      )}
+      <Link
+        to="/jobs/$jobId"
+        params={{ jobId: job.slug ?? job.id }}
+        className="card-lift group flex items-start gap-4 rounded-2xl border border-border bg-card p-4 hover:border-accent/40 sm:p-5"
+      >
+        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface text-muted-foreground sm:size-14">
+          <Building2 className="size-6" />
         </div>
-      </div>
 
-      <div className="mt-4 flex flex-wrap gap-2 text-xs">
-        <Badge variant="outline" className="gap-1">
-          <MapPin className="size-3" /> {job.city}، {countryLabel(job.country, lang)}
-        </Badge>
-        <Badge variant="outline" className="gap-1">
-          <BriefcaseMedical className="size-3" /> {employmentLabel(job.employment_type, lang)}
-        </Badge>
-        {job.specialties && <Badge variant="outline">{specialtyName(job.specialties, lang)}</Badge>}
-      </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="font-display text-base leading-snug font-bold group-hover:text-primary sm:text-lg">
+              {job.title}
+            </h3>
+            {typeof match === "number" && (
+              <span className="shrink-0 rounded-lg bg-accent/12 px-2 py-1 text-xs font-bold text-accent">
+                {match}% {c.match}
+              </span>
+            )}
+          </div>
 
-      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
-        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="flex items-center gap-1.5">
-            <Clock3 className="size-3.5" /> {c.exp(job.min_experience)} ·{" "}
-            {relativeTime(job.created_at, lang)}
-          </span>
-          {!!job.applications_count && (
-            <span className="flex items-center gap-1">
-              <Users className="size-3.5" /> {c.applied(job.applications_count)}
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">
+              {employmentLabel(job.employment_type, lang)}
             </span>
-          )}
-        </span>
-        <span className="flex items-center gap-1 font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-          {c.details} <ArrowLeft className="size-3.5 rtl:rotate-0 ltr:rotate-180" />
-        </span>
-      </div>
-    </Link>
+            {job.specialties && (
+              <span className="rounded-full bg-surface px-2.5 py-0.5 text-xs">
+                {specialtyName(job.specialties, lang)}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <MapPin className="size-3.5" /> {countryLabel(job.country, lang)}، {job.city}
+            </span>
+            {job.facility_verified && (
+              <span className="flex items-center gap-1 text-xs text-accent">
+                <ShieldCheck className="size-3.5" /> {c.verified}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Clock3 className="size-3.5" /> {relativeTime(job.created_at, lang)}
+            </span>
+            <span className="font-display font-bold text-primary">
+              {formatSalary(job.salary_min, job.salary_max, job.currency, lang)}
+            </span>
+          </div>
+        </div>
+      </Link>
+    </div>
   );
 }

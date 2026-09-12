@@ -70,59 +70,72 @@ export function ShiftCard({
   const open = shift.status === "open";
 
   return (
-    <div className="card-lift flex h-full flex-col rounded-2xl border border-border bg-card p-5 hover:border-accent/30">
-      <div className="flex flex-wrap items-center gap-2">
-        {shift.is_urgent && <Badge variant="destructive">{c.urgent}</Badge>}
-        <Badge
-          variant={open ? "secondary" : "outline"}
-          className={open ? "bg-accent/12 text-accent" : ""}
+    <div className="relative pt-2">
+      {(shift.is_urgent || !open) && (
+        <span
+          className={`absolute top-0 z-10 rounded-full px-3 py-1 text-[11px] font-bold shadow-sm start-4 ${
+            shift.is_urgent && open
+              ? "bg-warning text-warning-foreground"
+              : "bg-muted text-muted-foreground"
+          }`}
         >
-          {open ? c.open : c.booked}
-        </Badge>
-        {shift.facility_verified && (
-          <Badge variant="secondary" className="gap-1">
-            <ShieldCheck className="size-3" /> {c.verified}
-          </Badge>
-        )}
-      </div>
-
-      <h3 className="mt-3 font-display text-lg leading-snug font-bold">{shift.title}</h3>
-
-      <div className="mt-3 space-y-2 text-sm text-muted-foreground">
-        <p className="flex items-center gap-2">
-          <CalendarClock className="size-4 shrink-0" /> {formatDateTime(shift.starts_at, lang)}
-        </p>
-        <p className="flex items-center gap-2">
-          <Timer className="size-4 shrink-0" /> {c.hours(hours)} ·{" "}
-          {formatMoney(Number(shift.hourly_rate), shift.currency, lang)} {c.perHour}
-        </p>
-        <p className="flex items-center gap-2">
-          <MapPin className="size-4 shrink-0" /> {shift.city}، {countryLabel(shift.country, lang)}
-        </p>
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          {shift.specialties && (
-            <Badge variant="outline">{specialtyName(shift.specialties, lang)}</Badge>
-          )}
-          {!!shift.applications_count && (
-            <span className="flex items-center gap-1 text-xs">
-              <Users className="size-3.5" /> {c.applied(shift.applications_count)}
-            </span>
-          )}
+          {shift.is_urgent && open ? c.urgent : c.booked}
+        </span>
+      )}
+      <div className="card-lift flex items-start gap-4 rounded-2xl border border-border bg-card p-4 hover:border-accent/40 sm:p-5">
+        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface text-muted-foreground sm:size-14">
+          <CalendarClock className="size-6" />
         </div>
-      </div>
 
-      <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-4">
-        <div>
-          <div className="text-[11px] text-muted-foreground">{c.total}</div>
-          <div className="font-display text-xl font-extrabold text-accent">
-            {formatMoney(total, shift.currency, lang)}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <h3 className="font-display text-base leading-snug font-bold sm:text-lg">
+              {shift.title}
+            </h3>
+            {shift.facility_verified && (
+              <span className="flex items-center gap-1 text-xs text-accent">
+                <ShieldCheck className="size-3.5" /> {c.verified}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">
+              {formatDateTime(shift.starts_at, lang)}
+            </span>
+            {shift.specialties && (
+              <span className="rounded-full bg-surface px-2.5 py-0.5 text-xs">
+                {specialtyName(shift.specialties, lang)}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <MapPin className="size-3.5" /> {countryLabel(shift.country, lang)}، {shift.city}
+            </span>
+            <span className="flex items-center gap-1">
+              <Timer className="size-3.5" /> {c.hours(hours)} ·{" "}
+              {formatMoney(Number(shift.hourly_rate), shift.currency, lang)} {c.perHour}
+            </span>
+            {!!shift.applications_count && (
+              <span className="flex items-center gap-1 text-xs">
+                <Users className="size-3.5" /> {c.applied(shift.applications_count)}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
+            <div className="text-xs text-muted-foreground">
+              {c.total}{" "}
+              <span className="font-display text-base font-extrabold text-accent">
+                {formatMoney(total, shift.currency, lang)}
+              </span>
+            </div>
+            {onBook && (
+              <Button size="sm" onClick={onBook} disabled={busy || !open}>
+                {open ? (actionLabel ?? c.book) : c.booked}
+              </Button>
+            )}
           </div>
         </div>
-        {onBook && (
-          <Button size="sm" onClick={onBook} disabled={busy || !open}>
-            {open ? (actionLabel ?? c.book) : c.booked}
-          </Button>
-        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Building2, MapPin, Wallet, BriefcaseMedical, ShieldCheck, Clock, Bookmark, BookmarkCheck, ArrowLeft } from "lucide-react";
+import { Building2, MapPin, Wallet, BriefcaseMedical, ShieldCheck, Clock, Bookmark, BookmarkCheck, ArrowLeft, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,9 @@ const TXT = {
     alreadyApplied: "تم التقديم على هذه الوظيفة مسبقاً. تابع الحالة من",
     myApplicationsPage: "صفحة طلباتي",
     coverPlaceholder: "اكتب رسالة تعريفية مختصرة (اختياري): خبرتك، سبب اهتمامك، وتاريخ الالتحاق الممكن.",
+    coverLabel: "رسالة تعريفية",
+    optional: "اختياري",
+    applyHint: "سيصل طلبك مع ملفك المهني مباشرة إلى ناشر الوظيفة، ويمكنك متابعة حالته من صفحة طلباتي.",
     sending: "جارٍ الإرسال...",
     sendApply: "أرسل الطلب",
     home: "الرئيسية",
@@ -92,6 +95,9 @@ const TXT = {
     alreadyApplied: "You've already applied to this job. Track its status from",
     myApplicationsPage: "My applications",
     coverPlaceholder: "Write a brief cover message (optional): your experience, why you're interested, and your possible start date.",
+    coverLabel: "Cover message",
+    optional: "optional",
+    applyHint: "Your application is sent with your professional profile, and you can track its status from My applications.",
     sending: "Sending...",
     sendApply: "Send application",
     home: "Home",
@@ -387,21 +393,31 @@ function JobDetail() {
                 </p>
               ) : (
                 <>
+                  <label htmlFor="cover" className="mt-4 block text-sm font-medium">
+                    {c.coverLabel} <span className="text-muted-foreground">({c.optional})</span>
+                  </label>
                   <Textarea
+                    id="cover"
                     value={cover}
                     onChange={(e) => setCover(e.target.value)}
                     maxLength={2000}
                     rows={5}
                     placeholder={c.coverPlaceholder}
-                    className="mt-4"
+                    className="mt-1.5"
+                    disabled={!isOpen}
                   />
+                  <div className="mt-1 text-end text-xs text-muted-foreground">
+                    {cover.length}/2000
+                  </div>
                   <Button
-                    className="mt-4 w-full"
+                    className="mt-3 w-full"
                     onClick={() => apply.mutate()}
-                    disabled={apply.isPending}
+                    disabled={apply.isPending || !isOpen}
                   >
-                    {apply.isPending ? c.sending : c.sendApply}
+                    {apply.isPending && <Loader2 className="size-4 animate-spin" />}
+                    {apply.isPending ? c.sending : isOpen ? c.sendApply : c.closed}
                   </Button>
+                  <p className="mt-2 text-xs text-muted-foreground">{c.applyHint}</p>
                 </>
               )}
             </div>
