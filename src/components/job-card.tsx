@@ -28,13 +28,13 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="font-display text-lg font-bold group-hover:text-primary">{job.title}</h3>
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Building2 className="size-4" />
-            {job.facilities?.name_ar}
+          <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Building2 className="size-4 shrink-0" />
+            <span className="truncate">{job.facilities?.name_ar}</span>
             {job.facilities?.is_verified && (
-              <Badge variant="secondary" className="text-[10px]">موثّقة</Badge>
+              <Badge variant="secondary" className="shrink-0 text-[10px]">موثّقة</Badge>
             )}
-          </p>
+          </div>
         </div>
         {typeof match === "number" && (
           <div className="shrink-0 rounded-xl bg-accent/12 px-3 py-2 text-center">
