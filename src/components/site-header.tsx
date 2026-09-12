@@ -137,17 +137,20 @@ export function SiteHeader() {
               <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
                 <Link to="/auth" search={{ mode: "signup" }}>
                   {t("nav.signUp")}
                 </Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/for-facilities">{t("nav.postJob")}</Link>
               </Button>
             </>
           )}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={t("nav.menu")}
           >
@@ -157,7 +160,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="border-t border-border bg-background px-4 py-2 md:hidden">
+        <nav className="border-t border-border bg-background px-4 py-2 lg:hidden">
           {NAV.map((item) => (
             <Link
               key={item.to}
