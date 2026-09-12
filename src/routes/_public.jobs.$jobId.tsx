@@ -270,8 +270,9 @@ function JobDetail() {
               {isOpen ? c.open : c.closed}
             </Badge>
             <span className="flex items-center gap-2">
-              <Building2 className="size-4" /> {c.hiddenEmployer}
+              <Building2 className="size-4" /> {revealedFacility?.name_ar ?? c.hiddenEmployer}
             </span>
+
             {job.facility_verified && (
               <Badge variant="secondary" className="gap-1">
                 <ShieldCheck className="size-3" /> {c.verifiedEmployer}
