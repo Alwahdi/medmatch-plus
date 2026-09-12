@@ -119,6 +119,10 @@ function FacilityDashboard() {
   });
 
   const plan = sub?.subscription_plans ?? null;
+  const subActive =
+    !!sub &&
+    (sub.status === "active" || sub.status === "trialing") &&
+    (!sub.ends_at || new Date(sub.ends_at) > new Date());
   const activeJobs = (jobs ?? []).filter((j) => j.is_active).length;
   const activeShifts = (shifts ?? []).filter((s) => s.status === "open").length;
 
@@ -154,7 +158,7 @@ function FacilityDashboard() {
             <p className="flex items-center gap-2 font-bold">
               باقة {plan.name_ar}
               {plan.is_trial && <Badge variant="secondary">تجربة مجانية</Badge>}
-              {sub?.status !== "active" && <Badge variant="destructive">منتهية</Badge>}
+              {!subActive && <Badge variant="destructive">منتهية</Badge>}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {sub?.ends_at
@@ -229,14 +233,14 @@ function FacilityDashboard() {
           <JobForm facilityId={facility.id} specialties={specialties ?? []}
             defaults={{ country: facility.country, city: facility.city }}
             quotaReached={!!plan && activeJobs >= plan.active_jobs}
-            expired={!!sub && sub.status !== "active"} />
+            expired={!!sub && !subActive} />
         </TabsContent>
 
         <TabsContent value="new-shift" className="mt-6">
           <ShiftForm facilityId={facility.id} specialties={specialties ?? []}
             defaults={{ country: facility.country, city: facility.city }}
             quotaReached={!!plan && activeShifts >= plan.active_shifts}
-            expired={!!sub && sub.status !== "active"} />
+            expired={!!sub && !subActive} />
         </TabsContent>
       </Tabs>
     </div>
