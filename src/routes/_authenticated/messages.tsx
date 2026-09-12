@@ -114,8 +114,19 @@ function MessagesPage() {
           .in("id", list.map((c) => c.job_id).filter(Boolean) as string[]),
       ]);
 
+      const { data: lastMsgs } = await supabase
+        .from("messages")
+        .select("conversation_id,body,created_at")
+        .in("conversation_id", list.map((c) => c.id))
+        .order("created_at", { ascending: false });
+      const previews: Record<string, string> = {};
+      for (const m of lastMsgs ?? []) {
+        if (!previews[m.conversation_id]) previews[m.conversation_id] = m.body;
+      }
+
       return {
         list,
+        previews,
         facilities: Object.fromEntries((facilities ?? []).map((f) => [f.id, f])),
         pros: Object.fromEntries((pros ?? []).map((p) => [p.user_id, p])),
         jobs: Object.fromEntries((jobs ?? []).map((j) => [j.id, j])),
@@ -125,10 +136,19 @@ function MessagesPage() {
 
   const conversations = data?.list ?? [];
   const active = conversations.find((c) => c.id === activeId) ?? conversations[0] ?? null;
+  const { map: unread } = useUnread(user);
 
   useEffect(() => {
     if (!activeId && conversations[0]) setActiveId(conversations[0].id);
   }, [activeId, conversations]);
+
+  useEffect(() => {
+    if (!active || !user || !unread[active.id]) return;
+    void markConversationRead(active.id, user.id).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
+    });
+  }, [active, user, unread, queryClient]);
+
 
   const { data: messages } = useQuery({
     queryKey: ["messages", active?.id],
