@@ -18,7 +18,7 @@ import { useSession } from "@/lib/auth";
 import { countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_public/shifts")({
+export const Route = createFileRoute("/_public/shifts/")({
   head: () => ({
     meta: [
       { title: "سوق المناوبات الطبية الفورية | SyndeoCare" },
