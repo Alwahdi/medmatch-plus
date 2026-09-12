@@ -75,7 +75,7 @@ function ShiftsPage() {
   });
 
   const countries = useMemo(() => Array.from(new Set((shifts ?? []).map((s) => s.country))), [shifts]);
-  const filtered = (shifts ?? []).filter((s) => country === ALL || s.country === s.country);
+  const filtered = (shifts ?? []).filter((s) => country === ALL || s.country === country);
 
   return (
     <>
