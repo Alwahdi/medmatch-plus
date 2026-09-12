@@ -15,11 +15,15 @@ import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
 const NAV = [
+  { to: "/", key: "nav.home" },
   { to: "/jobs", key: "nav.jobs" },
   { to: "/shifts", key: "nav.shifts" },
   { to: "/specialties", key: "nav.specialties" },
-  { to: "/for-facilities", key: "nav.forFacilities" },
+  { to: "/interview-questions", key: "nav.questions" },
+  { to: "/guides", key: "nav.guides" },
   { to: "/pricing", key: "nav.pricing" },
+  { to: "/about", key: "nav.about" },
+  { to: "/contact", key: "nav.contact" },
 ] as const;
 
 export function SiteHeader() {
