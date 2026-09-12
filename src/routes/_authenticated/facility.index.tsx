@@ -9,12 +9,15 @@ import {
   Briefcase,
   Building2,
   CalendarClock,
+  Eye,
   PlusCircle,
   Sparkles,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -80,6 +83,17 @@ const TXT = {
     open: "متاحة",
     bookedStatus: "محجوزة",
     noShifts: "لا مناوبات منشورة.",
+    view: "عرض",
+    cancelledStatus: "ملغاة",
+    cancelShift: "إلغاء",
+    shiftCancelled: "تم إلغاء المناوبة",
+    confirmCloseTitle: "إغلاق هذه الوظيفة؟",
+    confirmCloseDesc: "لن تظهر للباحثين ولن تستقبل طلبات جديدة. يمكنك إعادة نشرها لاحقاً.",
+    confirmCloseCta: "نعم، أغلقها",
+    confirmCancelShiftTitle: "إلغاء هذه المناوبة؟",
+    confirmCancelShiftDesc: "سيتم إلغاء المناوبة وإخفاؤها عن الباحثين، ولا يمكن التراجع.",
+    confirmCancelShiftCta: "نعم، ألغِها",
+
     // Facility form
     registerTitle: "سجّل منشأتك",
     registerSub: "دقيقة واحدة وتستطيع نشر أول وظيفة أو مناوبة.",
@@ -166,6 +180,17 @@ const TXT = {
     open: "Open",
     bookedStatus: "Booked",
     noShifts: "No shifts posted.",
+    view: "View",
+    cancelledStatus: "Cancelled",
+    cancelShift: "Cancel",
+    shiftCancelled: "Shift cancelled",
+    confirmCloseTitle: "Close this job?",
+    confirmCloseDesc: "It will be hidden from seekers and stop receiving applications. You can republish later.",
+    confirmCloseCta: "Yes, close it",
+    confirmCancelShiftTitle: "Cancel this shift?",
+    confirmCancelShiftDesc: "The shift will be cancelled and hidden from seekers. This cannot be undone.",
+    confirmCancelShiftCta: "Yes, cancel it",
+
     // Facility form
     registerTitle: "Register your facility",
     registerSub: "One minute and you can post your first job or shift.",
@@ -246,6 +271,8 @@ type SubRow = {
 function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { confirm, confirmDialog } = useConfirm();
+
   const { user } = useSession();
   const queryClient = useQueryClient();
 
@@ -325,11 +352,26 @@ function FacilityDashboard() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["facility-jobs"] }),
   });
 
+  const cancelShift = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("shifts").update({ status: "cancelled" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.shiftCancelled);
+      queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (isLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
   if (!facility) return <FacilityForm />;
 
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
+      {confirmDialog}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -403,7 +445,13 @@ function FacilityDashboard() {
             jobs.map((j) => (
               <div key={j.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
                 <div>
-                  <p className="font-bold">{j.title}</p>
+                  <Link
+                    to="/jobs/$jobId"
+                    params={{ jobId: j.slug ?? j.id }}
+                    className="font-bold hover:text-primary"
+                  >
+                    {j.title}
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
                     {employmentLabel(j.employment_type, lang)} · {c.applicantsCount(j.applications?.length ?? 0)}
@@ -413,8 +461,24 @@ function FacilityDashboard() {
                   <Badge variant={j.is_active ? "default" : "secondary"}>
                     {j.is_active ? c.published : c.closed}
                   </Badge>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/jobs/$jobId" params={{ jobId: j.slug ?? j.id }}>
+                      <Eye className="size-4" /> {c.view}
+                    </Link>
+                  </Button>
                   <Button size="sm" variant="ghost"
-                    onClick={() => toggleJob.mutate({ id: j.id, is_active: !j.is_active })}>
+                    onClick={async () => {
+                      if (j.is_active) {
+                        const ok = await confirm({
+                          title: c.confirmCloseTitle,
+                          description: c.confirmCloseDesc,
+                          confirmLabel: c.confirmCloseCta,
+                          destructive: true,
+                        });
+                        if (!ok) return;
+                      }
+                      toggleJob.mutate({ id: j.id, is_active: !j.is_active });
+                    }}>
                     {j.is_active ? c.close : c.republish}
                   </Button>
                 </div>
@@ -430,20 +494,48 @@ function FacilityDashboard() {
             shifts.map((s) => (
               <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
                 <div>
-                  <p className="font-bold">{s.title}</p>
+                  <Link
+                    to="/shifts/$shiftId"
+                    params={{ shiftId: s.id }}
+                    className="font-bold hover:text-primary"
+                  >
+                    {s.title}
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {formatDateTime(s.starts_at, lang)} · {formatMoney(Number(s.hourly_rate), s.currency, lang)}{c.perHour}
                   </p>
                 </div>
-                <Badge variant={s.status === "open" ? "default" : "secondary"}>
-                  {s.status === "open" ? c.open : c.bookedStatus}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant={s.status === "open" ? "default" : "secondary"}>
+                    {s.status === "open" ? c.open : s.status === "cancelled" ? c.cancelledStatus : c.bookedStatus}
+                  </Badge>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
+                      <Eye className="size-4" /> {c.view}
+                    </Link>
+                  </Button>
+                  {s.status === "open" && (
+                    <Button size="sm" variant="ghost"
+                      onClick={async () => {
+                        const ok = await confirm({
+                          title: c.confirmCancelShiftTitle,
+                          description: c.confirmCancelShiftDesc,
+                          confirmLabel: c.confirmCancelShiftCta,
+                          destructive: true,
+                        });
+                        if (ok) cancelShift.mutate(s.id);
+                      }}>
+                      {c.cancelShift}
+                    </Button>
+                  )}
+                </div>
               </div>
             ))
           ) : (
             <EmptyState icon={CalendarClock} title={c.noShifts} />
           )}
         </TabsContent>
+
 
         <TabsContent value="new-job" className="mt-6">
           <JobForm facilityId={facility.id} specialties={specialties ?? []}

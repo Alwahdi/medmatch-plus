@@ -14,7 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
+
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
@@ -94,6 +96,8 @@ const TXT = {
 function AlertsPage() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { confirm, confirmDialog } = useConfirm();
+
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [specialty, setSpecialty] = useState(ANY);
@@ -176,6 +180,8 @@ function AlertsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
+      {confirmDialog}
+
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {c.sub}
@@ -257,9 +263,26 @@ function AlertsPage() {
                 checked={a.is_active}
                 onCheckedChange={(v) => toggle.mutate({ id: a.id, is_active: v })}
               />
-              <Button variant="ghost" size="icon" onClick={() => remove.mutate(a.id)} aria-label={c.delete}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={c.delete}
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: lang === "ar" ? "حذف هذا التنبيه؟" : "Delete this alert?",
+                    description:
+                      lang === "ar"
+                        ? "لن تصلك بعد الآن إشعارات بالوظائف المطابقة لهذه المعايير."
+                        : "You will stop receiving notifications for jobs matching these criteria.",
+                    confirmLabel: lang === "ar" ? "نعم، احذف" : "Yes, delete",
+                    destructive: true,
+                  });
+                  if (ok) remove.mutate(a.id);
+                }}
+              >
                 <Trash2 className="size-4" />
               </Button>
+
             </div>
           </li>
         ))}

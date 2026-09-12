@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ReviewDialog } from "@/components/review-dialog";
+import { useConfirm } from "@/components/confirm-dialog";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
@@ -30,6 +32,10 @@ const TXT = {
     cancel: "إلغاء الحجز",
     cancelled: "تم إلغاء الحجز",
     cancelFailed: "تعذّر الإلغاء",
+    confirmTitle: "إلغاء حجز المناوبة؟",
+    confirmDesc: "ستُعاد المناوبة للسوق ويمكن لكادر آخر حجزها. لا يمكن التراجع عن هذا الإجراء.",
+    confirmCta: "نعم، ألغِ الحجز",
+    keep: "احتفظ بالحجز",
     empty: "لا مناوبات محجوزة.",
     browse: "تصفح السوق",
   },
@@ -41,9 +47,14 @@ const TXT = {
     cancel: "Cancel booking",
     cancelled: "Booking cancelled",
     cancelFailed: "Failed to cancel",
+    confirmTitle: "Cancel this shift booking?",
+    confirmDesc: "The shift returns to the marketplace and another professional can book it. This can't be undone.",
+    confirmCta: "Yes, cancel booking",
+    keep: "Keep booking",
     empty: "No shifts booked.",
     browse: "Browse marketplace",
   },
+
 } as const;
 
 function MyShifts() {
@@ -51,6 +62,9 @@ function MyShifts() {
   const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const { confirm, confirmDialog } = useConfirm();
+
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["my-shifts", user?.id],
@@ -84,6 +98,8 @@ function MyShifts() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
+      {confirmDialog}
+
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-muted-foreground">{c.sub}</p>
 
@@ -123,10 +139,20 @@ function MyShifts() {
                     </div>
                   )}
                   <Button size="sm" variant="ghost"
-                    onClick={() => cancel.mutate({ id: b.id, shiftId: s.id })}
+                    onClick={async () => {
+                      const ok = await confirm({
+                        title: c.confirmTitle,
+                        description: c.confirmDesc,
+                        confirmLabel: c.confirmCta,
+                        cancelLabel: c.keep,
+                        destructive: true,
+                      });
+                      if (ok) cancel.mutate({ id: b.id, shiftId: s.id });
+                    }}
                     disabled={cancel.isPending}>
                     {c.cancel}
                   </Button>
+
                 </div>
               </li>
             );

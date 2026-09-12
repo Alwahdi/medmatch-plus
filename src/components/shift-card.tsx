@@ -1,5 +1,7 @@
+import { Link } from "@tanstack/react-router";
 import { CalendarClock, MapPin, ShieldCheck, Timer, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import {
   countryLabel,
@@ -38,6 +40,7 @@ const TXT = {
     applied: (n: number) => `تقدّم ${n}`,
     total: "إجمالي المناوبة",
     book: "احجز المناوبة",
+    details: "التفاصيل",
   },
   en: {
     urgent: "Urgent",
@@ -49,6 +52,8 @@ const TXT = {
     applied: (n: number) => `${n} applied`,
     total: "Shift total",
     book: "Book this shift",
+    details: "Details",
+
   },
 } as const;
 
@@ -89,15 +94,20 @@ export function ShiftCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <h3 className="font-display text-base leading-snug font-bold sm:text-lg">
-              {shift.title}
-            </h3>
+            <Link
+              to="/shifts/$shiftId"
+              params={{ shiftId: shift.id }}
+              className="font-display text-base leading-snug font-bold hover:text-primary sm:text-lg"
+            >
+              <h3>{shift.title}</h3>
+            </Link>
             {shift.facility_verified && (
               <span className="flex items-center gap-1 text-xs text-accent">
                 <ShieldCheck className="size-3.5" /> {c.verified}
               </span>
             )}
           </div>
+
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">
@@ -129,11 +139,19 @@ export function ShiftCard({
                 {formatMoney(total, shift.currency, lang)}
               </span>
             </div>
-            {onBook && (
-              <Button size="sm" onClick={onBook} disabled={busy || !open}>
-                {open ? (actionLabel ?? c.book) : c.booked}
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" asChild>
+                <Link to="/shifts/$shiftId" params={{ shiftId: shift.id }}>
+                  {c.details}
+                </Link>
               </Button>
-            )}
+              {onBook && (
+                <Button size="sm" onClick={onBook} disabled={busy || !open}>
+                  {open ? (actionLabel ?? c.book) : c.booked}
+                </Button>
+              )}
+            </div>
+
           </div>
         </div>
       </div>

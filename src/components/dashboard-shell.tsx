@@ -5,6 +5,8 @@ import {
   Bell,
   Bookmark,
   Briefcase,
+  Building2,
+
   CalendarClock,
   FileText,
   Globe,
@@ -46,6 +48,8 @@ const PRO_NAV: Item[] = [
 
 const FACILITY_NAV: Item[] = [
   { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
+  { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
+
   { to: "/facility/applicants", key: "nav.applicants", icon: Users },
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },

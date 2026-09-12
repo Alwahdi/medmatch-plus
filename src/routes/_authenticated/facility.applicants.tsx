@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReviewDialog } from "@/components/review-dialog";
+import { useConfirm } from "@/components/confirm-dialog";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, relativeTime } from "@/lib/format";
@@ -69,6 +71,8 @@ const TXT = {
 function Applicants() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { confirm, confirmDialog } = useConfirm();
+
   const { user } = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -156,6 +160,8 @@ function Applicants() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      {confirmDialog}
+
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
         <Link to="/facility" className="text-sm text-primary underline">{c.back}</Link>
@@ -205,7 +211,25 @@ function Applicants() {
                     <UserRound className="size-4" /> {c.viewProfile}
                   </Link>
                 </Button>
-                <Select value={a.status} onValueChange={(v) => setStatus.mutate({ id: a.id, status: v })}>
+                <Select
+                  value={a.status}
+                  onValueChange={async (v) => {
+                    if (v === "rejected") {
+                      const ok = await confirm({
+                        title: lang === "ar" ? "رفض هذا الطلب؟" : "Reject this application?",
+                        description:
+                          lang === "ar"
+                            ? "سيظهر للمتقدم أن طلبه مرفوض. يمكنك تغيير الحالة لاحقاً."
+                            : "The applicant will see the application as rejected. You can change the status later.",
+                        confirmLabel: lang === "ar" ? "نعم، ارفض" : "Yes, reject",
+                        destructive: true,
+                      });
+                      if (!ok) return;
+                    }
+                    setStatus.mutate({ id: a.id, status: v });
+                  }}
+                >
+
                   <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {APPLICATION_STATUSES.map((k) => (
