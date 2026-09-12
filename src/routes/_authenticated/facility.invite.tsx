@@ -21,12 +21,12 @@ import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-type InviteSearch = { job?: string; shift?: string };
+type InviteSearch = { job: string | undefined; shift: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/facility/invite")({
   validateSearch: (search: Record<string, unknown>): InviteSearch => ({
-    job: typeof search.job === "string" ? search.job : undefined,
-    shift: typeof search.shift === "string" ? search.shift : undefined,
+    job: typeof search["job"] === "string" ? (search["job"] as string) : undefined,
+    shift: typeof search["shift"] === "string" ? (search["shift"] as string) : undefined,
   }),
   head: () => ({
     meta: [
