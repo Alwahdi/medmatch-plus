@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
+import { useUnread } from "@/lib/unread";
+
 import { cn } from "@/lib/utils";
 
 type Item = { to: string; key: string; icon: typeof LayoutDashboard };
