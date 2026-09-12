@@ -192,7 +192,9 @@ function ProfilePage() {
         license_country: form.license_country || null,
         license_number: form.license_number.trim() || null,
         is_open_to_shifts: form.is_open_to_shifts,
+        avatar_url: avatar || null,
       };
+
 
       if (profile) {
         const { error } = await supabase
