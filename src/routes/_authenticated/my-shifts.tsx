@@ -30,6 +30,10 @@ const TXT = {
     cancel: "إلغاء الحجز",
     cancelled: "تم إلغاء الحجز",
     cancelFailed: "تعذّر الإلغاء",
+    confirmTitle: "إلغاء حجز المناوبة؟",
+    confirmDesc: "ستُعاد المناوبة للسوق ويمكن لكادر آخر حجزها. لا يمكن التراجع عن هذا الإجراء.",
+    confirmCta: "نعم، ألغِ الحجز",
+    keep: "احتفظ بالحجز",
     empty: "لا مناوبات محجوزة.",
     browse: "تصفح السوق",
   },
@@ -41,9 +45,14 @@ const TXT = {
     cancel: "Cancel booking",
     cancelled: "Booking cancelled",
     cancelFailed: "Failed to cancel",
+    confirmTitle: "Cancel this shift booking?",
+    confirmDesc: "The shift returns to the marketplace and another professional can book it. This can't be undone.",
+    confirmCta: "Yes, cancel booking",
+    keep: "Keep booking",
     empty: "No shifts booked.",
     browse: "Browse marketplace",
   },
+
 } as const;
 
 function MyShifts() {
