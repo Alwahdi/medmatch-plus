@@ -188,7 +188,7 @@ function JobsPage() {
       </div>
 
       {/* Results */}
-      <section className="pb-16 md:pb-20">
+      <section className="py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
