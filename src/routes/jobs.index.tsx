@@ -156,13 +156,13 @@ function JobsPage() {
       </div>
 
       {isLoading ? (
-        <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-52 rounded-2xl" />)}
         </div>
       ) : filtered.length === 0 ? (
         <p className="mt-16 text-center text-muted-foreground">لا توجد وظائف مطابقة لبحثك.</p>
       ) : (
-        <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((job) => (
             <JobCard
               key={job.id}

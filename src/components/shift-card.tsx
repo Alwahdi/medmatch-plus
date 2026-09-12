@@ -34,33 +34,45 @@ export function ShiftCard({
   const open = shift.status === "open";
 
   return (
-    <div className="card-lift rounded-2xl border border-border bg-card p-5">
+    <div className="card-lift flex h-full flex-col rounded-2xl border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="font-display text-lg font-bold">{shift.title}</h3>
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Building2 className="size-4" /> {shift.facilities?.name_ar}
-          </p>
+        <div className="min-w-0">
+          <h3 className="font-display text-lg leading-snug font-bold">{shift.title}</h3>
+          <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Building2 className="size-4 shrink-0" />
+            <span className="truncate">{shift.facilities?.name_ar}</span>
+          </div>
         </div>
-        <Badge variant={open ? "secondary" : "outline"}>{open ? "متاحة" : "محجوزة"}</Badge>
+        <Badge
+          variant={open ? "secondary" : "outline"}
+          className={open ? "shrink-0 bg-accent/12 text-accent" : "shrink-0"}
+        >
+          {open ? "متاحة" : "محجوزة"}
+        </Badge>
       </div>
 
       <div className="mt-4 space-y-2 text-sm text-muted-foreground">
         <p className="flex items-center gap-2">
-          <CalendarClock className="size-4" /> {formatDateTime(shift.starts_at)}
+          <CalendarClock className="size-4 shrink-0" /> {formatDateTime(shift.starts_at)}
         </p>
         <p className="flex items-center gap-2">
-          <Timer className="size-4" /> {hours} ساعة · {formatMoney(Number(shift.hourly_rate), shift.currency)} للساعة
+          <Timer className="size-4 shrink-0" /> {hours} ساعة ·{" "}
+          {formatMoney(Number(shift.hourly_rate), shift.currency)} للساعة
         </p>
         <p className="flex items-center gap-2">
-          <MapPin className="size-4" /> {shift.city}، {shift.country}
+          <MapPin className="size-4 shrink-0" /> {shift.city}، {shift.country}
         </p>
+        {shift.specialties && (
+          <div className="pt-1">
+            <Badge variant="outline">{shift.specialties.name_ar}</Badge>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
+      <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-4">
         <div>
-          <div className="text-xs text-muted-foreground">إجمالي المناوبة</div>
-          <div className="font-display text-xl font-bold text-accent">
+          <div className="text-[11px] text-muted-foreground">إجمالي المناوبة</div>
+          <div className="font-display text-xl font-extrabold text-accent">
             {formatMoney(total, shift.currency)}
           </div>
         </div>
