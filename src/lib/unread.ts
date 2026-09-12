@@ -30,8 +30,9 @@ export function useUnread(user: User | null | undefined) {
 
   useEffect(() => {
     if (!user) return;
-    const channel = supabase
-      .channel("messages-unread")
+    const channelName = `messages-unread-${user.id}-${Math.random().toString(36).slice(2)}`;
+    const channel = supabase.channel(channelName);
+    channel
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
         queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
         queryClient.invalidateQueries({ queryKey: ["messages"] });
@@ -41,7 +42,8 @@ export function useUnread(user: User | null | undefined) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [user, queryClient]);
+  }, [user?.id, queryClient]);
+
 
   const map = query.data ?? {};
   const total = Object.values(map).reduce((a, b) => a + b, 0);
