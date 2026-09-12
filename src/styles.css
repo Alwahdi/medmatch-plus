@@ -168,10 +168,31 @@
 
 @utility card-lift {
   box-shadow: var(--shadow-card);
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
 }
 
 @utility card-lift-hover {
   box-shadow: var(--shadow-lift);
   transform: translateY(-2px);
+}
+
+@utility section-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  color: var(--color-accent);
+}
+
+@utility page-hero {
+  background-image: var(--gradient-hero);
+  color: oklch(0.99 0.005 240);
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  @utility page-hero {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
 }
