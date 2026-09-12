@@ -48,16 +48,16 @@ export const COUNTRIES = [
 ];
 
 export function formatSalary(min: number, max: number, currency: string) {
-  const n = (v: number) => new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 0 }).format(v);
+  const n = (v: number) => new Intl.NumberFormat("ar-EG-u-nu-latn", { maximumFractionDigits: 0 }).format(v);
   return `${n(min)} – ${n(max)} ${currency}`;
 }
 
 export function formatMoney(v: number, currency: string) {
-  return `${new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 0 }).format(v)} ${currency}`;
+  return `${new Intl.NumberFormat("ar-EG-u-nu-latn", { maximumFractionDigits: 0 }).format(v)} ${currency}`;
 }
 
 export function formatDateTime(value: string) {
-  return new Date(value).toLocaleString("ar-EG", {
+  return new Date(value).toLocaleString("ar-EG-u-nu-latn", {
     weekday: "short",
     day: "numeric",
     month: "long",
@@ -67,7 +67,7 @@ export function formatDateTime(value: string) {
 }
 
 export function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("ar-EG", { day: "numeric", month: "long", year: "numeric" });
+  return new Date(value).toLocaleDateString("ar-EG-u-nu-latn", { day: "numeric", month: "long", year: "numeric" });
 }
 
 export function hoursBetween(a: string, b: string) {
