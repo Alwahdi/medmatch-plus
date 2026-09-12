@@ -18,6 +18,7 @@ import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCvRouteImport } from './routes/_authenticated/cv'
 import { Route as AuthenticatedCvImportRouteImport } from './routes/_authenticated/cv-import'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -100,6 +101,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInvitationsRoute =
+  AuthenticatedInvitationsRouteImport.update({
+    id: '/invitations',
+    path: '/invitations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -299,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/cv': typeof AuthenticatedCvRoute
   '/cv-import': typeof AuthenticatedCvImportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/invitations': typeof AuthenticatedInvitationsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -344,6 +352,7 @@ export interface FileRoutesByTo {
   '/cv': typeof AuthenticatedCvRoute
   '/cv-import': typeof AuthenticatedCvImportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/invitations': typeof AuthenticatedInvitationsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -391,6 +400,7 @@ export interface FileRoutesById {
   '/_authenticated/cv': typeof AuthenticatedCvRoute
   '/_authenticated/cv-import': typeof AuthenticatedCvImportRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -439,6 +449,7 @@ export interface FileRouteTypes {
     | '/cv'
     | '/cv-import'
     | '/dashboard'
+    | '/invitations'
     | '/messages'
     | '/my-shifts'
     | '/onboarding'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/cv'
     | '/cv-import'
     | '/dashboard'
+    | '/invitations'
     | '/messages'
     | '/my-shifts'
     | '/onboarding'
@@ -530,6 +542,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cv'
     | '/_authenticated/cv-import'
     | '/_authenticated/dashboard'
+    | '/_authenticated/invitations'
     | '/_authenticated/messages'
     | '/_authenticated/my-shifts'
     | '/_authenticated/onboarding'
@@ -637,6 +650,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/invitations': {
+      id: '/_authenticated/invitations'
+      path: '/invitations'
+      fullPath: '/invitations'
+      preLoaderRoute: typeof AuthenticatedInvitationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/messages': {
@@ -917,6 +937,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCvRoute: typeof AuthenticatedCvRoute
   AuthenticatedCvImportRoute: typeof AuthenticatedCvImportRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -937,6 +958,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCvRoute: AuthenticatedCvRoute,
   AuthenticatedCvImportRoute: AuthenticatedCvImportRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
