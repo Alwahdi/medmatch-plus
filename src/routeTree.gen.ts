@@ -45,6 +45,7 @@ import { Route as PublicRegisterIndexRouteImport } from './routes/_public.regist
 import { Route as PublicRegisterEmployerRouteImport } from './routes/_public.register.employer'
 import { Route as PublicSpecialtiesIndexRouteImport } from './routes/_public.specialties.index'
 import { Route as PublicSpecialtiesSlugRouteImport } from './routes/_public.specialties.$slug'
+import { Route as ApiPublicDispatchAlertsRouteImport } from './routes/api/public/dispatch-alerts'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -231,6 +232,11 @@ const PublicSpecialtiesSlugRoute = PublicSpecialtiesSlugRouteImport.update({
   path: '/specialties/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const ApiPublicDispatchAlertsRoute = ApiPublicDispatchAlertsRouteImport.update({
+  id: '/api/public/dispatch-alerts',
+  path: '/api/public/dispatch-alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
@@ -261,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/jobs/$jobId': typeof PublicJobsJobIdRoute
   '/register/employer': typeof PublicRegisterEmployerRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
+  '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/facility/': typeof AuthenticatedFacilityIndexRoute
   '/guides/': typeof PublicGuidesIndexRoute
   '/interview-questions/': typeof PublicInterviewQuestionsIndexRoute
@@ -297,6 +304,7 @@ export interface FileRoutesByTo {
   '/jobs/$jobId': typeof PublicJobsJobIdRoute
   '/register/employer': typeof PublicRegisterEmployerRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
+  '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/facility': typeof AuthenticatedFacilityIndexRoute
   '/guides': typeof PublicGuidesIndexRoute
   '/interview-questions': typeof PublicInterviewQuestionsIndexRoute
@@ -336,6 +344,7 @@ export interface FileRoutesById {
   '/_public/jobs/$jobId': typeof PublicJobsJobIdRoute
   '/_public/register/employer': typeof PublicRegisterEmployerRoute
   '/_public/specialties/$slug': typeof PublicSpecialtiesSlugRoute
+  '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
   '/_public/guides/': typeof PublicGuidesIndexRoute
   '/_public/interview-questions/': typeof PublicInterviewQuestionsIndexRoute
@@ -374,6 +383,7 @@ export interface FileRouteTypes {
     | '/jobs/$jobId'
     | '/register/employer'
     | '/specialties/$slug'
+    | '/api/public/dispatch-alerts'
     | '/facility/'
     | '/guides/'
     | '/interview-questions/'
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
     | '/jobs/$jobId'
     | '/register/employer'
     | '/specialties/$slug'
+    | '/api/public/dispatch-alerts'
     | '/facility'
     | '/guides'
     | '/interview-questions'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/_public/jobs/$jobId'
     | '/_public/register/employer'
     | '/_public/specialties/$slug'
+    | '/api/public/dispatch-alerts'
     | '/_authenticated/facility/'
     | '/_public/guides/'
     | '/_public/interview-questions/'
@@ -459,6 +471,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
+  ApiPublicDispatchAlertsRoute: typeof ApiPublicDispatchAlertsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -715,6 +728,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicSpecialtiesSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/api/public/dispatch-alerts': {
+      id: '/api/public/dispatch-alerts'
+      path: '/api/public/dispatch-alerts'
+      fullPath: '/api/public/dispatch-alerts'
+      preLoaderRoute: typeof ApiPublicDispatchAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -807,6 +827,7 @@ const PublicRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
+  ApiPublicDispatchAlertsRoute: ApiPublicDispatchAlertsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
