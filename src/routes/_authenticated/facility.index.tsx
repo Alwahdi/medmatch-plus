@@ -373,6 +373,7 @@ function JobForm({
     salary_min: "",
     salary_max: "",
     currency: "YER",
+    min_experience: "0",
     required_license: "",
   });
 
@@ -530,7 +531,7 @@ function ShiftForm({
     starts_at: "",
     ends_at: "",
     hourly_rate: "",
-    currency: "SAR",
+    currency: "YER",
     country: defaults.country,
     city: defaults.city,
     notes: "",
