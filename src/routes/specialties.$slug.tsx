@@ -56,7 +56,7 @@ function SpecialtyPage() {
         supabase
           .from("shifts")
           .select(
-            "id,title,country,city,starts_at,ends_at,hourly_rate,currency,status,is_urgent,facility_verified,applications_count,specialties(name_ar)",
+            "id,title,notes,country,city,starts_at,ends_at,hourly_rate,currency,status,is_urgent,facility_verified,applications_count,specialties(name_ar)",
           )
           .eq("specialty_id", specialty.id)
           .eq("status", "open")

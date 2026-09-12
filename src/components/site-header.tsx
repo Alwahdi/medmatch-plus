@@ -16,6 +16,7 @@ import { useRoles, useSession } from "@/lib/auth";
 const NAV = [
   { to: "/jobs", label: "الوظائف" },
   { to: "/shifts", label: "المناوبات" },
+  { to: "/specialties", label: "التخصصات" },
   { to: "/for-facilities", label: "للمنشآت" },
   { to: "/pricing", label: "الأسعار" },
 ] as const;
@@ -72,6 +73,14 @@ export function SiteHeader() {
                 <DropdownMenuItem asChild>
                   <Link to={homeLink}>لوحتي</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/messages">الرسائل</Link>
+                </DropdownMenuItem>
+                {isFacility && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/facility/candidates">بحث المرشحين</Link>
+                  </DropdownMenuItem>
+                )}
                 {!isFacility && (
                   <>
                     <DropdownMenuItem asChild>
@@ -85,6 +94,15 @@ export function SiteHeader() {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/cv">سيرتي الذاتية</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/cv-import">بناء الملف من السيرة</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/saved">الوظائف المحفوظة</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/alerts">تنبيهات الوظائف</Link>
                     </DropdownMenuItem>
                   </>
                 )}
