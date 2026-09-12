@@ -258,6 +258,8 @@ export type Database = {
           logo_url: string | null
           name_ar: string
           name_en: string | null
+          rating_avg: number
+          rating_count: number
           updated_at: string
           user_id: string | null
           website: string | null
@@ -273,6 +275,8 @@ export type Database = {
           logo_url?: string | null
           name_ar: string
           name_en?: string | null
+          rating_avg?: number
+          rating_count?: number
           updated_at?: string
           user_id?: string | null
           website?: string | null
@@ -288,6 +292,8 @@ export type Database = {
           logo_url?: string | null
           name_ar?: string
           name_en?: string | null
+          rating_avg?: number
+          rating_count?: number
           updated_at?: string
           user_id?: string | null
           website?: string | null
@@ -363,6 +369,8 @@ export type Database = {
           is_verified: boolean
           license_country: string | null
           license_number: string | null
+          rating_avg: number
+          rating_count: number
           specialty_id: string | null
           updated_at: string
           user_id: string
@@ -382,6 +390,8 @@ export type Database = {
           is_verified?: boolean
           license_country?: string | null
           license_number?: string | null
+          rating_avg?: number
+          rating_count?: number
           specialty_id?: string | null
           updated_at?: string
           user_id: string
@@ -401,6 +411,8 @@ export type Database = {
           is_verified?: boolean
           license_country?: string | null
           license_number?: string | null
+          rating_avg?: number
+          rating_count?: number
           specialty_id?: string | null
           updated_at?: string
           user_id?: string
@@ -633,6 +645,70 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_user_id: string
+          comment: string | null
+          created_at: string
+          direction: Database["public"]["Enums"]["review_direction"]
+          facility_id: string
+          id: string
+          job_id: string | null
+          professional_user_id: string
+          rating: number
+          shift_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_user_id: string
+          comment?: string | null
+          created_at?: string
+          direction: Database["public"]["Enums"]["review_direction"]
+          facility_id: string
+          id?: string
+          job_id?: string | null
+          professional_user_id: string
+          rating: number
+          shift_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          comment?: string | null
+          created_at?: string
+          direction?: Database["public"]["Enums"]["review_direction"]
+          facility_id?: string
+          id?: string
+          job_id?: string | null
+          professional_user_id?: string
+          rating?: number
+          shift_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_jobs: {
         Row: {
@@ -895,6 +971,10 @@ export type Database = {
       }
       claim_facility_role: { Args: never; Returns: boolean }
       consume_candidate_search: { Args: never; Returns: number }
+      has_engagement: {
+        Args: { _facility_id: string; _professional_user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -946,6 +1026,7 @@ export type Database = {
         | "contract"
         | "locum"
         | "shift"
+      review_direction: "pro_to_facility" | "facility_to_pro"
       shift_status: "open" | "booked" | "cancelled" | "completed"
     }
     CompositeTypes: {
@@ -1086,6 +1167,7 @@ export const Constants = {
       ],
       credential_status: ["pending", "approved", "rejected"],
       employment_type: ["full_time", "part_time", "contract", "locum", "shift"],
+      review_direction: ["pro_to_facility", "facility_to_pro"],
       shift_status: ["open", "booked", "cancelled", "completed"],
     },
   },
