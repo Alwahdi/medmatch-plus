@@ -69,7 +69,7 @@ function Home() {
       const { data, error } = await supabase
         .from("jobs")
         .select(
-          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialties(name_ar)",
+          "id,slug,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialties(name_ar)",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false })
