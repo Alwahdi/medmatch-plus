@@ -163,6 +163,8 @@ function CredentialsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
+      {confirmDialog}
+
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-muted-foreground">
         {c.sub}
@@ -228,9 +230,25 @@ function CredentialsPage() {
                 <Badge variant={cred.status === "approved" ? "default" : "secondary"}>
                   {credentialLabel(cred.status, lang)}
                 </Badge>
-                <Button size="icon" variant="ghost" onClick={() => remove.mutate(cred.id)}>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={async () => {
+                    const ok = await confirm({
+                      title: lang === "ar" ? "حذف هذه الوثيقة؟" : "Delete this document?",
+                      description:
+                        lang === "ar"
+                          ? "سيُحذف الملف نهائياً وقد يتأثر توثيق حسابك. يمكنك رفعه مجدداً لاحقاً."
+                          : "The file is permanently removed and your verification may be affected. You can upload it again later.",
+                      confirmLabel: lang === "ar" ? "نعم، احذف" : "Yes, delete",
+                      destructive: true,
+                    });
+                    if (ok) remove.mutate(cred.id);
+                  }}
+                >
                   <Trash2 className="size-4" />
                 </Button>
+
               </div>
             </li>
           ))}
