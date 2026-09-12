@@ -50,6 +50,14 @@ function AuthPage() {
     if (user) navigate({ to: "/onboarding", replace: true });
   }, [user, navigate]);
 
+  useEffect(() => {
+    if (mode !== "signup") return;
+    navigate({
+      to: roleParam === "facility" ? "/register/employer" : "/register",
+      replace: true,
+    });
+  }, [mode, roleParam, navigate]);
+
   const perks = [
     ["auth.side1", "auth.side1d"],
     ["auth.side2", "auth.side2d"],

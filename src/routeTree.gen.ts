@@ -38,6 +38,7 @@ import { Route as InterviewQuestionsSlugRouteImport } from './routes/interview-q
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 import { Route as RegisterIndexRouteImport } from './routes/register.index'
+import { Route as RegisterEmployerRouteImport } from './routes/register.employer'
 import { Route as SpecialtiesIndexRouteImport } from './routes/specialties.index'
 import { Route as SpecialtiesSlugRouteImport } from './routes/specialties.$slug'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
@@ -190,6 +191,11 @@ const RegisterIndexRoute = RegisterIndexRouteImport.update({
   path: '/register/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterEmployerRoute = RegisterEmployerRouteImport.update({
+  id: '/register/employer',
+  path: '/register/employer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SpecialtiesIndexRoute = SpecialtiesIndexRouteImport.update({
   id: '/specialties/',
   path: '/specialties/',
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/guides/$slug': typeof GuidesSlugRoute
   '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/register/employer': typeof RegisterEmployerRoute
   '/specialties/$slug': typeof SpecialtiesSlugRoute
   '/guides/': typeof GuidesIndexRoute
   '/interview-questions/': typeof InterviewQuestionsIndexRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/guides/$slug': typeof GuidesSlugRoute
   '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/register/employer': typeof RegisterEmployerRoute
   '/specialties/$slug': typeof SpecialtiesSlugRoute
   '/guides': typeof GuidesIndexRoute
   '/interview-questions': typeof InterviewQuestionsIndexRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/guides/$slug': typeof GuidesSlugRoute
   '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/register/employer': typeof RegisterEmployerRoute
   '/specialties/$slug': typeof SpecialtiesSlugRoute
   '/guides/': typeof GuidesIndexRoute
   '/interview-questions/': typeof InterviewQuestionsIndexRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/interview-questions/$slug'
     | '/jobs/$jobId'
+    | '/register/employer'
     | '/specialties/$slug'
     | '/guides/'
     | '/interview-questions/'
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/interview-questions/$slug'
     | '/jobs/$jobId'
+    | '/register/employer'
     | '/specialties/$slug'
     | '/guides'
     | '/interview-questions'
@@ -424,6 +435,7 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/interview-questions/$slug'
     | '/jobs/$jobId'
+    | '/register/employer'
     | '/specialties/$slug'
     | '/guides/'
     | '/interview-questions/'
@@ -449,6 +461,7 @@ export interface RootRouteChildren {
   GuidesSlugRoute: typeof GuidesSlugRoute
   InterviewQuestionsSlugRoute: typeof InterviewQuestionsSlugRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
+  RegisterEmployerRoute: typeof RegisterEmployerRoute
   SpecialtiesSlugRoute: typeof SpecialtiesSlugRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   InterviewQuestionsIndexRoute: typeof InterviewQuestionsIndexRoute
@@ -662,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register/employer': {
+      id: '/register/employer'
+      path: '/register/employer'
+      fullPath: '/register/employer'
+      preLoaderRoute: typeof RegisterEmployerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/specialties/': {
       id: '/specialties/'
       path: '/specialties'
@@ -753,6 +773,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesSlugRoute: GuidesSlugRoute,
   InterviewQuestionsSlugRoute: InterviewQuestionsSlugRoute,
   JobsJobIdRoute: JobsJobIdRoute,
+  RegisterEmployerRoute: RegisterEmployerRoute,
   SpecialtiesSlugRoute: SpecialtiesSlugRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   InterviewQuestionsIndexRoute: InterviewQuestionsIndexRoute,
