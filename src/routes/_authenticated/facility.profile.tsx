@@ -320,15 +320,17 @@ function FacilityProfile() {
             />
           </div>
           <div className="sm:col-span-2">
-            <Label htmlFor="logo">{c.logo}</Label>
-            <Input
-              id="logo"
-              dir="ltr"
-              maxLength={300}
-              value={form.logo_url}
-              onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-            />
+            <Label>{c.logo}</Label>
+            <div className="mt-2">
+              <ImageUpload
+                value={form.logo_url}
+                onChange={(v) => setForm({ ...form, logo_url: v })}
+                fallback={(form.name_ar.trim()[0] ?? "?").toUpperCase()}
+                prefix="logo"
+              />
+            </div>
           </div>
+
         </div>
 
         <div>
