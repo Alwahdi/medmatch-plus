@@ -17,6 +17,7 @@ const NAV = [
   { to: "/jobs", label: "الوظائف" },
   { to: "/shifts", label: "المناوبات" },
   { to: "/for-facilities", label: "للمنشآت" },
+  { to: "/pricing", label: "الأسعار" },
 ] as const;
 
 export function SiteHeader() {

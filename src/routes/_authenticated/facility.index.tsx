@@ -38,6 +38,22 @@ export const Route = createFileRoute("/_authenticated/facility/")({
   component: FacilityDashboard,
 });
 
+type PlanRow = {
+  code: string;
+  name_ar: string;
+  active_jobs: number;
+  active_shifts: number;
+  candidate_searches: number;
+  ai_credits: number;
+  is_trial: boolean;
+};
+type SubRow = {
+  status: string;
+  ends_at: string | null;
+  plan_code: string;
+  subscription_plans: PlanRow | null;
+};
+
 function FacilityDashboard() {
   const { user } = useSession();
   const queryClient = useQueryClient();
@@ -89,6 +105,23 @@ function FacilityDashboard() {
     },
   });
 
+  const { data: sub } = useQuery({
+    queryKey: ["facility-sub", facility?.id],
+    enabled: !!facility,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("facility_subscriptions")
+        .select("*,subscription_plans(*)")
+        .eq("facility_id", facility!.id)
+        .maybeSingle();
+      return data as unknown as SubRow | null;
+    },
+  });
+
+  const plan = sub?.subscription_plans ?? null;
+  const activeJobs = (jobs ?? []).filter((j) => j.is_active).length;
+  const activeShifts = (shifts ?? []).filter((s) => s.status === "open").length;
+
   const toggleJob = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase.from("jobs").update({ is_active }).eq("id", id);
@@ -114,6 +147,28 @@ function FacilityDashboard() {
           <Link to="/facility/applicants">المتقدمون</Link>
         </Button>
       </div>
+
+      {plan && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
+          <div>
+            <p className="flex items-center gap-2 font-bold">
+              باقة {plan.name_ar}
+              {plan.is_trial && <Badge variant="secondary">تجربة مجانية</Badge>}
+              {sub?.status !== "active" && <Badge variant="destructive">منتهية</Badge>}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {sub?.ends_at
+                ? `تنتهي في ${formatDateTime(sub.ends_at)}`
+                : "اشتراك ساري"}{" "}
+              · الوظائف النشطة {activeJobs}/{plan.active_jobs} · المناوبات المتاحة {activeShifts}/
+              {plan.active_shifts}
+            </p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link to="/pricing">ترقية الباقة</Link>
+          </Button>
+        </div>
+      )}
 
       <Tabs defaultValue="jobs" className="mt-8">
         <TabsList>
@@ -172,12 +227,16 @@ function FacilityDashboard() {
 
         <TabsContent value="new-job" className="mt-6">
           <JobForm facilityId={facility.id} specialties={specialties ?? []}
-            defaults={{ country: facility.country, city: facility.city }} />
+            defaults={{ country: facility.country, city: facility.city }}
+            quotaReached={!!plan && activeJobs >= plan.active_jobs}
+            expired={!!sub && sub.status !== "active"} />
         </TabsContent>
 
         <TabsContent value="new-shift" className="mt-6">
           <ShiftForm facilityId={facility.id} specialties={specialties ?? []}
-            defaults={{ country: facility.country, city: facility.city }} />
+            defaults={{ country: facility.country, city: facility.city }}
+            quotaReached={!!plan && activeShifts >= plan.active_shifts}
+            expired={!!sub && sub.status !== "active"} />
         </TabsContent>
       </Tabs>
     </div>
@@ -290,10 +349,14 @@ function JobForm({
   facilityId,
   specialties,
   defaults,
+  quotaReached,
+  expired,
 }: {
   facilityId: string;
   specialties: Spec[];
   defaults: { country: string; city: string };
+  quotaReached?: boolean;
+  expired?: boolean;
 }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
@@ -316,6 +379,9 @@ function JobForm({
 
   const create = useMutation({
     mutationFn: async () => {
+      if (expired) throw new Error("انتهت باقتك — جدّد الاشتراك للنشر من جديد");
+      if (quotaReached)
+        throw new Error("وصلت حد الوظائف النشطة في باقتك — أغلق وظيفة أو رقّ الباقة");
       const parsed = z
         .object({
           title: z.string().trim().min(3, "أدخل المسمى الوظيفي").max(120),
@@ -445,10 +511,14 @@ function ShiftForm({
   facilityId,
   specialties,
   defaults,
+  quotaReached,
+  expired,
 }: {
   facilityId: string;
   specialties: Spec[];
   defaults: { country: string; city: string };
+  quotaReached?: boolean;
+  expired?: boolean;
 }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
@@ -465,6 +535,9 @@ function ShiftForm({
 
   const create = useMutation({
     mutationFn: async () => {
+      if (expired) throw new Error("انتهت باقتك — جدّد الاشتراك للنشر من جديد");
+      if (quotaReached)
+        throw new Error("وصلت حد المناوبات النشطة في باقتك — رقّ الباقة للمزيد");
       if (form.title.trim().length < 3) throw new Error("أدخل عنوان المناوبة");
       if (!form.starts_at || !form.ends_at) throw new Error("حدّد وقت البداية والنهاية");
       if (new Date(form.ends_at) <= new Date(form.starts_at))
