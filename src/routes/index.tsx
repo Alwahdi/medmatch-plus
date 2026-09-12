@@ -213,29 +213,28 @@ function Home() {
       <section className="soft-surface py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="text-center font-display text-3xl font-extrabold">
-            مصمّم لطرفَي الرعاية الصحية
+            {t("home.sides.title")}
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <article className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
               <img
                 src={forProsImage}
-                alt="ممرضة تتصفّح شيفتاتها القادمة على هاتفها في ممر مستشفى"
+                alt={t("home.sides.pros.title")}
                 width={1280}
                 height={960}
                 loading="lazy"
                 className="h-56 w-full object-cover"
               />
               <div className="p-6">
-                <span className="text-xs font-semibold text-accent">للباحثين عن عمل</span>
+                <span className="text-xs font-semibold text-accent">{t("home.sides.pros.label")}</span>
                 <h3 className="mt-2 font-display text-xl font-bold">
-                  اعثر على شيفتك أو وظيفتك القادمة
+                  {t("home.sides.pros.title")}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  ارفع سيرتك الذاتية ويبني الذكاء الاصطناعي ملفك في ثوانٍ، ثم تصفّح وظائف وشيفتات
-                  موثوقة لدى ناشري وظائف طبية معتمدين وتقدّم فوراً.
+                  {t("home.sides.pros.text")}
                 </p>
                 <Button className="mt-5" asChild>
-                  <Link to="/jobs">تصفّح الوظائف</Link>
+                  <Link to="/jobs">{t("home.sides.pros.cta")}</Link>
                 </Button>
               </div>
             </article>
@@ -243,21 +242,20 @@ function Home() {
             <article className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
               <img
                 src={forEmployersImage}
-                alt="مسؤولة توظيف وطبيب يراجعان طلبات التوظيف على جهاز لوحي"
+                alt={t("home.sides.employers.title")}
                 width={1280}
                 height={960}
                 loading="lazy"
                 className="h-56 w-full object-cover"
               />
               <div className="p-6">
-                <span className="text-xs font-semibold text-accent">لناشري الوظائف</span>
-                <h3 className="mt-2 font-display text-xl font-bold">وظّف كوادر موثوقة بسرعة</h3>
+                <span className="text-xs font-semibold text-accent">{t("home.sides.employers.label")}</span>
+                <h3 className="mt-2 font-display text-xl font-bold">{t("home.sides.employers.title")}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  انشر وظيفة أو شيفتاً، واستلم تنبيهاً فور تقدّم كادر مؤهّل — فلا يفوتك أي مرشّح
-                  مناسب.
+                  {t("home.sides.employers.text")}
                 </p>
                 <Button className="mt-5" asChild>
-                  <Link to="/for-facilities">انشر وظيفة</Link>
+                  <Link to="/for-facilities">{t("home.sides.employers.cta")}</Link>
                 </Button>
               </div>
             </article>
@@ -269,21 +267,21 @@ function Home() {
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <p className="text-center text-sm font-semibold tracking-wide text-accent">
-            كيف تعمل المنصة
+            {t("home.steps.label")}
           </p>
           <h2 className="mt-3 text-center font-display text-3xl font-extrabold">
-            من الاستكشاف إلى التوظيف في أربع خطوات واضحة
+            {t("home.steps.title")}
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">
-            تجربة متكاملة لكلا طرفي رحلة التوظيف الصحي.
+            {t("home.steps.subtitle")}
           </p>
 
           <div className="mt-8 flex justify-center">
             <div className="inline-flex rounded-full border border-border bg-card p-1">
               {(
                 [
-                  ["employers", "لناشري الوظائف"],
-                  ["seekers", "للباحثين عن عمل"],
+                  ["employers", t("home.steps.tabEmployers")],
+                  ["seekers", t("home.steps.tabSeekers")],
                 ] as const
               ).map(([key, label]) => (
                 <button
