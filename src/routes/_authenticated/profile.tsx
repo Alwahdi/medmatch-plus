@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { COUNTRIES } from "@/lib/format";
+import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -31,8 +32,59 @@ export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
 });
 
-const schema = z.object({
-  full_name: z.string().trim().min(2, "الاسم قصير جداً").max(100),
+const TXT = {
+  ar: {
+    title: "ملفي المهني",
+    sub: "كلما اكتمل ملفك ارتفعت دقة الترشيحات وفرصتك في القبول.",
+    fullName: "الاسم الكامل",
+    headline: "المسمى المهني",
+    headlinePh: "مثال: استشاري طب طوارئ",
+    specialty: "التخصص",
+    specialtyPh: "اختر تخصصك",
+    years: "سنوات الخبرة",
+    country: "دولة الإقامة",
+    countryPh: "اختر الدولة",
+    city: "المدينة",
+    licenseCountry: "دولة الترخيص",
+    licenseNumber: "رقم الترخيص",
+    bio: "نبذة مهنية",
+    bioPh: "اكتب ملخصاً عن خبرتك، أبرز إنجازاتك، والمهارات السريرية التي تتقنها.",
+    openTitle: "متاح للمناوبات الفورية",
+    openText: "سنعرض مناوبات تناسب تخصصك ومدينتك.",
+    save: "حفظ الملف",
+    saving: "جارٍ الحفظ...",
+    nameShort: "الاسم قصير جداً",
+    saved: "تم حفظ ملفك المهني",
+    saveFailed: "تعذّر الحفظ",
+  },
+  en: {
+    title: "My professional profile",
+    sub: "The more complete your profile, the more accurate your recommendations and your chances of acceptance.",
+    fullName: "Full name",
+    headline: "Professional headline",
+    headlinePh: "e.g. Emergency medicine consultant",
+    specialty: "Specialty",
+    specialtyPh: "Choose your specialty",
+    years: "Years of experience",
+    country: "Country of residence",
+    countryPh: "Choose a country",
+    city: "City",
+    licenseCountry: "Country of license",
+    licenseNumber: "License number",
+    bio: "Professional bio",
+    bioPh: "Write a summary of your experience, key achievements, and clinical skills.",
+    openTitle: "Available for instant shifts",
+    openText: "We'll show shifts that fit your specialty and city.",
+    save: "Save profile",
+    saving: "Saving...",
+    nameShort: "Name is too short",
+    saved: "Your profile has been saved",
+    saveFailed: "Failed to save",
+  },
+} as const;
+
+const schemaAr = z.object({
+  full_name: z.string().trim().min(2, TXT.ar.nameShort).max(100),
   headline: z.string().trim().max(150).optional(),
   years_experience: z.number().int().min(0).max(60),
   bio: z.string().trim().max(1500).optional(),
@@ -40,13 +92,15 @@ const schema = z.object({
 });
 
 function ProfilePage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
 
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("specialties").select("id,name_ar").order("name_ar");
+      const { data, error } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
       if (error) throw error;
       return data;
     },
@@ -96,7 +150,7 @@ function ProfilePage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const parsed = schema.safeParse({
+      const parsed = schemaAr.safeParse({
         full_name: form.full_name,
         headline: form.headline,
         years_experience: Number(form.years_experience),
@@ -131,93 +185,93 @@ function ProfilePage() {
       }
     },
     onSuccess: () => {
-      toast.success("تم حفظ ملفك المهني");
+      toast.success(c.saved);
       queryClient.invalidateQueries({ queryKey: ["my-pro"] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر الحفظ"),
+    onError: (e: Error) => toast.error(e.message || c.saveFailed),
   });
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">ملفي المهني</h1>
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-muted-foreground">
-        كلما اكتمل ملفك ارتفعت دقة الترشيحات وفرصتك في القبول.
+        {c.sub}
       </p>
 
       <div className="card-lift mt-6 space-y-5 rounded-2xl border border-border bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <Label htmlFor="name">الاسم الكامل</Label>
+            <Label htmlFor="name">{c.fullName}</Label>
             <Input id="name" value={form.full_name} maxLength={100}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="headline">المسمى المهني</Label>
-            <Input id="headline" placeholder="مثال: استشاري طب طوارئ" maxLength={150}
+            <Label htmlFor="headline">{c.headline}</Label>
+            <Input id="headline" placeholder={c.headlinePh} maxLength={150}
               value={form.headline} onChange={(e) => setForm({ ...form, headline: e.target.value })} />
           </div>
           <div>
-            <Label>التخصص</Label>
+            <Label>{c.specialty}</Label>
             <Select value={form.specialty_id} onValueChange={(v) => setForm({ ...form, specialty_id: v })}>
-              <SelectTrigger><SelectValue placeholder="اختر تخصصك" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={c.specialtyPh} /></SelectTrigger>
               <SelectContent>
-                {specialties?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>)}
+                {specialties?.map((s) => <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="years">سنوات الخبرة</Label>
+            <Label htmlFor="years">{c.years}</Label>
             <Input id="years" type="number" min={0} max={60} value={form.years_experience}
               onChange={(e) => setForm({ ...form, years_experience: Number(e.target.value) })} />
           </div>
           <div>
-            <Label>دولة الإقامة</Label>
+            <Label>{c.country}</Label>
             <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-              <SelectTrigger><SelectValue placeholder="اختر الدولة" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={c.countryPh} /></SelectTrigger>
               <SelectContent>
-                {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="city">المدينة</Label>
+            <Label htmlFor="city">{c.city}</Label>
             <Input id="city" value={form.city} maxLength={60}
               onChange={(e) => setForm({ ...form, city: e.target.value })} />
           </div>
           <div>
-            <Label>دولة الترخيص</Label>
+            <Label>{c.licenseCountry}</Label>
             <Select value={form.license_country} onValueChange={(v) => setForm({ ...form, license_country: v })}>
-              <SelectTrigger><SelectValue placeholder="اختر الدولة" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={c.countryPh} /></SelectTrigger>
               <SelectContent>
-                {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="lic">رقم الترخيص</Label>
+            <Label htmlFor="lic">{c.licenseNumber}</Label>
             <Input id="lic" dir="ltr" value={form.license_number} maxLength={60}
               onChange={(e) => setForm({ ...form, license_number: e.target.value })} />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="bio">نبذة مهنية</Label>
+          <Label htmlFor="bio">{c.bio}</Label>
           <Textarea id="bio" rows={5} maxLength={1500} value={form.bio}
-            placeholder="اكتب ملخصاً عن خبرتك، أبرز إنجازاتك، والمهارات السريرية التي تتقنها."
+            placeholder={c.bioPh}
             onChange={(e) => setForm({ ...form, bio: e.target.value })} />
         </div>
 
         <div className="flex items-center justify-between rounded-xl bg-surface p-4">
           <div>
-            <p className="font-medium">متاح للمناوبات الفورية</p>
-            <p className="text-xs text-muted-foreground">سنعرض مناوبات تناسب تخصصك ومدينتك.</p>
+            <p className="font-medium">{c.openTitle}</p>
+            <p className="text-xs text-muted-foreground">{c.openText}</p>
           </div>
           <Switch checked={form.is_open_to_shifts}
             onCheckedChange={(v) => setForm({ ...form, is_open_to_shifts: v })} />
         </div>
 
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          {save.isPending ? "جارٍ الحفظ..." : "حفظ الملف"}
+          {save.isPending ? c.saving : c.save}
         </Button>
       </div>
     </div>

@@ -20,11 +20,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import {
   COUNTRIES,
-  EMPLOYMENT_LABELS,
+  countryLabel,
+  employmentLabel,
   formatDateTime,
   formatMoney,
   formatSalary,
+  specialtyName,
 } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/facility/")({
   head: () => ({
@@ -37,6 +40,181 @@ export const Route = createFileRoute("/_authenticated/facility/")({
   }),
   component: FacilityDashboard,
 });
+
+const TXT = {
+  ar: {
+    loading: "جارٍ التحميل...",
+    verified: " · منشأة موثّقة",
+    unverified: " · بانتظار التوثيق",
+    applicants: "المتقدمون",
+    plan: (name: string) => `باقة ${name}`,
+    trial: "تجربة مجانية",
+    expired: "منتهية",
+    endsAt: (d: string) => `تنتهي في ${d}`,
+    activeSub: "اشتراك ساري",
+    activeJobsCount: (a: number, b: number) => `الوظائف النشطة ${a}/${b}`,
+    activeShiftsCount: (a: number, b: number) => `المناوبات المتاحة ${a}/${b}`,
+    upgrade: "ترقية الباقة",
+    tabJobs: (n: number) => `الوظائف (${n})`,
+    tabShifts: (n: number) => `المناوبات (${n})`,
+    tabNewJob: "نشر وظيفة",
+    tabNewShift: "نشر مناوبة",
+    applicantsCount: (n: number) => `${n} متقدم`,
+    published: "منشورة",
+    closed: "مغلقة",
+    close: "إغلاق",
+    republish: "إعادة نشر",
+    noJobs: "لم تنشر وظائف بعد.",
+    perHour: "/ساعة",
+    open: "متاحة",
+    bookedStatus: "محجوزة",
+    noShifts: "لا مناوبات منشورة.",
+    // Facility form
+    registerTitle: "سجّل منشأتك",
+    registerSub: "دقيقة واحدة وتستطيع نشر أول وظيفة أو مناوبة.",
+    facilityName: "اسم المنشأة",
+    facilityType: "نوع المنشأة",
+    hospital: "مستشفى",
+    clinic: "عيادة",
+    polyclinic: "مجمع طبي",
+    pharmacy: "صيدلية",
+    lab: "مختبر / أشعة",
+    country: "الدولة",
+    pickCountry: "اختر الدولة",
+    city: "المدينة",
+    website: "الموقع الإلكتروني",
+    description: "نبذة عن المنشأة",
+    saving: "جارٍ الحفظ...",
+    createFacility: "إنشاء ملف المنشأة",
+    createdFacility: "تم إنشاء ملف المنشأة",
+    saveFailed: "تعذّر الحفظ",
+    nameRequired: "أدخل اسم المنشأة",
+    countryRequired: "اختر الدولة",
+    cityRequired: "أدخل المدينة",
+    // Job form
+    jobTitle: "المسمى الوظيفي",
+    specialty: "التخصص",
+    pickSpecialty: "اختر التخصص",
+    employmentType: "نوع التوظيف",
+    minExperience: "أقل خبرة مطلوبة (سنوات)",
+    salaryFrom: "الراتب من",
+    salaryTo: "الراتب إلى",
+    currency: "العملة",
+    requiredLicense: "ترخيص مطلوب",
+    licensePlaceholder: "بدون / اختر الدولة",
+    jobDesc: "وصف الوظيفة والمتطلبات",
+    publishing: "جارٍ النشر...",
+    publishJob: "نشر الوظيفة",
+    jobPublished: "تم نشر الوظيفة",
+    publishFailed: "تعذّر النشر",
+    subExpiredJob: "انتهت باقتك — جدّد الاشتراك للنشر من جديد",
+    quotaReachedJob: "وصلت حد الوظائف النشطة في باقتك — أغلق وظيفة أو رقّ الباقة",
+    titleMin: "أدخل المسمى الوظيفي",
+    descMin: "اكتب وصفاً لا يقل عن ٢٠ حرفاً",
+    salaryMaxGt: "الحد الأعلى للراتب يجب أن يكون أكبر",
+    // Shift form
+    shiftTitle: "عنوان المناوبة",
+    shiftTitlePlaceholder: "مثال: مناوبة ليلية — طوارئ",
+    startsAt: "البداية",
+    endsAt: "النهاية",
+    hourlyRate: "الأجر بالساعة",
+    notes: "ملاحظات",
+    publishShift: "نشر المناوبة",
+    shiftPublished: "تم نشر المناوبة",
+    subExpiredShift: "انتهت باقتك — جدّد الاشتراك للنشر من جديد",
+    quotaReachedShift: "وصلت حد المناوبات النشطة في باقتك — رقّ الباقة للمزيد",
+    shiftTitleMin: "أدخل عنوان المناوبة",
+    setTimes: "حدّد وقت البداية والنهاية",
+    endAfterStart: "وقت النهاية يجب أن يكون بعد البداية",
+    hourlyRateRequired: "أدخل الأجر بالساعة",
+  },
+  en: {
+    loading: "Loading...",
+    verified: " · Verified facility",
+    unverified: " · Verification pending",
+    applicants: "Applicants",
+    plan: (name: string) => `${name} plan`,
+    trial: "Free trial",
+    expired: "Expired",
+    endsAt: (d: string) => `Ends on ${d}`,
+    activeSub: "Active subscription",
+    activeJobsCount: (a: number, b: number) => `Active jobs ${a}/${b}`,
+    activeShiftsCount: (a: number, b: number) => `Open shifts ${a}/${b}`,
+    upgrade: "Upgrade plan",
+    tabJobs: (n: number) => `Jobs (${n})`,
+    tabShifts: (n: number) => `Shifts (${n})`,
+    tabNewJob: "Post a job",
+    tabNewShift: "Post a shift",
+    applicantsCount: (n: number) => `${n} applicants`,
+    published: "Published",
+    closed: "Closed",
+    close: "Close",
+    republish: "Republish",
+    noJobs: "You haven't posted any jobs yet.",
+    perHour: "/hr",
+    open: "Open",
+    bookedStatus: "Booked",
+    noShifts: "No shifts posted.",
+    // Facility form
+    registerTitle: "Register your facility",
+    registerSub: "One minute and you can post your first job or shift.",
+    facilityName: "Facility name",
+    facilityType: "Facility type",
+    hospital: "Hospital",
+    clinic: "Clinic",
+    polyclinic: "Polyclinic",
+    pharmacy: "Pharmacy",
+    lab: "Lab / Imaging",
+    country: "Country",
+    pickCountry: "Choose a country",
+    city: "City",
+    website: "Website",
+    description: "About the facility",
+    saving: "Saving...",
+    createFacility: "Create facility profile",
+    createdFacility: "Facility profile created",
+    saveFailed: "Failed to save",
+    nameRequired: "Enter the facility name",
+    countryRequired: "Choose a country",
+    cityRequired: "Enter the city",
+    // Job form
+    jobTitle: "Job title",
+    specialty: "Specialty",
+    pickSpecialty: "Choose a specialty",
+    employmentType: "Employment type",
+    minExperience: "Minimum experience required (years)",
+    salaryFrom: "Salary from",
+    salaryTo: "Salary to",
+    currency: "Currency",
+    requiredLicense: "Required license",
+    licensePlaceholder: "None / choose a country",
+    jobDesc: "Job description and requirements",
+    publishing: "Publishing...",
+    publishJob: "Post job",
+    jobPublished: "Job posted",
+    publishFailed: "Failed to publish",
+    subExpiredJob: "Your plan has expired — renew your subscription to post again",
+    quotaReachedJob: "You've reached your plan's active job limit — close a job or upgrade",
+    titleMin: "Enter a job title",
+    descMin: "Write a description of at least 20 characters",
+    salaryMaxGt: "The maximum salary must be higher",
+    // Shift form
+    shiftTitle: "Shift title",
+    shiftTitlePlaceholder: "e.g. Night shift — Emergency",
+    startsAt: "Start",
+    endsAt: "End",
+    hourlyRate: "Hourly rate",
+    notes: "Notes",
+    publishShift: "Post shift",
+    shiftPublished: "Shift posted",
+    subExpiredShift: "Your plan has expired — renew your subscription to post again",
+    quotaReachedShift: "You've reached your plan's active shift limit — upgrade for more",
+    shiftTitleMin: "Enter a shift title",
+    setTimes: "Set the start and end time",
+    endAfterStart: "End time must be after start time",
+    hourlyRateRequired: "Enter the hourly rate",
+  },
+} as const;
 
 type PlanRow = {
   code: string;
@@ -55,6 +233,8 @@ type SubRow = {
 };
 
 function FacilityDashboard() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
 
@@ -74,7 +254,7 @@ function FacilityDashboard() {
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar").order("name_ar");
+      const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
       return data ?? [];
     },
   });
@@ -134,7 +314,7 @@ function FacilityDashboard() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["facility-jobs"] }),
   });
 
-  if (isLoading) return <p className="p-10 text-center text-muted-foreground">جارٍ التحميل...</p>;
+  if (isLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
   if (!facility) return <FacilityForm />;
 
   return (
@@ -143,12 +323,12 @@ function FacilityDashboard() {
         <div>
           <h1 className="font-display text-3xl font-extrabold">{facility.name_ar}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {facility.city}، {facility.country}
-            {facility.is_verified ? " · منشأة موثّقة" : " · بانتظار التوثيق"}
+            {facility.city}، {countryLabel(facility.country, lang)}
+            {facility.is_verified ? c.verified : c.unverified}
           </p>
         </div>
         <Button variant="outline" asChild>
-          <Link to="/facility/applicants">المتقدمون</Link>
+          <Link to="/facility/applicants">{c.applicants}</Link>
         </Button>
       </div>
 
@@ -156,30 +336,27 @@ function FacilityDashboard() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
           <div>
             <p className="flex items-center gap-2 font-bold">
-              باقة {plan.name_ar}
-              {plan.is_trial && <Badge variant="secondary">تجربة مجانية</Badge>}
-              {!subActive && <Badge variant="destructive">منتهية</Badge>}
+              {c.plan(plan.name_ar)}
+              {plan.is_trial && <Badge variant="secondary">{c.trial}</Badge>}
+              {!subActive && <Badge variant="destructive">{c.expired}</Badge>}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {sub?.ends_at
-                ? `تنتهي في ${formatDateTime(sub.ends_at)}`
-                : "اشتراك ساري"}{" "}
-              · الوظائف النشطة {activeJobs}/{plan.active_jobs} · المناوبات المتاحة {activeShifts}/
-              {plan.active_shifts}
+              {sub?.ends_at ? c.endsAt(formatDateTime(sub.ends_at, lang)) : c.activeSub}{" "}
+              · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
             </p>
           </div>
           <Button variant="outline" asChild>
-            <Link to="/pricing">ترقية الباقة</Link>
+            <Link to="/pricing">{c.upgrade}</Link>
           </Button>
         </div>
       )}
 
       <Tabs defaultValue="jobs" className="mt-8">
         <TabsList>
-          <TabsTrigger value="jobs">الوظائف ({jobs?.length ?? 0})</TabsTrigger>
-          <TabsTrigger value="shifts">المناوبات ({shifts?.length ?? 0})</TabsTrigger>
-          <TabsTrigger value="new-job">نشر وظيفة</TabsTrigger>
-          <TabsTrigger value="new-shift">نشر مناوبة</TabsTrigger>
+          <TabsTrigger value="jobs">{c.tabJobs(jobs?.length ?? 0)}</TabsTrigger>
+          <TabsTrigger value="shifts">{c.tabShifts(shifts?.length ?? 0)}</TabsTrigger>
+          <TabsTrigger value="new-job">{c.tabNewJob}</TabsTrigger>
+          <TabsTrigger value="new-shift">{c.tabNewShift}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="jobs" className="mt-6 space-y-3">
@@ -189,23 +366,23 @@ function FacilityDashboard() {
                 <div>
                   <p className="font-bold">{j.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency)} ·{" "}
-                    {EMPLOYMENT_LABELS[j.employment_type]} · {j.applications?.length ?? 0} متقدم
+                    {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
+                    {employmentLabel(j.employment_type, lang)} · {c.applicantsCount(j.applications?.length ?? 0)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant={j.is_active ? "default" : "secondary"}>
-                    {j.is_active ? "منشورة" : "مغلقة"}
+                    {j.is_active ? c.published : c.closed}
                   </Badge>
                   <Button size="sm" variant="ghost"
                     onClick={() => toggleJob.mutate({ id: j.id, is_active: !j.is_active })}>
-                    {j.is_active ? "إغلاق" : "إعادة نشر"}
+                    {j.is_active ? c.close : c.republish}
                   </Button>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">لم تنشر وظائف بعد.</p>
+            <p className="text-sm text-muted-foreground">{c.noJobs}</p>
           )}
         </TabsContent>
 
@@ -216,16 +393,16 @@ function FacilityDashboard() {
                 <div>
                   <p className="font-bold">{s.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {formatDateTime(s.starts_at)} · {formatMoney(Number(s.hourly_rate), s.currency)}/ساعة
+                    {formatDateTime(s.starts_at, lang)} · {formatMoney(Number(s.hourly_rate), s.currency, lang)}{c.perHour}
                   </p>
                 </div>
                 <Badge variant={s.status === "open" ? "default" : "secondary"}>
-                  {s.status === "open" ? "متاحة" : "محجوزة"}
+                  {s.status === "open" ? c.open : c.bookedStatus}
                 </Badge>
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">لا مناوبات منشورة.</p>
+            <p className="text-sm text-muted-foreground">{c.noShifts}</p>
           )}
         </TabsContent>
 
@@ -248,6 +425,8 @@ function FacilityDashboard() {
 }
 
 function FacilityForm() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
@@ -263,9 +442,9 @@ function FacilityForm() {
     mutationFn: async () => {
       const parsed = z
         .object({
-          name_ar: z.string().trim().min(2, "أدخل اسم المنشأة").max(120),
-          country: z.string().min(1, "اختر الدولة"),
-          city: z.string().trim().min(2, "أدخل المدينة").max(60),
+          name_ar: z.string().trim().min(2, c.nameRequired).max(120),
+          country: z.string().min(1, c.countryRequired),
+          city: z.string().trim().min(2, c.cityRequired).max(60),
         })
         .safeParse(form);
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
@@ -282,72 +461,72 @@ function FacilityForm() {
       await supabase.rpc("claim_facility_role");
     },
     onSuccess: () => {
-      toast.success("تم إنشاء ملف المنشأة");
+      toast.success(c.createdFacility);
       queryClient.invalidateQueries({ queryKey: ["my-facility"] });
       queryClient.invalidateQueries({ queryKey: ["roles"] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر الحفظ"),
+    onError: (e: Error) => toast.error(e.message || c.saveFailed),
   });
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">سجّل منشأتك</h1>
-      <p className="mt-2 text-muted-foreground">دقيقة واحدة وتستطيع نشر أول وظيفة أو مناوبة.</p>
+      <h1 className="font-display text-3xl font-extrabold">{c.registerTitle}</h1>
+      <p className="mt-2 text-muted-foreground">{c.registerSub}</p>
 
       <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
         <div>
-          <Label htmlFor="fname">اسم المنشأة</Label>
+          <Label htmlFor="fname">{c.facilityName}</Label>
           <Input id="fname" maxLength={120} value={form.name_ar}
             onChange={(e) => setForm({ ...form, name_ar: e.target.value })} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <Label>نوع المنشأة</Label>
+            <Label>{c.facilityType}</Label>
             <Select value={form.facility_type} onValueChange={(v) => setForm({ ...form, facility_type: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="hospital">مستشفى</SelectItem>
-                <SelectItem value="clinic">عيادة</SelectItem>
-                <SelectItem value="polyclinic">مجمع طبي</SelectItem>
-                <SelectItem value="pharmacy">صيدلية</SelectItem>
-                <SelectItem value="lab">مختبر / أشعة</SelectItem>
+                <SelectItem value="hospital">{c.hospital}</SelectItem>
+                <SelectItem value="clinic">{c.clinic}</SelectItem>
+                <SelectItem value="polyclinic">{c.polyclinic}</SelectItem>
+                <SelectItem value="pharmacy">{c.pharmacy}</SelectItem>
+                <SelectItem value="lab">{c.lab}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label>الدولة</Label>
+            <Label>{c.country}</Label>
             <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-              <SelectTrigger><SelectValue placeholder="اختر الدولة" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={c.pickCountry} /></SelectTrigger>
               <SelectContent>
-                {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="fcity">المدينة</Label>
+            <Label htmlFor="fcity">{c.city}</Label>
             <Input id="fcity" maxLength={60} value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="fweb">الموقع الإلكتروني</Label>
+            <Label htmlFor="fweb">{c.website}</Label>
             <Input id="fweb" dir="ltr" maxLength={200} value={form.website}
               onChange={(e) => setForm({ ...form, website: e.target.value })} />
           </div>
         </div>
         <div>
-          <Label htmlFor="fdesc">نبذة عن المنشأة</Label>
+          <Label htmlFor="fdesc">{c.description}</Label>
           <Textarea id="fdesc" rows={4} maxLength={1000} value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          {save.isPending ? "جارٍ الحفظ..." : "إنشاء ملف المنشأة"}
+          {save.isPending ? c.saving : c.createFacility}
         </Button>
       </div>
     </div>
   );
 }
 
-type Spec = { id: string; name_ar: string };
+type Spec = { id: string; name_ar: string; name_en?: string | null };
 
 function JobForm({
   facilityId,
@@ -362,6 +541,8 @@ function JobForm({
   quotaReached?: boolean;
   expired?: boolean;
 }) {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
     title: "",
@@ -383,13 +564,12 @@ function JobForm({
 
   const create = useMutation({
     mutationFn: async () => {
-      if (expired) throw new Error("انتهت باقتك — جدّد الاشتراك للنشر من جديد");
-      if (quotaReached)
-        throw new Error("وصلت حد الوظائف النشطة في باقتك — أغلق وظيفة أو رقّ الباقة");
+      if (expired) throw new Error(c.subExpiredJob);
+      if (quotaReached) throw new Error(c.quotaReachedJob);
       const parsed = z
         .object({
-          title: z.string().trim().min(3, "أدخل المسمى الوظيفي").max(120),
-          description: z.string().trim().min(20, "اكتب وصفاً لا يقل عن ٢٠ حرفاً").max(5000),
+          title: z.string().trim().min(3, c.titleMin).max(120),
+          description: z.string().trim().min(20, c.descMin).max(5000),
           salary_min: z.number().min(0),
           salary_max: z.number().min(0),
         })
@@ -401,7 +581,7 @@ function JobForm({
         });
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
       if (parsed.data.salary_max < parsed.data.salary_min)
-        throw new Error("الحد الأعلى للراتب يجب أن يكون أكبر");
+        throw new Error(c.salaryMaxGt);
 
       const { error } = await supabase.from("jobs").insert({
         facility_id: facilityId,
@@ -420,92 +600,92 @@ function JobForm({
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم نشر الوظيفة");
+      toast.success(c.jobPublished);
       setForm({ ...form, title: "", description: "", salary_min: "", salary_max: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر النشر"),
+    onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <Label htmlFor="jt">المسمى الوظيفي</Label>
+          <Label htmlFor="jt">{c.jobTitle}</Label>
           <Input id="jt" maxLength={120} value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })} />
         </div>
         <div>
-          <Label>التخصص</Label>
+          <Label>{c.specialty}</Label>
           <Select value={form.specialty_id} onValueChange={(v) => setForm({ ...form, specialty_id: v })}>
-            <SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={c.pickSpecialty} /></SelectTrigger>
             <SelectContent>
-              {specialties.map((s) => <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>)}
+              {specialties.map((s) => <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label>نوع التوظيف</Label>
+          <Label>{c.employmentType}</Label>
           <Select value={form.employment_type} onValueChange={(v) => setForm({ ...form, employment_type: v })}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              {Object.entries(EMPLOYMENT_LABELS).map(([k, v]) => (
-                <SelectItem key={k} value={k}>{v}</SelectItem>
+              {["full_time", "part_time", "contract", "locum", "shift"].map((k) => (
+                <SelectItem key={k} value={k}>{employmentLabel(k, lang)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label htmlFor="jexp">أقل خبرة مطلوبة (سنوات)</Label>
+          <Label htmlFor="jexp">{c.minExperience}</Label>
           <Input id="jexp" type="number" min={0} max={40} value={form.min_experience}
             onChange={(e) => setForm({ ...form, min_experience: e.target.value })} />
         </div>
         <div>
-          <Label>الدولة</Label>
+          <Label>{c.country}</Label>
           <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-            <SelectTrigger><SelectValue placeholder="اختر الدولة" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={c.pickCountry} /></SelectTrigger>
             <SelectContent>
-              {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label htmlFor="jcity">المدينة</Label>
+          <Label htmlFor="jcity">{c.city}</Label>
           <Input id="jcity" maxLength={60} value={form.city}
             onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="jmin">الراتب من</Label>
+          <Label htmlFor="jmin">{c.salaryFrom}</Label>
           <Input id="jmin" type="number" min={0} value={form.salary_min}
             onChange={(e) => setForm({ ...form, salary_min: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="jmax">الراتب إلى</Label>
+          <Label htmlFor="jmax">{c.salaryTo}</Label>
           <Input id="jmax" type="number" min={0} value={form.salary_max}
             onChange={(e) => setForm({ ...form, salary_max: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="jcur">العملة</Label>
+          <Label htmlFor="jcur">{c.currency}</Label>
           <Input id="jcur" dir="ltr" maxLength={5} value={form.currency}
             onChange={(e) => setForm({ ...form, currency: e.target.value.toUpperCase() })} />
         </div>
         <div>
-          <Label>ترخيص مطلوب</Label>
+          <Label>{c.requiredLicense}</Label>
           <Select value={form.required_license} onValueChange={(v) => setForm({ ...form, required_license: v })}>
-            <SelectTrigger><SelectValue placeholder="بدون / اختر الدولة" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={c.licensePlaceholder} /></SelectTrigger>
             <SelectContent>
-              {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
       </div>
       <div>
-        <Label htmlFor="jdesc">وصف الوظيفة والمتطلبات</Label>
+        <Label htmlFor="jdesc">{c.jobDesc}</Label>
         <Textarea id="jdesc" rows={6} maxLength={5000} value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })} />
       </div>
       <Button onClick={() => create.mutate()} disabled={create.isPending}>
-        {create.isPending ? "جارٍ النشر..." : "نشر الوظيفة"}
+        {create.isPending ? c.publishing : c.publishJob}
       </Button>
     </div>
   );
@@ -524,6 +704,8 @@ function ShiftForm({
   quotaReached?: boolean;
   expired?: boolean;
 }) {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
     title: "",
@@ -539,14 +721,13 @@ function ShiftForm({
 
   const create = useMutation({
     mutationFn: async () => {
-      if (expired) throw new Error("انتهت باقتك — جدّد الاشتراك للنشر من جديد");
-      if (quotaReached)
-        throw new Error("وصلت حد المناوبات النشطة في باقتك — رقّ الباقة للمزيد");
-      if (form.title.trim().length < 3) throw new Error("أدخل عنوان المناوبة");
-      if (!form.starts_at || !form.ends_at) throw new Error("حدّد وقت البداية والنهاية");
+      if (expired) throw new Error(c.subExpiredShift);
+      if (quotaReached) throw new Error(c.quotaReachedShift);
+      if (form.title.trim().length < 3) throw new Error(c.shiftTitleMin);
+      if (!form.starts_at || !form.ends_at) throw new Error(c.setTimes);
       if (new Date(form.ends_at) <= new Date(form.starts_at))
-        throw new Error("وقت النهاية يجب أن يكون بعد البداية");
-      if (!Number(form.hourly_rate)) throw new Error("أدخل الأجر بالساعة");
+        throw new Error(c.endAfterStart);
+      if (!Number(form.hourly_rate)) throw new Error(c.hourlyRateRequired);
 
       const { error } = await supabase.from("shifts").insert({
         facility_id: facilityId,
@@ -563,73 +744,73 @@ function ShiftForm({
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم نشر المناوبة");
+      toast.success(c.shiftPublished);
       setForm({ ...form, title: "", starts_at: "", ends_at: "", hourly_rate: "", notes: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر النشر"),
+    onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <Label htmlFor="st">عنوان المناوبة</Label>
-          <Input id="st" maxLength={120} placeholder="مثال: مناوبة ليلية — طوارئ" value={form.title}
+          <Label htmlFor="st">{c.shiftTitle}</Label>
+          <Input id="st" maxLength={120} placeholder={c.shiftTitlePlaceholder} value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })} />
         </div>
         <div>
-          <Label>التخصص</Label>
+          <Label>{c.specialty}</Label>
           <Select value={form.specialty_id} onValueChange={(v) => setForm({ ...form, specialty_id: v })}>
-            <SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={c.pickSpecialty} /></SelectTrigger>
             <SelectContent>
-              {specialties.map((s) => <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>)}
+              {specialties.map((s) => <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label htmlFor="ss">البداية</Label>
+          <Label htmlFor="ss">{c.startsAt}</Label>
           <Input id="ss" type="datetime-local" value={form.starts_at}
             onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="se">النهاية</Label>
+          <Label htmlFor="se">{c.endsAt}</Label>
           <Input id="se" type="datetime-local" value={form.ends_at}
             onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="sr">الأجر بالساعة</Label>
+          <Label htmlFor="sr">{c.hourlyRate}</Label>
           <Input id="sr" type="number" min={0} value={form.hourly_rate}
             onChange={(e) => setForm({ ...form, hourly_rate: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="scur">العملة</Label>
+          <Label htmlFor="scur">{c.currency}</Label>
           <Input id="scur" dir="ltr" maxLength={5} value={form.currency}
             onChange={(e) => setForm({ ...form, currency: e.target.value.toUpperCase() })} />
         </div>
         <div>
-          <Label>الدولة</Label>
+          <Label>{c.country}</Label>
           <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-            <SelectTrigger><SelectValue placeholder="اختر الدولة" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={c.pickCountry} /></SelectTrigger>
             <SelectContent>
-              {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label htmlFor="scity">المدينة</Label>
+          <Label htmlFor="scity">{c.city}</Label>
           <Input id="scity" maxLength={60} value={form.city}
             onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </div>
       </div>
       <div>
-        <Label htmlFor="snotes">ملاحظات</Label>
+        <Label htmlFor="snotes">{c.notes}</Label>
         <Textarea id="snotes" rows={3} maxLength={1000} value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })} />
       </div>
       <Button onClick={() => create.mutate()} disabled={create.isPending}>
-        {create.isPending ? "جارٍ النشر..." : "نشر المناوبة"}
+        {create.isPending ? c.publishing : c.publishShift}
       </Button>
     </div>
   );

@@ -10,9 +10,91 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { EMPLOYMENT_LABELS, formatSalary, relativeTime } from "@/lib/format";
+import { employmentLabel, formatSalary, relativeTime, specialtyName } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
-const coverSchema = z.string().trim().max(2000, "الرسالة طويلة جداً");
+const TXT = {
+  ar: {
+    tooLong: "الرسالة طويلة جداً",
+    notFoundTitle: "هذه الوظيفة لم تعد متاحة",
+    browseOther: "تصفح وظائف أخرى",
+    back: "العودة للوظائف",
+    hiddenEmployer: "ناشر الوظيفة محجوب لحماية خصوصية المنشأة",
+    verifiedEmployer: "ناشر موثّق",
+    applications: (n: number) => `تقدّم ${n}`,
+    salaryLabel: "الراتب الشهري",
+    location: "الموقع",
+    employment: "نوع التوظيف",
+    minExp: "الحد الأدنى للخبرة",
+    years: (n: number) => `${n} سنوات`,
+    specialty: "التخصص",
+    licenseBadge: (l: string) => `ترخيص ${l}`,
+    postedBadge: (t: string) => `نُشرت ${t}`,
+    description: "وصف الوظيفة",
+    requirements: "المتطلبات",
+    expReq: (n: number, s: string) => `خبرة لا تقل عن ${n} سنوات في ${s}`,
+    defaultSpecialty: "التخصص المطلوب",
+    licenseReq: (l: string) => `ترخيص مزاولة مهنة سارٍ من ${l}`,
+    teamworkReq: "إجادة العمل ضمن فريق متعدد التخصصات",
+    privacyNote:
+      "هوية المنشأة الناشرة تظهر لك مباشرة بعد قبول طلبك أو بدء التواصل معك — كل ناشر على SyndeoCare تُراجَع اعتماداته قبل النشر.",
+    applyTitle: "التقديم على الوظيفة",
+    signInPrompt: "سجّل دخولك كي تتقدم وتتابع حالة طلبك خطوة بخطوة.",
+    signInCta: "تسجيل الدخول للتقديم",
+    alreadyApplied: "تم التقديم على هذه الوظيفة مسبقاً. تابع الحالة من",
+    myApplicationsPage: "صفحة طلباتي",
+    coverPlaceholder: "اكتب رسالة تعريفية مختصرة (اختياري): خبرتك، سبب اهتمامك، وتاريخ الالتحاق الممكن.",
+    sending: "جارٍ الإرسال...",
+    sendApply: "أرسل الطلب",
+    saved: "محفوظة",
+    saveJob: "حفظ الوظيفة",
+    savedToast: "تم حفظ الوظيفة",
+    removedToast: "تمت إزالة الوظيفة من المحفوظات",
+    saveFailed: "تعذّر تحديث المحفوظات",
+    appliedToast: "تم إرسال طلبك بنجاح",
+    applyFailed: "تعذّر إرسال الطلب",
+  },
+  en: {
+    tooLong: "Message is too long",
+    notFoundTitle: "This job is no longer available",
+    browseOther: "Browse other jobs",
+    back: "Back to jobs",
+    hiddenEmployer: "Employer identity is hidden to protect the facility's privacy",
+    verifiedEmployer: "Verified employer",
+    applications: (n: number) => `${n} applications`,
+    salaryLabel: "Monthly salary",
+    location: "Location",
+    employment: "Employment type",
+    minExp: "Minimum experience",
+    years: (n: number) => `${n} years`,
+    specialty: "Specialty",
+    licenseBadge: (l: string) => `License ${l}`,
+    postedBadge: (t: string) => `Posted ${t}`,
+    description: "Job description",
+    requirements: "Requirements",
+    expReq: (n: number, s: string) => `At least ${n} years of experience in ${s}`,
+    defaultSpecialty: "the required specialty",
+    licenseReq: (l: string) => `Valid professional license from ${l}`,
+    teamworkReq: "Ability to work well within a multidisciplinary team",
+    privacyNote:
+      "The employer's identity will be revealed to you once your application is accepted or they reach out to you — every employer on SyndeoCare has their credentials reviewed before posting.",
+    applyTitle: "Apply for this job",
+    signInPrompt: "Sign in to apply and track your application status step by step.",
+    signInCta: "Sign in to apply",
+    alreadyApplied: "You've already applied to this job. Track its status from",
+    myApplicationsPage: "My applications",
+    coverPlaceholder: "Write a brief cover message (optional): your experience, why you're interested, and your possible start date.",
+    sending: "Sending...",
+    sendApply: "Send application",
+    saved: "Saved",
+    saveJob: "Save job",
+    savedToast: "Job saved",
+    removedToast: "Job removed from saved list",
+    saveFailed: "Could not update saved jobs",
+    appliedToast: "Your application was sent successfully",
+    applyFailed: "Could not send the application",
+  },
+} as const;
 
 export const Route = createFileRoute("/_public/jobs/$jobId")({
   head: () => ({
@@ -27,17 +109,24 @@ export const Route = createFileRoute("/_public/jobs/$jobId")({
     ],
   }),
   component: JobDetail,
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <h1 className="font-display text-2xl font-bold">هذه الوظيفة لم تعد متاحة</h1>
-      <Button className="mt-6" asChild>
-        <Link to="/jobs">تصفح وظائف أخرى</Link>
-      </Button>
-    </div>
-  ),
+  notFoundComponent: () => {
+    const { lang } = useLang();
+    const c = TXT[lang];
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+        <h1 className="font-display text-2xl font-bold">{c.notFoundTitle}</h1>
+        <Button className="mt-6" asChild>
+          <Link to="/jobs">{c.browseOther}</Link>
+        </Button>
+      </div>
+    );
+  },
 });
 
 function JobDetail() {
+  const { lang } = useLang();
+  const c = TXT[lang];
+  const coverSchema = z.string().trim().max(2000, c.tooLong);
   const { jobId } = Route.useParams();
   const { user } = useSession();
   const queryClient = useQueryClient();
@@ -48,7 +137,7 @@ function JobDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*,specialties(name_ar)")
+        .select("*,specialties(name_ar,name_en)")
         .eq("id", jobId)
         .maybeSingle();
       if (error) throw error;
@@ -99,11 +188,11 @@ function JobDetail() {
       return true;
     },
     onSuccess: (added) => {
-      toast.success(added ? "تم حفظ الوظيفة" : "تمت إزالة الوظيفة من المحفوظات");
+      toast.success(added ? c.savedToast : c.removedToast);
       queryClient.invalidateQueries({ queryKey: ["saved-job", jobId] });
       queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
     },
-    onError: () => toast.error("تعذّر تحديث المحفوظات"),
+    onError: () => toast.error(c.saveFailed),
   });
 
   const apply = useMutation({
@@ -116,10 +205,10 @@ function JobDetail() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم إرسال طلبك بنجاح");
+      toast.success(c.appliedToast);
       queryClient.invalidateQueries({ queryKey: ["application", jobId] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر إرسال الطلب"),
+    onError: (e: Error) => toast.error(e.message || c.applyFailed),
   });
 
   if (isLoading)
@@ -130,6 +219,8 @@ function JobDetail() {
     );
   if (!job) return null;
 
+  const specialty = specialtyName(job.specialties, lang);
+
   return (
     <>
       {/* Hero */}
@@ -137,22 +228,22 @@ function JobDetail() {
         <div className="mx-auto max-w-4xl px-4">
           <Button variant="ghost" size="sm" asChild className="text-white/80 hover:bg-white/10 hover:text-white">
             <Link to="/jobs">
-              <ArrowLeft className="size-4" /> العودة للوظائف
+              <ArrowLeft className="size-4" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-white/85">
             <span className="flex items-center gap-2">
-              <Building2 className="size-4" /> ناشر الوظيفة محجوب لحماية خصوصية المنشأة
+              <Building2 className="size-4" /> {c.hiddenEmployer}
             </span>
             {job.facility_verified && (
               <Badge variant="secondary" className="gap-1">
-                <ShieldCheck className="size-3" /> ناشر موثّق
+                <ShieldCheck className="size-3" /> {c.verifiedEmployer}
               </Badge>
             )}
             {!!job.applications_count && (
               <Badge variant="outline" className="border-white/30 text-white">
-                تقدّم {job.applications_count}
+                {c.applications(job.applications_count)}
               </Badge>
             )}
           </div>
@@ -168,87 +259,83 @@ function JobDetail() {
                 <MapPin className="size-3" /> {job.city}، {job.country}
               </Badge>
               <Badge variant="outline" className="gap-1">
-                <Wallet className="size-3" /> {formatSalary(Number(job.salary_min), Number(job.salary_max), job.currency)}
+                <Wallet className="size-3" /> {formatSalary(Number(job.salary_min), Number(job.salary_max), job.currency, lang)}
               </Badge>
               <Badge variant="outline" className="gap-1">
-                <BriefcaseMedical className="size-3" /> {EMPLOYMENT_LABELS[job.employment_type]}
+                <BriefcaseMedical className="size-3" /> {employmentLabel(job.employment_type, lang)}
               </Badge>
               {job.required_license && (
                 <Badge variant="outline" className="gap-1">
-                  <ShieldCheck className="size-3" /> ترخيص {job.required_license}
+                  <ShieldCheck className="size-3" /> {c.licenseBadge(job.required_license)}
                 </Badge>
               )}
               <Badge variant="outline" className="gap-1">
-                <Clock className="size-3" /> نُشرت {relativeTime(job.created_at)}
+                <Clock className="size-3" /> {c.postedBadge(relativeTime(job.created_at, lang))}
               </Badge>
             </div>
 
-            <h2 className="mt-8 text-lg font-bold">وصف الوظيفة</h2>
+            <h2 className="mt-8 text-lg font-bold">{c.description}</h2>
             <p className="mt-2 leading-relaxed whitespace-pre-line text-muted-foreground">
               {job.description}
             </p>
 
-            <h2 className="mt-6 text-lg font-bold">المتطلبات</h2>
+            <h2 className="mt-6 text-lg font-bold">{c.requirements}</h2>
             <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-              <li>
-                خبرة لا تقل عن {job.min_experience} سنوات في{" "}
-                {job.specialties?.name_ar ?? "التخصص المطلوب"}
-              </li>
-              {job.required_license && <li>ترخيص مزاولة مهنة سارٍ من {job.required_license}</li>}
-              <li>إجادة العمل ضمن فريق متعدد التخصصات</li>
+              <li>{c.expReq(job.min_experience, specialty || c.defaultSpecialty)}</li>
+              {job.required_license && <li>{c.licenseReq(job.required_license)}</li>}
+              <li>{c.teamworkReq}</li>
             </ul>
 
             <div className="mt-6 rounded-xl bg-surface p-4 text-sm text-muted-foreground">
-              هوية المنشأة الناشرة تظهر لك مباشرة بعد قبول طلبك أو بدء التواصل معك — كل ناشر على
-              SyndeoCare تُراجَع اعتماداته قبل النشر.
+              {c.privacyNote}
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             <div className="card-lift rounded-2xl border border-border bg-card p-6">
-              <div className="text-sm text-muted-foreground">الراتب الشهري</div>
+              <div className="text-sm text-muted-foreground">{c.salaryLabel}</div>
               <div className="mt-1 font-display text-3xl font-extrabold text-primary">
-                {formatSalary(Number(job.salary_min), Number(job.salary_max), job.currency)}
+                {formatSalary(Number(job.salary_min), Number(job.salary_max), job.currency, lang)}
               </div>
               <div className="mt-4 space-y-2 text-sm text-muted-foreground">
                 <div className="flex justify-between">
-                  <span>الموقع</span>
+                  <span>{c.location}</span>
                   <span className="font-medium text-foreground">{job.city}، {job.country}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>نوع التوظيف</span>
-                  <span className="font-medium text-foreground">{EMPLOYMENT_LABELS[job.employment_type]}</span>
+                  <span>{c.employment}</span>
+                  <span className="font-medium text-foreground">{employmentLabel(job.employment_type, lang)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>الحد الأدنى للخبرة</span>
-                  <span className="font-medium text-foreground">{job.min_experience} سنوات</span>
+                  <span>{c.minExp}</span>
+                  <span className="font-medium text-foreground">{c.years(job.min_experience)}</span>
                 </div>
-                {job.specialties?.name_ar && (
+                {specialty && (
                   <div className="flex justify-between">
-                    <span>التخصص</span>
-                    <span className="font-medium text-foreground">{job.specialties.name_ar}</span>
+                    <span>{c.specialty}</span>
+                    <span className="font-medium text-foreground">{specialty}</span>
                   </div>
                 )}
               </div>
             </div>
 
             <div className="card-lift rounded-2xl border border-border bg-card p-6">
-              <h2 className="text-lg font-bold">التقديم على الوظيفة</h2>
+              <h2 className="text-lg font-bold">{c.applyTitle}</h2>
               {!user ? (
                 <>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    سجّل دخولك كي تتقدم وتتابع حالة طلبك خطوة بخطوة.
+                    {c.signInPrompt}
                   </p>
                   <Button className="mt-4 w-full" asChild>
-                    <Link to="/auth">تسجيل الدخول للتقديم</Link>
+                    <Link to="/auth">{c.signInCta}</Link>
                   </Button>
                 </>
               ) : existing ? (
                 <p className="mt-2 text-sm text-success">
-                  تم التقديم على هذه الوظيفة مسبقاً. تابع الحالة من{" "}
+                  {c.alreadyApplied}{" "}
                   <Link to="/applications" className="underline">
-                    صفحة طلباتي
+                    {c.myApplicationsPage}
                   </Link>
                   .
                 </p>
@@ -259,7 +346,7 @@ function JobDetail() {
                     onChange={(e) => setCover(e.target.value)}
                     maxLength={2000}
                     rows={5}
-                    placeholder="اكتب رسالة تعريفية مختصرة (اختياري): خبرتك، سبب اهتمامك، وتاريخ الالتحاق الممكن."
+                    placeholder={c.coverPlaceholder}
                     className="mt-4"
                   />
                   <Button
@@ -267,7 +354,7 @@ function JobDetail() {
                     onClick={() => apply.mutate()}
                     disabled={apply.isPending}
                   >
-                    {apply.isPending ? "جارٍ الإرسال..." : "أرسل الطلب"}
+                    {apply.isPending ? c.sending : c.sendApply}
                   </Button>
                 </>
               )}
@@ -281,7 +368,7 @@ function JobDetail() {
                 disabled={toggleSave.isPending}
               >
                 {saved ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
-                {saved ? "محفوظة" : "حفظ الوظيفة"}
+                {saved ? c.saved : c.saveJob}
               </Button>
             )}
           </div>

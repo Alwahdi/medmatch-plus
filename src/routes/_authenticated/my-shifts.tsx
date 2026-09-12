@@ -5,7 +5,8 @@ import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
+import { countryLabel, formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/my-shifts")({
   head: () => ({
@@ -19,7 +20,34 @@ export const Route = createFileRoute("/_authenticated/my-shifts")({
   component: MyShifts,
 });
 
+const TXT = {
+  ar: {
+    title: "مناوباتي",
+    sub: "جدولك القادم وتفاصيل الأجر.",
+    loading: "جارٍ التحميل...",
+    hours: (n: number) => `${n} ساعات`,
+    cancel: "إلغاء الحجز",
+    cancelled: "تم إلغاء الحجز",
+    cancelFailed: "تعذّر الإلغاء",
+    empty: "لا مناوبات محجوزة.",
+    browse: "تصفح السوق",
+  },
+  en: {
+    title: "My shifts",
+    sub: "Your upcoming schedule and pay details.",
+    loading: "Loading...",
+    hours: (n: number) => `${n} hours`,
+    cancel: "Cancel booking",
+    cancelled: "Booking cancelled",
+    cancelFailed: "Failed to cancel",
+    empty: "No shifts booked.",
+    browse: "Browse marketplace",
+  },
+} as const;
+
 function MyShifts() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
 
@@ -46,20 +74,20 @@ function MyShifts() {
       await supabase.from("shifts").update({ status: "open", booked_by: null }).eq("id", shiftId);
     },
     onSuccess: () => {
-      toast.success("تم إلغاء الحجز");
+      toast.success(c.cancelled);
       queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
     },
-    onError: () => toast.error("تعذّر الإلغاء"),
+    onError: () => toast.error(c.cancelFailed),
   });
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">مناوباتي</h1>
-      <p className="mt-2 text-muted-foreground">جدولك القادم وتفاصيل الأجر.</p>
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+      <p className="mt-2 text-muted-foreground">{c.sub}</p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((b) => {
@@ -72,19 +100,19 @@ function MyShifts() {
                   <div>
                     <p className="font-bold">{s.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {s.city}، {s.country}
+                      {s.city}، {countryLabel(s.country, lang)}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(s.starts_at)} · {hours} ساعات</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(s.starts_at, lang)} · {c.hours(hours)}</p>
                   </div>
                 </div>
                 <div className="text-left">
                   <p className="font-display text-lg font-extrabold text-accent">
-                    {formatMoney(s.hourly_rate * hours, s.currency)}
+                    {formatMoney(s.hourly_rate * hours, s.currency, lang)}
                   </p>
                   <Button size="sm" variant="ghost"
                     onClick={() => cancel.mutate({ id: b.id, shiftId: s.id })}
                     disabled={cancel.isPending}>
-                    إلغاء الحجز
+                    {c.cancel}
                   </Button>
                 </div>
               </li>
@@ -93,7 +121,7 @@ function MyShifts() {
         </ul>
       ) : (
         <p className="mt-6 text-sm text-muted-foreground">
-          لا مناوبات محجوزة. <Link to="/shifts" className="text-primary underline">تصفح السوق</Link>
+          {c.empty} <Link to="/shifts" className="text-primary underline">{c.browse}</Link>
         </p>
       )}
     </div>

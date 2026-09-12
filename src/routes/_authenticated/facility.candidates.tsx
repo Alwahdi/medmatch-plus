@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { COUNTRIES } from "@/lib/format";
+import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/facility/candidates")({
   head: () => ({
@@ -47,13 +48,74 @@ type Candidate = {
   is_verified: boolean;
 };
 
-const ERRORS: Record<string, string> = {
-  NOT_A_FACILITY: "هذه الميزة متاحة لحسابات المنشآت فقط.",
-  NO_ACTIVE_SUBSCRIPTION: "اشتراكك منتهٍ — جدّد الباقة لاستخدام بحث المرشحين.",
-  SEARCH_QUOTA_EXCEEDED: "استهلكت حصة عمليات البحث في باقتك. رقِّ الباقة للمتابعة.",
-};
+const TXT = {
+  ar: {
+    errors: {
+      NOT_A_FACILITY: "هذه الميزة متاحة لحسابات المنشآت فقط.",
+      NO_ACTIVE_SUBSCRIPTION: "اشتراكك منتهٍ — جدّد الباقة لاستخدام بحث المرشحين.",
+      SEARCH_QUOTA_EXCEEDED: "استهلكت حصة عمليات البحث في باقتك. رقِّ الباقة للمتابعة.",
+    },
+    searchFailed: "تعذّر تنفيذ البحث",
+    title: "بحث المرشحين",
+    subtitle: "هوية المرشح الكاملة تظهر بعد بدء المحادثة معه.",
+    remaining: "المتبقي من حصة البحث:",
+    back: "رجوع للوحة",
+    specialty: "التخصص",
+    allSpecialties: "كل التخصصات",
+    country: "الدولة",
+    allCountries: "كل الدول",
+    city: "المدينة",
+    minExpPlaceholder: "أقل خبرة (سنوات)",
+    searching: "جارٍ البحث...",
+    searchBtn: "ابحث (يخصم من حصة الباقة)",
+    noResults: "لا توجد نتائج مطابقة",
+    candidateIn: (spec: string) => `مرشح في ${spec}`,
+    genericSpecialty: "تخصص طبي",
+    verified: "موثّق",
+    experience: (n: number) => `خبرة ${n} سنة`,
+    openToShifts: " · متاح للمناوبات",
+    contact: "تواصل",
+    chatOpened: "تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح",
+    chatFailed: "تعذّر بدء المحادثة",
+    completeFacility: "أكمل بيانات المنشأة أولاً",
+    initialContact: "تواصل مبدئي",
+  },
+  en: {
+    errors: {
+      NOT_A_FACILITY: "This feature is available for facility accounts only.",
+      NO_ACTIVE_SUBSCRIPTION: "Your subscription has expired — renew your plan to use candidate search.",
+      SEARCH_QUOTA_EXCEEDED: "You've used up your plan's search quota. Upgrade your plan to continue.",
+    },
+    searchFailed: "Failed to run the search",
+    title: "Candidate search",
+    subtitle: "The candidate's full identity is revealed once you start a conversation.",
+    remaining: "Remaining search quota:",
+    back: "Back to dashboard",
+    specialty: "Specialty",
+    allSpecialties: "All specialties",
+    country: "Country",
+    allCountries: "All countries",
+    city: "City",
+    minExpPlaceholder: "Minimum experience (years)",
+    searching: "Searching...",
+    searchBtn: "Search (uses one search from your quota)",
+    noResults: "No matching results",
+    candidateIn: (spec: string) => `Candidate in ${spec}`,
+    genericSpecialty: "medical specialty",
+    verified: "Verified",
+    experience: (n: number) => `${n} years experience`,
+    openToShifts: " · Available for shifts",
+    contact: "Contact",
+    chatOpened: "Conversation opened — your facility name is now visible to the candidate",
+    chatFailed: "Failed to start conversation",
+    completeFacility: "Complete your facility profile first",
+    initialContact: "Initial contact",
+  },
+} as const;
 
 function Candidates() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
   const [specialty, setSpecialty] = useState(ANY);
@@ -65,7 +127,7 @@ function Candidates() {
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar").order("name_ar");
+      const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
       return data ?? [];
     },
   });
@@ -110,21 +172,24 @@ function Candidates() {
       if (city.trim()) args._city = city.trim();
       if (minExp) args._min_experience = Number(minExp);
       const { data, error } = await supabase.rpc("search_candidates", args);
-      if (error) throw new Error(ERRORS[error.message.replace(/.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s, "$1")] ?? "تعذّر تنفيذ البحث");
+      if (error) {
+        const key = error.message.replace(/.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s, "$1") as keyof typeof c.errors;
+        throw new Error(c.errors[key] ?? c.searchFailed);
+      }
       await supabase.rpc("consume_candidate_search");
       return (data ?? []) as Candidate[];
     },
     onSuccess: (rows) => {
       setResults(rows);
       refetchQuota();
-      if (rows.length === 0) toast.info("لا توجد نتائج مطابقة");
+      if (rows.length === 0) toast.info(c.noResults);
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const startChat = useMutation({
     mutationFn: async (candidateUserId: string) => {
-      if (!facility) throw new Error("أكمل بيانات المنشأة أولاً");
+      if (!facility) throw new Error(c.completeFacility);
       const { data: existing } = await supabase
         .from("conversations")
         .select("id")
@@ -136,15 +201,15 @@ function Candidates() {
       const { error } = await supabase.from("conversations").insert({
         facility_id: facility.id,
         professional_user_id: candidateUserId,
-        subject: "تواصل مبدئي",
+        subject: c.initialContact,
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح");
+      toast.success(c.chatOpened);
       navigate({ to: "/messages" });
     },
-    onError: () => toast.error("تعذّر بدء المحادثة"),
+    onError: () => toast.error(c.chatFailed),
   });
 
   const plan = quota?.subscription_plans;
@@ -157,78 +222,76 @@ function Candidates() {
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-extrabold">بحث المرشحين</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            هوية المرشح الكاملة تظهر بعد بدء المحادثة معه.
-          </p>
+          <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{c.subtitle}</p>
         </div>
         <div className="text-sm text-muted-foreground">
           {remaining !== null && (
             <span>
-              المتبقي من حصة البحث: <strong className="text-foreground">{remaining}</strong>
+              {c.remaining} <strong className="text-foreground">{remaining}</strong>
             </span>
           )}
-          <Link to="/facility" className="ms-4 text-primary underline">رجوع للوحة</Link>
+          <Link to="/facility" className="ms-4 text-primary underline">{c.back}</Link>
         </div>
       </div>
 
       <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-5 md:grid-cols-4">
         <Select value={specialty} onValueChange={setSpecialty}>
-          <SelectTrigger><SelectValue placeholder="التخصص" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={c.specialty} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value={ANY}>كل التخصصات</SelectItem>
+            <SelectItem value={ANY}>{c.allSpecialties}</SelectItem>
             {specialties?.map((s) => (
-              <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>
+              <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={country} onValueChange={setCountry}>
-          <SelectTrigger><SelectValue placeholder="الدولة" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={c.country} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value={ANY}>كل الدول</SelectItem>
-            {COUNTRIES.map((c) => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
+            <SelectItem value={ANY}>{c.allCountries}</SelectItem>
+            {COUNTRIES.map((x) => (
+              <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Input placeholder="المدينة" value={city} onChange={(e) => setCity(e.target.value)} />
+        <Input placeholder={c.city} value={city} onChange={(e) => setCity(e.target.value)} />
         <Input
           type="number"
           min={0}
-          placeholder="أقل خبرة (سنوات)"
+          placeholder={c.minExpPlaceholder}
           value={minExp}
           onChange={(e) => setMinExp(e.target.value)}
         />
         <Button className="md:col-span-4" onClick={() => search.mutate()} disabled={search.isPending}>
-          <Search className="size-4" /> {search.isPending ? "جارٍ البحث..." : "ابحث (يخصم من حصة الباقة)"}
+          <Search className="size-4" /> {search.isPending ? c.searching : c.searchBtn}
         </Button>
       </div>
 
       {results && (
         <ul className="mt-6 space-y-4">
-          {results.map((c) => (
-            <li key={c.id} className="card-lift rounded-2xl border border-border bg-card p-5">
+          {results.map((cand) => (
+            <li key={cand.id} className="card-lift rounded-2xl border border-border bg-card p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="flex items-center gap-2 font-bold">
-                    مرشح في {specialties?.find((s) => s.id === c.specialty_id)?.name_ar ?? "تخصص طبي"}
-                    {c.is_verified && (
+                    {c.candidateIn(specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang) || c.genericSpecialty)}
+                    {cand.is_verified && (
                       <Badge variant="secondary" className="gap-1">
-                        <ShieldCheck className="size-3" /> موثّق
+                        <ShieldCheck className="size-3" /> {c.verified}
                       </Badge>
                     )}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {c.headline ?? "—"} · خبرة {c.years_experience} سنة ·{" "}
-                    {[c.city, c.country].filter(Boolean).join("، ")}
-                    {c.is_open_to_shifts ? " · متاح للمناوبات" : ""}
+                    {cand.headline ?? "—"} · {c.experience(cand.years_experience)} ·{" "}
+                    {[cand.city, countryLabel(cand.country, lang)].filter(Boolean).join("، ")}
+                    {cand.is_open_to_shifts ? c.openToShifts : ""}
                   </p>
                 </div>
-                <Button size="sm" onClick={() => startChat.mutate(c.user_id)} disabled={startChat.isPending}>
-                  <MessageSquare className="size-4" /> تواصل
+                <Button size="sm" onClick={() => startChat.mutate(cand.user_id)} disabled={startChat.isPending}>
+                  <MessageSquare className="size-4" /> {c.contact}
                 </Button>
               </div>
-              {c.bio && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{c.bio}</p>}
+              {cand.bio && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{cand.bio}</p>}
             </li>
           ))}
         </ul>

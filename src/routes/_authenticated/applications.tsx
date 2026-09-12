@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { APPLICATION_LABELS, relativeTime } from "@/lib/format";
+import { applicationLabel, relativeTime } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/applications")({
   head: () => ({
@@ -19,7 +20,28 @@ export const Route = createFileRoute("/_authenticated/applications")({
 
 const STAGES = ["submitted", "reviewing", "shortlisted", "interview", "offer", "hired"];
 
+const TXT = {
+  ar: {
+    title: "طلباتي",
+    sub: "كل طلب ومرحلته الحالية لدى المنشأة.",
+    loading: "جارٍ التحميل...",
+    appliedAt: (t: string) => `قُدّم ${t}`,
+    empty: "لا طلبات بعد.",
+    browseJobs: "تصفح الوظائف",
+  },
+  en: {
+    title: "My applications",
+    sub: "Every application and its current stage with the employer.",
+    loading: "Loading...",
+    appliedAt: (t: string) => `Applied ${t}`,
+    empty: "No applications yet.",
+    browseJobs: "Browse jobs",
+  },
+} as const;
+
 function ApplicationsPage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const { data, isLoading } = useQuery({
     queryKey: ["my-apps-full", user?.id],
@@ -37,11 +59,11 @@ function ApplicationsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">طلباتي</h1>
-      <p className="mt-2 text-muted-foreground">كل طلب ومرحلته الحالية لدى المنشأة.</p>
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+      <p className="mt-2 text-muted-foreground">{c.sub}</p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((a) => {
@@ -55,11 +77,11 @@ function ApplicationsPage() {
                       {a.jobs?.title}
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      {a.jobs?.city} · قُدّم {relativeTime(a.created_at)}
+                      {a.jobs?.city} · {c.appliedAt(relativeTime(a.created_at, lang))}
                     </p>
                   </div>
                   <Badge variant={rejected ? "destructive" : "secondary"}>
-                    {APPLICATION_LABELS[a.status]}
+                    {applicationLabel(a.status, lang)}
                   </Badge>
                 </div>
                 {!rejected && (
@@ -78,7 +100,7 @@ function ApplicationsPage() {
         </ul>
       ) : (
         <p className="mt-6 text-sm text-muted-foreground">
-          لا طلبات بعد. <Link to="/jobs" className="text-primary underline">تصفح الوظائف</Link>
+          {c.empty} <Link to="/jobs" className="text-primary underline">{c.browseJobs}</Link>
         </p>
       )}
     </div>

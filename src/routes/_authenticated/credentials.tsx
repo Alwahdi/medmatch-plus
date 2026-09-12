@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { CREDENTIAL_LABELS, DOC_TYPES, formatDate } from "@/lib/format";
+import { credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/credentials")({
   head: () => ({
@@ -31,17 +32,72 @@ export const Route = createFileRoute("/_authenticated/credentials")({
   component: CredentialsPage,
 });
 
-const schema = z.object({
-  title: z.string().trim().min(2, "أدخل اسم الوثيقة").max(120),
-  doc_type: z.string().min(1, "اختر نوع الوثيقة"),
-  issuer: z.string().trim().max(120).optional(),
-});
+const TXT = {
+  ar: {
+    title: "ملف الاعتماد",
+    sub: "وثائقك تُراجع من فريقنا، والمنشآت ترى حالة التوثيق فقط — لا تُنشر ملفاتك للعامة.",
+    addTitle: "إضافة وثيقة",
+    docType: "نوع الوثيقة",
+    docTypePh: "اختر النوع",
+    docTitle: "اسم الوثيقة",
+    issuer: "الجهة المُصدِرة",
+    issuerPh: "مثال: الهيئة السعودية للتخصصات الصحية",
+    expiry: "تاريخ الانتهاء",
+    file: "الملف (PDF أو صورة، حتى ١٠ ميجابايت)",
+    upload: "رفع الوثيقة",
+    uploading: "جارٍ الرفع...",
+    myDocs: "وثائقي",
+    loading: "جارٍ التحميل...",
+    empty: "لم ترفع أي وثيقة بعد.",
+    expiresOn: (d: string) => ` · ينتهي ${d}`,
+    titleReq: "أدخل اسم الوثيقة",
+    typeReq: "اختر نوع الوثيقة",
+    fileTooBig: "حجم الملف يتجاوز ١٠ ميجابايت",
+    uploadFailed: "تعذّر رفع الملف",
+    uploaded: "تم رفع الوثيقة، ستتم مراجعتها خلال ٢٤–٤٨ ساعة",
+    saveFailed: "تعذّر الحفظ",
+    deleted: "تم حذف الوثيقة",
+  },
+  en: {
+    title: "Credentials",
+    sub: "Your documents are reviewed by our team, and employers only see the verification status — your files are never published publicly.",
+    addTitle: "Add a document",
+    docType: "Document type",
+    docTypePh: "Choose type",
+    docTitle: "Document name",
+    issuer: "Issuing authority",
+    issuerPh: "e.g. Saudi Commission for Health Specialties",
+    expiry: "Expiry date",
+    file: "File (PDF or image, up to 10 MB)",
+    upload: "Upload document",
+    uploading: "Uploading...",
+    myDocs: "My documents",
+    loading: "Loading...",
+    empty: "You haven't uploaded any document yet.",
+    expiresOn: (d: string) => ` · expires ${d}`,
+    titleReq: "Enter the document name",
+    typeReq: "Choose the document type",
+    fileTooBig: "File size exceeds 10 MB",
+    uploadFailed: "Failed to upload the file",
+    uploaded: "Document uploaded, it will be reviewed within 24–48 hours",
+    saveFailed: "Failed to save",
+    deleted: "Document deleted",
+  },
+} as const;
 
 function CredentialsPage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ title: "", doc_type: "", issuer: "", expiry_date: "" });
   const [file, setFile] = useState<File | null>(null);
+
+  const schema = z.object({
+    title: z.string().trim().min(2, c.titleReq).max(120),
+    doc_type: z.string().min(1, c.typeReq),
+    issuer: z.string().trim().max(120).optional(),
+  });
 
   const { data: items, isLoading } = useQuery({
     queryKey: ["my-creds", user?.id],
@@ -61,14 +117,14 @@ function CredentialsPage() {
     mutationFn: async () => {
       const parsed = schema.safeParse(form);
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
-      if (file && file.size > 10 * 1024 * 1024) throw new Error("حجم الملف يتجاوز ١٠ ميجابايت");
+      if (file && file.size > 10 * 1024 * 1024) throw new Error(c.fileTooBig);
 
       let filePath: string | null = null;
       if (file) {
         const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
         filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("credentials").upload(filePath, file);
-        if (upErr) throw new Error("تعذّر رفع الملف");
+        if (upErr) throw new Error(c.uploadFailed);
       }
 
       const { error } = await supabase.from("credentials").insert({
@@ -82,12 +138,12 @@ function CredentialsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم رفع الوثيقة، ستتم مراجعتها خلال ٢٤–٤٨ ساعة");
+      toast.success(c.uploaded);
       setForm({ title: "", doc_type: "", issuer: "", expiry_date: "" });
       setFile(null);
       queryClient.invalidateQueries({ queryKey: ["my-creds"] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر الحفظ"),
+    onError: (e: Error) => toast.error(e.message || c.saveFailed),
   });
 
   const remove = useMutation({
@@ -96,79 +152,79 @@ function CredentialsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم حذف الوثيقة");
+      toast.success(c.deleted);
       queryClient.invalidateQueries({ queryKey: ["my-creds"] });
     },
   });
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">ملف الاعتماد</h1>
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-muted-foreground">
-        وثائقك تُراجع من فريقنا، والمنشآت ترى حالة التوثيق فقط — لا تُنشر ملفاتك للعامة.
+        {c.sub}
       </p>
 
       <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
-        <h2 className="text-lg font-bold">إضافة وثيقة</h2>
+        <h2 className="text-lg font-bold">{c.addTitle}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <Label>نوع الوثيقة</Label>
+            <Label>{c.docType}</Label>
             <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
-              <SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
               <SelectContent>
-                {DOC_TYPES.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                {docTypes(lang).map((d, i) => <SelectItem key={d} value={docTypes("ar")[i]!}>{d}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="title">اسم الوثيقة</Label>
+            <Label htmlFor="title">{c.docTitle}</Label>
             <Input id="title" maxLength={120} value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="issuer">الجهة المُصدِرة</Label>
-            <Input id="issuer" maxLength={120} placeholder="مثال: الهيئة السعودية للتخصصات الصحية"
+            <Label htmlFor="issuer">{c.issuer}</Label>
+            <Input id="issuer" maxLength={120} placeholder={c.issuerPh}
               value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="exp">تاريخ الانتهاء</Label>
+            <Label htmlFor="exp">{c.expiry}</Label>
             <Input id="exp" type="date" value={form.expiry_date}
               onChange={(e) => setForm({ ...form, expiry_date: e.target.value })} />
           </div>
         </div>
         <div>
-          <Label htmlFor="file">الملف (PDF أو صورة، حتى ١٠ ميجابايت)</Label>
+          <Label htmlFor="file">{c.file}</Label>
           <Input id="file" type="file" accept=".pdf,image/*"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         </div>
         <Button onClick={() => add.mutate()} disabled={add.isPending}>
-          <Upload className="size-4" /> {add.isPending ? "جارٍ الرفع..." : "رفع الوثيقة"}
+          <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
         </Button>
       </div>
 
-      <h2 className="mt-10 text-lg font-bold">وثائقي</h2>
+      <h2 className="mt-10 text-lg font-bold">{c.myDocs}</h2>
       {isLoading ? (
-        <p className="mt-4 text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="mt-4 text-sm text-muted-foreground">{c.loading}</p>
       ) : items?.length ? (
         <ul className="mt-4 space-y-3">
-          {items.map((c) => (
-            <li key={c.id} className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4">
+          {items.map((cred) => (
+            <li key={cred.id} className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4">
               <div className="flex items-center gap-3">
                 <FileCheck2 className="size-5 text-primary" />
                 <div>
-                  <p className="font-medium">{c.title}</p>
+                  <p className="font-medium">{cred.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {c.doc_type}
-                    {c.expiry_date ? ` · ينتهي ${formatDate(c.expiry_date)}` : ""}
+                    {docTypeLabel(cred.doc_type, lang)}
+                    {cred.expiry_date ? c.expiresOn(formatDate(cred.expiry_date, lang)) : ""}
                   </p>
-                  {c.review_note && <p className="mt-1 text-xs text-destructive">{c.review_note}</p>}
+                  {cred.review_note && <p className="mt-1 text-xs text-destructive">{cred.review_note}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={c.status === "approved" ? "default" : "secondary"}>
-                  {CREDENTIAL_LABELS[c.status]}
+                <Badge variant={cred.status === "approved" ? "default" : "secondary"}>
+                  {credentialLabel(cred.status, lang)}
                 </Badge>
-                <Button size="icon" variant="ghost" onClick={() => remove.mutate(c.id)}>
+                <Button size="icon" variant="ghost" onClick={() => remove.mutate(cred.id)}>
                   <Trash2 className="size-4" />
                 </Button>
               </div>
@@ -176,7 +232,7 @@ function CredentialsPage() {
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-sm text-muted-foreground">لم ترفع أي وثيقة بعد.</p>
+        <p className="mt-4 text-sm text-muted-foreground">{c.empty}</p>
       )}
     </div>
   );

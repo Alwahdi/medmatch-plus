@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { COUNTRIES, EMPLOYMENT_LABELS } from "@/lib/format";
+import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/alerts")({
   head: () => ({
@@ -36,7 +37,62 @@ export const Route = createFileRoute("/_authenticated/alerts")({
 const ANY = "any";
 type EmploymentType = "full_time" | "part_time" | "contract" | "locum" | "shift";
 
+const EMPLOYMENT_KEYS: EmploymentType[] = ["full_time", "part_time", "contract", "locum", "shift"];
+
+const TXT = {
+  ar: {
+    title: "تنبيهات الوظائف",
+    sub: "حدّد تخصصك وموقعك، ونرسل لك الفرص الجديدة المطابقة أولاً بأول.",
+    specialty: "التخصص",
+    allSpecialties: "كل التخصصات",
+    country: "الدولة",
+    allCountries: "كل الدول",
+    cityPh: "المدينة (اختياري)",
+    employment: "نوع العمل",
+    allTypes: "كل الأنواع",
+    email: "عبر البريد الإلكتروني",
+    whatsapp: "عبر واتساب",
+    phonePh: "رقم واتساب بصيغة دولية مثل ‎+9665xxxxxxx",
+    add: "أضف التنبيه",
+    saving: "جارٍ الحفظ...",
+    invalidPhone: "أدخل رقم واتساب صحيح بصيغة دولية",
+    created: "تم إنشاء التنبيه",
+    createFailed: "تعذّر إنشاء التنبيه",
+    deleted: "تم حذف التنبيه",
+    delete: "حذف",
+    empty: "لم تنشئ أي تنبيه بعد.",
+    channelWhatsapp: "واتساب",
+    channelEmail: "بريد",
+  },
+  en: {
+    title: "Job alerts",
+    sub: "Set your specialty and location, and we'll send you matching new opportunities as they appear.",
+    specialty: "Specialty",
+    allSpecialties: "All specialties",
+    country: "Country",
+    allCountries: "All countries",
+    cityPh: "City (optional)",
+    employment: "Employment type",
+    allTypes: "All types",
+    email: "Via email",
+    whatsapp: "Via WhatsApp",
+    phonePh: "WhatsApp number in international format e.g. +9665xxxxxxx",
+    add: "Add alert",
+    saving: "Saving...",
+    invalidPhone: "Enter a valid WhatsApp number in international format",
+    created: "Alert created",
+    createFailed: "Failed to create alert",
+    deleted: "Alert deleted",
+    delete: "Delete",
+    empty: "You haven't created any alert yet.",
+    channelWhatsapp: "WhatsApp",
+    channelEmail: "Email",
+  },
+} as const;
+
 function AlertsPage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [specialty, setSpecialty] = useState(ANY);
@@ -49,7 +105,7 @@ function AlertsPage() {
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar").order("name_ar");
+      const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
       return data ?? [];
     },
   });
@@ -70,7 +126,7 @@ function AlertsPage() {
   const create = useMutation({
     mutationFn: async () => {
       if (channel === "whatsapp" && !/^\+?\d{8,15}$/.test(phone.trim())) {
-        throw new Error("أدخل رقم واتساب صحيح بصيغة دولية");
+        throw new Error(c.invalidPhone);
       }
       const { error } = await supabase.from("job_alerts").insert({
         user_id: user!.id,
@@ -84,12 +140,12 @@ function AlertsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم إنشاء التنبيه");
+      toast.success(c.created);
       setCity("");
       setPhone("");
       queryClient.invalidateQueries({ queryKey: ["job-alerts"] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر إنشاء التنبيه"),
+    onError: (e: Error) => toast.error(e.message || c.createFailed),
   });
 
   const toggle = useMutation({
@@ -106,63 +162,63 @@ function AlertsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم حذف التنبيه");
+      toast.success(c.deleted);
       queryClient.invalidateQueries({ queryKey: ["job-alerts"] });
     },
   });
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">تنبيهات الوظائف</h1>
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        حدّد تخصصك وموقعك، ونرسل لك الفرص الجديدة المطابقة أولاً بأول.
+        {c.sub}
       </p>
 
       <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
         <Select value={specialty} onValueChange={setSpecialty}>
-          <SelectTrigger><SelectValue placeholder="التخصص" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={c.specialty} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value={ANY}>كل التخصصات</SelectItem>
+            <SelectItem value={ANY}>{c.allSpecialties}</SelectItem>
             {specialties?.map((s) => (
-              <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>
+              <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={country} onValueChange={setCountry}>
-          <SelectTrigger><SelectValue placeholder="الدولة" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={c.country} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value={ANY}>كل الدول</SelectItem>
-            {COUNTRIES.map((c) => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
+            <SelectItem value={ANY}>{c.allCountries}</SelectItem>
+            {COUNTRIES.map((x) => (
+              <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Input placeholder="المدينة (اختياري)" value={city} onChange={(e) => setCity(e.target.value)} />
+        <Input placeholder={c.cityPh} value={city} onChange={(e) => setCity(e.target.value)} />
         <Select value={employment} onValueChange={setEmployment}>
-          <SelectTrigger><SelectValue placeholder="نوع العمل" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={c.employment} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value={ANY}>كل الأنواع</SelectItem>
-            {Object.entries(EMPLOYMENT_LABELS).map(([k, v]) => (
-              <SelectItem key={k} value={k}>{v}</SelectItem>
+            <SelectItem value={ANY}>{c.allTypes}</SelectItem>
+            {EMPLOYMENT_KEYS.map((k) => (
+              <SelectItem key={k} value={k}>{employmentLabel(k, lang)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={channel} onValueChange={(v) => setChannel(v as "email" | "whatsapp")}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="email">عبر البريد الإلكتروني</SelectItem>
-            <SelectItem value="whatsapp">عبر واتساب</SelectItem>
+            <SelectItem value="email">{c.email}</SelectItem>
+            <SelectItem value="whatsapp">{c.whatsapp}</SelectItem>
           </SelectContent>
         </Select>
         {channel === "whatsapp" && (
           <Input
-            placeholder="رقم واتساب بصيغة دولية مثل ‎+9665xxxxxxx"
+            placeholder={c.phonePh}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
         )}
         <Button className="md:col-span-2" onClick={() => create.mutate()} disabled={create.isPending}>
-          <BellRing className="size-4" /> {create.isPending ? "جارٍ الحفظ..." : "أضف التنبيه"}
+          <BellRing className="size-4" /> {create.isPending ? c.saving : c.add}
         </Button>
       </div>
 
@@ -174,19 +230,19 @@ function AlertsPage() {
           >
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Badge variant="outline">
-                {specialties?.find((s) => s.id === a.specialty_id)?.name_ar ?? "كل التخصصات"}
+                {specialtyName(specialties?.find((s) => s.id === a.specialty_id), lang) || c.allSpecialties}
               </Badge>
-              <Badge variant="outline">{a.country ?? "كل الدول"}</Badge>
+              <Badge variant="outline">{a.country ? countryLabel(a.country, lang) : c.allCountries}</Badge>
               {a.city && <Badge variant="outline">{a.city}</Badge>}
-              {a.employment_type && <Badge variant="outline">{EMPLOYMENT_LABELS[a.employment_type]}</Badge>}
-              <Badge variant="secondary">{a.channel === "whatsapp" ? "واتساب" : "بريد"}</Badge>
+              {a.employment_type && <Badge variant="outline">{employmentLabel(a.employment_type, lang)}</Badge>}
+              <Badge variant="secondary">{a.channel === "whatsapp" ? c.channelWhatsapp : c.channelEmail}</Badge>
             </div>
             <div className="flex items-center gap-3">
               <Switch
                 checked={a.is_active}
                 onCheckedChange={(v) => toggle.mutate({ id: a.id, is_active: v })}
               />
-              <Button variant="ghost" size="icon" onClick={() => remove.mutate(a.id)} aria-label="حذف">
+              <Button variant="ghost" size="icon" onClick={() => remove.mutate(a.id)} aria-label={c.delete}>
                 <Trash2 className="size-4" />
               </Button>
             </div>
@@ -195,7 +251,7 @@ function AlertsPage() {
       </ul>
 
       {!alerts?.length && (
-        <p className="mt-6 text-sm text-muted-foreground">لم تنشئ أي تنبيه بعد.</p>
+        <p className="mt-6 text-sm text-muted-foreground">{c.empty}</p>
       )}
     </div>
   );
