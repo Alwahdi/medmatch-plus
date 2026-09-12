@@ -81,7 +81,7 @@ function InvitationsPage() {
   const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
-  const confirm = useConfirm();
+  const { confirm, confirmDialog } = useConfirm();
 
   const { data } = useQuery({
     queryKey: ["my-invitations", user?.id],
@@ -118,7 +118,7 @@ function InvitationsPage() {
     const ok = await confirm({
       title: status === "accepted" ? c.confirmAcceptTitle : c.confirmDeclineTitle,
       description: status === "accepted" ? c.confirmAcceptBody : c.confirmDeclineBody,
-      confirmText: status === "accepted" ? c.accept : c.decline,
+      confirmLabel: status === "accepted" ? c.accept : c.decline,
       destructive: status === "declined",
     });
     if (ok) respond.mutate({ id, status });
@@ -223,6 +223,7 @@ function InvitationsPage() {
           <EmptyState icon={MailOpen} title={c.emptyTitle} description={c.emptyBody} />
         </div>
       )}
+      {confirmDialog}
     </div>
   );
 }
