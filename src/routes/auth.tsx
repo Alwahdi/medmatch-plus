@@ -47,7 +47,14 @@ function AuthPage() {
   const [tab, setTab] = useState(mode === "signup" ? "signup" : "signin");
 
   useEffect(() => {
-    if (user) navigate({ to: "/onboarding", replace: true });
+    if (!user) return;
+    let cancelled = false;
+    resolveLanding(user.id).then((to) => {
+      if (!cancelled) navigate({ to, replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [user, navigate]);
 
   useEffect(() => {
