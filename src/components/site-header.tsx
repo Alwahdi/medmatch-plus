@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Menu, Stethoscope } from "lucide-react";
+import { Globe, Menu, Stethoscope } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,13 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
+import { useLang } from "@/lib/i18n";
 
 const NAV = [
-  { to: "/jobs", label: "الوظائف" },
-  { to: "/shifts", label: "المناوبات" },
-  { to: "/specialties", label: "التخصصات" },
-  { to: "/for-facilities", label: "للمنشآت" },
-  { to: "/pricing", label: "الأسعار" },
+  { to: "/jobs", key: "nav.jobs" },
+  { to: "/shifts", key: "nav.shifts" },
+  { to: "/specialties", key: "nav.specialties" },
+  { to: "/for-facilities", key: "nav.forFacilities" },
+  { to: "/pricing", key: "nav.pricing" },
 ] as const;
 
 export function SiteHeader() {
@@ -27,6 +28,7 @@ export function SiteHeader() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const { t, lang, setLang } = useLang();
 
   const isFacility = roles?.includes("facility");
   const homeLink = isFacility ? "/facility" : "/dashboard";
@@ -48,7 +50,7 @@ export function SiteHeader() {
           <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
         </Link>
 
-        <nav className="mr-4 hidden items-center gap-1 md:flex">
+        <nav className="mx-4 hidden items-center gap-1 md:flex">
           {NAV.map((item) => (
             <Link
               key={item.to}
@@ -56,73 +58,83 @@ export function SiteHeader() {
               className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               activeProps={{ className: "bg-secondary text-foreground" }}
             >
-              {item.label}
+              {t(item.key)}
             </Link>
           ))}
         </nav>
 
-        <div className="mr-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5"
+            aria-label={t("lang.label")}
+            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+          >
+            <Globe className="size-4" />
+            <span className="hidden sm:inline">{t("lang.switch")}</span>
+          </Button>
           {!loading && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  حسابي
+                  {t("nav.account")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuItem asChild>
-                  <Link to={homeLink}>لوحتي</Link>
+                  <Link to={homeLink}>{t("nav.dashboard")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/messages">الرسائل</Link>
+                  <Link to="/messages">{t("nav.messages")}</Link>
                 </DropdownMenuItem>
                 {isFacility && (
                   <DropdownMenuItem asChild>
-                    <Link to="/facility/candidates">بحث المرشحين</Link>
+                    <Link to="/facility/candidates">{t("nav.candidates")}</Link>
                   </DropdownMenuItem>
                 )}
                 {!isFacility && (
                   <>
                     <DropdownMenuItem asChild>
-                      <Link to="/profile">ملفي المهني</Link>
+                      <Link to="/profile">{t("nav.profile")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/credentials">ملف الاعتماد</Link>
+                      <Link to="/credentials">{t("nav.credentials")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/applications">طلباتي</Link>
+                      <Link to="/applications">{t("nav.applications")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/cv">سيرتي الذاتية</Link>
+                      <Link to="/cv">{t("nav.cv")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/cv-import">بناء الملف من السيرة</Link>
+                      <Link to="/cv-import">{t("nav.cvImport")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/saved">الوظائف المحفوظة</Link>
+                      <Link to="/saved">{t("nav.saved")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/alerts">تنبيهات الوظائف</Link>
+                      <Link to="/alerts">{t("nav.alerts")}</Link>
                     </DropdownMenuItem>
                   </>
                 )}
                 {roles?.includes("admin") && (
                   <DropdownMenuItem asChild>
-                    <Link to="/admin">لوحة الإدارة</Link>
+                    <Link to="/admin">{t("nav.admin")}</Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut}>تسجيل الخروج</DropdownMenuItem>
+                <DropdownMenuItem onClick={signOut}>{t("nav.signOut")}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-                <Link to="/auth">تسجيل الدخول</Link>
+                <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
               <Button size="sm" asChild>
                 <Link to="/auth" search={{ mode: "signup" }}>
-                  إنشاء حساب
+                  {t("nav.signUp")}
                 </Link>
               </Button>
             </>
@@ -132,7 +144,7 @@ export function SiteHeader() {
             size="icon"
             className="md:hidden"
             onClick={() => setOpen((v) => !v)}
-            aria-label="القائمة"
+            aria-label={t("nav.menu")}
           >
             <Menu className="size-5" />
           </Button>
@@ -148,7 +160,7 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               className="block rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary"
             >
-              {item.label}
+              {t(item.key)}
             </Link>
           ))}
         </nav>
