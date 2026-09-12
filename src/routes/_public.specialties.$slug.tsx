@@ -122,7 +122,7 @@ function SpecialtyPage() {
 
       <h2 className="mt-10 font-display text-xl font-bold">{c.jobsHeading}</h2>
       {data.jobs.length ? (
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="mt-4 space-y-3">
           {data.jobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
