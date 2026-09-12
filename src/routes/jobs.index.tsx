@@ -122,7 +122,7 @@ function JobsPage() {
       <div className="relative px-4">
         <div className="mx-auto max-w-5xl -translate-y-1/2">
           <div className="card-lift rounded-2xl border border-border bg-card p-3 shadow-lg">
-            <div className="grid gap-2 md:grid-cols-[1fr_1fr_160px_160px]">
+            <div className="grid gap-2 md:grid-cols-[1fr_1fr_1fr]">
               <div className="relative">
                 <Search className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -159,9 +159,6 @@ function JobsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button className="h-11" asChild>
-                <Link to="/jobs">بحث</Link>
-              </Button>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
               <SlidersHorizontal className="size-4 text-muted-foreground" />
