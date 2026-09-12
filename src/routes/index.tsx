@@ -81,9 +81,9 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { n: "١", title: "أنشئ ملفك المهني", text: "تخصصك، خبرتك، ودولة ترخيصك — خمس دقائق فقط." },
-  { n: "٢", title: "وثّق ترخيصك مرة واحدة", text: "نراجع وثائقك، وتظهر للمنشآت كـ«كادر موثّق»." },
-  { n: "٣", title: "تقدّم أو احجز مناوبة", text: "طلب بنقرة، أو مناوبة محجوزة الليلة بأجر معلن." },
+  { n: "1", title: "أنشئ ملفك المهني", text: "تخصصك، خبرتك، ودولة ترخيصك — خمس دقائق فقط." },
+  { n: "2", title: "وثّق ترخيصك مرة واحدة", text: "نراجع وثائقك، وتظهر للمنشآت كـ«كادر موثّق»." },
+  { n: "3", title: "تقدّم أو احجز مناوبة", text: "طلب بنقرة، أو مناوبة محجوزة الليلة بأجر معلن." },
 ];
 
 const COMPARE = [
@@ -260,7 +260,7 @@ function Home() {
 
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="font-display text-3xl font-extrabold">كيف تبدأ خلال ٣ خطوات</h2>
+          <h2 className="font-display text-3xl font-extrabold">كيف تبدأ خلال 3 خطوات</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {STEPS.map((s) => (
               <div key={s.n} className="rounded-2xl border border-border bg-card p-6">
