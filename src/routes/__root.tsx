@@ -4,7 +4,6 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -12,8 +11,6 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/lib/i18n";
@@ -127,25 +124,12 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const isApp = useRouterState({
-    select: (s) => s.matches.some((m) => m.routeId.startsWith("/_authenticated")),
-  });
 
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthSync />
-        {isApp ? (
-          <Outlet />
-        ) : (
-          <div className="flex min-h-screen flex-col">
-            <SiteHeader />
-            <main className="flex-1">
-              <Outlet />
-            </main>
-            <SiteFooter />
-          </div>
-        )}
+        <Outlet />
         <Toaster position="top-center" />
       </LanguageProvider>
     </QueryClientProvider>
