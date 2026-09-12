@@ -71,6 +71,8 @@ const TXT = {
 function Applicants() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { confirm, confirmDialog } = useConfirm();
+
   const { user } = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
