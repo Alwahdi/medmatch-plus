@@ -68,12 +68,16 @@ function SavedJobs() {
           ))}
         </div>
       ) : (
-        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center">
-          <p className="font-bold">{c.empty}</p>
-          <Button className="mt-4" asChild>
-            <Link to="/jobs">{c.browse}</Link>
-          </Button>
-        </div>
+        <EmptyState
+          className="mt-6"
+          icon={Bookmark}
+          title={c.empty}
+          action={
+            <Button asChild>
+              <Link to="/jobs">{c.browse}</Link>
+            </Button>
+          }
+        />
       )}
     </div>
   );
