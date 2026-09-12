@@ -489,12 +489,15 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           min_experience: number
+          publisher_name: string | null
           required_license: string | null
           salary_max: number
           salary_min: number
+          slug: string | null
           specialty_id: string | null
           title: string
           updated_at: string
+          vacancies: number
         }
         Insert: {
           applications_count?: number
@@ -511,12 +514,15 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           min_experience?: number
+          publisher_name?: string | null
           required_license?: string | null
           salary_max: number
           salary_min: number
+          slug?: string | null
           specialty_id?: string | null
           title: string
           updated_at?: string
+          vacancies?: number
         }
         Update: {
           applications_count?: number
@@ -533,12 +539,15 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           min_experience?: number
+          publisher_name?: string | null
           required_license?: string | null
           salary_max?: number
           salary_min?: number
+          slug?: string | null
           specialty_id?: string | null
           title?: string
           updated_at?: string
+          vacancies?: number
         }
         Relationships: [
           {
@@ -918,6 +927,7 @@ export type Database = {
           years_experience: number
         }[]
       }
+      slugify: { Args: { input: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "facility" | "professional"

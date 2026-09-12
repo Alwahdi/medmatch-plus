@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { employmentLabel, formatSalary, relativeTime, specialtyName } from "@/lib/format";
+import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 const TXT = {
@@ -46,6 +46,14 @@ const TXT = {
     coverPlaceholder: "اكتب رسالة تعريفية مختصرة (اختياري): خبرتك، سبب اهتمامك، وتاريخ الالتحاق الممكن.",
     sending: "جارٍ الإرسال...",
     sendApply: "أرسل الطلب",
+    home: "الرئيسية",
+    jobsCrumb: "الوظائف الطبية",
+    vacancies: "الوظائف المتاحة",
+    deadline: "الموعد النهائي",
+    noDeadline: "غير محدد",
+    open: "مفتوحة",
+    closed: "مغلقة",
+    publishedBy: "نُشرت بواسطة",
     saved: "محفوظة",
     saveJob: "حفظ الوظيفة",
     savedToast: "تم حفظ الوظيفة",
@@ -86,6 +94,14 @@ const TXT = {
     coverPlaceholder: "Write a brief cover message (optional): your experience, why you're interested, and your possible start date.",
     sending: "Sending...",
     sendApply: "Send application",
+    home: "Home",
+    jobsCrumb: "Medical jobs",
+    vacancies: "Open positions",
+    deadline: "Application deadline",
+    noDeadline: "Not set",
+    open: "Open",
+    closed: "Closed",
+    publishedBy: "Published by",
     saved: "Saved",
     saveJob: "Save job",
     savedToast: "Job saved",
@@ -132,13 +148,13 @@ function JobDetail() {
   const queryClient = useQueryClient();
   const [cover, setCover] = useState("");
 
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobId);
+
   const { data: job, isLoading } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*,specialties(name_ar,name_en)")
-        .eq("id", jobId)
+      const query = supabase.from("jobs").select("*,specialties(name_ar,name_en)");
+      const { data, error } = await (isUuid ? query.eq("id", jobId) : query.eq("slug", jobId))
         .maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
@@ -146,14 +162,16 @@ function JobDetail() {
     },
   });
 
+  const realJobId = job?.id;
+
   const { data: existing } = useQuery({
-    queryKey: ["application", jobId, user?.id],
-    enabled: !!user,
+    queryKey: ["application", realJobId, user?.id],
+    enabled: !!user && !!realJobId,
     queryFn: async () => {
       const { data } = await supabase
         .from("applications")
         .select("id,status")
-        .eq("job_id", jobId)
+        .eq("job_id", realJobId!)
         .eq("user_id", user!.id)
         .maybeSingle();
       return data;
@@ -161,13 +179,13 @@ function JobDetail() {
   });
 
   const { data: saved } = useQuery({
-    queryKey: ["saved-job", jobId, user?.id],
-    enabled: !!user,
+    queryKey: ["saved-job", realJobId, user?.id],
+    enabled: !!user && !!realJobId,
     queryFn: async () => {
       const { data } = await supabase
         .from("saved_jobs")
         .select("id")
-        .eq("job_id", jobId)
+        .eq("job_id", realJobId!)
         .eq("user_id", user!.id)
         .maybeSingle();
       return data;
@@ -183,13 +201,13 @@ function JobDetail() {
       }
       const { error } = await supabase
         .from("saved_jobs")
-        .insert({ job_id: jobId, user_id: user!.id });
+        .insert({ job_id: realJobId!, user_id: user!.id });
       if (error) throw error;
       return true;
     },
     onSuccess: (added) => {
       toast.success(added ? c.savedToast : c.removedToast);
-      queryClient.invalidateQueries({ queryKey: ["saved-job", jobId] });
+      queryClient.invalidateQueries({ queryKey: ["saved-job", realJobId] });
       queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
     },
     onError: () => toast.error(c.saveFailed),
@@ -201,12 +219,12 @@ function JobDetail() {
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
       const { error } = await supabase
         .from("applications")
-        .insert({ job_id: jobId, user_id: user!.id, cover_letter: parsed.data || null });
+        .insert({ job_id: realJobId!, user_id: user!.id, cover_letter: parsed.data || null });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.appliedToast);
-      queryClient.invalidateQueries({ queryKey: ["application", jobId] });
+      queryClient.invalidateQueries({ queryKey: ["application", realJobId] });
     },
     onError: (e: Error) => toast.error(e.message || c.applyFailed),
   });
@@ -220,19 +238,31 @@ function JobDetail() {
   if (!job) return null;
 
   const specialty = specialtyName(job.specialties, lang);
+  const expired = !!job.expires_at && new Date(job.expires_at).getTime() < Date.now();
+  const isOpen = job.is_active && !expired;
 
   return (
     <>
       {/* Hero */}
       <section className="page-hero py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-4">
-          <Button variant="ghost" size="sm" asChild className="text-white/80 hover:bg-white/10 hover:text-white">
+          <nav className="flex flex-wrap items-center gap-2 text-xs text-white/70">
+            <Link to="/" className="hover:text-white">{c.home}</Link>
+            <span>/</span>
+            <Link to="/jobs" className="hover:text-white">{c.jobsCrumb}</Link>
+            <span>/</span>
+            <span className="text-white">{job.title}</span>
+          </nav>
+          <Button variant="ghost" size="sm" asChild className="mt-3 text-white/80 hover:bg-white/10 hover:text-white">
             <Link to="/jobs">
               <ArrowLeft className="size-4" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-white/85">
+            <Badge className={isOpen ? "bg-success text-white" : "bg-muted text-foreground"}>
+              {isOpen ? c.open : c.closed}
+            </Badge>
             <span className="flex items-center gap-2">
               <Building2 className="size-4" /> {c.hiddenEmployer}
             </span>
@@ -315,6 +345,22 @@ function JobDetail() {
                   <div className="flex justify-between">
                     <span>{c.specialty}</span>
                     <span className="font-medium text-foreground">{specialty}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span>{c.vacancies}</span>
+                  <span className="font-medium text-foreground">{job.vacancies ?? 1}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{c.deadline}</span>
+                  <span className="font-medium text-foreground">
+                    {job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}
+                  </span>
+                </div>
+                {job.publisher_name && (
+                  <div className="flex justify-between">
+                    <span>{c.publishedBy}</span>
+                    <span className="font-medium text-foreground">{job.publisher_name}</span>
                   </div>
                 )}
               </div>

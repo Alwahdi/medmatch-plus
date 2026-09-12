@@ -12,6 +12,7 @@ import { useLang } from "@/lib/i18n";
 
 export type JobRow = {
   id: string;
+  slug?: string | null;
   title: string;
   country: string;
   city: string;
@@ -65,7 +66,7 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
   return (
     <Link
       to="/jobs/$jobId"
-      params={{ jobId: job.id }}
+      params={{ jobId: job.slug ?? job.id }}
       className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5 hover:border-accent/30"
     >
       <div className="flex flex-wrap items-center gap-2">

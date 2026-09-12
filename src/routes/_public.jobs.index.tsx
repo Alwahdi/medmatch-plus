@@ -102,7 +102,7 @@ function JobsPage() {
       const { data, error } = await supabase
         .from("jobs")
         .select(
-          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar,name_en)",
+          "id,slug,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar,name_en)",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false });

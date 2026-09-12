@@ -63,6 +63,8 @@ export const DICT: Dict = {
   "footer.plans": { ar: "الأسعار والباقات", en: "Plans & pricing" },
   "footer.registerFacility": { ar: "تسجيل منشأة", en: "Register a facility" },
   "footer.resources": { ar: "المصادر", en: "Resources" },
+  "footer.blog": { ar: "المدونة", en: "Blog" },
+  "footer.cookies": { ar: "ملفات الارتباط", en: "Cookies" },
   "footer.guides": { ar: "الأدلة والمقالات", en: "Guides & articles" },
   "footer.questions": { ar: "أسئلة المقابلات", en: "Interview questions" },
   "footer.specialties": { ar: "التخصصات", en: "Specialties" },
