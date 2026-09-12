@@ -16,16 +16,20 @@ import { Route as ForFacilitiesRouteImport } from './routes/for-facilities'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ShiftsRouteImport } from './routes/shifts'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
 import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
 import { Route as AuthenticatedCvRouteImport } from './routes/_authenticated/cv'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
 import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
+import { Route as AuthenticatedFacilityCandidatesRouteImport } from './routes/_authenticated/facility.candidates'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -61,6 +65,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedApplicationsRoute =
   AuthenticatedApplicationsRouteImport.update({
     id: '/applications',
@@ -83,6 +92,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyShiftsRoute = AuthenticatedMyShiftsRouteImport.update({
   id: '/my-shifts',
   path: '/my-shifts',
@@ -91,6 +105,11 @@ const AuthenticatedMyShiftsRoute = AuthenticatedMyShiftsRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
@@ -115,6 +134,12 @@ const AuthenticatedFacilityApplicantsRoute =
     path: '/facility/applicants',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFacilityCandidatesRoute =
+  AuthenticatedFacilityCandidatesRouteImport.update({
+    id: '/facility/candidates',
+    path: '/facility/candidates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,15 +148,19 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/shifts': typeof ShiftsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/cv': typeof AuthenticatedCvRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/saved': typeof AuthenticatedSavedRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs/': typeof JobsIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
+  '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
   '/facility/': typeof AuthenticatedFacilityIndexRoute
 }
 export interface FileRoutesByTo {
@@ -141,15 +170,19 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/shifts': typeof ShiftsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/cv': typeof AuthenticatedCvRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/saved': typeof AuthenticatedSavedRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs': typeof JobsIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
+  '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
   '/facility': typeof AuthenticatedFacilityIndexRoute
 }
 export interface FileRoutesById {
@@ -161,15 +194,19 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/shifts': typeof ShiftsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
   '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
   '/_authenticated/cv': typeof AuthenticatedCvRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs/': typeof JobsIndexRoute
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
+  '/_authenticated/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
   '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
 }
 export interface FileRouteTypes {
@@ -181,15 +218,19 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/shifts'
     | '/admin'
+    | '/alerts'
     | '/applications'
     | '/credentials'
     | '/cv'
     | '/dashboard'
+    | '/messages'
     | '/my-shifts'
     | '/profile'
+    | '/saved'
     | '/jobs/$jobId'
     | '/jobs/'
     | '/facility/applicants'
+    | '/facility/candidates'
     | '/facility/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -199,15 +240,19 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/shifts'
     | '/admin'
+    | '/alerts'
     | '/applications'
     | '/credentials'
     | '/cv'
     | '/dashboard'
+    | '/messages'
     | '/my-shifts'
     | '/profile'
+    | '/saved'
     | '/jobs/$jobId'
     | '/jobs'
     | '/facility/applicants'
+    | '/facility/candidates'
     | '/facility'
   id:
     | '__root__'
@@ -218,15 +263,19 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/shifts'
     | '/_authenticated/admin'
+    | '/_authenticated/alerts'
     | '/_authenticated/applications'
     | '/_authenticated/credentials'
     | '/_authenticated/cv'
     | '/_authenticated/dashboard'
+    | '/_authenticated/messages'
     | '/_authenticated/my-shifts'
     | '/_authenticated/profile'
+    | '/_authenticated/saved'
     | '/jobs/$jobId'
     | '/jobs/'
     | '/_authenticated/facility/applicants'
+    | '/_authenticated/facility/candidates'
     | '/_authenticated/facility/'
   fileRoutesById: FileRoutesById
 }
@@ -292,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/applications': {
       id: '/_authenticated/applications'
       path: '/applications'
@@ -320,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-shifts': {
       id: '/_authenticated/my-shifts'
       path: '/my-shifts'
@@ -332,6 +395,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/saved': {
+      id: '/_authenticated/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof AuthenticatedSavedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/jobs/': {
@@ -362,30 +432,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityApplicantsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/facility/candidates': {
+      id: '/_authenticated/facility/candidates'
+      path: '/facility/candidates'
+      fullPath: '/facility/candidates'
+      preLoaderRoute: typeof AuthenticatedFacilityCandidatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
   AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
   AuthenticatedCvRoute: typeof AuthenticatedCvRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedFacilityApplicantsRoute: typeof AuthenticatedFacilityApplicantsRoute
+  AuthenticatedFacilityCandidatesRoute: typeof AuthenticatedFacilityCandidatesRoute
   AuthenticatedFacilityIndexRoute: typeof AuthenticatedFacilityIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,
   AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
   AuthenticatedCvRoute: AuthenticatedCvRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSavedRoute: AuthenticatedSavedRoute,
   AuthenticatedFacilityApplicantsRoute: AuthenticatedFacilityApplicantsRoute,
+  AuthenticatedFacilityCandidatesRoute: AuthenticatedFacilityCandidatesRoute,
   AuthenticatedFacilityIndexRoute: AuthenticatedFacilityIndexRoute,
 }
 
