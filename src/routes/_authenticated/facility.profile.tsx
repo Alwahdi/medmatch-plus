@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RatingStars } from "@/components/rating-stars";
+import { ImageUpload } from "@/components/image-upload";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel } from "@/lib/format";
@@ -46,7 +48,7 @@ const TXT = {
     pickCountry: "اختر الدولة",
     city: "المدينة",
     website: "الموقع الإلكتروني",
-    logo: "رابط الشعار",
+    logo: "شعار المنشأة",
     description: "نبذة عن المنشأة",
     descHint: "اكتب نبذة واضحة عن تخصصات المنشأة وبيئة العمل — تزيد فرص التقديم عليك.",
     save: "حفظ التعديلات",
@@ -79,7 +81,7 @@ const TXT = {
     pickCountry: "Choose a country",
     city: "City",
     website: "Website",
-    logo: "Logo URL",
+    logo: "Facility logo",
     description: "About the facility",
     descHint: "Describe your specialties and work environment — it improves applications.",
     save: "Save changes",
