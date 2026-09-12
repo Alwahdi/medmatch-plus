@@ -1,7 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/facility/applicants")({
 
 function Applicants() {
   const { user } = useSession();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -78,6 +81,36 @@ function Applicants() {
     onError: () => toast.error("تعذّر التحديث"),
   });
 
+  const startChat = useMutation({
+    mutationFn: async ({ candidateUserId, jobId }: { candidateUserId: string; jobId: string }) => {
+      const { data: facility } = await supabase
+        .from("facilities")
+        .select("id")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      if (!facility) throw new Error("no facility");
+      const { data: existing } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("facility_id", facility.id)
+        .eq("professional_user_id", candidateUserId)
+        .eq("job_id", jobId)
+        .maybeSingle();
+      if (existing) return;
+      const { error } = await supabase.from("conversations").insert({
+        facility_id: facility.id,
+        professional_user_id: candidateUserId,
+        job_id: jobId,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح");
+      navigate({ to: "/messages" });
+    },
+    onError: () => toast.error("تعذّر بدء المحادثة"),
+  });
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="flex items-center justify-between gap-3">
@@ -105,6 +138,15 @@ function Applicants() {
                     تقدّم لوظيفة: {a.job?.title} · {relativeTime(a.created_at)}
                   </p>
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => startChat.mutate({ candidateUserId: a.user_id, jobId: a.job_id })}
+                  disabled={startChat.isPending}
+                >
+                  <MessageSquare className="size-4" /> مراسلة
+                </Button>
                 <Select value={a.status} onValueChange={(v) => setStatus.mutate({ id: a.id, status: v })}>
                   <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -113,6 +155,7 @@ function Applicants() {
                     ))}
                   </SelectContent>
                 </Select>
+                </div>
               </div>
               {a.cover_letter && (
                 <p className="mt-4 rounded-xl bg-surface p-4 text-sm leading-relaxed whitespace-pre-line">
