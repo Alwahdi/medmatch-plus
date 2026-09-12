@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Globe, Menu, Stethoscope } from "lucide-react";
+import { NotificationBell } from "@/components/notification-bell";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,16 +70,20 @@ export function SiteHeader() {
         </nav>
 
         <div className="ms-auto flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5"
-            aria-label={t("lang.label")}
-            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-          >
-            <Globe className="size-4" />
-            <span className="hidden sm:inline">{t("lang.switch")}</span>
-          </Button>
+          {!loading && user ? (
+            <NotificationBell />
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5"
+              aria-label={t("lang.label")}
+              onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+            >
+              <Globe className="size-4" />
+              <span className="hidden sm:inline">{t("lang.switch")}</span>
+            </Button>
+          )}
           {!loading && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -131,6 +136,12 @@ export function SiteHeader() {
                     <Link to="/admin">{t("nav.admin")}</Link>
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuItem asChild>
+                  <Link to="/notifications">{t("nav.notifications")}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings">{t("nav.settings")}</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>{t("nav.signOut")}</DropdownMenuItem>
               </DropdownMenuContent>
