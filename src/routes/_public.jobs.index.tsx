@@ -16,7 +16,8 @@ import { JobCard, type JobRow } from "@/components/job-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { matchScore } from "@/lib/match";
-import { EMPLOYMENT_LABELS } from "@/lib/format";
+import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_public/jobs/")({
   head: () => ({
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/_public/jobs/")({
       {
         name: "description",
         content:
-          "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في السعودية والإمارات ومصر والخليج، مع نطاق راتب معلن ونسبة توافق لكل وظيفة.",
+          "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في اليمن والخليج ومصر، مع نطاق راتب معلن ونسبة توافق لكل وظيفة.",
       },
       { property: "og:title", content: "الوظائف الطبية | SyndeoCare" },
       {
@@ -39,7 +40,44 @@ export const Route = createFileRoute("/_public/jobs/")({
 
 const ALL = "all";
 
+const TXT = {
+  ar: {
+    badge: "وظائف دائمة من منشآت موثّقة",
+    title: "الوظائف الطبية المفتوحة",
+    sub: "فرص دائمة لأطباء، تمريض، صيادلة، وفنيين في اليمن والمنطقة العربية — بنطاق راتب معلن ومطابقة ذكية.",
+    search: "ابحث بالمسمى أو التخصص أو المدينة",
+    country: "الدولة",
+    allCountries: "كل الدول",
+    specialty: "التخصص",
+    allSpecialties: "كل التخصصات",
+    all: "الكل",
+    results: "نتائج البحث",
+    count: (n: number) => `${n} وظيفة متاحة`,
+    employer: "أنت ناشر وظائف؟",
+    empty: "لا توجد وظائف مطابقة لبحثك.",
+    reset: "إعادة ضبط الفلاتر",
+  },
+  en: {
+    badge: "Permanent roles from verified employers",
+    title: "Open medical jobs",
+    sub: "Permanent roles for physicians, nurses, pharmacists and technicians across Yemen and the Arab region — with published salary ranges and smart matching.",
+    search: "Search by title, specialty or city",
+    country: "Country",
+    allCountries: "All countries",
+    specialty: "Specialty",
+    allSpecialties: "All specialties",
+    all: "All",
+    results: "Search results",
+    count: (n: number) => `${n} jobs available`,
+    employer: "Hiring? See plans",
+    empty: "No jobs match your search.",
+    reset: "Reset filters",
+  },
+} as const;
+
 function JobsPage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const [q, setQ] = useState("");
   const [country, setCountry] = useState(ALL);
   const [specialty, setSpecialty] = useState(ALL);
@@ -49,7 +87,10 @@ function JobsPage() {
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("specialties").select("id,name_ar").order("name_ar");
+      const { data, error } = await supabase
+        .from("specialties")
+        .select("id,name_ar,name_en")
+        .order("name_ar");
       if (error) throw error;
       return data;
     },
@@ -61,7 +102,7 @@ function JobsPage() {
       const { data, error } = await supabase
         .from("jobs")
         .select(
-          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar)",
+          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar,name_en)",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false });
@@ -106,15 +147,10 @@ function JobsPage() {
         <div className="mx-auto max-w-4xl px-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
             <Briefcase className="size-4" />
-            وظائف دائمة من منشآت موثّقة
+            {c.badge}
           </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">
-            الوظائف الطبية المفتوحة
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">
-            فرص دائمة لأطباء، تمريض، صيادلة، وفنيين في السعودية والإمارات ومصر والخليج — بنطاق راتب
-            معلن ومطابقة ذكية.
-          </p>
+          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">{c.sub}</p>
         </div>
       </section>
 
@@ -128,33 +164,33 @@ function JobsPage() {
                 <Input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="ابحث بالمسمى أو التخصص أو المدينة"
+                  placeholder={c.search}
                   className="h-11 pr-9"
                   maxLength={80}
                 />
               </div>
               <Select value={country} onValueChange={setCountry}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="الدولة" />
+                  <SelectValue placeholder={c.country} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL}>كل الدول</SelectItem>
-                  {countries.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
+                  <SelectItem value={ALL}>{c.allCountries}</SelectItem>
+                  {countries.map((x) => (
+                    <SelectItem key={x} value={x}>
+                      {countryLabel(x, lang)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={specialty} onValueChange={setSpecialty}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="التخصص" />
+                  <SelectValue placeholder={c.specialty} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL}>كل التخصصات</SelectItem>
+                  <SelectItem value={ALL}>{c.allSpecialties}</SelectItem>
                   {specialties?.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
-                      {s.name_ar}
+                      {specialtyName(s, lang)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -167,16 +203,16 @@ function JobsPage() {
                 size="sm"
                 onClick={() => setType(ALL)}
               >
-                الكل
+                {c.all}
               </Button>
-              {Object.entries(EMPLOYMENT_LABELS).map(([key, label]) => (
+              {Object.keys(EMPLOYMENT_LABELS).map((key) => (
                 <Button
                   key={key}
                   variant={type === key ? "default" : "outline"}
                   size="sm"
                   onClick={() => setType(key)}
                 >
-                  {label}
+                  {employmentLabel(key, lang)}
                 </Button>
               ))}
             </div>
@@ -189,14 +225,12 @@ function JobsPage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="section-label">نتائج البحث</p>
-              <h2 className="mt-2 font-display text-2xl font-extrabold">
-                {filtered.length} وظيفة متاحة
-              </h2>
+              <p className="section-label">{c.results}</p>
+              <h2 className="mt-2 font-display text-2xl font-extrabold">{c.count(filtered.length)}</h2>
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/pricing">
-                أنت ناشر وظائف؟ <ArrowLeft className="size-4" />
+                {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -209,9 +243,18 @@ function JobsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="mt-16 rounded-2xl border border-border bg-card p-10 text-center">
-              <p className="text-muted-foreground">لا توجد وظائف مطابقة لبحثك.</p>
-              <Button className="mt-4" variant="outline" onClick={() => { setQ(""); setCountry(ALL); setSpecialty(ALL); setType(ALL); }}>
-                إعادة ضبط الفلاتر
+              <p className="text-muted-foreground">{c.empty}</p>
+              <Button
+                className="mt-4"
+                variant="outline"
+                onClick={() => {
+                  setQ("");
+                  setCountry(ALL);
+                  setSpecialty(ALL);
+                  setType(ALL);
+                }}
+              >
+                {c.reset}
               </Button>
             </div>
           ) : (
