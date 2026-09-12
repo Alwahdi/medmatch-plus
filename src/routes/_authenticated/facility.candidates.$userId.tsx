@@ -5,6 +5,8 @@ import { Briefcase, CalendarClock, MapPin, MessageSquare, ShieldCheck } from "lu
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/rating-stars";
+import { RemoteAvatar } from "@/components/remote-avatar";
+
 import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
