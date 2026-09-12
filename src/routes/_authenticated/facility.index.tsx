@@ -115,8 +115,8 @@ const TXT = {
     // Shift form
     shiftTitle: "عنوان المناوبة",
     shiftTitlePlaceholder: "مثال: مناوبة ليلية — طوارئ",
-    startsAt: "البداية",
-    endsAt: "النهاية",
+    shiftStartsAt: "البداية",
+    shiftEndsAt: "النهاية",
     hourlyRate: "الأجر بالساعة",
     notes: "ملاحظات",
     publishShift: "نشر المناوبة",
@@ -201,8 +201,8 @@ const TXT = {
     // Shift form
     shiftTitle: "Shift title",
     shiftTitlePlaceholder: "e.g. Night shift — Emergency",
-    startsAt: "Start",
-    endsAt: "End",
+    shiftStartsAt: "Start",
+    shiftEndsAt: "End",
     hourlyRate: "Hourly rate",
     notes: "Notes",
     publishShift: "Post shift",
@@ -770,12 +770,12 @@ function ShiftForm({
           </Select>
         </div>
         <div>
-          <Label htmlFor="ss">{c.startsAt}</Label>
+          <Label htmlFor="ss">{c.shiftStartsAt}</Label>
           <Input id="ss" type="datetime-local" value={form.starts_at}
             onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="se">{c.endsAt}</Label>
+          <Label htmlFor="se">{c.shiftEndsAt}</Label>
           <Input id="se" type="datetime-local" value={form.ends_at}
             onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
         </div>
