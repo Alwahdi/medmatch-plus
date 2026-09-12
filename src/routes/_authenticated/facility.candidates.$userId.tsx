@@ -8,7 +8,7 @@ import { RatingStars } from "@/components/rating-stars";
 import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { applicationLabel, countryLabel, formatDate, relativeTime, specialtyName } from "@/lib/format";
+import { applicationLabel, countryLabel, formatDate, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/facility/candidates/$userId")({
@@ -188,7 +188,7 @@ function CandidateProfile() {
               {pro.full_name}
               {pro.is_verified && <ShieldCheck className="size-5 text-accent" />}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{pro.headline ?? specialtyName(pro.specialty_id, lang)}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{pro.headline ?? ""}</p>
             <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Briefcase className="size-3.5" /> {c.experience(pro.years_experience)}
