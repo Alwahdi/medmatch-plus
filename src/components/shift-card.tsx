@@ -1,4 +1,4 @@
-import { Building2, CalendarClock, MapPin, Timer } from "lucide-react";
+import { CalendarClock, MapPin, ShieldCheck, Timer, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
@@ -14,7 +14,9 @@ export type ShiftRow = {
   country: string;
   city: string;
   status: string;
-  facilities: { name_ar: string } | null;
+  is_urgent?: boolean | null;
+  facility_verified?: boolean | null;
+  applications_count?: number | null;
   specialties: { name_ar: string } | null;
 };
 
@@ -35,23 +37,24 @@ export function ShiftCard({
 
   return (
     <div className="card-lift flex h-full flex-col rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="font-display text-lg leading-snug font-bold">{shift.title}</h3>
-          <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Building2 className="size-4 shrink-0" />
-            <span className="truncate">{shift.facilities?.name_ar}</span>
-          </div>
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {shift.is_urgent && <Badge variant="destructive">مستعجلة</Badge>}
         <Badge
           variant={open ? "secondary" : "outline"}
-          className={open ? "shrink-0 bg-accent/12 text-accent" : "shrink-0"}
+          className={open ? "bg-accent/12 text-accent" : ""}
         >
           {open ? "متاحة" : "محجوزة"}
         </Badge>
+        {shift.facility_verified && (
+          <Badge variant="secondary" className="gap-1">
+            <ShieldCheck className="size-3" /> ناشر موثّق
+          </Badge>
+        )}
       </div>
 
-      <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+      <h3 className="mt-3 font-display text-lg leading-snug font-bold">{shift.title}</h3>
+
+      <div className="mt-3 space-y-2 text-sm text-muted-foreground">
         <p className="flex items-center gap-2">
           <CalendarClock className="size-4 shrink-0" /> {formatDateTime(shift.starts_at)}
         </p>
@@ -62,11 +65,14 @@ export function ShiftCard({
         <p className="flex items-center gap-2">
           <MapPin className="size-4 shrink-0" /> {shift.city}، {shift.country}
         </p>
-        {shift.specialties && (
-          <div className="pt-1">
-            <Badge variant="outline">{shift.specialties.name_ar}</Badge>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          {shift.specialties && <Badge variant="outline">{shift.specialties.name_ar}</Badge>}
+          {!!shift.applications_count && (
+            <span className="flex items-center gap-1 text-xs">
+              <Users className="size-3.5" /> تقدّم {shift.applications_count}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-4">
