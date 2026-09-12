@@ -40,6 +40,7 @@ const TXT = {
     applied: (n: number) => `تقدّم ${n}`,
     total: "إجمالي المناوبة",
     book: "احجز المناوبة",
+    details: "التفاصيل",
   },
   en: {
     urgent: "Urgent",
@@ -51,6 +52,8 @@ const TXT = {
     applied: (n: number) => `${n} applied`,
     total: "Shift total",
     book: "Book this shift",
+    details: "Details",
+
   },
 } as const;
 
@@ -136,11 +139,19 @@ export function ShiftCard({
                 {formatMoney(total, shift.currency, lang)}
               </span>
             </div>
-            {onBook && (
-              <Button size="sm" onClick={onBook} disabled={busy || !open}>
-                {open ? (actionLabel ?? c.book) : c.booked}
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" asChild>
+                <Link to="/shifts/$shiftId" params={{ shiftId: shift.id }}>
+                  {c.details}
+                </Link>
               </Button>
-            )}
+              {onBook && (
+                <Button size="sm" onClick={onBook} disabled={busy || !open}>
+                  {open ? (actionLabel ?? c.book) : c.booked}
+                </Button>
+              )}
+            </div>
+
           </div>
         </div>
       </div>
