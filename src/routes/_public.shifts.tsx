@@ -99,19 +99,18 @@ function ShiftsPage() {
         .from("shift_bookings")
         .insert({ shift_id: shiftId, user_id: user!.id });
       if (error) throw error;
-      const { error: upErr } = await supabase
-        .from("shifts")
-        .update({ status: "booked", booked_by: user!.id })
-        .eq("id", shiftId);
-      if (upErr && upErr.code !== "42501") throw upErr;
     },
     onSuccess: () => {
       toast.success(c.booked);
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
       queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
     },
-    onError: () => toast.error(c.failed),
+    onError: () => {
+      toast.error(c.failed);
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+    },
   });
+
 
   const countries = useMemo(() => Array.from(new Set((shifts ?? []).map((s) => s.country))), [shifts]);
   const filtered = (shifts ?? []).filter((s) => country === ALL || s.country === country);

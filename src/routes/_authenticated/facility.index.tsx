@@ -335,11 +335,12 @@ function FacilityDashboard() {
       {plan && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
           <div>
-            <p className="flex items-center gap-2 font-bold">
+            <div className="flex flex-wrap items-center gap-2 font-bold">
               {c.plan(plan.name_ar)}
               {plan.is_trial && <Badge variant="secondary">{c.trial}</Badge>}
               {!subActive && <Badge variant="destructive">{c.expired}</Badge>}
-            </p>
+            </div>
+
             <p className="mt-1 text-xs text-muted-foreground">
               {sub?.ends_at ? c.endsAt(formatDateTime(sub.ends_at, lang)) : c.activeSub}{" "}
               · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
