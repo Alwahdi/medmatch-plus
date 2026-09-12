@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
 
@@ -149,7 +150,14 @@ function RegisterEmployer() {
   const [sent, setSent] = useState(false);
 
   useEffect(() => {
-    if (user) navigate({ to: "/onboarding", replace: true });
+    if (!user) return;
+    let cancelled = false;
+    resolveLanding(user.id).then((to) => {
+      if (!cancelled) navigate({ to, replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [user, navigate]);
 
   const countryObj = useMemo(() => COUNTRIES.find((c) => c.code === country), [country]);

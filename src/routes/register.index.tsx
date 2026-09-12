@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
+import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/register/")({
@@ -134,7 +135,14 @@ function RegisterSeeker() {
   const [googleBusy, setGoogleBusy] = useState(false);
 
   useEffect(() => {
-    if (user) navigate({ to: "/onboarding", replace: true });
+    if (!user) return;
+    let cancelled = false;
+    resolveLanding(user.id).then((to) => {
+      if (!cancelled) navigate({ to, replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [user, navigate]);
 
   async function googleSignUp() {
