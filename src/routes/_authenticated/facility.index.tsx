@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
