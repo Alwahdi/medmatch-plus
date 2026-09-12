@@ -133,7 +133,7 @@ function SpecialtyPage() {
 
       <h2 className="mt-10 font-display text-xl font-bold">{c.shiftsHeading}</h2>
       {data.shifts.length ? (
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="mt-4 space-y-3">
           {data.shifts.map((shift) => (
             <ShiftCard key={shift.id} shift={shift} />
           ))}

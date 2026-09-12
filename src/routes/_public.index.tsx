@@ -449,7 +449,7 @@ function Home() {
               </Link>
             </Button>
           </div>
-          <div className="mt-8 grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto mt-8 max-w-3xl space-y-3">
             {shiftsLoading
               ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-60 rounded-2xl" />)
               : shifts?.map((shift) => <ShiftCard key={shift.id} shift={shift} />)}
