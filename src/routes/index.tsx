@@ -24,6 +24,7 @@ import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { GUIDES } from "@/content/guides";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
