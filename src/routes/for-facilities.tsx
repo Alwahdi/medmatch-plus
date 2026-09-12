@@ -42,7 +42,7 @@ function ForFacilities() {
             — للوظائف الدائمة وللمناوبات العاجلة معاً.
           </p>
           <Button size="lg" variant="secondary" className="mt-8" asChild>
-            <Link to="/register"
+            <Link to="/register/employer"
             >سجّل منشأتك مجاناً</Link>
           </Button>
         </div>
@@ -91,7 +91,7 @@ function ForFacilities() {
           </div>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Button size="lg" asChild>
-              <Link to="/register">سجّل منشأتك الآن</Link>
+              <Link to="/register/employer">سجّل منشأتك الآن</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/pricing">اطّلع على الأسعار</Link>
