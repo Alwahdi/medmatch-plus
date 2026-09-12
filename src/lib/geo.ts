@@ -30,7 +30,7 @@ export const COUNTRIES: Country[] = [
         ["سموحة", "Smouha"],
         ["سيدي جابر", "Sidi Gaber"],
         ["المنتزه", "Montazah"],
-夏      ]),
+]),
       r("الدقهلية", "Dakahlia", [
         ["المنصورة", "Mansoura"],
         ["ميت غمر", "Mit Ghamr"],
