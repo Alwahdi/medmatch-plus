@@ -35,6 +35,7 @@ import { Route as PublicTermsRouteImport } from './routes/_public.terms'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
 import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
 import { Route as AuthenticatedFacilityCandidatesRouteImport } from './routes/_authenticated/facility.candidates'
+import { Route as AuthenticatedFacilityProfileRouteImport } from './routes/_authenticated/facility.profile'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
 import { Route as PublicFacilitiesFacilityIdRouteImport } from './routes/_public.facilities.$facilityId'
@@ -186,6 +187,12 @@ const AuthenticatedFacilityCandidatesRoute =
     path: '/facility/candidates',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFacilityProfileRoute =
+  AuthenticatedFacilityProfileRouteImport.update({
+    id: '/facility/profile',
+    path: '/facility/profile',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -300,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof PublicTermsRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
+  '/facility/profile': typeof AuthenticatedFacilityProfileRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/guides/$slug': typeof PublicGuidesSlugRoute
@@ -343,6 +351,7 @@ export interface FileRoutesByTo {
   '/terms': typeof PublicTermsRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
+  '/facility/profile': typeof AuthenticatedFacilityProfileRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/guides/$slug': typeof PublicGuidesSlugRoute
@@ -389,6 +398,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/_authenticated/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
+  '/_authenticated/facility/profile': typeof AuthenticatedFacilityProfileRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/_public/guides/$slug': typeof PublicGuidesSlugRoute
@@ -434,6 +444,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/facility/applicants'
     | '/facility/candidates'
+    | '/facility/profile'
     | '/blog/$slug'
     | '/facilities/$facilityId'
     | '/guides/$slug'
@@ -477,6 +488,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/facility/applicants'
     | '/facility/candidates'
+    | '/facility/profile'
     | '/blog/$slug'
     | '/facilities/$facilityId'
     | '/guides/$slug'
@@ -522,6 +534,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_authenticated/facility/applicants'
     | '/_authenticated/facility/candidates'
+    | '/_authenticated/facility/profile'
     | '/_public/blog/$slug'
     | '/_public/facilities/$facilityId'
     | '/_public/guides/$slug'
@@ -732,6 +745,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityCandidatesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/facility/profile': {
+      id: '/_authenticated/facility/profile'
+      path: '/facility/profile'
+      fullPath: '/facility/profile'
+      preLoaderRoute: typeof AuthenticatedFacilityProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_public/blog/': {
       id: '/_public/blog/'
       path: '/blog'
@@ -884,6 +904,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedFacilityApplicantsRoute: typeof AuthenticatedFacilityApplicantsRoute
   AuthenticatedFacilityCandidatesRoute: typeof AuthenticatedFacilityCandidatesRouteWithChildren
+  AuthenticatedFacilityProfileRoute: typeof AuthenticatedFacilityProfileRoute
   AuthenticatedFacilityIndexRoute: typeof AuthenticatedFacilityIndexRoute
 }
 
@@ -903,6 +924,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFacilityApplicantsRoute: AuthenticatedFacilityApplicantsRoute,
   AuthenticatedFacilityCandidatesRoute:
     AuthenticatedFacilityCandidatesRouteWithChildren,
+  AuthenticatedFacilityProfileRoute: AuthenticatedFacilityProfileRoute,
   AuthenticatedFacilityIndexRoute: AuthenticatedFacilityIndexRoute,
 }
 

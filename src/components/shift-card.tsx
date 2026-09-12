@@ -89,15 +89,20 @@ export function ShiftCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <h3 className="font-display text-base leading-snug font-bold sm:text-lg">
-              {shift.title}
-            </h3>
+            <Link
+              to="/shifts/$shiftId"
+              params={{ shiftId: shift.id }}
+              className="font-display text-base leading-snug font-bold hover:text-primary sm:text-lg"
+            >
+              <h3>{shift.title}</h3>
+            </Link>
             {shift.facility_verified && (
               <span className="flex items-center gap-1 text-xs text-accent">
                 <ShieldCheck className="size-3.5" /> {c.verified}
               </span>
             )}
           </div>
+
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">
