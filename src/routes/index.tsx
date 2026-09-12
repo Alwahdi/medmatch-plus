@@ -343,43 +343,41 @@ function Home() {
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-2">
           <div>
             <p className="text-sm font-semibold tracking-wide text-accent">
-              تأهيل مدعوم بالذكاء الاصطناعي
+              {t("home.ai.label")}
             </p>
             <h2 className="mt-3 font-display text-3xl leading-snug font-extrabold">
-              ارفع سيرتك الذاتية، ودع الذكاء الاصطناعي يبني ملفّك في ثوانٍ
+              {t("home.ai.title")}
             </h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              لا مزيد من ملء النماذج الطويلة. ارفع سيرتك مرة واحدة ويحوّلها ذكاء SyndeoCare
-              الاصطناعي إلى ملف مهني متكامل — لتبدأ التقديم على الوظائف والشيفتات خلال دقائق لا
-              ساعات.
+              {t("home.ai.text")}
             </p>
             <div className="mt-6 grid gap-6 sm:grid-cols-2">
               <div>
-                <h3 className="text-sm font-bold">للباحثين عن عمل</h3>
+                <h3 className="text-sm font-bold">{t("home.ai.forPros")}</h3>
                 <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                  <li>سجّل في أقل من دقيقة — دون نماذج طويلة</li>
-                  <li>ملف متكامل واحترافي يلفت الأنظار</li>
-                  <li>مطابقة أدقّ مع الوظائف والشيفتات المناسبة</li>
+                  <li>{t("home.ai.pros1")}</li>
+                  <li>{t("home.ai.pros2")}</li>
+                  <li>{t("home.ai.pros3")}</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-sm font-bold">لناشري الوظائف</h3>
+                <h3 className="text-sm font-bold">{t("home.ai.forEmployers")}</h3>
                 <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                  <li>ملفات مرشّحين أكثر اكتمالاً وثراءً</li>
-                  <li>مطابقة أفضل مع شواغرك المفتوحة</li>
-                  <li>طلبات بجودة أعلى وتواصل أقل</li>
+                  <li>{t("home.ai.emp1")}</li>
+                  <li>{t("home.ai.emp2")}</li>
+                  <li>{t("home.ai.emp3")}</li>
                 </ul>
               </div>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
-              يدعم السير الذاتية بالعربية والإنجليزية
+              {t("home.ai.languages")}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Button asChild>
-                <Link to="/cv-import">أنشئ ملفك في ثوانٍ</Link>
+                <Link to="/cv-import">{t("home.ai.ctaPrimary")}</Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link to="/jobs">تصفّح الوظائف أولاً</Link>
+                <Link to="/jobs">{t("home.ai.ctaSecondary")}</Link>
               </Button>
             </div>
           </div>
@@ -391,15 +389,15 @@ function Home() {
               </span>
               <div>
                 <div className="text-sm font-bold">cv.pdf</div>
-                <div className="text-xs text-muted-foreground">جارٍ تحليل السيرة الذاتية…</div>
+                <div className="text-xs text-muted-foreground">{t("home.ai.uploading")}</div>
               </div>
             </div>
             <div className="mt-6 space-y-3">
               {[
-                { icon: BadgeCheck, label: "التخصص وسنوات الخبرة" },
-                { icon: ShieldCheck, label: "الترخيص المهني والدولة" },
-                { icon: Sparkles, label: "المهارات السريرية والملخص المهني" },
-                { icon: Building2, label: "جهات العمل السابقة" },
+                { icon: BadgeCheck, label: t("home.ai.rows.specialty") },
+                { icon: ShieldCheck, label: t("home.ai.rows.license") },
+                { icon: Sparkles, label: t("home.ai.rows.skills") },
+                { icon: Building2, label: t("home.ai.rows.experience") },
               ].map((row) => (
                 <div
                   key={row.label}
