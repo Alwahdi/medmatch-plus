@@ -15,7 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
+
 import { useSession } from "@/lib/auth";
 import { credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
