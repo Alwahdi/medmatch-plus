@@ -58,6 +58,7 @@ const EMPLOYER_STEP_KEYS = ["employer1", "employer2", "employer3", "employer4"];
 const SEEKER_STEP_KEYS = ["seeker1", "seeker2", "seeker3", "seeker4"];
 
 function Home() {
+  const { t } = useLang();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [loc, setLoc] = useState("");
