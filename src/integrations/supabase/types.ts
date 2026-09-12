@@ -18,23 +18,35 @@ export type Database = {
         Row: {
           alert_id: string
           channel: string
+          error: string | null
           id: string
-          job_id: string
+          job_id: string | null
+          recipient: string | null
           sent_at: string
+          shift_id: string | null
+          status: string
         }
         Insert: {
           alert_id: string
           channel: string
+          error?: string | null
           id?: string
-          job_id: string
+          job_id?: string | null
+          recipient?: string | null
           sent_at?: string
+          shift_id?: string | null
+          status?: string
         }
         Update: {
           alert_id?: string
           channel?: string
+          error?: string | null
           id?: string
-          job_id?: string
+          job_id?: string | null
+          recipient?: string | null
           sent_at?: string
+          shift_id?: string | null
+          status?: string
         }
         Relationships: [
           {
@@ -49,6 +61,13 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_deliveries_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
         ]

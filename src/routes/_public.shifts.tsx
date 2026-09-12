@@ -15,6 +15,8 @@ import {
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { countryLabel } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_public/shifts")({
   head: () => ({
@@ -23,7 +25,7 @@ export const Route = createFileRoute("/_public/shifts")({
       {
         name: "description",
         content:
-          "احجز مناوبة طبية فورية بأجر بالساعة معلن في مستشفيات وعيادات المنطقة العربية — تمريض، طوارئ، صيدلة، أسنان وأشعة.",
+          "احجز مناوبة طبية فورية بأجر بالساعة معلن في مستشفيات وعيادات اليمن والمنطقة العربية — تمريض، طوارئ، صيدلة، أسنان وأشعة.",
       },
       { property: "og:title", content: "سوق المناوبات الطبية | SyndeoCare" },
       { property: "og:description", content: "مناوبات طبية متاحة للحجز الفوري بأجر بالساعة معلن." },
@@ -34,7 +36,44 @@ export const Route = createFileRoute("/_public/shifts")({
 
 const ALL = "all";
 
+const TXT = {
+  ar: {
+    badge: "شيفتات فورية بأجر بالساعة",
+    title: "سوق المناوبات الطبية",
+    sub: "مناوبات معلنة بأجر واضح في مستشفيات وعيادات المنطقة العربية — احجزها مباشرة بدون وسيط.",
+    pick: "اختر الدولة",
+    allCountries: "كل الدول",
+    label: "متاحة للحجز",
+    count: (n: number) => `${n} مناوبة متاحة`,
+    employer: "أنت ناشر شيفتات؟",
+    empty: "لا توجد مناوبات متاحة حالياً.",
+    showAll: "عرض كل الدول",
+    guest: "سجّل دخولك لحجز المناوبات ومتابعة جدولك.",
+    signIn: "تسجيل الدخول",
+    booked: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
+    failed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
+  },
+  en: {
+    badge: "Instant shifts with hourly pay",
+    title: "Medical shift marketplace",
+    sub: "Shifts with clearly published pay in hospitals and clinics across the Arab region — book directly, no middleman.",
+    pick: "Choose a country",
+    allCountries: "All countries",
+    label: "Open for booking",
+    count: (n: number) => `${n} shifts available`,
+    employer: "Posting shifts? See plans",
+    empty: "No shifts available right now.",
+    showAll: "Show all countries",
+    guest: "Sign in to book shifts and track your schedule.",
+    signIn: "Sign in",
+    booked: "Shift booked — you'll find it under My shifts",
+    failed: "Booking failed, the shift may have just been taken",
+  },
+} as const;
+
 function ShiftsPage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -46,7 +85,7 @@ function ShiftsPage() {
       const { data, error } = await supabase
         .from("shifts")
         .select(
-          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialties(name_ar)",
+          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialties(name_ar,name_en)",
         )
         .order("starts_at", { ascending: true });
       if (error) throw error;
@@ -67,11 +106,11 @@ function ShiftsPage() {
       if (upErr && upErr.code !== "42501") throw upErr;
     },
     onSuccess: () => {
-      toast.success("تم حجز المناوبة — ستجدها في صفحة مناوباتي");
+      toast.success(c.booked);
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
       queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
     },
-    onError: () => toast.error("تعذّر الحجز، ربما حُجزت المناوبة للتو"),
+    onError: () => toast.error(c.failed),
   });
 
   const countries = useMemo(() => Array.from(new Set((shifts ?? []).map((s) => s.country))), [shifts]);
@@ -84,14 +123,10 @@ function ShiftsPage() {
         <div className="mx-auto max-w-4xl px-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
             <CalendarClock className="size-4" />
-            شيفتات فورية بأجر بالساعة
+            {c.badge}
           </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">
-            سوق المناوبات الطبية
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">
-            مناوبات معلنة بأجر واضح في مستشفيات وعيادات المنطقة العربية — احجزها مباشرة بدون وسيط.
-          </p>
+          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">{c.sub}</p>
         </div>
       </section>
 
@@ -103,13 +138,13 @@ function ShiftsPage() {
               <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Select value={country} onValueChange={setCountry}>
                 <SelectTrigger className="h-11 pr-9">
-                  <SelectValue placeholder="اختر الدولة" />
+                  <SelectValue placeholder={c.pick} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL}>كل الدول</SelectItem>
-                  {countries.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
+                  <SelectItem value={ALL}>{c.allCountries}</SelectItem>
+                  {countries.map((x) => (
+                    <SelectItem key={x} value={x}>
+                      {countryLabel(x, lang)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -124,14 +159,12 @@ function ShiftsPage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="section-label">متاحة للحجز</p>
-              <h2 className="mt-2 font-display text-2xl font-extrabold">
-                {filtered.length} مناوبة متاحة
-              </h2>
+              <p className="section-label">{c.label}</p>
+              <h2 className="mt-2 font-display text-2xl font-extrabold">{c.count(filtered.length)}</h2>
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/pricing">
-                أنت ناشر شيفتات؟ <ArrowLeft className="size-4" />
+                {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -144,9 +177,9 @@ function ShiftsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="mt-16 rounded-2xl border border-border bg-card p-10 text-center">
-              <p className="text-muted-foreground">لا توجد مناوبات متاحة حالياً.</p>
+              <p className="text-muted-foreground">{c.empty}</p>
               <Button className="mt-4" variant="outline" onClick={() => setCountry(ALL)}>
-                عرض كل الدول
+                {c.showAll}
               </Button>
             </div>
           ) : (
@@ -170,11 +203,9 @@ function ShiftsPage() {
 
           {!user && (
             <div className="mt-10 rounded-2xl border border-border bg-surface p-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                سجّل دخولك لحجز المناوبات ومتابعة جدولك.
-              </p>
+              <p className="text-sm text-muted-foreground">{c.guest}</p>
               <Button className="mt-4" onClick={() => navigate({ to: "/auth" })}>
-                تسجيل الدخول
+                {c.signIn}
               </Button>
             </div>
           )}

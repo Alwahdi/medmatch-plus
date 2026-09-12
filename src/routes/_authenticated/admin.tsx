@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
-import { CREDENTIAL_LABELS, formatDate } from "@/lib/format";
+import { credentialLabel, formatDate, countryLabel } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -19,7 +20,48 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+const TXT = {
+  ar: {
+    loading: "جارٍ التحميل...",
+    adminOnlyTitle: "هذه الصفحة للإدارة فقط",
+    adminOnlyText: "حسابك لا يملك صلاحية مراجعة الوثائق واعتماد المنشآت.",
+    backToDashboard: "العودة إلى لوحتك",
+    title: "لوحة الإدارة",
+    reviewDocs: "مراجعة الوثائق",
+    expires: (d: string) => `ينتهي ${d}`,
+    approve: "توثيق",
+    reject: "رفض",
+    noDocs: "لا وثائق للمراجعة.",
+    facilities: "المنشآت",
+    unverify: "إلغاء التوثيق",
+    verify: "توثيق المنشأة",
+    docUpdated: "تم تحديث حالة الوثيقة",
+    updateFailed: "تعذّر التحديث",
+    facilityUpdated: "تم تحديث حالة المنشأة",
+  },
+  en: {
+    loading: "Loading...",
+    adminOnlyTitle: "This page is for admins only",
+    adminOnlyText: "Your account doesn't have permission to review documents and verify facilities.",
+    backToDashboard: "Back to your dashboard",
+    title: "Admin panel",
+    reviewDocs: "Document review",
+    expires: (d: string) => `Expires ${d}`,
+    approve: "Verify",
+    reject: "Reject",
+    noDocs: "No documents to review.",
+    facilities: "Facilities",
+    unverify: "Remove verification",
+    verify: "Verify facility",
+    docUpdated: "Document status updated",
+    updateFailed: "Failed to update",
+    facilityUpdated: "Facility status updated",
+  },
+} as const;
+
 function AdminPage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const { data: roles, isLoading: rolesLoading } = useRoles(user);
   const queryClient = useQueryClient();
@@ -56,10 +98,10 @@ function AdminPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم تحديث حالة الوثيقة");
+      toast.success(c.docUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-creds"] });
     },
-    onError: () => toast.error("تعذّر التحديث"),
+    onError: () => toast.error(c.updateFailed),
   });
 
   const verifyFacility = useMutation({
@@ -68,71 +110,69 @@ function AdminPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم تحديث حالة المنشأة");
+      toast.success(c.facilityUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
-    onError: () => toast.error("تعذّر التحديث"),
+    onError: () => toast.error(c.updateFailed),
   });
 
-  if (rolesLoading) return <p className="p-10 text-center text-muted-foreground">جارٍ التحميل...</p>;
+  if (rolesLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
   if (!isAdmin)
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">
-        <h1 className="font-display text-2xl font-extrabold">هذه الصفحة للإدارة فقط</h1>
-        <p className="mt-2 text-muted-foreground">
-          حسابك لا يملك صلاحية مراجعة الوثائق واعتماد المنشآت.
-        </p>
+        <h1 className="font-display text-2xl font-extrabold">{c.adminOnlyTitle}</h1>
+        <p className="mt-2 text-muted-foreground">{c.adminOnlyText}</p>
         <Link to="/dashboard" className="mt-6 inline-block text-primary underline underline-offset-4">
-          العودة إلى لوحتك
+          {c.backToDashboard}
         </Link>
       </div>
     );
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">لوحة الإدارة</h1>
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
 
-      <h2 className="mt-8 text-lg font-bold">مراجعة الوثائق</h2>
+      <h2 className="mt-8 text-lg font-bold">{c.reviewDocs}</h2>
       <ul className="mt-4 space-y-3">
         {creds?.length ? (
-          creds.map((c) => (
-            <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+          creds.map((cr) => (
+            <li key={cr.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
               <div>
-                <p className="font-medium">{c.title}</p>
+                <p className="font-medium">{cr.title}</p>
                 <p className="text-xs text-muted-foreground">
-                  {c.doc_type}
-                  {c.issuer ? ` · ${c.issuer}` : ""}
-                  {c.expiry_date ? ` · ينتهي ${formatDate(c.expiry_date)}` : ""}
+                  {cr.doc_type}
+                  {cr.issuer ? ` · ${cr.issuer}` : ""}
+                  {cr.expiry_date ? ` · ${c.expires(formatDate(cr.expiry_date, lang))}` : ""}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{CREDENTIAL_LABELS[c.status]}</Badge>
-                <Button size="sm" onClick={() => review.mutate({ id: c.id, status: "approved" })}>
-                  توثيق
+                <Badge variant="secondary">{credentialLabel(cr.status, lang)}</Badge>
+                <Button size="sm" onClick={() => review.mutate({ id: cr.id, status: "approved" })}>
+                  {c.approve}
                 </Button>
                 <Button size="sm" variant="outline"
-                  onClick={() => review.mutate({ id: c.id, status: "rejected" })}>
-                  رفض
+                  onClick={() => review.mutate({ id: cr.id, status: "rejected" })}>
+                  {c.reject}
                 </Button>
               </div>
             </li>
           ))
         ) : (
-          <p className="text-sm text-muted-foreground">لا وثائق للمراجعة.</p>
+          <p className="text-sm text-muted-foreground">{c.noDocs}</p>
         )}
       </ul>
 
-      <h2 className="mt-10 text-lg font-bold">المنشآت</h2>
+      <h2 className="mt-10 text-lg font-bold">{c.facilities}</h2>
       <ul className="mt-4 space-y-3">
         {facilities?.map((f) => (
           <li key={f.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
             <div>
               <p className="font-medium">{f.name_ar}</p>
-              <p className="text-xs text-muted-foreground">{f.city}، {f.country}</p>
+              <p className="text-xs text-muted-foreground">{f.city}، {countryLabel(f.country, lang)}</p>
             </div>
             <Button size="sm" variant={f.is_verified ? "outline" : "default"}
               onClick={() => verifyFacility.mutate({ id: f.id, value: !f.is_verified })}>
-              {f.is_verified ? "إلغاء التوثيق" : "توثيق المنشأة"}
+              {f.is_verified ? c.unverify : c.verify}
             </Button>
           </li>
         ))}

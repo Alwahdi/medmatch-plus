@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { APPLICATION_LABELS, relativeTime } from "@/lib/format";
+import { applicationLabel, countryLabel, relativeTime } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/facility/applicants")({
   head: () => ({
@@ -27,7 +28,44 @@ export const Route = createFileRoute("/_authenticated/facility/applicants")({
   component: Applicants,
 });
 
+const APPLICATION_STATUSES = ["submitted", "reviewing", "shortlisted", "interview", "offer", "hired", "rejected"];
+
+const TXT = {
+  ar: {
+    title: "المتقدمون",
+    back: "رجوع للوحة",
+    loading: "جارٍ التحميل...",
+    healthcarePro: "كادر صحي",
+    verified: "موثّق",
+    experience: (n: number) => `خبرة ${n} سنة`,
+    appliedFor: (title: string, time: string) => `تقدّم لوظيفة: ${title} · ${time}`,
+    message: "مراسلة",
+    updated: "تم تحديث حالة الطلب",
+    updateFailed: "تعذّر التحديث",
+    chatOpened: "تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح",
+    chatFailed: "تعذّر بدء المحادثة",
+    empty: "لا يوجد متقدمون بعد.",
+  },
+  en: {
+    title: "Applicants",
+    back: "Back to dashboard",
+    loading: "Loading...",
+    healthcarePro: "Healthcare professional",
+    verified: "Verified",
+    experience: (n: number) => `${n} years experience`,
+    appliedFor: (title: string, time: string) => `Applied for: ${title} · ${time}`,
+    message: "Message",
+    updated: "Application status updated",
+    updateFailed: "Failed to update",
+    chatOpened: "Conversation opened — your facility name is now visible to the candidate",
+    chatFailed: "Failed to start conversation",
+    empty: "No applicants yet.",
+  },
+} as const;
+
 function Applicants() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -75,10 +113,10 @@ function Applicants() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم تحديث حالة الطلب");
+      toast.success(c.updated);
       queryClient.invalidateQueries({ queryKey: ["facility-applicants"] });
     },
-    onError: () => toast.error("تعذّر التحديث"),
+    onError: () => toast.error(c.updateFailed),
   });
 
   const startChat = useMutation({
@@ -105,21 +143,21 @@ function Applicants() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح");
+      toast.success(c.chatOpened);
       navigate({ to: "/messages" });
     },
-    onError: () => toast.error("تعذّر بدء المحادثة"),
+    onError: () => toast.error(c.chatFailed),
   });
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-3xl font-extrabold">المتقدمون</h1>
-        <Link to="/facility" className="text-sm text-primary underline">رجوع للوحة</Link>
+        <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+        <Link to="/facility" className="text-sm text-primary underline">{c.back}</Link>
       </div>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((a) => (
@@ -127,15 +165,15 @@ function Applicants() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-bold">
-                    {a.pro?.full_name ?? "كادر صحي"}
-                    {a.pro?.is_verified && <Badge className="ms-2" variant="secondary">موثّق</Badge>}
+                    {a.pro?.full_name ?? c.healthcarePro}
+                    {a.pro?.is_verified && <Badge className="ms-2" variant="secondary">{c.verified}</Badge>}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {a.pro?.headline ?? "—"} · خبرة {a.pro?.years_experience ?? 0} سنة ·{" "}
-                    {[a.pro?.city, a.pro?.country].filter(Boolean).join("، ")}
+                    {a.pro?.headline ?? "—"} · {c.experience(a.pro?.years_experience ?? 0)} ·{" "}
+                    {[a.pro?.city, countryLabel(a.pro?.country, lang)].filter(Boolean).join("، ")}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    تقدّم لوظيفة: {a.job?.title} · {relativeTime(a.created_at)}
+                    {c.appliedFor(a.job?.title ?? "", relativeTime(a.created_at, lang))}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -145,13 +183,13 @@ function Applicants() {
                   onClick={() => startChat.mutate({ candidateUserId: a.user_id, jobId: a.job_id })}
                   disabled={startChat.isPending}
                 >
-                  <MessageSquare className="size-4" /> مراسلة
+                  <MessageSquare className="size-4" /> {c.message}
                 </Button>
                 <Select value={a.status} onValueChange={(v) => setStatus.mutate({ id: a.id, status: v })}>
                   <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {Object.entries(APPLICATION_LABELS).map(([k, v]) => (
-                      <SelectItem key={k} value={k}>{v}</SelectItem>
+                    {APPLICATION_STATUSES.map((k) => (
+                      <SelectItem key={k} value={k}>{applicationLabel(k, lang)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -166,7 +204,7 @@ function Applicants() {
           ))}
         </ul>
       ) : (
-        <p className="mt-6 text-sm text-muted-foreground">لا يوجد متقدمون بعد.</p>
+        <p className="mt-6 text-sm text-muted-foreground">{c.empty}</p>
       )}
     </div>
   );

@@ -3,6 +3,37 @@ import { useQuery } from "@tanstack/react-query";
 import { Stethoscope, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { specialtyName } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
+
+const TXT = {
+  ar: {
+    badge: "تصنيف كامل للمهن الصحية",
+    title: "التخصصات الطبية",
+    sub: "اختر تخصصك لعرض الوظائف والمناوبات المتاحة فيه عبر الدول العربية.",
+    browseAll: "تصفح كل الوظائف",
+    categories: {
+      doctor: "الأطباء",
+      nurse: "التمريض",
+      pharmacist: "الصيادلة",
+      technician: "الفنيون والفنيات",
+      other: "تخصصات أخرى",
+    } as Record<string, string>,
+  },
+  en: {
+    badge: "A complete classification of healthcare professions",
+    title: "Medical specialties",
+    sub: "Choose your specialty to see the jobs and shifts available in it across Arab countries.",
+    browseAll: "Browse all jobs",
+    categories: {
+      doctor: "Physicians",
+      nurse: "Nursing",
+      pharmacist: "Pharmacists",
+      technician: "Technicians",
+      other: "Other specialties",
+    } as Record<string, string>,
+  },
+} as const;
 
 export const Route = createFileRoute("/_public/specialties/")({
   head: () => ({
@@ -22,6 +53,9 @@ export const Route = createFileRoute("/_public/specialties/")({
 });
 
 function SpecialtiesIndex() {
+  const { lang } = useLang();
+  const c = TXT[lang];
+
   const { data } = useQuery({
     queryKey: ["specialties-all"],
     queryFn: async () => {
@@ -32,14 +66,6 @@ function SpecialtiesIndex() {
       return rows ?? [];
     },
   });
-
-  const categoryLabels: Record<string, string> = {
-    doctor: "الأطباء",
-    nurse: "التمريض",
-    pharmacist: "الصيادلة",
-    technician: "الفنيون والفنيات",
-    other: "تخصصات أخرى",
-  };
 
   const groups = (data ?? []).reduce<Record<string, typeof data>>((acc, s) => {
     (acc[s.category] ??= [])!.push(s);
@@ -53,11 +79,11 @@ function SpecialtiesIndex() {
         <div className="mx-auto max-w-4xl px-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
             <Stethoscope className="size-4" />
-            تصنيف كامل للمهن الصحية
+            {c.badge}
           </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">التخصصات الطبية</h1>
+          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">
-            اختر تخصصك لعرض الوظائف والمناوبات المتاحة فيه عبر الدول العربية.
+            {c.sub}
           </p>
         </div>
       </section>
@@ -67,10 +93,10 @@ function SpecialtiesIndex() {
           {Object.entries(groups).map(([category, items]) => (
             <section key={category} className="mt-10 first:mt-0">
               <div className="flex flex-wrap items-end justify-between gap-4">
-                <h2 className="font-display text-2xl font-bold">{categoryLabels[category] ?? category}</h2>
+                <h2 className="font-display text-2xl font-bold">{c.categories[category] ?? category}</h2>
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/jobs">
-                    تصفح كل الوظائف <ArrowLeft className="size-4" />
+                    {c.browseAll} <ArrowLeft className="size-4" />
                   </Link>
                 </Button>
               </div>
@@ -86,8 +112,10 @@ function SpecialtiesIndex() {
                       <Stethoscope className="size-4" />
                     </span>
                     <span>
-                      <span className="block font-bold">{s.name_ar}</span>
-                      <span className="block text-xs text-muted-foreground">{s.name_en}</span>
+                      <span className="block font-bold">{specialtyName(s, lang)}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {lang === "en" ? s.name_ar : s.name_en}
+                      </span>
                     </span>
                   </Link>
                 ))}
