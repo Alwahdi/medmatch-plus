@@ -21,9 +21,11 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as PublicIndexRouteImport } from './routes/_public.index'
 import { Route as PublicAboutRouteImport } from './routes/_public.about'
 import { Route as PublicAuthRouteImport } from './routes/_public.auth'
@@ -117,6 +119,12 @@ const AuthenticatedMyShiftsRoute = AuthenticatedMyShiftsRouteImport.update({
   path: '/my-shifts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -130,6 +138,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
   id: '/saved',
   path: '/saved',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
@@ -309,9 +322,11 @@ export interface FileRoutesByFullPath {
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/about': typeof PublicAboutRoute
   '/auth': typeof PublicAuthRoute
   '/contact': typeof PublicContactRoute
@@ -355,9 +370,11 @@ export interface FileRoutesByTo {
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/about': typeof PublicAboutRoute
   '/auth': typeof PublicAuthRoute
   '/contact': typeof PublicContactRoute
@@ -403,9 +420,11 @@ export interface FileRoutesById {
   '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_public/about': typeof PublicAboutRoute
   '/_public/auth': typeof PublicAuthRoute
   '/_public/contact': typeof PublicContactRoute
@@ -452,9 +471,11 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/messages'
     | '/my-shifts'
+    | '/notifications'
     | '/onboarding'
     | '/profile'
     | '/saved'
+    | '/settings'
     | '/about'
     | '/auth'
     | '/contact'
@@ -498,9 +519,11 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/messages'
     | '/my-shifts'
+    | '/notifications'
     | '/onboarding'
     | '/profile'
     | '/saved'
+    | '/settings'
     | '/about'
     | '/auth'
     | '/contact'
@@ -545,9 +568,11 @@ export interface FileRouteTypes {
     | '/_authenticated/invitations'
     | '/_authenticated/messages'
     | '/_authenticated/my-shifts'
+    | '/_authenticated/notifications'
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
     | '/_authenticated/saved'
+    | '/_authenticated/settings'
     | '/_public/about'
     | '/_public/auth'
     | '/_public/contact'
@@ -673,6 +698,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyShiftsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -692,6 +724,13 @@ declare module '@tanstack/react-router' {
       path: '/saved'
       fullPath: '/saved'
       preLoaderRoute: typeof AuthenticatedSavedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_public/': {
@@ -940,9 +979,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedFacilityApplicantsRoute: typeof AuthenticatedFacilityApplicantsRoute
   AuthenticatedFacilityCandidatesRoute: typeof AuthenticatedFacilityCandidatesRouteWithChildren
   AuthenticatedFacilityInviteRoute: typeof AuthenticatedFacilityInviteRoute
@@ -961,9 +1002,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSavedRoute: AuthenticatedSavedRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedFacilityApplicantsRoute: AuthenticatedFacilityApplicantsRoute,
   AuthenticatedFacilityCandidatesRoute:
     AuthenticatedFacilityCandidatesRouteWithChildren,

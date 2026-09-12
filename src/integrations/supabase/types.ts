@@ -721,6 +721,45 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body_ar: string | null
+          body_en: string | null
+          created_at: string
+          id: string
+          link: string | null
+          read_at: string | null
+          title_ar: string
+          title_en: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body_ar?: string | null
+          body_en?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title_ar: string
+          title_en: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body_ar?: string | null
+          body_en?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title_ar?: string
+          title_en?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1093,6 +1132,18 @@ export type Database = {
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
+      }
+      push_notification: {
+        Args: {
+          _body_ar?: string
+          _body_en?: string
+          _link?: string
+          _title_ar: string
+          _title_en: string
+          _type: string
+          _user_id: string
+        }
+        Returns: undefined
       }
       search_candidates: {
         Args: {

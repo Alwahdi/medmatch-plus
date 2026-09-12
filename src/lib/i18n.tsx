@@ -34,6 +34,8 @@ export const DICT: Dict = {
   "nav.credentials": { ar: "ملف الاعتماد", en: "Credentials" },
   "nav.applications": { ar: "طلباتي", en: "My applications" },
   "nav.invitations": { ar: "الدعوات", en: "Invitations" },
+  "nav.notifications": { ar: "الإشعارات", en: "Notifications" },
+  "nav.settings": { ar: "الإعدادات", en: "Settings" },
   "nav.cv": { ar: "سيرتي الذاتية", en: "My CV" },
   "nav.cvImport": { ar: "بناء الملف من السيرة", en: "Build profile from CV" },
   "nav.saved": { ar: "الوظائف المحفوظة", en: "Saved jobs" },

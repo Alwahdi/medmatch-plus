@@ -9,12 +9,12 @@ import {
 
   CalendarClock,
   FileText,
-  Globe,
   LayoutDashboard,
   LogOut,
   Menu,
   MessagesSquare,
   Search,
+  Settings,
   ShieldCheck,
   Sparkles,
   Stethoscope,
@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
+import { NotificationBell } from "@/components/notification-bell";
 
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,8 @@ const PRO_NAV: Item[] = [
   { to: "/cv", key: "nav.cv", icon: FileText },
   { to: "/cv-import", key: "nav.cvImport", icon: Sparkles },
   { to: "/credentials", key: "nav.credentials", icon: ShieldCheck },
+  { to: "/notifications", key: "nav.notifications", icon: Bell },
+  { to: "/settings", key: "nav.settings", icon: Settings },
 ];
 
 const FACILITY_NAV: Item[] = [
@@ -54,12 +57,14 @@ const FACILITY_NAV: Item[] = [
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
   { to: "/pricing", key: "nav.pricing", icon: Sparkles },
+  { to: "/notifications", key: "nav.notifications", icon: Bell },
+  { to: "/settings", key: "nav.settings", icon: Settings },
 ];
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const { user } = useSession();
   const { data: roles } = useRoles(user);
-  const { t, lang, setLang } = useLang();
+  const { t } = useLang();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -135,16 +140,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
           </Link>
           <div className="ms-auto flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5"
-              aria-label={t("lang.label")}
-              onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-            >
-              <Globe className="size-4" />
-              <span className="hidden sm:inline">{t("lang.switch")}</span>
-            </Button>
             <Button variant="ghost" size="icon" asChild aria-label={t("nav.messages")} className="relative">
               <Link to="/messages">
                 <MessagesSquare className="size-5" />
@@ -156,6 +151,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </Link>
             </Button>
 
+            <NotificationBell />
+            <Button variant="ghost" size="icon" asChild aria-label={t("nav.settings")}>
+              <Link to="/settings">
+                <Settings className="size-5" />
+              </Link>
+            </Button>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={signOut}>
               <LogOut className="size-4" />
               <span className="hidden sm:inline">{t("nav.signOut")}</span>
