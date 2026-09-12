@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Building2, Send, ShieldCheck, UserRound } from "lucide-react";
+import { Building2, Check, CheckCheck, Send, ShieldCheck, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/messages")({
@@ -56,6 +57,7 @@ const TXT = {
     empty: "اكتب رسالتك أولاً",
     tooLong: "الرسالة طويلة جداً",
     failed: "تعذّر إرسال الرسالة",
+    hint: "اضغط Enter للإرسال، وShift+Enter لسطر جديد",
   },
   en: {
     title: "Messages",
