@@ -75,6 +75,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       {items.map((item) => {
         const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
         const Icon = item.icon;
+        const badge = item.to === "/messages" ? unreadTotal : 0;
         return (
           <Link
             key={item.to}
@@ -89,11 +90,22 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           >
             <Icon className="size-4 shrink-0" />
             <span className="truncate">{t(item.key)}</span>
+            {badge > 0 && (
+              <span
+                className={cn(
+                  "ms-auto rounded-full px-2 py-0.5 text-[11px] font-bold",
+                  active ? "bg-white/20 text-white" : "bg-destructive text-destructive-foreground",
+                )}
+              >
+                {badge > 99 ? "99+" : badge}
+              </span>
+            )}
           </Link>
         );
       })}
     </nav>
   );
+
 
   return (
     <div className="min-h-screen bg-muted/30">
