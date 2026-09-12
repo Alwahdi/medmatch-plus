@@ -275,7 +275,7 @@ function FacilityForm() {
         website: form.website.trim() || null,
       });
       if (error) throw error;
-      await supabase.from("user_roles").insert({ user_id: user!.id, role: "facility" });
+      await supabase.rpc("claim_facility_role");
     },
     onSuccess: () => {
       toast.success("تم إنشاء ملف المنشأة");

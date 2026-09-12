@@ -865,6 +865,7 @@ export type Database = {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean
       }
+      claim_facility_role: { Args: never; Returns: boolean }
       consume_candidate_search: { Args: never; Returns: number }
       has_role: {
         Args: {
