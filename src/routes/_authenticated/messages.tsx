@@ -295,9 +295,16 @@ function MessagesPage() {
                           )}
                         >
                           {m.body}
-                          <div className={cn("mt-1 text-[10px]", mine ? "opacity-70" : "text-muted-foreground")}>
+                          <div
+                            className={cn(
+                              "mt-1 flex items-center gap-1 text-[10px]",
+                              mine ? "opacity-70" : "text-muted-foreground",
+                            )}
+                          >
                             {formatDateTime(m.created_at, lang)}
+                            {mine && (m.read_at ? <CheckCheck className="size-3" /> : <Check className="size-3" />)}
                           </div>
+
                         </div>
                       </div>
                     );
