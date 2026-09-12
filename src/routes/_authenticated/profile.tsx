@@ -149,8 +149,10 @@ function ProfilePage() {
   const [avatar, setAvatar] = useState("");
 
   useEffect(() => {
-    if (account?.avatar_url) setAvatar(account.avatar_url);
-  }, [account]);
+    const url = profile?.avatar_url ?? account?.avatar_url;
+    if (url) setAvatar(url);
+  }, [account, profile]);
+
 
 
   useEffect(() => {
