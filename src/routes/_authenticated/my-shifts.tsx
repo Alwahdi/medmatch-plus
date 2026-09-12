@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ReviewDialog } from "@/components/review-dialog";
+import { useConfirm } from "@/components/confirm-dialog";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
@@ -60,6 +62,9 @@ function MyShifts() {
   const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const { confirm, confirmDialog } = useConfirm();
+
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["my-shifts", user?.id],
