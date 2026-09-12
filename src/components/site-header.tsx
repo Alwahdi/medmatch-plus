@@ -15,11 +15,15 @@ import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
 const NAV = [
+  { to: "/", key: "nav.home" },
   { to: "/jobs", key: "nav.jobs" },
   { to: "/shifts", key: "nav.shifts" },
   { to: "/specialties", key: "nav.specialties" },
-  { to: "/for-facilities", key: "nav.forFacilities" },
+  { to: "/interview-questions", key: "nav.questions" },
+  { to: "/guides", key: "nav.guides" },
   { to: "/pricing", key: "nav.pricing" },
+  { to: "/about", key: "nav.about" },
+  { to: "/contact", key: "nav.contact" },
 ] as const;
 
 export function SiteHeader() {
@@ -50,13 +54,14 @@ export function SiteHeader() {
           <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
         </Link>
 
-        <nav className="mx-4 hidden items-center gap-1 md:flex">
+        <nav className="mx-2 hidden items-center gap-0.5 lg:flex">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-              activeProps={{ className: "bg-secondary text-foreground" }}
+              className="rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              activeProps={{ className: "text-foreground" }}
+              activeOptions={{ exact: item.to === "/" }}
             >
               {t(item.key)}
             </Link>
@@ -132,17 +137,20 @@ export function SiteHeader() {
               <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
                 <Link to="/auth" search={{ mode: "signup" }}>
                   {t("nav.signUp")}
                 </Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/for-facilities">{t("nav.postJob")}</Link>
               </Button>
             </>
           )}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={t("nav.menu")}
           >
@@ -152,7 +160,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="border-t border-border bg-background px-4 py-2 md:hidden">
+        <nav className="border-t border-border bg-background px-4 py-2 lg:hidden">
           {NAV.map((item) => (
             <Link
               key={item.to}

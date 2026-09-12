@@ -165,7 +165,7 @@ function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="hero-surface relative overflow-hidden pb-28 md:pb-32">
+      <section className="hero-surface relative pb-16 md:pb-20">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-14 md:grid-cols-2 md:pt-20">
           <div className="order-2 md:order-1">
             <img
@@ -371,11 +371,17 @@ function Home() {
           </ol>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild>
-              <Link to={tab === "employers" ? "/for-facilities" : "/auth"} search={undefined}>
-                {tab === "employers" ? "ابدأ التوظيف" : "أنشئ ملفك المهني"}
-              </Link>
-            </Button>
+            {tab === "employers" ? (
+              <Button asChild>
+                <Link to="/for-facilities">ابدأ التوظيف</Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/auth" search={{ mode: "signup" }}>
+                  أنشئ ملفك المهني
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>

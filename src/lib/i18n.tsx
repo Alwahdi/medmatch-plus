@@ -15,8 +15,14 @@ const STORAGE_KEY = "syndeocare-lang";
 type Dict = Record<string, { ar: string; en: string }>;
 
 export const DICT: Dict = {
+  "nav.home": { ar: "الرئيسية", en: "Home" },
   "nav.jobs": { ar: "الوظائف", en: "Jobs" },
-  "nav.shifts": { ar: "المناوبات", en: "Shifts" },
+  "nav.shifts": { ar: "الشيفتات", en: "Shifts" },
+  "nav.guides": { ar: "الأدلة", en: "Guides" },
+  "nav.questions": { ar: "بنوك الأسئلة", en: "Question banks" },
+  "nav.about": { ar: "من نحن", en: "About" },
+  "nav.contact": { ar: "اتصل بنا", en: "Contact" },
+  "nav.postJob": { ar: "انشر وظيفة", en: "Post a job" },
   "nav.specialties": { ar: "التخصصات", en: "Specialties" },
   "nav.forFacilities": { ar: "للمنشآت", en: "For facilities" },
   "nav.pricing": { ar: "الأسعار", en: "Pricing" },
