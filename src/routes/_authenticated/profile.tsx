@@ -119,6 +119,19 @@ function ProfilePage() {
     },
   });
 
+  const { data: account } = useQuery({
+    queryKey: ["my-account", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id,full_name,avatar_url")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
   const [form, setForm] = useState({
     full_name: "",
     headline: "",
@@ -131,6 +144,12 @@ function ProfilePage() {
     license_number: "",
     is_open_to_shifts: true,
   });
+  const [avatar, setAvatar] = useState("");
+
+  useEffect(() => {
+    if (account?.avatar_url) setAvatar(account.avatar_url);
+  }, [account]);
+
 
   useEffect(() => {
     if (!profile) return;
