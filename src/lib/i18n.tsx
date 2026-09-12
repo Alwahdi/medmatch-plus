@@ -45,6 +45,8 @@ export const DICT: Dict = {
   "nav.myShifts": { ar: "مناوباتي", en: "My shifts" },
   "nav.applicants": { ar: "المتقدمون", en: "Applicants" },
   "nav.facilityHome": { ar: "لوحة المنشأة", en: "Facility dashboard" },
+  "nav.facilityProfile": { ar: "ملف المنشأة", en: "Facility profile" },
+
   "dash.proArea": { ar: "حسابي", en: "My account" },
   "dash.facilityArea": { ar: "منطقة المنشأة", en: "Employer area" },
   "lang.switch": { ar: "English", en: "العربية" },

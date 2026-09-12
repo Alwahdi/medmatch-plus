@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReviewDialog } from "@/components/review-dialog";
+import { useConfirm } from "@/components/confirm-dialog";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, relativeTime } from "@/lib/format";
@@ -205,7 +207,25 @@ function Applicants() {
                     <UserRound className="size-4" /> {c.viewProfile}
                   </Link>
                 </Button>
-                <Select value={a.status} onValueChange={(v) => setStatus.mutate({ id: a.id, status: v })}>
+                <Select
+                  value={a.status}
+                  onValueChange={async (v) => {
+                    if (v === "rejected") {
+                      const ok = await confirm({
+                        title: lang === "ar" ? "رفض هذا الطلب؟" : "Reject this application?",
+                        description:
+                          lang === "ar"
+                            ? "سيظهر للمتقدم أن طلبه مرفوض. يمكنك تغيير الحالة لاحقاً."
+                            : "The applicant will see the application as rejected. You can change the status later.",
+                        confirmLabel: lang === "ar" ? "نعم، ارفض" : "Yes, reject",
+                        destructive: true,
+                      });
+                      if (!ok) return;
+                    }
+                    setStatus.mutate({ id: a.id, status: v });
+                  }}
+                >
+
                   <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {APPLICATION_STATUSES.map((k) => (
