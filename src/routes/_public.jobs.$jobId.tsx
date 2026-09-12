@@ -238,19 +238,31 @@ function JobDetail() {
   if (!job) return null;
 
   const specialty = specialtyName(job.specialties, lang);
+  const expired = !!job.expires_at && new Date(job.expires_at).getTime() < Date.now();
+  const isOpen = job.is_active && !expired;
 
   return (
     <>
       {/* Hero */}
       <section className="page-hero py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-4">
-          <Button variant="ghost" size="sm" asChild className="text-white/80 hover:bg-white/10 hover:text-white">
+          <nav className="flex flex-wrap items-center gap-2 text-xs text-white/70">
+            <Link to="/" className="hover:text-white">{c.home}</Link>
+            <span>/</span>
+            <Link to="/jobs" className="hover:text-white">{c.jobsCrumb}</Link>
+            <span>/</span>
+            <span className="text-white">{job.title}</span>
+          </nav>
+          <Button variant="ghost" size="sm" asChild className="mt-3 text-white/80 hover:bg-white/10 hover:text-white">
             <Link to="/jobs">
               <ArrowLeft className="size-4" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-white/85">
+            <Badge className={isOpen ? "bg-success text-white" : "bg-muted text-foreground"}>
+              {isOpen ? c.open : c.closed}
+            </Badge>
             <span className="flex items-center gap-2">
               <Building2 className="size-4" /> {c.hiddenEmployer}
             </span>
