@@ -186,13 +186,4 @@
 @utility page-hero {
   background-image: var(--gradient-hero);
   color: oklch(0.99 0.005 240);
-  padding-top: 3.5rem;
-  padding-bottom: 3.5rem;
-}
-
-@media (min-width: 768px) {
-  @utility page-hero {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
-  }
 }
