@@ -165,7 +165,7 @@ function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="hero-surface relative overflow-hidden pb-28 md:pb-32">
+      <section className="hero-surface relative pb-16 md:pb-20">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-14 md:grid-cols-2 md:pt-20">
           <div className="order-2 md:order-1">
             <img
