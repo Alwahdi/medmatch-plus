@@ -239,7 +239,13 @@ function InvitePage() {
 
   const search = useMutation({
     mutationFn: async () => {
-      const args: Record<string, unknown> = { _limit: 20 };
+      const args: {
+        _limit: number;
+        _specialty_id?: string;
+        _country?: string;
+        _city?: string;
+        _min_experience?: number;
+      } = { _limit: 20 };
       if (specialty !== ANY) args._specialty_id = specialty;
       if (country !== ANY) args._country = country;
       if (city.trim()) args._city = city.trim();

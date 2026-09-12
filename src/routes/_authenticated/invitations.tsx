@@ -90,9 +90,7 @@ function InvitationsPage() {
       const { data: rows, error } = await supabase
         .from("invitations")
         .select(
-          "id,status,message,created_at,job_id,shift_id,facility_id," +
-            "facilities(id,name_ar,city,country,is_verified,logo_url)," +
-            "jobs(id,title,slug),shifts(id,title,starts_at)",
+          "id,status,message,created_at,job_id,shift_id,facility_id,facilities(id,name_ar,city,country,is_verified,logo_url),jobs(id,title,slug),shifts(id,title,starts_at)",
         )
         .eq("professional_user_id", user!.id)
         .order("created_at", { ascending: false });
