@@ -214,7 +214,9 @@ function CandidateProfile() {
                 </Badge>
               )}
             </div>
+            </div>
           </div>
+
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={() => startChat.mutate()} disabled={startChat.isPending}>
               <MessageSquare className="size-4" /> {c.message}
