@@ -331,15 +331,26 @@ function FacilityDashboard() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-extrabold">{facility.name_ar}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {facility.city}، {countryLabel(facility.country, lang)}
-            {facility.is_verified ? c.verified : c.unverified}
-          </p>
+        <div className="flex items-center gap-4">
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Building2 className="size-7" />
+          </span>
+          <div>
+            <h1 className="flex items-center gap-2 font-display text-3xl font-extrabold">
+              {facility.name_ar}
+              {facility.is_verified && <BadgeCheck className="size-6 text-primary" />}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {facility.city}، {countryLabel(facility.country, lang)}
+              {facility.is_verified ? c.verified : c.unverified}
+            </p>
+          </div>
         </div>
-        <Button variant="outline" asChild>
-          <Link to="/facility/applicants">{c.applicants}</Link>
+        <Button variant="outline" className="gap-2" asChild>
+          <Link to="/facility/applicants">
+            <Users className="size-4" />
+            {c.applicants}
+          </Link>
         </Button>
       </div>
 
@@ -347,6 +358,7 @@ function FacilityDashboard() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
           <div>
             <div className="flex flex-wrap items-center gap-2 font-bold">
+              <Sparkles className="size-5 text-primary" />
               {c.plan(plan.name_ar)}
               {plan.is_trial && <Badge variant="secondary">{c.trial}</Badge>}
               {!subActive && <Badge variant="destructive">{c.expired}</Badge>}
@@ -357,18 +369,33 @@ function FacilityDashboard() {
               · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
             </p>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/pricing">{c.upgrade}</Link>
+          <Button variant="outline" className="gap-2" asChild>
+            <Link to="/pricing">
+              <ArrowUpCircle className="size-4" />
+              {c.upgrade}
+            </Link>
           </Button>
         </div>
       )}
 
       <Tabs defaultValue="jobs" className="mt-8">
         <TabsList>
-          <TabsTrigger value="jobs">{c.tabJobs(jobs?.length ?? 0)}</TabsTrigger>
-          <TabsTrigger value="shifts">{c.tabShifts(shifts?.length ?? 0)}</TabsTrigger>
-          <TabsTrigger value="new-job">{c.tabNewJob}</TabsTrigger>
-          <TabsTrigger value="new-shift">{c.tabNewShift}</TabsTrigger>
+          <TabsTrigger value="jobs" className="gap-1.5">
+            <Briefcase className="size-4" />
+            {c.tabJobs(jobs?.length ?? 0)}
+          </TabsTrigger>
+          <TabsTrigger value="shifts" className="gap-1.5">
+            <CalendarClock className="size-4" />
+            {c.tabShifts(shifts?.length ?? 0)}
+          </TabsTrigger>
+          <TabsTrigger value="new-job" className="gap-1.5">
+            <PlusCircle className="size-4" />
+            {c.tabNewJob}
+          </TabsTrigger>
+          <TabsTrigger value="new-shift" className="gap-1.5">
+            <PlusCircle className="size-4" />
+            {c.tabNewShift}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="jobs" className="mt-6 space-y-3">
@@ -394,7 +421,7 @@ function FacilityDashboard() {
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">{c.noJobs}</p>
+            <EmptyState icon={Briefcase} title={c.noJobs} />
           )}
         </TabsContent>
 
@@ -414,7 +441,7 @@ function FacilityDashboard() {
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">{c.noShifts}</p>
+            <EmptyState icon={CalendarClock} title={c.noShifts} />
           )}
         </TabsContent>
 
