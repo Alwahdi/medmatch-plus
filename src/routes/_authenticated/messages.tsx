@@ -157,7 +157,7 @@ function MessagesPage() {
     queryFn: async () => {
       const { data: rows, error } = await supabase
         .from("messages")
-        .select("id,sender_id,body,created_at")
+        .select("id,sender_id,body,created_at,read_at")
         .eq("conversation_id", active!.id)
         .order("created_at", { ascending: true });
       if (error) throw error;
