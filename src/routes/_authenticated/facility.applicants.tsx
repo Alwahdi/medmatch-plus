@@ -160,6 +160,8 @@ function Applicants() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      {confirmDialog}
+
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
         <Link to="/facility" className="text-sm text-primary underline">{c.back}</Link>
