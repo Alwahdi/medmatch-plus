@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { employmentLabel, formatSalary, relativeTime, specialtyName } from "@/lib/format";
+import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 const TXT = {
@@ -345,6 +345,22 @@ function JobDetail() {
                   <div className="flex justify-between">
                     <span>{c.specialty}</span>
                     <span className="font-medium text-foreground">{specialty}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span>{c.vacancies}</span>
+                  <span className="font-medium text-foreground">{job.vacancies ?? 1}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{c.deadline}</span>
+                  <span className="font-medium text-foreground">
+                    {job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}
+                  </span>
+                </div>
+                {job.publisher_name && (
+                  <div className="flex justify-between">
+                    <span>{c.publishedBy}</span>
+                    <span className="font-medium text-foreground">{job.publisher_name}</span>
                   </div>
                 )}
               </div>
