@@ -140,139 +140,169 @@ function JobsPage() {
     return true;
   });
 
+  const reset = () => {
+    setQ("");
+    setCountry(ALL);
+    setSpecialty(ALL);
+    setType(ALL);
+  };
+
   return (
     <>
-      {/* Hero */}
-      <section className="page-hero py-14 md:py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
-            <Briefcase className="size-4" />
-            {c.badge}
-          </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">{c.sub}</p>
-        </div>
-      </section>
-
-      {/* Search & filters */}
-      <div className="relative px-4">
-        <div className="mx-auto max-w-5xl -translate-y-1/2">
-          <div className="card-lift rounded-2xl border border-border bg-card p-3 shadow-lg">
-            <div className="grid gap-2 md:grid-cols-[1fr_1fr_1fr]">
-              <div className="relative">
-                <Search className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder={c.search}
-                  className="h-11 pr-9"
-                  maxLength={80}
-                />
-              </div>
-              <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder={c.country} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL}>{c.allCountries}</SelectItem>
-                  {countries.map((x) => (
-                    <SelectItem key={x} value={x}>
-                      {countryLabel(x, lang)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={specialty} onValueChange={setSpecialty}>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder={c.specialty} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL}>{c.allSpecialties}</SelectItem>
-                  {specialties?.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {specialtyName(s, lang)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-              <SlidersHorizontal className="size-4 text-muted-foreground" />
-              <Button
-                variant={type === ALL ? "default" : "outline"}
-                size="sm"
-                onClick={() => setType(ALL)}
-              >
-                {c.all}
-              </Button>
-              {Object.keys(EMPLOYMENT_LABELS).map((key) => (
-                <Button
-                  key={key}
-                  variant={type === key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setType(key)}
-                >
-                  {employmentLabel(key, lang)}
-                </Button>
-              ))}
-            </div>
-          </div>
+      {/* Breadcrumb */}
+      <div className="border-b border-border bg-card">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
+          <Link to="/" className="hover:text-primary">
+            {c.home}
+          </Link>
+          <span>/</span>
+          <span className="font-medium text-foreground">{c.title}</span>
         </div>
       </div>
 
-      {/* Results */}
-      <section className="py-16 md:py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="section-label">{c.results}</p>
-              <h2 className="mt-2 font-display text-2xl font-extrabold">{c.count(filtered.length)}</h2>
-            </div>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/pricing">
-                {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
-              </Link>
-            </Button>
-          </div>
+      {/* Compact hero */}
+      <section className="page-hero py-10 md:py-12">
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-xs font-medium ring-1 ring-white/20">
+            <Briefcase className="size-4" />
+            {c.badge}
+          </span>
+          <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
+          <p className="mx-auto mt-3 max-w-xl text-white/85">{c.sub}</p>
+        </div>
+      </section>
 
-          {isLoading ? (
-            <div className="mt-8 grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-60 rounded-2xl" />
-              ))}
+      <section className="py-8 md:py-12">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[320px_1fr]">
+          {/* Filters sidebar */}
+          <aside className="lg:order-2">
+            <div className="sticky top-24 rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="font-display text-lg font-bold">{c.filters}</h2>
+                <span className="grid size-9 place-items-center rounded-xl bg-surface text-muted-foreground">
+                  <SlidersHorizontal className="size-4" />
+                </span>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                <div>
+                  <label className="text-sm font-medium">{c.keyword}</label>
+                  <div className="relative mt-1.5">
+                    <Search className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-muted-foreground end-3" />
+                    <Input
+                      value={q}
+                      onChange={(e) => setQ(e.target.value)}
+                      placeholder={c.search}
+                      className="h-11 pe-9"
+                      maxLength={80}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">{c.country}</label>
+                  <Select value={country} onValueChange={setCountry}>
+                    <SelectTrigger className="mt-1.5 h-11">
+                      <SelectValue placeholder={c.allCountries} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL}>{c.allCountries}</SelectItem>
+                      {countries.map((x) => (
+                        <SelectItem key={x} value={x}>
+                          {countryLabel(x, lang)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">{c.specialty}</label>
+                  <Select value={specialty} onValueChange={setSpecialty}>
+                    <SelectTrigger className="mt-1.5 h-11">
+                      <SelectValue placeholder={c.allSpecialties} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL}>{c.allSpecialties}</SelectItem>
+                      {specialties?.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {specialtyName(s, lang)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">{c.jobType}</label>
+                  <Select value={type} onValueChange={setType}>
+                    <SelectTrigger className="mt-1.5 h-11">
+                      <SelectValue placeholder={c.all} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL}>{c.all}</SelectItem>
+                      {Object.keys(EMPLOYMENT_LABELS).map((key) => (
+                        <SelectItem key={key} value={key}>
+                          {employmentLabel(key, lang)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button variant="outline" className="w-full gap-2" onClick={reset}>
+                  <RotateCcw className="size-4" /> {c.reset}
+                </Button>
+              </div>
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="mt-16 rounded-2xl border border-border bg-card p-10 text-center">
-              <p className="text-muted-foreground">{c.empty}</p>
-              <Button
-                className="mt-4"
-                variant="outline"
-                onClick={() => {
-                  setQ("");
-                  setCountry(ALL);
-                  setSpecialty(ALL);
-                  setType(ALL);
-                }}
-              >
-                {c.reset}
+          </aside>
+
+          {/* Results */}
+          <div className="lg:order-1">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="section-label">{c.results}</p>
+                <h2 className="mt-1 font-display text-xl font-extrabold">
+                  {c.count(filtered.length)}
+                </h2>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/pricing">
+                  {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
+                </Link>
               </Button>
             </div>
-          ) : (
-            <div className="mt-8 grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  match={matchScore(profile ?? null, {
-                    specialty_id: job.specialty_id,
-                    min_experience: job.min_experience,
-                    country: job.country,
-                    required_license: job.required_license,
-                  })}
-                />
-              ))}
-            </div>
-          )}
+
+            {isLoading ? (
+              <div className="mt-6 space-y-3">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-28 rounded-2xl" />
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="mt-10 rounded-2xl border border-border bg-card p-10 text-center">
+                <p className="text-muted-foreground">{c.empty}</p>
+                <Button className="mt-4" variant="outline" onClick={reset}>
+                  {c.reset}
+                </Button>
+              </div>
+            ) : (
+              <div className="mt-6 space-y-3">
+                {filtered.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    match={matchScore(profile ?? null, {
+                      specialty_id: job.specialty_id,
+                      min_experience: job.min_experience,
+                      country: job.country,
+                      required_license: job.required_license,
+                    })}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </>
