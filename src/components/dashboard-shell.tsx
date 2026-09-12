@@ -125,11 +125,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <Globe className="size-4" />
               <span className="hidden sm:inline">{t("lang.switch")}</span>
             </Button>
-            <Button variant="ghost" size="icon" asChild aria-label={t("nav.messages")}>
+            <Button variant="ghost" size="icon" asChild aria-label={t("nav.messages")} className="relative">
               <Link to="/messages">
                 <MessagesSquare className="size-5" />
+                {unreadTotal > 0 && (
+                  <span className="absolute -end-0.5 -top-0.5 flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-destructive-foreground">
+                    {unreadTotal > 99 ? "99+" : unreadTotal}
+                  </span>
+                )}
               </Link>
             </Button>
+
             <Button variant="outline" size="sm" className="gap-1.5" onClick={signOut}>
               <LogOut className="size-4" />
               <span className="hidden sm:inline">{t("nav.signOut")}</span>
