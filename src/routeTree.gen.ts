@@ -37,6 +37,7 @@ import { Route as InterviewQuestionsIndexRouteImport } from './routes/interview-
 import { Route as InterviewQuestionsSlugRouteImport } from './routes/interview-questions.$slug'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
+import { Route as RegisterIndexRouteImport } from './routes/register.index'
 import { Route as SpecialtiesIndexRouteImport } from './routes/specialties.index'
 import { Route as SpecialtiesSlugRouteImport } from './routes/specialties.$slug'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
@@ -184,6 +185,11 @@ const JobsJobIdRoute = JobsJobIdRouteImport.update({
   path: '/jobs/$jobId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterIndexRoute = RegisterIndexRouteImport.update({
+  id: '/register/',
+  path: '/register/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SpecialtiesIndexRoute = SpecialtiesIndexRouteImport.update({
   id: '/specialties/',
   path: '/specialties/',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/guides/': typeof GuidesIndexRoute
   '/interview-questions/': typeof InterviewQuestionsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/register/': typeof RegisterIndexRoute
   '/specialties/': typeof SpecialtiesIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/guides': typeof GuidesIndexRoute
   '/interview-questions': typeof InterviewQuestionsIndexRoute
   '/jobs': typeof JobsIndexRoute
+  '/register': typeof RegisterIndexRoute
   '/specialties': typeof SpecialtiesIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/guides/': typeof GuidesIndexRoute
   '/interview-questions/': typeof InterviewQuestionsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/register/': typeof RegisterIndexRoute
   '/specialties/': typeof SpecialtiesIndexRoute
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/_authenticated/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
@@ -348,6 +357,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/interview-questions/'
     | '/jobs/'
+    | '/register/'
     | '/specialties/'
     | '/facility/applicants'
     | '/facility/candidates'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/guides'
     | '/interview-questions'
     | '/jobs'
+    | '/register'
     | '/specialties'
     | '/facility/applicants'
     | '/facility/candidates'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/interview-questions/'
     | '/jobs/'
+    | '/register/'
     | '/specialties/'
     | '/_authenticated/facility/applicants'
     | '/_authenticated/facility/candidates'
@@ -441,6 +453,7 @@ export interface RootRouteChildren {
   GuidesIndexRoute: typeof GuidesIndexRoute
   InterviewQuestionsIndexRoute: typeof InterviewQuestionsIndexRoute
   JobsIndexRoute: typeof JobsIndexRoute
+  RegisterIndexRoute: typeof RegisterIndexRoute
   SpecialtiesIndexRoute: typeof SpecialtiesIndexRoute
 }
 
@@ -642,6 +655,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JobsJobIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register/': {
+      id: '/register/'
+      path: '/register'
+      fullPath: '/register/'
+      preLoaderRoute: typeof RegisterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/specialties/': {
       id: '/specialties/'
       path: '/specialties'
@@ -737,6 +757,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesIndexRoute: GuidesIndexRoute,
   InterviewQuestionsIndexRoute: InterviewQuestionsIndexRoute,
   JobsIndexRoute: JobsIndexRoute,
+  RegisterIndexRoute: RegisterIndexRoute,
   SpecialtiesIndexRoute: SpecialtiesIndexRoute,
 }
 export const routeTree = rootRouteImport
