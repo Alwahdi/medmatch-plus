@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ForFacilitiesRouteImport } from './routes/for-facilities'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ShiftsRouteImport } from './routes/shifts'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
@@ -43,6 +46,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -58,9 +66,19 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShiftsRoute = ShiftsRouteImport.update({
   id: '/shifts',
   path: '/shifts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -161,10 +179,13 @@ const AuthenticatedFacilityCandidatesRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/shifts': typeof ShiftsRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -186,10 +207,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/shifts': typeof ShiftsRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -213,10 +237,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/shifts': typeof ShiftsRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
@@ -240,10 +267,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/auth'
     | '/for-facilities'
     | '/pricing'
+    | '/privacy'
     | '/shifts'
+    | '/terms'
     | '/admin'
     | '/alerts'
     | '/applications'
@@ -265,10 +295,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/auth'
     | '/for-facilities'
     | '/pricing'
+    | '/privacy'
     | '/shifts'
+    | '/terms'
     | '/admin'
     | '/alerts'
     | '/applications'
@@ -291,10 +324,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/auth'
     | '/for-facilities'
     | '/pricing'
+    | '/privacy'
     | '/shifts'
+    | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/alerts'
     | '/_authenticated/applications'
@@ -318,10 +354,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ForFacilitiesRoute: typeof ForFacilitiesRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ShiftsRoute: typeof ShiftsRoute
+  TermsRoute: typeof TermsRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
   SpecialtiesSlugRoute: typeof SpecialtiesSlugRoute
   JobsIndexRoute: typeof JobsIndexRoute
@@ -342,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -365,11 +411,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shifts': {
       id: '/shifts'
       path: '/shifts'
       fullPath: '/shifts'
       preLoaderRoute: typeof ShiftsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -541,10 +601,13 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ForFacilitiesRoute: ForFacilitiesRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ShiftsRoute: ShiftsRoute,
+  TermsRoute: TermsRoute,
   JobsJobIdRoute: JobsJobIdRoute,
   SpecialtiesSlugRoute: SpecialtiesSlugRoute,
   JobsIndexRoute: JobsIndexRoute,
