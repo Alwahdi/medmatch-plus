@@ -15,7 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUpload } from "@/components/image-upload";
 import { supabase } from "@/integrations/supabase/client";
+
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
@@ -220,17 +222,21 @@ function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="flex items-center gap-4">
-        <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 font-display text-2xl font-extrabold text-primary">
-          {(form.full_name.trim()[0] ?? "?").toUpperCase()}
-        </span>
-        <div>
-          <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-          <p className="mt-1 text-muted-foreground">
-            {c.sub}
-          </p>
-        </div>
+      <div>
+        <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+        <p className="mt-1 text-muted-foreground">{c.sub}</p>
       </div>
+
+      <div className="card-lift mt-6 rounded-2xl border border-border bg-card p-6">
+        <ImageUpload
+          value={avatar}
+          onChange={setAvatar}
+          fallback={(form.full_name.trim()[0] ?? "?").toUpperCase()}
+          rounded="full"
+          prefix="avatar"
+        />
+      </div>
+
 
       <div className="card-lift mt-6 space-y-5 rounded-2xl border border-border bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-2">
