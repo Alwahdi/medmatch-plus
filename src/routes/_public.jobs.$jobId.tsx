@@ -148,13 +148,13 @@ function JobDetail() {
   const queryClient = useQueryClient();
   const [cover, setCover] = useState("");
 
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobId);
+
   const { data: job, isLoading } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*,specialties(name_ar,name_en)")
-        .eq("id", jobId)
+      const query = supabase.from("jobs").select("*,specialties(name_ar,name_en)");
+      const { data, error } = await (isUuid ? query.eq("id", jobId) : query.eq("slug", jobId))
         .maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
