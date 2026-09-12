@@ -971,10 +971,6 @@ export type Database = {
       }
       claim_facility_role: { Args: never; Returns: boolean }
       consume_candidate_search: { Args: never; Returns: number }
-      has_conversation_with_pro: {
-        Args: { _professional_user_id: string; _user_id: string }
-        Returns: boolean
-      }
       has_engagement: {
         Args: { _facility_id: string; _professional_user_id: string }
         Returns: boolean
