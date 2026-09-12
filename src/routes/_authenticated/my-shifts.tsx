@@ -98,6 +98,8 @@ function MyShifts() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
+      {confirmDialog}
+
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-muted-foreground">{c.sub}</p>
 
@@ -137,10 +139,20 @@ function MyShifts() {
                     </div>
                   )}
                   <Button size="sm" variant="ghost"
-                    onClick={() => cancel.mutate({ id: b.id, shiftId: s.id })}
+                    onClick={async () => {
+                      const ok = await confirm({
+                        title: c.confirmTitle,
+                        description: c.confirmDesc,
+                        confirmLabel: c.confirmCta,
+                        cancelLabel: c.keep,
+                        destructive: true,
+                      });
+                      if (ok) cancel.mutate({ id: b.id, shiftId: s.id });
+                    }}
                     disabled={cancel.isPending}>
                     {c.cancel}
                   </Button>
+
                 </div>
               </li>
             );
