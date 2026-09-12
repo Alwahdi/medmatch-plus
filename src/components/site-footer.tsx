@@ -29,6 +29,7 @@ export function SiteFooter() {
           <h3 className="text-sm font-bold">للمنشآت</h3>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/for-facilities" className="hover:text-foreground">كيف تعمل المنصة</Link></li>
+            <li><Link to="/pricing" className="hover:text-foreground">الأسعار والباقات</Link></li>
             <li><Link to="/auth" search={{ mode: "signup" }} className="hover:text-foreground">تسجيل منشأة</Link></li>
           </ul>
         </div>

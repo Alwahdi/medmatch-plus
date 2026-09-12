@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ForFacilitiesRouteImport } from './routes/for-facilities'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ShiftsRouteImport } from './routes/shifts'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
@@ -43,6 +44,11 @@ const AuthRoute = AuthRouteImport.update({
 const ForFacilitiesRoute = ForFacilitiesRouteImport.update({
   id: '/for-facilities',
   path: '/for-facilities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShiftsRoute = ShiftsRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
+  '/pricing': typeof PricingRoute
   '/shifts': typeof ShiftsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
+  '/pricing': typeof PricingRoute
   '/shifts': typeof ShiftsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
+  '/pricing': typeof PricingRoute
   '/shifts': typeof ShiftsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/for-facilities'
+    | '/pricing'
     | '/shifts'
     | '/admin'
     | '/applications'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/for-facilities'
+    | '/pricing'
     | '/shifts'
     | '/admin'
     | '/applications'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/for-facilities'
+    | '/pricing'
     | '/shifts'
     | '/_authenticated/admin'
     | '/_authenticated/applications'
@@ -223,6 +235,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ForFacilitiesRoute: typeof ForFacilitiesRoute
+  PricingRoute: typeof PricingRoute
   ShiftsRoute: typeof ShiftsRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
   JobsIndexRoute: typeof JobsIndexRoute
@@ -256,6 +269,13 @@ declare module '@tanstack/react-router' {
       path: '/for-facilities'
       fullPath: '/for-facilities'
       preLoaderRoute: typeof ForFacilitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shifts': {
@@ -377,6 +397,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ForFacilitiesRoute: ForFacilitiesRoute,
+  PricingRoute: PricingRoute,
   ShiftsRoute: ShiftsRoute,
   JobsJobIdRoute: JobsJobIdRoute,
   JobsIndexRoute: JobsIndexRoute,
