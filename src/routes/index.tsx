@@ -301,18 +301,23 @@ function Home() {
           </div>
 
           <ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {steps.map((s, i) => (
-              <li key={s.title} className="card-lift rounded-2xl border border-border bg-card p-6">
+            {stepKeys.map((key, i) => (
+              <li key={key} className="card-lift rounded-2xl border border-border bg-card p-6">
                 <span className="flex size-10 items-center justify-center rounded-full bg-accent/15 font-display text-lg font-extrabold text-accent">
                   {i + 1}
                 </span>
-                {"highlight" in s && s.highlight && (
+                {key === "employer3" && (
                   <span className="mt-4 inline-block rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
-                    {s.highlight}
+                    {t("home.steps.employer3.highlight")}
                   </span>
                 )}
-                <h3 className="mt-3 text-base font-bold">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
+                {key === "seeker2" && (
+                  <span className="mt-4 inline-block rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                    {t("home.steps.seeker2.highlight")}
+                  </span>
+                )}
+                <h3 className="mt-3 text-base font-bold">{t(`home.steps.${key}.title` as const)}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t(`home.steps.${key}.text` as const)}</p>
               </li>
             ))}
           </ol>
@@ -320,12 +325,12 @@ function Home() {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {tab === "employers" ? (
               <Button asChild>
-                <Link to="/for-facilities">ابدأ التوظيف</Link>
+                <Link to="/for-facilities">{t("home.steps.employerCta")}</Link>
               </Button>
             ) : (
               <Button asChild>
                 <Link to="/auth" search={{ mode: "signup" }}>
-                  أنشئ ملفك المهني
+                  {t("home.steps.seekerCta")}
                 </Link>
               </Button>
             )}
