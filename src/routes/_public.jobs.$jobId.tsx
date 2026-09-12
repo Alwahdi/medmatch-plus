@@ -170,6 +170,20 @@ function JobDetail() {
 
   const realJobId = job?.id;
 
+  const { data: revealedFacility } = useQuery({
+    queryKey: ["revealed-facility", job?.facility_id, user?.id],
+    enabled: !!user && !!job?.facility_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("facilities")
+        .select("id,name_ar,name_en,city,country,is_verified")
+        .eq("id", job!.facility_id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+
   const { data: existing } = useQuery({
     queryKey: ["application", realJobId, user?.id],
     enabled: !!user && !!realJobId,
@@ -270,8 +284,9 @@ function JobDetail() {
               {isOpen ? c.open : c.closed}
             </Badge>
             <span className="flex items-center gap-2">
-              <Building2 className="size-4" /> {c.hiddenEmployer}
+              <Building2 className="size-4" /> {revealedFacility?.name_ar ?? c.hiddenEmployer}
             </span>
+
             {job.facility_verified && (
               <Badge variant="secondary" className="gap-1">
                 <ShieldCheck className="size-3" /> {c.verifiedEmployer}
