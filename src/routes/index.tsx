@@ -4,101 +4,116 @@ import { useState } from "react";
 import {
   ArrowLeft,
   BadgeCheck,
-  CalendarClock,
-  Check,
-  FileText,
-  Minus,
+  Bell,
+  Building2,
+  FileUp,
+  Gift,
+  Globe2,
+  MapPin,
   Search,
   ShieldCheck,
   Sparkles,
-  Wallet,
+  Zap,
 } from "lucide-react";
 import heroImage from "@/assets/hero.jpg";
+import forProsImage from "@/assets/for-professionals.jpg";
+import forEmployersImage from "@/assets/for-employers.jpg";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { JobCard, type JobRow } from "@/components/job-card";
+import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
-import { COUNTRIES } from "@/lib/format";
+import { GUIDES } from "@/content/guides";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SyndeoCare | وظائف طبية ومناوبات فورية في العالم العربي" },
+      { title: "SyndeoCare | وظائف وشيفتات طبية موثوقة في العالم العربي" },
       {
         name: "description",
         content:
-          "ابحث عن وظائف طبية دائمة أو احجز مناوبة فورية، ووثّق ترخيصك مرة واحدة. منصة SyndeoCare للكوادر الصحية والمنشآت في المنطقة العربية.",
+          "كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد. وظائف دائمة، شيفتات فورية، وناشرو وظائف موثّقون.",
       },
-      { property: "og:title", content: "SyndeoCare | وظائف طبية ومناوبات فورية" },
+      { property: "og:title", content: "SyndeoCare | نبني مستقبل التوظيف الطبي" },
       {
         property: "og:description",
-        content: "وظائف دائمة، مناوبات فورية، توثيق تراخيص، وسيرة ذاتية متوافقة مع أنظمة الفرز.",
+        content: "وظائف دائمة وشيفتات فورية لدى ناشري وظائف طبية موثّقين، مجاناً للباحثين عن عمل.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
 });
 
-const FEATURES = [
-  {
-    icon: CalendarClock,
-    title: "سوق المناوبات الفورية",
-    text: "المنشأة تنشر مناوبة، والكادر المؤهل يحجزها خلال دقائق — بدون وسطاء ولا مكالمات.",
-  },
+const WHY = [
   {
     icon: ShieldCheck,
-    title: "ملف اعتماد موحّد",
-    text: "ارفع ترخيصك وشهاداتك مرة واحدة، وتُراجع وتُوثّق لتستخدمها في كل تقديم.",
+    title: "ناشرو الوظائف موثّقون",
+    text: "كل مستشفى وعيادة ومعمل وصيدلية تم التحقق من اعتماداتها قبل النشر.",
   },
   {
-    icon: Wallet,
-    title: "شفافية الأجر",
-    text: "كل إعلان يعرض نطاق الراتب بوضوح. لا مفاوضات في الظلام.",
+    icon: Zap,
+    title: "قدّم بنقرة واحدة",
+    text: "أرسل ملفك الطبي فوراً — بدون نماذج طويلة ولا خطابات تعريف.",
   },
   {
-    icon: Sparkles,
-    title: "مطابقة ذكية",
-    text: "نسبة توافق لكل وظيفة محسوبة من تخصصك وخبرتك ودولتك وترخيصك.",
+    icon: Globe2,
+    title: "مصمّم للمنطقة العربية",
+    text: "مبنيّ لأسواق الرعاية الصحية في السعودية والإمارات ومصر وباقي دول الخليج.",
   },
   {
-    icon: FileText,
-    title: "سيرة ذاتية ATS",
-    text: "مولّد سيرة طبية منظّمة تمر بأنظمة الفرز الإلكتروني في المستشفيات.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "منشآت موثّقة",
-    text: "كل منشأة تُراجع قبل النشر، فلا تتقدم إلا لجهة حقيقية.",
+    icon: Gift,
+    title: "مجانية للباحثين عن عمل",
+    text: "بدون رسوم أبداً — للأطباء والتمريض والصيادلة والفنيين.",
   },
 ];
 
-const STEPS = [
-  { n: "1", title: "أنشئ ملفك المهني", text: "تخصصك، خبرتك، ودولة ترخيصك — خمس دقائق فقط." },
-  { n: "2", title: "وثّق ترخيصك مرة واحدة", text: "نراجع وثائقك، وتظهر للمنشآت كـ«كادر موثّق»." },
-  { n: "3", title: "تقدّم أو احجز مناوبة", text: "طلب بنقرة، أو مناوبة محجوزة الليلة بأجر معلن." },
+const EMPLOYER_STEPS = [
+  {
+    title: "انشر وظيفة أو شيفت",
+    text: "انشر وظيفة دائمة أو شيفتاً عاجلاً خلال دقائق — ليظهر فوراً للكوادر الموثّقة.",
+  },
+  {
+    title: "استقبل الطلبات",
+    text: "الكوادر المؤهّلة، بعد تدقيق تراخيصها، تبدأ بالتقديم خلال دقائق من النشر.",
+  },
+  {
+    title: "تنبيهات فورية عند كل طلب",
+    text: "يصلك تنبيه لحظة تقدّم أي مرشّح — دون الحاجة لمتابعة لوحة التحكم.",
+    highlight: "ميزة SyndeoCare",
+  },
+  {
+    title: "راجع المرشحين ووظّف",
+    text: "افتح الطلب مباشرة، قارن الملفات، راسل المرشّح، وأكّد التعيين.",
+  },
 ];
 
-const COMPARE = [
-  ["نطاق راتب معلن في كل إعلان", true],
-  ["حجز مناوبة فورية بدون وسيط", true],
-  ["توثيق التراخيص والشهادات", true],
-  ["نسبة توافق محسوبة لكل وظيفة", true],
-  ["مولّد سيرة ذاتية متوافق مع ATS", true],
-  ["تتبّع مراحل الطلب حتى التعيين", true],
-] as const;
+const SEEKER_STEPS = [
+  {
+    title: "ارفع سيرتك الذاتية",
+    text: "يبني الذكاء الاصطناعي ملفك المهني في ثوانٍ بدل ملء النماذج الطويلة.",
+  },
+  {
+    title: "وثّق ترخيصك مرة واحدة",
+    text: "ارفع الترخيص والشهادات، ونراجعها لتظهر كـ«كادر موثّق» في كل تقديم.",
+    highlight: "ميزة SyndeoCare",
+  },
+  {
+    title: "تصفّح وقدّم بنقرة",
+    text: "وظائف دائمة وشيفتات فورية بأجر معلن لدى ناشري وظائف موثّقين.",
+  },
+  {
+    title: "تابع طلبك حتى التعيين",
+    text: "تتبّع مراحل الطلب وراسل جهة التوظيف مباشرة من داخل المنصة.",
+  },
+];
 
 function Home() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [country, setCountry] = useState("");
+  const [loc, setLoc] = useState("");
+  const [tab, setTab] = useState<"employers" | "seekers">("employers");
 
   const { data: jobs, isLoading: jobsLoading } = useQuery({
     queryKey: ["home-jobs"],
@@ -116,27 +131,27 @@ function Home() {
     },
   });
 
-  const { data: specialties } = useQuery({
-    queryKey: ["home-specialties"],
+  const { data: shifts, isLoading: shiftsLoading } = useQuery({
+    queryKey: ["home-shifts"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar").limit(12);
-      return data ?? [];
+      const { data, error } = await supabase
+        .from("shifts")
+        .select(
+          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialties(name_ar)",
+        )
+        .eq("status", "open")
+        .order("starts_at", { ascending: true })
+        .limit(4);
+      if (error) throw error;
+      return data as unknown as ShiftRow[];
     },
   });
 
-  const { data: stats } = useQuery({
-    queryKey: ["home-stats"],
+  const { data: specialties } = useQuery({
+    queryKey: ["home-specialties"],
     queryFn: async () => {
-      const [jobsCount, shiftsCount, specialtiesCount] = await Promise.all([
-        supabase.from("jobs").select("*", { count: "exact", head: true }).eq("is_active", true),
-        supabase.from("shifts").select("*", { count: "exact", head: true }).eq("status", "open"),
-        supabase.from("specialties").select("*", { count: "exact", head: true }),
-      ]);
-      return {
-        jobs: jobsCount.count ?? 0,
-        shifts: shiftsCount.count ?? 0,
-        specialties: specialtiesCount.count ?? 0,
-      };
+      const { data } = await supabase.from("specialties").select("id,slug,name_ar").limit(12);
+      return data ?? [];
     },
   });
 
@@ -145,112 +160,99 @@ function Home() {
     navigate({ to: "/jobs" });
   }
 
+  const steps = tab === "employers" ? EMPLOYER_STEPS : SEEKER_STEPS;
+
   return (
     <>
-      <section className="hero-surface relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
-          <div>
-            <Badge className="mb-5 border-0 bg-white/15 text-white hover:bg-white/20">
-              أول منصة عربية تجمع الوظائف والمناوبات والتوثيق
-            </Badge>
-            <h1 className="font-display text-4xl leading-tight font-extrabold md:text-5xl">
-              وظيفتك الطبية القادمة… أو مناوبة الليلة
-            </h1>
-            <p className="mt-5 max-w-lg text-lg leading-relaxed text-white/85">
-              SyndeoCare يربط الأطباء والتمريض والصيادلة والفنيين بالمستشفيات والعيادات في المنطقة
-              العربية — بأجر معلن، وترخيص موثّق، ومطابقة ذكية.
-            </p>
-
-            <form
-              onSubmit={search}
-              className="mt-8 flex flex-col gap-2 rounded-2xl bg-white/12 p-2 backdrop-blur sm:flex-row"
-            >
-              <div className="flex flex-1 items-center gap-2 rounded-xl bg-background px-3">
-                <Search className="size-4 text-muted-foreground" />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="التخصص أو المسمى الوظيفي"
-                  maxLength={80}
-                  className="h-11 w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                />
-              </div>
-              <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger className="h-11 w-full rounded-xl border-0 bg-background sm:w-40">
-                  <SelectValue placeholder="كل الدول" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COUNTRIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button type="submit" variant="secondary" className="h-11 rounded-xl px-6">
-                ابحث
-              </Button>
-            </form>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button size="sm" asChild className="border border-white/30 bg-white/10 text-white hover:bg-white/20">
-                <Link to="/shifts">سوق المناوبات</Link>
-              </Button>
-              <Button size="sm" asChild className="border border-white/30 bg-white/10 text-white hover:bg-white/20">
-                <Link to="/for-facilities">أنا منشأة صحية</Link>
-              </Button>
-            </div>
-
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
-              <Stat value={stats?.jobs} label="وظيفة متاحة" />
-              <Stat value={stats?.shifts} label="مناوبة مفتوحة" />
-              <Stat value={stats?.specialties} label="تخصصاً مغطّى" />
-            </dl>
-          </div>
-
-          <div className="relative">
+      {/* Hero */}
+      <section className="hero-surface relative overflow-hidden pb-28 md:pb-32">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-14 md:grid-cols-2 md:pt-20">
+          <div className="order-2 md:order-1">
             <img
               src={heroImage}
-              alt="طبيبة وممرض في ممر مستشفى حديث"
+              alt="كوادر صحية عربية في ممر مستشفى حديث"
               width={1600}
               height={1104}
               className="rounded-3xl shadow-2xl"
             />
           </div>
+
+          <div className="order-1 md:order-2">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
+              <span className="size-2 rounded-full bg-emerald-400" />
+              منصة عربية للتوظيف الطبي
+            </span>
+            <h1 className="mt-5 font-display text-4xl leading-tight font-extrabold text-white md:text-5xl">
+              نبني مستقبل التوظيف الطبي
+            </h1>
+            <p className="mt-5 max-w-lg text-lg leading-relaxed text-white/85">
+              كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button
+                size="lg"
+                asChild
+                className="bg-accent text-accent-foreground hover:bg-accent/90"
+              >
+                <Link to="/for-facilities">ابدأ التوظيف</Link>
+              </Button>
+              <Button
+                size="lg"
+                asChild
+                className="border border-white/25 bg-white/10 text-white hover:bg-white/20"
+              >
+                <Link to="/jobs">تصفّح الوظائف</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Search bar */}
+        <div className="absolute inset-x-0 bottom-0 translate-y-1/2 px-4">
+          <form
+            onSubmit={search}
+            className="mx-auto flex max-w-5xl flex-col gap-2 rounded-2xl border border-border bg-card p-2 shadow-lg sm:flex-row"
+          >
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-surface px-3">
+              <Search className="size-4 shrink-0 text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="المسمى الوظيفي، الكلمة المفتاحية، أو التخصص"
+                maxLength={80}
+                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-surface px-3 sm:max-w-64">
+              <MapPin className="size-4 shrink-0 text-muted-foreground" />
+              <input
+                value={loc}
+                onChange={(e) => setLoc(e.target.value)}
+                placeholder="المدينة أو الموقع"
+                maxLength={60}
+                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+            <Button type="submit" size="lg" className="h-12 rounded-xl px-8">
+              تصفّح الوظائف
+            </Button>
+          </form>
         </div>
       </section>
 
-      {specialties && specialties.length > 0 && (
-        <section className="border-b border-border bg-background py-6">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4">
-            <span className="ms-2 text-sm font-medium text-muted-foreground">تخصصات مطلوبة:</span>
-            {specialties.slice(0, 10).map((s) => (
-              <Link
-                key={s.id}
-                to="/jobs"
-                className="rounded-full border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-primary hover:text-primary"
-              >
-                {s.name_ar}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="soft-surface py-16 md:py-20">
+      {/* Why */}
+      <section className="bg-background pt-24 pb-16 md:pt-28">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="font-display text-3xl font-extrabold">لماذا SyndeoCare؟</h2>
-          <p className="mt-3 max-w-2xl text-muted-foreground">
-            لوحات الوظائف التقليدية تنشر إعلاناً وتتركك. نحن نغطي الرحلة كاملة: من توثيق ترخيصك حتى
-            أول يوم عمل.
+          <p className="text-center text-sm font-semibold tracking-wide text-accent">
+            لماذا SyndeoCare
           </p>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {FEATURES.map((f) => (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {WHY.map((f) => (
               <div key={f.title} className="card-lift rounded-2xl border border-border bg-card p-6">
-                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                   <f.icon className="size-5" />
                 </span>
-                <h3 className="mt-4 text-lg font-bold">{f.title}</h3>
+                <h3 className="mt-4 text-base font-bold">{f.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.text}</p>
               </div>
             ))}
@@ -258,63 +260,216 @@ function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="font-display text-3xl font-extrabold">كيف تبدأ خلال 3 خطوات</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {STEPS.map((s) => (
-              <div key={s.n} className="rounded-2xl border border-border bg-card p-6">
-                <span className="flex size-10 items-center justify-center rounded-full bg-accent/12 font-display text-lg font-extrabold text-accent">
-                  {s.n}
-                </span>
-                <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
+      {/* Two sides */}
       <section className="soft-surface py-16 md:py-20">
-        <div className="mx-auto max-w-4xl px-4">
-          <h2 className="font-display text-3xl font-extrabold">SyndeoCare مقابل لوحة وظائف عادية</h2>
-          <p className="mt-3 text-muted-foreground">
-            الفرق ليس في عدد الإعلانات، بل في ما يحدث بعد الضغط على «تقديم».
-          </p>
-          <div className="card-lift mt-8 overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-border bg-surface px-5 py-3 text-xs font-bold">
-              <span>الميزة</span>
-              <span className="w-24 text-center text-primary">SyndeoCare</span>
-              <span className="w-24 text-center text-muted-foreground">لوحة عادية</span>
-            </div>
-            {COMPARE.map(([label]) => (
-              <div
-                key={label}
-                className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-border px-5 py-3.5 text-sm last:border-0"
-              >
-                <span>{label}</span>
-                <span className="flex w-24 justify-center">
-                  <Check className="size-4 text-accent" />
-                </span>
-                <span className="flex w-24 justify-center">
-                  <Minus className="size-4 text-muted-foreground" />
-                </span>
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="text-center font-display text-3xl font-extrabold">
+            مصمّم لطرفَي الرعاية الصحية
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            <article className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
+              <img
+                src={forProsImage}
+                alt="ممرضة تتصفّح شيفتاتها القادمة على هاتفها في ممر مستشفى"
+                width={1280}
+                height={960}
+                loading="lazy"
+                className="h-56 w-full object-cover"
+              />
+              <div className="p-6">
+                <span className="text-xs font-semibold text-accent">للباحثين عن عمل</span>
+                <h3 className="mt-2 font-display text-xl font-bold">
+                  اعثر على شيفتك أو وظيفتك القادمة
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  ارفع سيرتك الذاتية ويبني الذكاء الاصطناعي ملفك في ثوانٍ، ثم تصفّح وظائف وشيفتات
+                  موثوقة لدى ناشري وظائف طبية معتمدين وتقدّم فوراً.
+                </p>
+                <Button className="mt-5" asChild>
+                  <Link to="/jobs">تصفّح الوظائف</Link>
+                </Button>
               </div>
-            ))}
+            </article>
+
+            <article className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
+              <img
+                src={forEmployersImage}
+                alt="مسؤولة توظيف وطبيب يراجعان طلبات التوظيف على جهاز لوحي"
+                width={1280}
+                height={960}
+                loading="lazy"
+                className="h-56 w-full object-cover"
+              />
+              <div className="p-6">
+                <span className="text-xs font-semibold text-accent">لناشري الوظائف</span>
+                <h3 className="mt-2 font-display text-xl font-bold">وظّف كوادر موثوقة بسرعة</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  انشر وظيفة أو شيفتاً، واستلم تنبيهاً فور تقدّم كادر مؤهّل — فلا يفوتك أي مرشّح
+                  مناسب.
+                </p>
+                <Button className="mt-5" asChild>
+                  <Link to="/for-facilities">انشر وظيفة</Link>
+                </Button>
+              </div>
+            </article>
           </div>
         </div>
       </section>
 
+      {/* How it works */}
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="flex items-end justify-between gap-4">
+          <p className="text-center text-sm font-semibold tracking-wide text-accent">
+            كيف تعمل المنصة
+          </p>
+          <h2 className="mt-3 text-center font-display text-3xl font-extrabold">
+            من الاستكشاف إلى التوظيف في أربع خطوات واضحة
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">
+            تجربة متكاملة لكلا طرفي رحلة التوظيف الصحي.
+          </p>
+
+          <div className="mt-8 flex justify-center">
+            <div className="inline-flex rounded-full border border-border bg-card p-1">
+              {(
+                [
+                  ["employers", "لناشري الوظائف"],
+                  ["seekers", "للباحثين عن عمل"],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setTab(key)}
+                  className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+                    tab === key
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {steps.map((s, i) => (
+              <li key={s.title} className="card-lift rounded-2xl border border-border bg-card p-6">
+                <span className="flex size-10 items-center justify-center rounded-full bg-accent/15 font-display text-lg font-extrabold text-accent">
+                  {i + 1}
+                </span>
+                {"highlight" in s && s.highlight && (
+                  <span className="mt-4 inline-block rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                    {s.highlight}
+                  </span>
+                )}
+                <h3 className="mt-3 text-base font-bold">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild>
+              <Link to={tab === "employers" ? "/for-facilities" : "/auth"} search={undefined}>
+                {tab === "employers" ? "ابدأ التوظيف" : "أنشئ ملفك المهني"}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* AI CV */}
+      <section className="soft-surface py-16 md:py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-2">
+          <div>
+            <p className="text-sm font-semibold tracking-wide text-accent">
+              تأهيل مدعوم بالذكاء الاصطناعي
+            </p>
+            <h2 className="mt-3 font-display text-3xl leading-snug font-extrabold">
+              ارفع سيرتك الذاتية، ودع الذكاء الاصطناعي يبني ملفّك في ثوانٍ
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              لا مزيد من ملء النماذج الطويلة. ارفع سيرتك مرة واحدة ويحوّلها ذكاء SyndeoCare
+              الاصطناعي إلى ملف مهني متكامل — لتبدأ التقديم على الوظائف والشيفتات خلال دقائق لا
+              ساعات.
+            </p>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2">
+              <div>
+                <h3 className="text-sm font-bold">للباحثين عن عمل</h3>
+                <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                  <li>سجّل في أقل من دقيقة — دون نماذج طويلة</li>
+                  <li>ملف متكامل واحترافي يلفت الأنظار</li>
+                  <li>مطابقة أدقّ مع الوظائف والشيفتات المناسبة</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold">لناشري الوظائف</h3>
+                <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                  <li>ملفات مرشّحين أكثر اكتمالاً وثراءً</li>
+                  <li>مطابقة أفضل مع شواغرك المفتوحة</li>
+                  <li>طلبات بجودة أعلى وتواصل أقل</li>
+                </ul>
+              </div>
+            </div>
+            <p className="mt-6 text-xs text-muted-foreground">
+              يدعم السير الذاتية بالعربية والإنجليزية
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Button asChild>
+                <Link to="/cv-import">أنشئ ملفك في ثوانٍ</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/jobs">تصفّح الوظائف أولاً</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="card-lift rounded-3xl border border-border bg-card p-8">
+            <div className="flex items-center gap-3 rounded-2xl border border-dashed border-accent/50 bg-accent/5 p-5">
+              <span className="flex size-11 items-center justify-center rounded-xl bg-accent/15 text-accent">
+                <FileUp className="size-5" />
+              </span>
+              <div>
+                <div className="text-sm font-bold">cv.pdf</div>
+                <div className="text-xs text-muted-foreground">جارٍ تحليل السيرة الذاتية…</div>
+              </div>
+            </div>
+            <div className="mt-6 space-y-3">
+              {[
+                { icon: BadgeCheck, label: "التخصص وسنوات الخبرة" },
+                { icon: ShieldCheck, label: "الترخيص المهني والدولة" },
+                { icon: Sparkles, label: "المهارات السريرية والملخص المهني" },
+                { icon: Building2, label: "جهات العمل السابقة" },
+              ].map((row) => (
+                <div
+                  key={row.label}
+                  className="flex items-center gap-3 rounded-xl bg-surface px-4 py-3 text-sm"
+                >
+                  <row.icon className="size-4 text-accent" />
+                  {row.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Latest jobs */}
+      <section className="py-16 md:py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-3xl font-extrabold">أحدث الوظائف</h2>
-              <p className="mt-2 text-muted-foreground">فرص منشورة من منشآت موثّقة.</p>
+              <p className="text-sm font-semibold tracking-wide text-accent">وظائف دائمة</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">أحدث الوظائف الطبية</h2>
+              <p className="mt-2 text-muted-foreground">
+                فرص جديدة منشورة من مستشفيات وعيادات ومنشآت متخصصة موثّقة.
+              </p>
             </div>
             <Button variant="ghost" asChild>
               <Link to="/jobs">
-                عرض الكل <ArrowLeft className="size-4" />
+                عرض كل الوظائف <ArrowLeft className="size-4" />
               </Link>
             </Button>
           </div>
@@ -326,37 +481,130 @@ function Home() {
         </div>
       </section>
 
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 text-center">
-          <h2 className="font-display text-3xl font-extrabold">ابدأ خلال دقيقتين</h2>
-          <p className="max-w-xl text-primary-foreground/85">
-            سجّل كادراً صحياً وابدأ التقديم، أو سجّل منشأتك وانشر أول وظيفة أو مناوبة مجاناً.
+      {/* Shifts */}
+      <section className="soft-surface py-16 md:py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold tracking-wide text-accent">عمل مرن</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">شيفتات متاحة الآن</h2>
+              <p className="mt-2 text-muted-foreground">
+                احصل على دخل إضافي مع شيفتات حسب الطلب لدى ناشري وظائف موثّقين.
+              </p>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link to="/shifts">
+                عرض كل الشيفتات <ArrowLeft className="size-4" />
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-8 grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {shiftsLoading
+              ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-60 rounded-2xl" />)
+              : shifts?.map((shift) => <ShiftCard key={shift.id} shift={shift} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* Specialties */}
+      <section className="py-16 md:py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold tracking-wide text-accent">حسب التخصص</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">تصفّح حسب التخصص الطبي</h2>
+              <p className="mt-2 text-muted-foreground">
+                ابحث عن الفرصة المناسبة في مجالك — من الطب العام إلى التخصصات الدقيقة.
+              </p>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link to="/specialties">
+                عرض كل التخصصات <ArrowLeft className="size-4" />
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            {specialties?.map((s) => (
+              <Link
+                key={s.id}
+                to="/specialties/$slug"
+                params={{ slug: s.slug }}
+                className="card-lift rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold transition-colors hover:border-accent hover:text-accent"
+              >
+                {s.name_ar}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Guides */}
+      <section className="soft-surface py-16 md:py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold tracking-wide text-accent">أدلة مهنية</p>
+              <h2 className="mt-2 font-display text-3xl font-extrabold">أحدث أدلة المهن الطبية</h2>
+              <p className="mt-2 text-muted-foreground">
+                إرشادات عملية حول التراخيص والرواتب وتطوير مسيرتك الصحية في المنطقة العربية.
+              </p>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link to="/guides">
+                تصفّح كل الأدلة <ArrowLeft className="size-4" />
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            {GUIDES.slice(0, 3).map((g) => (
+              <Link
+                key={g.slug}
+                to="/guides/$slug"
+                params={{ slug: g.slug }}
+                className="card-lift rounded-2xl border border-border bg-card p-6"
+              >
+                <span className="text-xs font-semibold text-accent">{g.category}</span>
+                <h3 className="mt-2 font-display text-lg leading-snug font-bold">{g.title}</h3>
+                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                  {g.description}
+                </p>
+                <span className="mt-4 block text-xs text-muted-foreground">
+                  {g.readMinutes} دقائق قراءة
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="hero-surface py-16">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 text-center">
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-white/12 text-white">
+            <Bell className="size-6" />
+          </span>
+          <h2 className="font-display text-3xl font-extrabold text-white">
+            ابدأ رحلتك مع SyndeoCare اليوم
+          </h2>
+          <p className="max-w-xl text-white/85">
+            مجانية تماماً للكوادر الصحية، وتجربة 30 يوماً لناشري الوظائف.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Button size="lg" variant="secondary" asChild>
+            <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/auth" search={{ mode: "signup" }}>
-                إنشاء حساب كادر صحي
+                إنشاء حساب مجاني
               </Link>
             </Button>
             <Button
               size="lg"
               asChild
-              className="border border-white/30 bg-white/10 text-white hover:bg-white/20"
+              className="border border-white/25 bg-white/10 text-white hover:bg-white/20"
             >
-              <Link to="/for-facilities">أنا منشأة صحية</Link>
+              <Link to="/for-facilities">أنا ناشر وظائف</Link>
             </Button>
           </div>
         </div>
       </section>
     </>
-  );
-}
-
-function Stat({ value, label }: { value: number | undefined; label: string }) {
-  return (
-    <div>
-      <dt className="font-display text-3xl font-extrabold">{value ?? "—"}</dt>
-      <dd className="text-xs text-white/75">{label}</dd>
-    </div>
   );
 }
