@@ -298,12 +298,23 @@ function MessagesPage() {
                   maxLength={2000}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (draft.trim() && !send.isPending) send.mutate();
+                    }
+                  }}
                   placeholder={c.placeholder}
                 />
-                <Button className="mt-3" onClick={() => send.mutate()} disabled={send.isPending}>
-                  <Send className="size-4" /> {send.isPending ? c.sending : c.send}
-                </Button>
+                <div className="mt-3 flex items-center gap-3">
+                  <Button onClick={() => send.mutate()} disabled={send.isPending || !draft.trim()}>
+                    <Send className="size-4" /> {send.isPending ? c.sending : c.send}
+                  </Button>
+                  <span className="text-xs text-muted-foreground">{c.hint}</span>
+                  <span className="ms-auto text-xs text-muted-foreground">{draft.length}/2000</span>
+                </div>
               </div>
+
             </div>
           )}
         </div>
