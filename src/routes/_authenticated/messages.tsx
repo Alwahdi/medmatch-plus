@@ -378,28 +378,54 @@ function MessagesPage() {
           {active && activeInfo && (
             <div className="flex min-h-[420px] flex-col rounded-2xl border border-border bg-card">
               <div className="flex flex-wrap items-center gap-3 border-b border-border p-4">
-                {activeInfo.to ? (
-                  <Link
-                    to={activeInfo.to}
-                    className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
-                    title={c.viewProfile}
-                  >
-                    <RemoteAvatar
-                      value={activeInfo.image}
-                      icon={activeInfo.icon}
-                      className="size-10 rounded-xl"
-                    />
-                    <span>
-                      <span className="flex items-center gap-2 font-bold">
-                        {activeInfo.name}
-                        {activeInfo.verified && <Badge variant="secondary">{c.verified}</Badge>}
+                {activeInfo.linkId ? (
+                  activeInfo.kind === "facility" ? (
+                    <Link
+                      to="/facilities/$facilityId"
+                      params={{ facilityId: activeInfo.linkId }}
+                      className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
+                      title={c.viewProfile}
+                    >
+                      <RemoteAvatar
+                        value={activeInfo.image}
+                        icon={activeInfo.icon}
+                        className="size-10 rounded-xl"
+                      />
+                      <span>
+                        <span className="flex items-center gap-2 font-bold">
+                          {activeInfo.name}
+                          {activeInfo.verified && <Badge variant="secondary">{c.verified}</Badge>}
+                        </span>
+                        <span className="block text-xs text-primary underline underline-offset-4">
+                          {c.viewProfile}
+                        </span>
                       </span>
-                      <span className="block text-xs text-primary underline underline-offset-4">
-                        {c.viewProfile}
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/facility/candidates/$userId"
+                      params={{ userId: activeInfo.linkId }}
+                      className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
+                      title={c.viewProfile}
+                    >
+                      <RemoteAvatar
+                        value={activeInfo.image}
+                        icon={activeInfo.icon}
+                        className="size-10 rounded-xl"
+                      />
+                      <span>
+                        <span className="flex items-center gap-2 font-bold">
+                          {activeInfo.name}
+                          {activeInfo.verified && <Badge variant="secondary">{c.verified}</Badge>}
+                        </span>
+                        <span className="block text-xs text-primary underline underline-offset-4">
+                          {c.viewProfile}
+                        </span>
                       </span>
-                    </span>
-                  </Link>
+                    </Link>
+                  )
                 ) : (
+
                   <div className="flex items-center gap-3">
                     <RemoteAvatar value={null} icon={activeInfo.icon} className="size-10 rounded-xl" />
                     <span>
