@@ -97,8 +97,8 @@ function ShiftsPage() {
 
       {/* Filter */}
       <div className="relative px-4">
-        <div className="mx-auto max-w-3xl -translate-y-1/2">
-          <div className="card-lift flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-lg sm:flex-row">
+        <div className="mx-auto max-w-xl -translate-y-1/2">
+          <div className="card-lift flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-lg">
             <div className="relative flex-1">
               <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Select value={country} onValueChange={setCountry}>
@@ -115,15 +115,12 @@ function ShiftsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="h-11" asChild>
-              <Link to="/shifts">عرض المناوبات</Link>
-            </Button>
           </div>
         </div>
       </div>
 
       {/* Results */}
-      <section className="pb-16 md:pb-20">
+      <section className="py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>

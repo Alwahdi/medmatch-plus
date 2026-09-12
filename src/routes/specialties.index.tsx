@@ -33,6 +33,14 @@ function SpecialtiesIndex() {
     },
   });
 
+  const categoryLabels: Record<string, string> = {
+    doctor: "الأطباء",
+    nurse: "التمريض",
+    pharmacist: "الصيادلة",
+    technician: "الفنيون والفنيات",
+    other: "تخصصات أخرى",
+  };
+
   const groups = (data ?? []).reduce<Record<string, typeof data>>((acc, s) => {
     (acc[s.category] ??= [])!.push(s);
     return acc;
@@ -59,7 +67,7 @@ function SpecialtiesIndex() {
           {Object.entries(groups).map(([category, items]) => (
             <section key={category} className="mt-10 first:mt-0">
               <div className="flex flex-wrap items-end justify-between gap-4">
-                <h2 className="font-display text-2xl font-bold">{category}</h2>
+                <h2 className="font-display text-2xl font-bold">{categoryLabels[category] ?? category}</h2>
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/jobs">
                     تصفح كل الوظائف <ArrowLeft className="size-4" />

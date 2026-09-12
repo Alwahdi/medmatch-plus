@@ -107,7 +107,7 @@ function PricingPage() {
             </div>
           </div>
 
-          <div className="mt-2 grid gap-6 md:grid-cols-3">
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
             {plans?.map((p) => {
               const price = yearly ? Number(p.price_yearly) : Number(p.price_monthly);
               const highlight = p.code === "pro";
