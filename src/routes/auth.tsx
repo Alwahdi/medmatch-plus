@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Stethoscope, Building2 } from "lucide-react";
+import { Stethoscope, Building2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,8 +46,33 @@ function AuthPage() {
   }, [user, navigate]);
 
   return (
-    <div className="soft-surface flex min-h-[80vh] items-center justify-center px-4 py-12">
-      <div className="card-lift w-full max-w-md rounded-2xl border border-border bg-card p-6">
+    <div className="soft-surface px-4 py-12">
+      <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2">
+        <aside className="hidden lg:block">
+          <h2 className="font-display text-3xl leading-tight font-extrabold">
+            حساب واحد يفتح لك سوق العمل الطبي العربي
+          </h2>
+          <ul className="mt-8 space-y-5">
+            {[
+              ["وظائف بأجر معلن", "كل إعلان يعرض نطاق الراتب — لا مفاوضات في الظلام."],
+              ["مناوبات تُحجز بنقرة", "غطِّ يومك الحر بمناوبة قريبة منك بأجر بالساعة واضح."],
+              ["توثيق مرة واحدة", "ارفع ترخيصك وشهاداتك، واستخدمها في كل تقديم."],
+              ["سيرة ATS جاهزة", "نبني سيرتك تلقائياً بصيغة تقرأها أنظمة الفرز."],
+            ].map(([t, d]) => (
+              <li key={t} className="flex gap-3">
+                <span className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent">
+                  <Check className="size-3.5" />
+                </span>
+                <div>
+                  <p className="font-bold">{t}</p>
+                  <p className="text-sm text-muted-foreground">{d}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+      <div className="card-lift w-full max-w-md justify-self-center rounded-2xl border border-border bg-card p-6">
         <h1 className="font-display text-2xl font-extrabold">أهلاً بك في SyndeoCare</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           حساب واحد للوظائف والمناوبات وتوثيق التراخيص.
@@ -66,6 +91,10 @@ function AuthPage() {
           <span className="h-px flex-1 bg-border" /> أو <span className="h-px flex-1 bg-border" />
         </div>
         <GoogleButton />
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          بإنشاء حسابك أنت توافق على استخدام بياناتك لأغراض التوظيف داخل المنصة فقط.
+        </p>
+      </div>
       </div>
     </div>
   );
