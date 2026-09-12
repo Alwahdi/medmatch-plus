@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, relativeTime } from "@/lib/format";
@@ -45,6 +46,7 @@ const TXT = {
     chatOpened: "تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح",
     chatFailed: "تعذّر بدء المحادثة",
     empty: "لا يوجد متقدمون بعد.",
+    viewProfile: "الملف الكامل",
   },
   en: {
     title: "Applicants",
@@ -60,6 +62,7 @@ const TXT = {
     chatOpened: "Conversation opened — your facility name is now visible to the candidate",
     chatFailed: "Failed to start conversation",
     empty: "No applicants yet.",
+    viewProfile: "Full profile",
   },
 } as const;
 
@@ -80,6 +83,7 @@ function Applicants() {
         .eq("user_id", user!.id)
         .maybeSingle();
       if (!facility) return [];
+      const facilityId = facility.id;
       const { data: jobs } = await supabase.from("jobs").select("id,title").eq("facility_id", facility.id);
       const ids = (jobs ?? []).map((j) => j.id);
       if (ids.length === 0) return [];
@@ -98,6 +102,7 @@ function Applicants() {
 
       return (apps ?? []).map((a) => ({
         ...a,
+        facilityId,
         job: jobs?.find((j) => j.id === a.job_id) ?? null,
         pro: pros?.find((p) => p.user_id === a.user_id) ?? null,
       }));
@@ -184,6 +189,21 @@ function Applicants() {
                   disabled={startChat.isPending}
                 >
                   <MessageSquare className="size-4" /> {c.message}
+                </Button>
+                {a.status === "hired" && user && (
+                  <ReviewDialog
+                    direction="facility_to_pro"
+                    facilityId={a.facilityId}
+                    professionalUserId={a.user_id}
+                    authorUserId={user.id}
+                    targetName={a.pro?.full_name ?? c.healthcarePro}
+                    jobId={a.job_id}
+                  />
+                )}
+                <Button size="sm" variant="outline" asChild>
+                  <Link to="/facility/candidates/$userId" params={{ userId: a.user_id }}>
+                    <UserRound className="size-4" /> {c.viewProfile}
+                  </Link>
                 </Button>
                 <Select value={a.status} onValueChange={(v) => setStatus.mutate({ id: a.id, status: v })}>
                   <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
