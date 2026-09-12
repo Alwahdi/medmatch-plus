@@ -56,22 +56,6 @@ const WHY = [
 
 const EMPLOYER_STEP_KEYS = ["employer1", "employer2", "employer3", "employer4"];
 const SEEKER_STEP_KEYS = ["seeker1", "seeker2", "seeker3", "seeker4"];
-    text: "يبني الذكاء الاصطناعي ملفك المهني في ثوانٍ بدل ملء النماذج الطويلة.",
-  },
-  {
-    title: "وثّق ترخيصك مرة واحدة",
-    text: "ارفع الترخيص والشهادات، ونراجعها لتظهر كـ«كادر موثّق» في كل تقديم.",
-    highlight: "ميزة SyndeoCare",
-  },
-  {
-    title: "تصفّح وقدّم بنقرة",
-    text: "وظائف دائمة وشيفتات فورية بأجر معلن لدى ناشري وظائف موثّقين.",
-  },
-  {
-    title: "تابع طلبك حتى التعيين",
-    text: "تتبّع مراحل الطلب وراسل جهة التوظيف مباشرة من داخل المنصة.",
-  },
-];
 
 function Home() {
   const navigate = useNavigate();
