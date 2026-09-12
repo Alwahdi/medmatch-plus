@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { formatDateTime, relativeTime } from "@/lib/format";
+import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/messages")({
@@ -36,7 +37,50 @@ type Conversation = {
   last_message_at: string;
 };
 
+const TXT = {
+  ar: {
+    title: "الرسائل",
+    sub: "قناة التواصل الرسمية داخل المنصة. تبدأ المنشأة المحادثة، ويظهر اسمها لك فور بدئها.",
+    loading: "جارٍ التحميل...",
+    emptyTitle: "لا توجد محادثات بعد",
+    emptyBody: "ستظهر هنا المحادثات فور تواصل المنشأة معك أو بعد ترقية طلبك في مراحل الفرز.",
+    facility: "منشأة صحية",
+    hiddenIdentity: "الهوية تظهر عند بدء التواصل",
+    professional: "كادر صحي",
+    verified: "موثّق",
+    about: (t: string) => `بخصوص وظيفة: ${t}`,
+    startChat: "ابدأ المحادثة برسالة تعريفية.",
+    placeholder: "اكتب رسالتك...",
+    sending: "جارٍ الإرسال...",
+    send: "إرسال",
+    empty: "اكتب رسالتك أولاً",
+    tooLong: "الرسالة طويلة جداً",
+    failed: "تعذّر إرسال الرسالة",
+  },
+  en: {
+    title: "Messages",
+    sub: "The official in-platform channel. The employer starts the conversation, and their name is revealed to you as soon as they do.",
+    loading: "Loading...",
+    emptyTitle: "No conversations yet",
+    emptyBody: "Conversations appear here once an employer contacts you or your application moves forward in screening.",
+    facility: "Healthcare facility",
+    hiddenIdentity: "Identity is revealed when contact begins",
+    professional: "Healthcare professional",
+    verified: "Verified",
+    about: (t: string) => `Regarding job: ${t}`,
+    startChat: "Start the conversation with a short introduction.",
+    placeholder: "Write your message...",
+    sending: "Sending...",
+    send: "Send",
+    empty: "Write your message first",
+    tooLong: "Message is too long",
+    failed: "Could not send the message",
+  },
+} as const;
+
 function MessagesPage() {
+  const { lang } = useLang();
+  const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -108,8 +152,8 @@ function MessagesPage() {
   const send = useMutation({
     mutationFn: async () => {
       const body = draft.trim();
-      if (!body) throw new Error("اكتب رسالتك أولاً");
-      if (body.length > 2000) throw new Error("الرسالة طويلة جداً");
+      if (!body) throw new Error(c.empty);
+      if (body.length > 2000) throw new Error(c.tooLong);
       const { error } = await supabase
         .from("messages")
         .insert({ conversation_id: active!.id, sender_id: user!.id, body });
@@ -120,23 +164,23 @@ function MessagesPage() {
       queryClient.invalidateQueries({ queryKey: ["messages", active?.id] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: (e: Error) => toast.error(e.message || "تعذّر إرسال الرسالة"),
+    onError: (e: Error) => toast.error(e.message || c.failed),
   });
 
-  function counterpart(c: Conversation) {
-    const isPro = c.professional_user_id === user?.id;
+  function counterpart(conv: Conversation) {
+    const isPro = conv.professional_user_id === user?.id;
     if (isPro) {
-      const f = data?.facilities?.[c.facility_id];
+      const f = data?.facilities?.[conv.facility_id];
       return {
-        name: c.identity_revealed && f ? f.name_ar : "منشأة صحية",
-        sub: f ? [f.city, f.country].filter(Boolean).join("، ") : "الهوية تظهر عند بدء التواصل",
+        name: conv.identity_revealed && f ? f.name_ar : c.facility,
+        sub: f ? [f.city, f.country].filter(Boolean).join("، ") : c.hiddenIdentity,
         verified: f?.is_verified ?? false,
         icon: Building2,
       };
     }
-    const p = data?.pros?.[c.professional_user_id];
+    const p = data?.pros?.[conv.professional_user_id];
     return {
-      name: p?.full_name ?? "كادر صحي",
+      name: p?.full_name ?? c.professional,
       sub: p?.headline ?? "",
       verified: p?.is_verified ?? false,
       icon: UserRound,
@@ -145,34 +189,30 @@ function MessagesPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">الرسائل</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        قناة التواصل الرسمية داخل المنصة. تبدأ المنشأة المحادثة، ويظهر اسمها لك فور بدئها.
-      </p>
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="mt-8 text-sm text-muted-foreground">{c.loading}</p>
       ) : conversations.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
-          <p className="font-bold">لا توجد محادثات بعد</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            ستظهر هنا المحادثات فور تواصل المنشأة معك أو بعد ترقية طلبك في مراحل الفرز.
-          </p>
+          <p className="font-bold">{c.emptyTitle}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{c.emptyBody}</p>
         </div>
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-[320px_1fr]">
           <ul className="space-y-2">
-            {conversations.map((c) => {
-              const info = counterpart(c);
+            {conversations.map((conv) => {
+              const info = counterpart(conv);
               const Icon = info.icon;
               return (
-                <li key={c.id}>
+                <li key={conv.id}>
                   <button
                     type="button"
-                    onClick={() => setActiveId(c.id)}
+                    onClick={() => setActiveId(conv.id)}
                     className={cn(
                       "w-full rounded-2xl border border-border bg-card p-4 text-start transition-colors hover:bg-secondary",
-                      active?.id === c.id && "border-primary bg-secondary",
+                      active?.id === conv.id && "border-primary bg-secondary",
                     )}
                   >
                     <span className="flex items-center gap-2 font-bold">
@@ -181,10 +221,10 @@ function MessagesPage() {
                       {info.verified && <ShieldCheck className="size-3.5 text-accent" />}
                     </span>
                     <span className="mt-1 block text-xs text-muted-foreground">
-                      {c.job_id ? data?.jobs?.[c.job_id]?.title ?? info.sub : info.sub}
+                      {conv.job_id ? data?.jobs?.[conv.job_id]?.title ?? info.sub : info.sub}
                     </span>
                     <span className="mt-1 block text-[11px] text-muted-foreground">
-                      {relativeTime(c.last_message_at)}
+                      {relativeTime(conv.last_message_at, lang)}
                     </span>
                   </button>
                 </li>
@@ -197,11 +237,11 @@ function MessagesPage() {
               <div className="border-b border-border p-4">
                 <p className="flex items-center gap-2 font-bold">
                   {counterpart(active).name}
-                  {counterpart(active).verified && <Badge variant="secondary">موثّق</Badge>}
+                  {counterpart(active).verified && <Badge variant="secondary">{c.verified}</Badge>}
                 </p>
                 {active.job_id && data?.jobs?.[active.job_id] && (
                   <p className="text-xs text-muted-foreground">
-                    بخصوص وظيفة: {data.jobs[active.job_id]!.title}
+                    {c.about(data.jobs[active.job_id]!.title)}
                   </p>
                 )}
               </div>
@@ -220,14 +260,14 @@ function MessagesPage() {
                         >
                           {m.body}
                           <div className={cn("mt-1 text-[10px]", mine ? "opacity-70" : "text-muted-foreground")}>
-                            {formatDateTime(m.created_at)}
+                            {formatDateTime(m.created_at, lang)}
                           </div>
                         </div>
                       </div>
                     );
                   })
                 ) : (
-                  <p className="text-sm text-muted-foreground">ابدأ المحادثة برسالة تعريفية.</p>
+                  <p className="text-sm text-muted-foreground">{c.startChat}</p>
                 )}
                 <div ref={endRef} />
               </div>
@@ -238,10 +278,10 @@ function MessagesPage() {
                   maxLength={2000}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  placeholder="اكتب رسالتك..."
+                  placeholder={c.placeholder}
                 />
                 <Button className="mt-3" onClick={() => send.mutate()} disabled={send.isPending}>
-                  <Send className="size-4" /> {send.isPending ? "جارٍ الإرسال..." : "إرسال"}
+                  <Send className="size-4" /> {send.isPending ? c.sending : c.send}
                 </Button>
               </div>
             </div>
