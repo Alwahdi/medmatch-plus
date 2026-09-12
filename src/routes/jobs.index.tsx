@@ -61,7 +61,7 @@ function JobsPage() {
       const { data, error } = await supabase
         .from("jobs")
         .select(
-          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,specialty_id,required_license,facilities(name_ar,is_verified),specialties(name_ar)",
+          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar)",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false });
@@ -95,7 +95,7 @@ function JobsPage() {
     if (country !== ALL && j.country !== country) return false;
     if (specialty !== ALL && j.specialty_id !== specialty) return false;
     if (type !== ALL && j.employment_type !== type) return false;
-    if (q && !`${j.title} ${j.facilities?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
+    if (q && !`${j.title} ${j.specialties?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
     return true;
   });
 
