@@ -57,7 +57,7 @@ export function useUnread(user: User | null | undefined) {
 export async function markConversationRead(conversationId: string, userId: string) {
   await supabase
     .from("messages")
-    .update({ read_at: new Date().toISOString(), delivered_at: new Date().toISOString() })
+    .update({ read_at: new Date().toISOString() })
     .eq("conversation_id", conversationId)
     .neq("sender_id", userId)
     .is("read_at", null);
