@@ -4,7 +4,7 @@ import { GUIDES, getGuide } from "@/content/guides";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/guides/$slug")({
+export const Route = createFileRoute("/_public/guides/$slug")({
   loader: ({ params }) => {
     const guide = getGuide(params.slug);
     if (!guide) throw notFound();

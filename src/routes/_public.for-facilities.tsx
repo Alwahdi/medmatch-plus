@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarClock, ClipboardList, ShieldCheck, Users, Sparkles, ArrowLeft, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/for-facilities")({
+export const Route = createFileRoute("/_public/for-facilities")({
   head: () => ({
     meta: [
       { title: "للمنشآت الصحية | وظّف كوادر موثّقة | SyndeoCare" },

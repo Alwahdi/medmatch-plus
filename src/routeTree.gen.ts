@@ -9,16 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as ForFacilitiesRouteImport } from './routes/for-facilities'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ShiftsRouteImport } from './routes/shifts'
-import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
@@ -31,67 +23,35 @@ import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
-import { Route as GuidesIndexRouteImport } from './routes/guides.index'
-import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
-import { Route as InterviewQuestionsIndexRouteImport } from './routes/interview-questions.index'
-import { Route as InterviewQuestionsSlugRouteImport } from './routes/interview-questions.$slug'
-import { Route as JobsIndexRouteImport } from './routes/jobs.index'
-import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
-import { Route as RegisterIndexRouteImport } from './routes/register.index'
-import { Route as RegisterEmployerRouteImport } from './routes/register.employer'
-import { Route as SpecialtiesIndexRouteImport } from './routes/specialties.index'
-import { Route as SpecialtiesSlugRouteImport } from './routes/specialties.$slug'
+import { Route as PublicIndexRouteImport } from './routes/_public.index'
+import { Route as PublicAboutRouteImport } from './routes/_public.about'
+import { Route as PublicAuthRouteImport } from './routes/_public.auth'
+import { Route as PublicContactRouteImport } from './routes/_public.contact'
+import { Route as PublicForFacilitiesRouteImport } from './routes/_public.for-facilities'
+import { Route as PublicPricingRouteImport } from './routes/_public.pricing'
+import { Route as PublicPrivacyRouteImport } from './routes/_public.privacy'
+import { Route as PublicShiftsRouteImport } from './routes/_public.shifts'
+import { Route as PublicTermsRouteImport } from './routes/_public.terms'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
 import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
 import { Route as AuthenticatedFacilityCandidatesRouteImport } from './routes/_authenticated/facility.candidates'
+import { Route as PublicGuidesIndexRouteImport } from './routes/_public.guides.index'
+import { Route as PublicGuidesSlugRouteImport } from './routes/_public.guides.$slug'
+import { Route as PublicInterviewQuestionsIndexRouteImport } from './routes/_public.interview-questions.index'
+import { Route as PublicInterviewQuestionsSlugRouteImport } from './routes/_public.interview-questions.$slug'
+import { Route as PublicJobsIndexRouteImport } from './routes/_public.jobs.index'
+import { Route as PublicJobsJobIdRouteImport } from './routes/_public.jobs.$jobId'
+import { Route as PublicRegisterIndexRouteImport } from './routes/_public.register.index'
+import { Route as PublicRegisterEmployerRouteImport } from './routes/_public.register.employer'
+import { Route as PublicSpecialtiesIndexRouteImport } from './routes/_public.specialties.index'
+import { Route as PublicSpecialtiesSlugRouteImport } from './routes/_public.specialties.$slug'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForFacilitiesRoute = ForFacilitiesRouteImport.update({
-  id: '/for-facilities',
-  path: '/for-facilities',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShiftsRoute = ShiftsRouteImport.update({
-  id: '/shifts',
-  path: '/shifts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -156,55 +116,50 @@ const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
   path: '/saved',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const GuidesIndexRoute = GuidesIndexRouteImport.update({
-  id: '/guides/',
-  path: '/guides/',
-  getParentRoute: () => rootRouteImport,
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRoute,
 } as any)
-const GuidesSlugRoute = GuidesSlugRouteImport.update({
-  id: '/guides/$slug',
-  path: '/guides/$slug',
-  getParentRoute: () => rootRouteImport,
+const PublicAboutRoute = PublicAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => PublicRoute,
 } as any)
-const InterviewQuestionsIndexRoute = InterviewQuestionsIndexRouteImport.update({
-  id: '/interview-questions/',
-  path: '/interview-questions/',
-  getParentRoute: () => rootRouteImport,
+const PublicAuthRoute = PublicAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => PublicRoute,
 } as any)
-const InterviewQuestionsSlugRoute = InterviewQuestionsSlugRouteImport.update({
-  id: '/interview-questions/$slug',
-  path: '/interview-questions/$slug',
-  getParentRoute: () => rootRouteImport,
+const PublicContactRoute = PublicContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => PublicRoute,
 } as any)
-const JobsIndexRoute = JobsIndexRouteImport.update({
-  id: '/jobs/',
-  path: '/jobs/',
-  getParentRoute: () => rootRouteImport,
+const PublicForFacilitiesRoute = PublicForFacilitiesRouteImport.update({
+  id: '/for-facilities',
+  path: '/for-facilities',
+  getParentRoute: () => PublicRoute,
 } as any)
-const JobsJobIdRoute = JobsJobIdRouteImport.update({
-  id: '/jobs/$jobId',
-  path: '/jobs/$jobId',
-  getParentRoute: () => rootRouteImport,
+const PublicPricingRoute = PublicPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => PublicRoute,
 } as any)
-const RegisterIndexRoute = RegisterIndexRouteImport.update({
-  id: '/register/',
-  path: '/register/',
-  getParentRoute: () => rootRouteImport,
+const PublicPrivacyRoute = PublicPrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => PublicRoute,
 } as any)
-const RegisterEmployerRoute = RegisterEmployerRouteImport.update({
-  id: '/register/employer',
-  path: '/register/employer',
-  getParentRoute: () => rootRouteImport,
+const PublicShiftsRoute = PublicShiftsRouteImport.update({
+  id: '/shifts',
+  path: '/shifts',
+  getParentRoute: () => PublicRoute,
 } as any)
-const SpecialtiesIndexRoute = SpecialtiesIndexRouteImport.update({
-  id: '/specialties/',
-  path: '/specialties/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SpecialtiesSlugRoute = SpecialtiesSlugRouteImport.update({
-  id: '/specialties/$slug',
-  path: '/specialties/$slug',
-  getParentRoute: () => rootRouteImport,
+const PublicTermsRoute = PublicTermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => PublicRoute,
 } as any)
 const AuthenticatedFacilityIndexRoute =
   AuthenticatedFacilityIndexRouteImport.update({
@@ -224,17 +179,61 @@ const AuthenticatedFacilityCandidatesRoute =
     path: '/facility/candidates',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const PublicGuidesIndexRoute = PublicGuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicGuidesSlugRoute = PublicGuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicInterviewQuestionsIndexRoute =
+  PublicInterviewQuestionsIndexRouteImport.update({
+    id: '/interview-questions/',
+    path: '/interview-questions/',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicInterviewQuestionsSlugRoute =
+  PublicInterviewQuestionsSlugRouteImport.update({
+    id: '/interview-questions/$slug',
+    path: '/interview-questions/$slug',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicJobsIndexRoute = PublicJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicJobsJobIdRoute = PublicJobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicRegisterIndexRoute = PublicRegisterIndexRouteImport.update({
+  id: '/register/',
+  path: '/register/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicRegisterEmployerRoute = PublicRegisterEmployerRouteImport.update({
+  id: '/register/employer',
+  path: '/register/employer',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSpecialtiesIndexRoute = PublicSpecialtiesIndexRouteImport.update({
+  id: '/specialties/',
+  path: '/specialties/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSpecialtiesSlugRoute = PublicSpecialtiesSlugRouteImport.update({
+  id: '/specialties/$slug',
+  path: '/specialties/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
-  '/contact': typeof ContactRoute
-  '/for-facilities': typeof ForFacilitiesRoute
-  '/pricing': typeof PricingRoute
-  '/privacy': typeof PrivacyRoute
-  '/shifts': typeof ShiftsRoute
-  '/terms': typeof TermsRoute
+  '/': typeof PublicIndexRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -247,30 +246,30 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
-  '/guides/$slug': typeof GuidesSlugRoute
-  '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
-  '/jobs/$jobId': typeof JobsJobIdRoute
-  '/register/employer': typeof RegisterEmployerRoute
-  '/specialties/$slug': typeof SpecialtiesSlugRoute
-  '/guides/': typeof GuidesIndexRoute
-  '/interview-questions/': typeof InterviewQuestionsIndexRoute
-  '/jobs/': typeof JobsIndexRoute
-  '/register/': typeof RegisterIndexRoute
-  '/specialties/': typeof SpecialtiesIndexRoute
+  '/about': typeof PublicAboutRoute
+  '/auth': typeof PublicAuthRoute
+  '/contact': typeof PublicContactRoute
+  '/for-facilities': typeof PublicForFacilitiesRoute
+  '/pricing': typeof PublicPricingRoute
+  '/privacy': typeof PublicPrivacyRoute
+  '/shifts': typeof PublicShiftsRoute
+  '/terms': typeof PublicTermsRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
+  '/guides/$slug': typeof PublicGuidesSlugRoute
+  '/interview-questions/$slug': typeof PublicInterviewQuestionsSlugRoute
+  '/jobs/$jobId': typeof PublicJobsJobIdRoute
+  '/register/employer': typeof PublicRegisterEmployerRoute
+  '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/facility/': typeof AuthenticatedFacilityIndexRoute
+  '/guides/': typeof PublicGuidesIndexRoute
+  '/interview-questions/': typeof PublicInterviewQuestionsIndexRoute
+  '/jobs/': typeof PublicJobsIndexRoute
+  '/register/': typeof PublicRegisterIndexRoute
+  '/specialties/': typeof PublicSpecialtiesIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
-  '/contact': typeof ContactRoute
-  '/for-facilities': typeof ForFacilitiesRoute
-  '/pricing': typeof PricingRoute
-  '/privacy': typeof PrivacyRoute
-  '/shifts': typeof ShiftsRoute
-  '/terms': typeof TermsRoute
+  '/': typeof PublicIndexRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -283,32 +282,32 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
-  '/guides/$slug': typeof GuidesSlugRoute
-  '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
-  '/jobs/$jobId': typeof JobsJobIdRoute
-  '/register/employer': typeof RegisterEmployerRoute
-  '/specialties/$slug': typeof SpecialtiesSlugRoute
-  '/guides': typeof GuidesIndexRoute
-  '/interview-questions': typeof InterviewQuestionsIndexRoute
-  '/jobs': typeof JobsIndexRoute
-  '/register': typeof RegisterIndexRoute
-  '/specialties': typeof SpecialtiesIndexRoute
+  '/about': typeof PublicAboutRoute
+  '/auth': typeof PublicAuthRoute
+  '/contact': typeof PublicContactRoute
+  '/for-facilities': typeof PublicForFacilitiesRoute
+  '/pricing': typeof PublicPricingRoute
+  '/privacy': typeof PublicPrivacyRoute
+  '/shifts': typeof PublicShiftsRoute
+  '/terms': typeof PublicTermsRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
+  '/guides/$slug': typeof PublicGuidesSlugRoute
+  '/interview-questions/$slug': typeof PublicInterviewQuestionsSlugRoute
+  '/jobs/$jobId': typeof PublicJobsJobIdRoute
+  '/register/employer': typeof PublicRegisterEmployerRoute
+  '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/facility': typeof AuthenticatedFacilityIndexRoute
+  '/guides': typeof PublicGuidesIndexRoute
+  '/interview-questions': typeof PublicInterviewQuestionsIndexRoute
+  '/jobs': typeof PublicJobsIndexRoute
+  '/register': typeof PublicRegisterIndexRoute
+  '/specialties': typeof PublicSpecialtiesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
-  '/contact': typeof ContactRoute
-  '/for-facilities': typeof ForFacilitiesRoute
-  '/pricing': typeof PricingRoute
-  '/privacy': typeof PrivacyRoute
-  '/shifts': typeof ShiftsRoute
-  '/terms': typeof TermsRoute
+  '/_public': typeof PublicRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
@@ -321,32 +320,33 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
-  '/guides/$slug': typeof GuidesSlugRoute
-  '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
-  '/jobs/$jobId': typeof JobsJobIdRoute
-  '/register/employer': typeof RegisterEmployerRoute
-  '/specialties/$slug': typeof SpecialtiesSlugRoute
-  '/guides/': typeof GuidesIndexRoute
-  '/interview-questions/': typeof InterviewQuestionsIndexRoute
-  '/jobs/': typeof JobsIndexRoute
-  '/register/': typeof RegisterIndexRoute
-  '/specialties/': typeof SpecialtiesIndexRoute
+  '/_public/about': typeof PublicAboutRoute
+  '/_public/auth': typeof PublicAuthRoute
+  '/_public/contact': typeof PublicContactRoute
+  '/_public/for-facilities': typeof PublicForFacilitiesRoute
+  '/_public/pricing': typeof PublicPricingRoute
+  '/_public/privacy': typeof PublicPrivacyRoute
+  '/_public/shifts': typeof PublicShiftsRoute
+  '/_public/terms': typeof PublicTermsRoute
+  '/_public/': typeof PublicIndexRoute
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/_authenticated/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
+  '/_public/guides/$slug': typeof PublicGuidesSlugRoute
+  '/_public/interview-questions/$slug': typeof PublicInterviewQuestionsSlugRoute
+  '/_public/jobs/$jobId': typeof PublicJobsJobIdRoute
+  '/_public/register/employer': typeof PublicRegisterEmployerRoute
+  '/_public/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
+  '/_public/guides/': typeof PublicGuidesIndexRoute
+  '/_public/interview-questions/': typeof PublicInterviewQuestionsIndexRoute
+  '/_public/jobs/': typeof PublicJobsIndexRoute
+  '/_public/register/': typeof PublicRegisterIndexRoute
+  '/_public/specialties/': typeof PublicSpecialtiesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
-    | '/auth'
-    | '/contact'
-    | '/for-facilities'
-    | '/pricing'
-    | '/privacy'
-    | '/shifts'
-    | '/terms'
     | '/admin'
     | '/alerts'
     | '/applications'
@@ -359,30 +359,30 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/saved'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/for-facilities'
+    | '/pricing'
+    | '/privacy'
+    | '/shifts'
+    | '/terms'
+    | '/facility/applicants'
+    | '/facility/candidates'
     | '/guides/$slug'
     | '/interview-questions/$slug'
     | '/jobs/$jobId'
     | '/register/employer'
     | '/specialties/$slug'
+    | '/facility/'
     | '/guides/'
     | '/interview-questions/'
     | '/jobs/'
     | '/register/'
     | '/specialties/'
-    | '/facility/applicants'
-    | '/facility/candidates'
-    | '/facility/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
-    | '/auth'
-    | '/contact'
-    | '/for-facilities'
-    | '/pricing'
-    | '/privacy'
-    | '/shifts'
-    | '/terms'
     | '/admin'
     | '/alerts'
     | '/applications'
@@ -395,23 +395,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/saved'
-    | '/guides/$slug'
-    | '/interview-questions/$slug'
-    | '/jobs/$jobId'
-    | '/register/employer'
-    | '/specialties/$slug'
-    | '/guides'
-    | '/interview-questions'
-    | '/jobs'
-    | '/register'
-    | '/specialties'
-    | '/facility/applicants'
-    | '/facility/candidates'
-    | '/facility'
-  id:
-    | '__root__'
-    | '/'
-    | '/_authenticated'
     | '/about'
     | '/auth'
     | '/contact'
@@ -420,6 +403,23 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/shifts'
     | '/terms'
+    | '/facility/applicants'
+    | '/facility/candidates'
+    | '/guides/$slug'
+    | '/interview-questions/$slug'
+    | '/jobs/$jobId'
+    | '/register/employer'
+    | '/specialties/$slug'
+    | '/facility'
+    | '/guides'
+    | '/interview-questions'
+    | '/jobs'
+    | '/register'
+    | '/specialties'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/_public'
     | '/_authenticated/admin'
     | '/_authenticated/alerts'
     | '/_authenticated/applications'
@@ -432,53 +432,37 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
     | '/_authenticated/saved'
-    | '/guides/$slug'
-    | '/interview-questions/$slug'
-    | '/jobs/$jobId'
-    | '/register/employer'
-    | '/specialties/$slug'
-    | '/guides/'
-    | '/interview-questions/'
-    | '/jobs/'
-    | '/register/'
-    | '/specialties/'
+    | '/_public/about'
+    | '/_public/auth'
+    | '/_public/contact'
+    | '/_public/for-facilities'
+    | '/_public/pricing'
+    | '/_public/privacy'
+    | '/_public/shifts'
+    | '/_public/terms'
+    | '/_public/'
     | '/_authenticated/facility/applicants'
     | '/_authenticated/facility/candidates'
+    | '/_public/guides/$slug'
+    | '/_public/interview-questions/$slug'
+    | '/_public/jobs/$jobId'
+    | '/_public/register/employer'
+    | '/_public/specialties/$slug'
     | '/_authenticated/facility/'
+    | '/_public/guides/'
+    | '/_public/interview-questions/'
+    | '/_public/jobs/'
+    | '/_public/register/'
+    | '/_public/specialties/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AboutRoute: typeof AboutRoute
-  AuthRoute: typeof AuthRoute
-  ContactRoute: typeof ContactRoute
-  ForFacilitiesRoute: typeof ForFacilitiesRoute
-  PricingRoute: typeof PricingRoute
-  PrivacyRoute: typeof PrivacyRoute
-  ShiftsRoute: typeof ShiftsRoute
-  TermsRoute: typeof TermsRoute
-  GuidesSlugRoute: typeof GuidesSlugRoute
-  InterviewQuestionsSlugRoute: typeof InterviewQuestionsSlugRoute
-  JobsJobIdRoute: typeof JobsJobIdRoute
-  RegisterEmployerRoute: typeof RegisterEmployerRoute
-  SpecialtiesSlugRoute: typeof SpecialtiesSlugRoute
-  GuidesIndexRoute: typeof GuidesIndexRoute
-  InterviewQuestionsIndexRoute: typeof InterviewQuestionsIndexRoute
-  JobsIndexRoute: typeof JobsIndexRoute
-  RegisterIndexRoute: typeof RegisterIndexRoute
-  SpecialtiesIndexRoute: typeof SpecialtiesIndexRoute
+  PublicRoute: typeof PublicRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -486,60 +470,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/for-facilities': {
-      id: '/for-facilities'
-      path: '/for-facilities'
-      fullPath: '/for-facilities'
-      preLoaderRoute: typeof ForFacilitiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shifts': {
-      id: '/shifts'
-      path: '/shifts'
-      fullPath: '/shifts'
-      preLoaderRoute: typeof ShiftsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -626,75 +561,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSavedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/guides/': {
-      id: '/guides/'
-      path: '/guides'
-      fullPath: '/guides/'
-      preLoaderRoute: typeof GuidesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/guides/$slug': {
-      id: '/guides/$slug'
-      path: '/guides/$slug'
-      fullPath: '/guides/$slug'
-      preLoaderRoute: typeof GuidesSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/interview-questions/': {
-      id: '/interview-questions/'
-      path: '/interview-questions'
-      fullPath: '/interview-questions/'
-      preLoaderRoute: typeof InterviewQuestionsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/auth': {
+      id: '/_public/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof PublicAuthRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/interview-questions/$slug': {
-      id: '/interview-questions/$slug'
-      path: '/interview-questions/$slug'
-      fullPath: '/interview-questions/$slug'
-      preLoaderRoute: typeof InterviewQuestionsSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/contact': {
+      id: '/_public/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof PublicContactRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/jobs/': {
-      id: '/jobs/'
-      path: '/jobs'
-      fullPath: '/jobs/'
-      preLoaderRoute: typeof JobsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/for-facilities': {
+      id: '/_public/for-facilities'
+      path: '/for-facilities'
+      fullPath: '/for-facilities'
+      preLoaderRoute: typeof PublicForFacilitiesRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/jobs/$jobId': {
-      id: '/jobs/$jobId'
-      path: '/jobs/$jobId'
-      fullPath: '/jobs/$jobId'
-      preLoaderRoute: typeof JobsJobIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/pricing': {
+      id: '/_public/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PublicPricingRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/register/': {
-      id: '/register/'
-      path: '/register'
-      fullPath: '/register/'
-      preLoaderRoute: typeof RegisterIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/privacy': {
+      id: '/_public/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PublicPrivacyRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/register/employer': {
-      id: '/register/employer'
-      path: '/register/employer'
-      fullPath: '/register/employer'
-      preLoaderRoute: typeof RegisterEmployerRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/shifts': {
+      id: '/_public/shifts'
+      path: '/shifts'
+      fullPath: '/shifts'
+      preLoaderRoute: typeof PublicShiftsRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/specialties/': {
-      id: '/specialties/'
-      path: '/specialties'
-      fullPath: '/specialties/'
-      preLoaderRoute: typeof SpecialtiesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/specialties/$slug': {
-      id: '/specialties/$slug'
-      path: '/specialties/$slug'
-      fullPath: '/specialties/$slug'
-      preLoaderRoute: typeof SpecialtiesSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/terms': {
+      id: '/_public/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof PublicTermsRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/_authenticated/facility/': {
       id: '/_authenticated/facility/'
@@ -716,6 +644,76 @@ declare module '@tanstack/react-router' {
       fullPath: '/facility/candidates'
       preLoaderRoute: typeof AuthenticatedFacilityCandidatesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_public/guides/': {
+      id: '/_public/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof PublicGuidesIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/guides/$slug': {
+      id: '/_public/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof PublicGuidesSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/interview-questions/': {
+      id: '/_public/interview-questions/'
+      path: '/interview-questions'
+      fullPath: '/interview-questions/'
+      preLoaderRoute: typeof PublicInterviewQuestionsIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/interview-questions/$slug': {
+      id: '/_public/interview-questions/$slug'
+      path: '/interview-questions/$slug'
+      fullPath: '/interview-questions/$slug'
+      preLoaderRoute: typeof PublicInterviewQuestionsSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/jobs/': {
+      id: '/_public/jobs/'
+      path: '/jobs'
+      fullPath: '/jobs/'
+      preLoaderRoute: typeof PublicJobsIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/jobs/$jobId': {
+      id: '/_public/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof PublicJobsJobIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/register/': {
+      id: '/_public/register/'
+      path: '/register'
+      fullPath: '/register/'
+      preLoaderRoute: typeof PublicRegisterIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/register/employer': {
+      id: '/_public/register/employer'
+      path: '/register/employer'
+      fullPath: '/register/employer'
+      preLoaderRoute: typeof PublicRegisterEmployerRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/specialties/': {
+      id: '/_public/specialties/'
+      path: '/specialties'
+      fullPath: '/specialties/'
+      preLoaderRoute: typeof PublicSpecialtiesIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/specialties/$slug': {
+      id: '/_public/specialties/$slug'
+      path: '/specialties/$slug'
+      fullPath: '/specialties/$slug'
+      preLoaderRoute: typeof PublicSpecialtiesSlugRouteImport
+      parentRoute: typeof PublicRoute
     }
   }
 }
@@ -759,27 +757,56 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface PublicRouteChildren {
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicAuthRoute: typeof PublicAuthRoute
+  PublicContactRoute: typeof PublicContactRoute
+  PublicForFacilitiesRoute: typeof PublicForFacilitiesRoute
+  PublicPricingRoute: typeof PublicPricingRoute
+  PublicPrivacyRoute: typeof PublicPrivacyRoute
+  PublicShiftsRoute: typeof PublicShiftsRoute
+  PublicTermsRoute: typeof PublicTermsRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+  PublicGuidesSlugRoute: typeof PublicGuidesSlugRoute
+  PublicInterviewQuestionsSlugRoute: typeof PublicInterviewQuestionsSlugRoute
+  PublicJobsJobIdRoute: typeof PublicJobsJobIdRoute
+  PublicRegisterEmployerRoute: typeof PublicRegisterEmployerRoute
+  PublicSpecialtiesSlugRoute: typeof PublicSpecialtiesSlugRoute
+  PublicGuidesIndexRoute: typeof PublicGuidesIndexRoute
+  PublicInterviewQuestionsIndexRoute: typeof PublicInterviewQuestionsIndexRoute
+  PublicJobsIndexRoute: typeof PublicJobsIndexRoute
+  PublicRegisterIndexRoute: typeof PublicRegisterIndexRoute
+  PublicSpecialtiesIndexRoute: typeof PublicSpecialtiesIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicAboutRoute: PublicAboutRoute,
+  PublicAuthRoute: PublicAuthRoute,
+  PublicContactRoute: PublicContactRoute,
+  PublicForFacilitiesRoute: PublicForFacilitiesRoute,
+  PublicPricingRoute: PublicPricingRoute,
+  PublicPrivacyRoute: PublicPrivacyRoute,
+  PublicShiftsRoute: PublicShiftsRoute,
+  PublicTermsRoute: PublicTermsRoute,
+  PublicIndexRoute: PublicIndexRoute,
+  PublicGuidesSlugRoute: PublicGuidesSlugRoute,
+  PublicInterviewQuestionsSlugRoute: PublicInterviewQuestionsSlugRoute,
+  PublicJobsJobIdRoute: PublicJobsJobIdRoute,
+  PublicRegisterEmployerRoute: PublicRegisterEmployerRoute,
+  PublicSpecialtiesSlugRoute: PublicSpecialtiesSlugRoute,
+  PublicGuidesIndexRoute: PublicGuidesIndexRoute,
+  PublicInterviewQuestionsIndexRoute: PublicInterviewQuestionsIndexRoute,
+  PublicJobsIndexRoute: PublicJobsIndexRoute,
+  PublicRegisterIndexRoute: PublicRegisterIndexRoute,
+  PublicSpecialtiesIndexRoute: PublicSpecialtiesIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AboutRoute: AboutRoute,
-  AuthRoute: AuthRoute,
-  ContactRoute: ContactRoute,
-  ForFacilitiesRoute: ForFacilitiesRoute,
-  PricingRoute: PricingRoute,
-  PrivacyRoute: PrivacyRoute,
-  ShiftsRoute: ShiftsRoute,
-  TermsRoute: TermsRoute,
-  GuidesSlugRoute: GuidesSlugRoute,
-  InterviewQuestionsSlugRoute: InterviewQuestionsSlugRoute,
-  JobsJobIdRoute: JobsJobIdRoute,
-  RegisterEmployerRoute: RegisterEmployerRoute,
-  SpecialtiesSlugRoute: SpecialtiesSlugRoute,
-  GuidesIndexRoute: GuidesIndexRoute,
-  InterviewQuestionsIndexRoute: InterviewQuestionsIndexRoute,
-  JobsIndexRoute: JobsIndexRoute,
-  RegisterIndexRoute: RegisterIndexRoute,
-  SpecialtiesIndexRoute: SpecialtiesIndexRoute,
+  PublicRoute: PublicRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

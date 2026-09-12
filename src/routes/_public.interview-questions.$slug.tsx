@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { getBank } from "@/content/question-banks";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/interview-questions/$slug")({
+export const Route = createFileRoute("/_public/interview-questions/$slug")({
   loader: ({ params }) => {
     const bank = getBank(params.slug);
     if (!bank) throw notFound();

@@ -18,7 +18,7 @@ const searchSchema = z.object({
   role: z.enum(["professional", "facility"]).optional(),
 });
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute("/_public/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [

@@ -19,7 +19,7 @@ import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
 
-export const Route = createFileRoute("/register/employer")({
+export const Route = createFileRoute("/_public/register/employer")({
   head: () => ({
     meta: [
       { title: "إنشاء حساب ناشر وظائف | SyndeoCare" },

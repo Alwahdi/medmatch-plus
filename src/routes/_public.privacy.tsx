@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/privacy")({
+export const Route = createFileRoute("/_public/privacy")({
   head: () => ({
     meta: [
       { title: "سياسة الخصوصية | SyndeoCare" },

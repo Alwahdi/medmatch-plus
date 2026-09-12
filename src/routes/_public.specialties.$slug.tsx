@@ -5,7 +5,7 @@ import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/specialties/$slug")({
+export const Route = createFileRoute("/_public/specialties/$slug")({
   head: () => ({
     meta: [
       { title: "وظائف حسب التخصص | SyndeoCare" },

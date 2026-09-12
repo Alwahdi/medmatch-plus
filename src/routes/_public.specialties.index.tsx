@@ -4,7 +4,7 @@ import { Stethoscope, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/specialties/")({
+export const Route = createFileRoute("/_public/specialties/")({
   head: () => ({
     meta: [
       { title: "التخصصات الطبية | SyndeoCare" },

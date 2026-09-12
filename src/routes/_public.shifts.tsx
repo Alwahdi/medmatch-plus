@@ -16,7 +16,7 @@ import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
-export const Route = createFileRoute("/shifts")({
+export const Route = createFileRoute("/_public/shifts")({
   head: () => ({
     meta: [
       { title: "سوق المناوبات الطبية الفورية | SyndeoCare" },

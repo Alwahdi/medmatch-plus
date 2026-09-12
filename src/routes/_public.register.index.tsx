@@ -13,7 +13,7 @@ import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/register/")({
+export const Route = createFileRoute("/_public/register/")({
   head: () => ({
     meta: [
       { title: "إنشاء حساب باحث عن عمل | SyndeoCare" },

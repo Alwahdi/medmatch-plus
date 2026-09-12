@@ -3,7 +3,7 @@ import { HelpCircle, ArrowLeft } from "lucide-react";
 import { QUESTION_BANKS } from "@/content/question-banks";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/interview-questions/")({
+export const Route = createFileRoute("/_public/interview-questions/")({
   head: () => ({
     meta: [
       { title: "بنوك أسئلة المقابلات الطبية | SyndeoCare" },

@@ -14,7 +14,7 @@ import { EMPLOYMENT_LABELS, formatSalary, relativeTime } from "@/lib/format";
 
 const coverSchema = z.string().trim().max(2000, "الرسالة طويلة جداً");
 
-export const Route = createFileRoute("/jobs/$jobId")({
+export const Route = createFileRoute("/_public/jobs/$jobId")({
   head: () => ({
     meta: [
       { title: "تفاصيل الوظيفة | SyndeoCare" },

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute("/contact")({
+export const Route = createFileRoute("/_public/contact")({
   head: () => ({
     meta: [
       { title: "تواصل معنا | SyndeoCare" },

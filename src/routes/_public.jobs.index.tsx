@@ -18,7 +18,7 @@ import { useSession } from "@/lib/auth";
 import { matchScore } from "@/lib/match";
 import { EMPLOYMENT_LABELS } from "@/lib/format";
 
-export const Route = createFileRoute("/jobs/")({
+export const Route = createFileRoute("/_public/jobs/")({
   head: () => ({
     meta: [
       { title: "الوظائف الطبية | SyndeoCare" },
