@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RatingStars } from "@/components/rating-stars";
+import { ImageUpload } from "@/components/image-upload";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel } from "@/lib/format";
@@ -46,7 +48,7 @@ const TXT = {
     pickCountry: "اختر الدولة",
     city: "المدينة",
     website: "الموقع الإلكتروني",
-    logo: "رابط الشعار",
+    logo: "شعار المنشأة",
     description: "نبذة عن المنشأة",
     descHint: "اكتب نبذة واضحة عن تخصصات المنشأة وبيئة العمل — تزيد فرص التقديم عليك.",
     save: "حفظ التعديلات",
@@ -79,7 +81,7 @@ const TXT = {
     pickCountry: "Choose a country",
     city: "City",
     website: "Website",
-    logo: "Logo URL",
+    logo: "Facility logo",
     description: "About the facility",
     descHint: "Describe your specialties and work environment — it improves applications.",
     save: "Save changes",
@@ -320,15 +322,17 @@ function FacilityProfile() {
             />
           </div>
           <div className="sm:col-span-2">
-            <Label htmlFor="logo">{c.logo}</Label>
-            <Input
-              id="logo"
-              dir="ltr"
-              maxLength={300}
-              value={form.logo_url}
-              onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-            />
+            <Label>{c.logo}</Label>
+            <div className="mt-2">
+              <ImageUpload
+                value={form.logo_url}
+                onChange={(v) => setForm({ ...form, logo_url: v })}
+                fallback={(form.name_ar.trim()[0] ?? "?").toUpperCase()}
+                prefix="logo"
+              />
+            </div>
           </div>
+
         </div>
 
         <div>

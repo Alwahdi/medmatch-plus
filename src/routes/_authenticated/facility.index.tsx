@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -374,9 +375,13 @@ function FacilityDashboard() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
-          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Building2 className="size-7" />
-          </span>
+          <RemoteAvatar
+            value={facility.logo_url}
+            alt={facility.name_ar}
+            icon={Building2}
+            className="size-14 shrink-0"
+          />
+
           <div>
             <h1 className="flex items-center gap-2 font-display text-3xl font-extrabold">
               {facility.name_ar}
