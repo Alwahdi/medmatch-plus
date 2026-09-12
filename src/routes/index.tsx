@@ -29,16 +29,15 @@ import { DICT, useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SyndeoCare | وظائف وشيفتات طبية موثوقة في العالم العربي" },
+      { title: DICT["home.metaTitle"].ar },
       {
         name: "description",
-        content:
-          "كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد. وظائف دائمة، شيفتات فورية، وناشرو وظائف موثّقون.",
+        content: DICT["home.metaDescription"].ar,
       },
-      { property: "og:title", content: "SyndeoCare | نبني مستقبل التوظيف الطبي" },
+      { property: "og:title", content: DICT["home.metaTitle"].ar },
       {
         property: "og:description",
-        content: "وظائف دائمة وشيفتات فورية لدى ناشري وظائف طبية موثّقين، مجاناً للباحثين عن عمل.",
+        content: DICT["home.metaDescription"].ar,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
