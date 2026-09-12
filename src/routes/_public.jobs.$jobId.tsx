@@ -162,14 +162,16 @@ function JobDetail() {
     },
   });
 
+  const realJobId = job?.id;
+
   const { data: existing } = useQuery({
-    queryKey: ["application", jobId, user?.id],
-    enabled: !!user,
+    queryKey: ["application", realJobId, user?.id],
+    enabled: !!user && !!realJobId,
     queryFn: async () => {
       const { data } = await supabase
         .from("applications")
         .select("id,status")
-        .eq("job_id", jobId)
+        .eq("job_id", realJobId!)
         .eq("user_id", user!.id)
         .maybeSingle();
       return data;
@@ -177,13 +179,13 @@ function JobDetail() {
   });
 
   const { data: saved } = useQuery({
-    queryKey: ["saved-job", jobId, user?.id],
-    enabled: !!user,
+    queryKey: ["saved-job", realJobId, user?.id],
+    enabled: !!user && !!realJobId,
     queryFn: async () => {
       const { data } = await supabase
         .from("saved_jobs")
         .select("id")
-        .eq("job_id", jobId)
+        .eq("job_id", realJobId!)
         .eq("user_id", user!.id)
         .maybeSingle();
       return data;
@@ -199,7 +201,7 @@ function JobDetail() {
       }
       const { error } = await supabase
         .from("saved_jobs")
-        .insert({ job_id: jobId, user_id: user!.id });
+        .insert({ job_id: realJobId!, user_id: user!.id });
       if (error) throw error;
       return true;
     },
