@@ -328,7 +328,7 @@ function Home() {
               </Button>
             ) : (
               <Button asChild>
-                <Link to="/auth" search={{ mode: "signup" }}>
+                <Link to="/register">
                   {t("home.steps.seekerCta")}
                 </Link>
               </Button>
@@ -538,7 +538,7 @@ function Home() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link to="/auth" search={{ mode: "signup" }}>
+              <Link to="/register">
                 {t("home.cta.seeker")}
               </Link>
             </Button>

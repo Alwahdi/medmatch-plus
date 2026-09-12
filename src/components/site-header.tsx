@@ -138,7 +138,7 @@ export function SiteHeader() {
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
               <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
-                <Link to="/auth" search={{ mode: "signup" }}>
+                <Link to="/register">
                   {t("nav.signUp")}
                 </Link>
               </Button>

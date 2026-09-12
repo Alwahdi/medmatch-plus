@@ -62,7 +62,7 @@ function About() {
               </div>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild>
-                  <Link to="/auth" search={{ mode: "signup" }}>إنشاء حساب</Link>
+                  <Link to="/register">إنشاء حساب</Link>
                 </Button>
                 <Button variant="outline" asChild>
                   <Link to="/contact">تواصل معنا</Link>
@@ -93,7 +93,7 @@ function About() {
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Button asChild>
-                <Link to="/auth" search={{ mode: "signup" }}>إنشاء حساب</Link>
+                <Link to="/register">إنشاء حساب</Link>
               </Button>
               <Button variant="outline" asChild>
                 <Link to="/contact">تواصل معنا</Link>

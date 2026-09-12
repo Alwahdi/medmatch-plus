@@ -160,7 +160,7 @@ function PricingPage() {
                     variant={highlight ? "default" : "outline"}
                     asChild
                   >
-                    <Link to="/auth" search={{ mode: "signup" }}>
+                    <Link to="/register">
                       {p.is_trial ? "ابدأ التجربة المجانية" : "سجّل منشأتك"}
                     </Link>
                   </Button>
@@ -191,7 +191,7 @@ function PricingPage() {
                 على الوظائف والشيفتات بدون أي رسوم.
               </p>
               <Button className="mt-4" variant="outline" asChild>
-                <Link to="/auth" search={{ mode: "signup" }}>
+                <Link to="/register">
                   إنشاء حساب مجاني
                 </Link>
               </Button>
