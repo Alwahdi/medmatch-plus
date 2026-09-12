@@ -30,19 +30,23 @@ export function useUnread(user: User | null | undefined) {
 
   useEffect(() => {
     if (!user) return;
+    void markDelivered(user.id);
     const channelName = `messages-unread-${user.id}-${Math.random().toString(36).slice(2)}`;
     const channel = supabase.channel(channelName);
     channel
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
-        queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
-        queryClient.invalidateQueries({ queryKey: ["messages"] });
-        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        void markDelivered(user.id).then(() => {
+          queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
+          queryClient.invalidateQueries({ queryKey: ["messages"] });
+          queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        });
       })
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
   }, [user?.id, queryClient]);
+
 
 
   const map = query.data ?? {};
@@ -57,4 +61,13 @@ export async function markConversationRead(conversationId: string, userId: strin
     .eq("conversation_id", conversationId)
     .neq("sender_id", userId)
     .is("read_at", null);
+}
+
+/** Marks every incoming message as delivered (recipient is online / app is open). */
+export async function markDelivered(userId: string) {
+  await supabase
+    .from("messages")
+    .update({ delivered_at: new Date().toISOString() })
+    .neq("sender_id", userId)
+    .is("delivered_at", null);
 }

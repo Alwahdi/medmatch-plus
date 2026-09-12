@@ -42,6 +42,7 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
   });
 
   const isImage = (type ?? "").startsWith("image/");
+  const isAudio = (type ?? "").startsWith("audio/");
 
   if (isLoading) {
     return (
@@ -51,6 +52,10 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
     );
   }
   if (!url) return null;
+
+  if (isAudio) {
+    return <audio controls preload="metadata" src={url} className="w-64 max-w-full" />;
+  }
 
   if (isImage) {
     return (
@@ -63,6 +68,7 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
       </a>
     );
   }
+
 
   return (
     <a
