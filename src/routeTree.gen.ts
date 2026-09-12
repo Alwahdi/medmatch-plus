@@ -14,13 +14,17 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ForFacilitiesRouteImport } from './routes/for-facilities'
 import { Route as ShiftsRouteImport } from './routes/shifts'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
 import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
+import { Route as AuthenticatedCvRouteImport } from './routes/_authenticated/cv'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
+import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
+import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +50,11 @@ const ShiftsRoute = ShiftsRouteImport.update({
   path: '/shifts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedApplicationsRoute =
   AuthenticatedApplicationsRouteImport.update({
     id: '/applications',
@@ -58,6 +67,11 @@ const AuthenticatedCredentialsRoute =
     path: '/credentials',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCvRoute = AuthenticatedCvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -83,32 +97,52 @@ const JobsJobIdRoute = JobsJobIdRouteImport.update({
   path: '/jobs/$jobId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedFacilityIndexRoute =
+  AuthenticatedFacilityIndexRouteImport.update({
+    id: '/facility/',
+    path: '/facility/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFacilityApplicantsRoute =
+  AuthenticatedFacilityApplicantsRouteImport.update({
+    id: '/facility/applicants',
+    path: '/facility/applicants',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/shifts': typeof ShiftsRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
+  '/cv': typeof AuthenticatedCvRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs/': typeof JobsIndexRoute
+  '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
+  '/facility/': typeof AuthenticatedFacilityIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/shifts': typeof ShiftsRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
+  '/cv': typeof AuthenticatedCvRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs': typeof JobsIndexRoute
+  '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
+  '/facility': typeof AuthenticatedFacilityIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -117,13 +151,17 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/shifts': typeof ShiftsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
   '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
+  '/_authenticated/cv': typeof AuthenticatedCvRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/jobs/': typeof JobsIndexRoute
+  '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
+  '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -132,26 +170,34 @@ export interface FileRouteTypes {
     | '/auth'
     | '/for-facilities'
     | '/shifts'
+    | '/admin'
     | '/applications'
     | '/credentials'
+    | '/cv'
     | '/dashboard'
     | '/my-shifts'
     | '/profile'
     | '/jobs/$jobId'
     | '/jobs/'
+    | '/facility/applicants'
+    | '/facility/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/for-facilities'
     | '/shifts'
+    | '/admin'
     | '/applications'
     | '/credentials'
+    | '/cv'
     | '/dashboard'
     | '/my-shifts'
     | '/profile'
     | '/jobs/$jobId'
     | '/jobs'
+    | '/facility/applicants'
+    | '/facility'
   id:
     | '__root__'
     | '/'
@@ -159,13 +205,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/for-facilities'
     | '/shifts'
+    | '/_authenticated/admin'
     | '/_authenticated/applications'
     | '/_authenticated/credentials'
+    | '/_authenticated/cv'
     | '/_authenticated/dashboard'
     | '/_authenticated/my-shifts'
     | '/_authenticated/profile'
     | '/jobs/$jobId'
     | '/jobs/'
+    | '/_authenticated/facility/applicants'
+    | '/_authenticated/facility/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShiftsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/applications': {
       id: '/_authenticated/applications'
       path: '/applications'
@@ -227,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/credentials'
       fullPath: '/credentials'
       preLoaderRoute: typeof AuthenticatedCredentialsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cv': {
+      id: '/_authenticated/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof AuthenticatedCvRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -264,23 +328,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JobsJobIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/facility/': {
+      id: '/_authenticated/facility/'
+      path: '/facility'
+      fullPath: '/facility/'
+      preLoaderRoute: typeof AuthenticatedFacilityIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/facility/applicants': {
+      id: '/_authenticated/facility/applicants'
+      path: '/facility/applicants'
+      fullPath: '/facility/applicants'
+      preLoaderRoute: typeof AuthenticatedFacilityApplicantsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
   AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
+  AuthenticatedCvRoute: typeof AuthenticatedCvRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedFacilityApplicantsRoute: typeof AuthenticatedFacilityApplicantsRoute
+  AuthenticatedFacilityIndexRoute: typeof AuthenticatedFacilityIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,
   AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
+  AuthenticatedCvRoute: AuthenticatedCvRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedFacilityApplicantsRoute: AuthenticatedFacilityApplicantsRoute,
+  AuthenticatedFacilityIndexRoute: AuthenticatedFacilityIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
