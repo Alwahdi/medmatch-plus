@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/format";
 
-export const Route = createFileRoute("/pricing")({
+export const Route = createFileRoute("/_public/pricing")({
   head: () => ({
     meta: [
       { title: "أسعار المنشآت — باقات التوظيف الطبي | SyndeoCare" },

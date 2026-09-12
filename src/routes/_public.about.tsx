@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { HeartPulse, ShieldCheck, Sparkles, Users, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/about")({
+export const Route = createFileRoute("/_public/about")({
   head: () => ({
     meta: [
       { title: "من نحن | SyndeoCare — منصة التوظيف الطبي العربية" },

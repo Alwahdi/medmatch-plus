@@ -4,7 +4,7 @@ import { GUIDES } from "@/content/guides";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/guides/")({
+export const Route = createFileRoute("/_public/guides/")({
   head: () => ({
     meta: [
       { title: "أدلة المسار المهني الصحي | SyndeoCare" },

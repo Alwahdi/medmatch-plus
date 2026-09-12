@@ -26,7 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { GUIDES } from "@/content/guides";
 import { DICT, useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_public/")({
   head: () => ({
     meta: [
       { title: DICT["home.metaTitle"]!.ar },
