@@ -5,6 +5,8 @@ import {
   Bell,
   Bookmark,
   Briefcase,
+  Building2,
+
   CalendarClock,
   FileText,
   Globe,
