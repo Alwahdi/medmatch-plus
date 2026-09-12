@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.has_engagement(uuid, uuid) FROM PUBLIC, anon;
