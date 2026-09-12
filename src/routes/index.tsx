@@ -29,15 +29,15 @@ import { DICT, useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: DICT["home.metaTitle"].ar },
+      { title: DICT["home.metaTitle"]!.ar },
       {
         name: "description",
-        content: DICT["home.metaDescription"].ar,
+        content: DICT["home.metaDescription"]!.ar,
       },
-      { property: "og:title", content: DICT["home.metaTitle"].ar },
+      { property: "og:title", content: DICT["home.metaTitle"]!.ar },
       {
         property: "og:description",
-        content: DICT["home.metaDescription"].ar,
+        content: DICT["home.metaDescription"]!.ar,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
