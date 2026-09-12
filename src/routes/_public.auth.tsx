@@ -250,7 +250,7 @@ function GoogleIcon() {
   );
 }
 
-function SignInForm({ tx }: { tx: (k: string) => string }) {
+function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
