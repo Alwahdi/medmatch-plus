@@ -237,17 +237,33 @@ function MessagesPage() {
                   >
                     <span className="flex items-center gap-2 font-bold">
                       <Icon className="size-4 text-primary" />
-                      {info.name}
-                      {info.verified && <ShieldCheck className="size-3.5 text-accent" />}
+                      <span className="truncate">{info.name}</span>
+                      {info.verified && <ShieldCheck className="size-3.5 shrink-0 text-accent" />}
+                      {(unread[conv.id] ?? 0) > 0 && (
+                        <span className="ms-auto rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-destructive-foreground">
+                          {unread[conv.id]}
+                        </span>
+                      )}
                     </span>
-                    <span className="mt-1 block text-xs text-muted-foreground">
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">
                       {conv.job_id ? data?.jobs?.[conv.job_id]?.title ?? info.sub : info.sub}
                     </span>
+                    {data?.previews?.[conv.id] && (
+                      <span
+                        className={cn(
+                          "mt-1 block truncate text-xs",
+                          (unread[conv.id] ?? 0) > 0 ? "font-semibold text-foreground" : "text-muted-foreground",
+                        )}
+                      >
+                        {data.previews[conv.id]}
+                      </span>
+                    )}
                     <span className="mt-1 block text-[11px] text-muted-foreground">
                       {relativeTime(conv.last_message_at, lang)}
                     </span>
                   </button>
                 </li>
+
               );
             })}
           </ul>
