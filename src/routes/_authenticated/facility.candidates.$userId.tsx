@@ -5,6 +5,8 @@ import { Briefcase, CalendarClock, MapPin, MessageSquare, ShieldCheck } from "lu
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/rating-stars";
+import { RemoteAvatar } from "@/components/remote-avatar";
+
 import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -183,12 +185,19 @@ function CandidateProfile() {
 
       <div className="mt-4 rounded-2xl border border-border bg-card p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+          <div className="flex items-start gap-4">
+            <RemoteAvatar
+              value={pro.avatar_url}
+              fallbackText={pro.full_name}
+              className="size-16 rounded-2xl"
+            />
+            <div>
             <h1 className="flex items-center gap-2 font-display text-2xl font-extrabold">
               {pro.full_name}
               {pro.is_verified && <ShieldCheck className="size-5 text-accent" />}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{pro.headline ?? ""}</p>
+
             <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Briefcase className="size-3.5" /> {c.experience(pro.years_experience)}
@@ -207,7 +216,9 @@ function CandidateProfile() {
                 </Badge>
               )}
             </div>
+            </div>
           </div>
+
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={() => startChat.mutate()} disabled={startChat.isPending}>
               <MessageSquare className="size-4" /> {c.message}
