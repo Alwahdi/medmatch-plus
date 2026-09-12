@@ -54,13 +54,14 @@ export function SiteHeader() {
           <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
         </Link>
 
-        <nav className="mx-4 hidden items-center gap-1 md:flex">
+        <nav className="mx-2 hidden items-center gap-0.5 lg:flex">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-              activeProps={{ className: "bg-secondary text-foreground" }}
+              className="rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              activeProps={{ className: "text-foreground" }}
+              activeOptions={{ exact: item.to === "/" }}
             >
               {t(item.key)}
             </Link>
