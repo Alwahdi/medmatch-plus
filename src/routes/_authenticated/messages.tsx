@@ -77,6 +77,7 @@ const TXT = {
     empty: "Write your message first",
     tooLong: "Message is too long",
     failed: "Could not send the message",
+    hint: "Press Enter to send, Shift+Enter for a new line",
   },
 } as const;
 
@@ -99,7 +100,14 @@ function MessagesPage() {
         .order("last_message_at", { ascending: false });
       if (error) throw error;
       const list = (convs ?? []) as Conversation[];
-      if (list.length === 0) return { list, facilities: {}, pros: {}, jobs: {} };
+      if (list.length === 0)
+        return {
+          list,
+          previews: {} as Record<string, string>,
+          facilities: {} as Record<string, { id: string; name_ar: string; city: string; country: string; is_verified: boolean }>,
+          pros: {} as Record<string, { user_id: string; full_name: string; headline: string | null; is_verified: boolean }>,
+          jobs: {} as Record<string, { id: string; title: string }>,
+        };
 
       const [{ data: facilities }, { data: pros }, { data: jobs }] = await Promise.all([
         supabase
