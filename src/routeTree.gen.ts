@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ForFacilitiesRouteImport } from './routes/for-facilities'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -29,6 +30,10 @@ import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
+import { Route as InterviewQuestionsIndexRouteImport } from './routes/interview-questions.index'
+import { Route as InterviewQuestionsSlugRouteImport } from './routes/interview-questions.$slug'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 import { Route as SpecialtiesIndexRouteImport } from './routes/specialties.index'
@@ -54,6 +59,11 @@ const AboutRoute = AboutRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForFacilitiesRoute = ForFacilitiesRouteImport.update({
@@ -138,6 +148,26 @@ const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
   path: '/saved',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InterviewQuestionsIndexRoute = InterviewQuestionsIndexRouteImport.update({
+  id: '/interview-questions/',
+  path: '/interview-questions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InterviewQuestionsSlugRoute = InterviewQuestionsSlugRouteImport.update({
+  id: '/interview-questions/$slug',
+  path: '/interview-questions/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
   id: '/jobs/',
   path: '/jobs/',
@@ -181,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -197,8 +228,12 @@ export interface FileRoutesByFullPath {
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/specialties/$slug': typeof SpecialtiesSlugRoute
+  '/guides/': typeof GuidesIndexRoute
+  '/interview-questions/': typeof InterviewQuestionsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/specialties/': typeof SpecialtiesIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
@@ -209,6 +244,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -225,8 +261,12 @@ export interface FileRoutesByTo {
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/specialties/$slug': typeof SpecialtiesSlugRoute
+  '/guides': typeof GuidesIndexRoute
+  '/interview-questions': typeof InterviewQuestionsIndexRoute
   '/jobs': typeof JobsIndexRoute
   '/specialties': typeof SpecialtiesIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
@@ -239,6 +279,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/for-facilities': typeof ForFacilitiesRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -255,8 +296,12 @@ export interface FileRoutesById {
   '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/interview-questions/$slug': typeof InterviewQuestionsSlugRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/specialties/$slug': typeof SpecialtiesSlugRoute
+  '/guides/': typeof GuidesIndexRoute
+  '/interview-questions/': typeof InterviewQuestionsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/specialties/': typeof SpecialtiesIndexRoute
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
@@ -269,6 +314,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/contact'
     | '/for-facilities'
     | '/pricing'
     | '/privacy'
@@ -285,8 +331,12 @@ export interface FileRouteTypes {
     | '/my-shifts'
     | '/profile'
     | '/saved'
+    | '/guides/$slug'
+    | '/interview-questions/$slug'
     | '/jobs/$jobId'
     | '/specialties/$slug'
+    | '/guides/'
+    | '/interview-questions/'
     | '/jobs/'
     | '/specialties/'
     | '/facility/applicants'
@@ -297,6 +347,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/contact'
     | '/for-facilities'
     | '/pricing'
     | '/privacy'
@@ -313,8 +364,12 @@ export interface FileRouteTypes {
     | '/my-shifts'
     | '/profile'
     | '/saved'
+    | '/guides/$slug'
+    | '/interview-questions/$slug'
     | '/jobs/$jobId'
     | '/specialties/$slug'
+    | '/guides'
+    | '/interview-questions'
     | '/jobs'
     | '/specialties'
     | '/facility/applicants'
@@ -326,6 +381,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/auth'
+    | '/contact'
     | '/for-facilities'
     | '/pricing'
     | '/privacy'
@@ -342,8 +398,12 @@ export interface FileRouteTypes {
     | '/_authenticated/my-shifts'
     | '/_authenticated/profile'
     | '/_authenticated/saved'
+    | '/guides/$slug'
+    | '/interview-questions/$slug'
     | '/jobs/$jobId'
     | '/specialties/$slug'
+    | '/guides/'
+    | '/interview-questions/'
     | '/jobs/'
     | '/specialties/'
     | '/_authenticated/facility/applicants'
@@ -356,13 +416,18 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
   ForFacilitiesRoute: typeof ForFacilitiesRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ShiftsRoute: typeof ShiftsRoute
   TermsRoute: typeof TermsRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
+  InterviewQuestionsSlugRoute: typeof InterviewQuestionsSlugRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
   SpecialtiesSlugRoute: typeof SpecialtiesSlugRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
+  InterviewQuestionsIndexRoute: typeof InterviewQuestionsIndexRoute
   JobsIndexRoute: typeof JobsIndexRoute
   SpecialtiesIndexRoute: typeof SpecialtiesIndexRoute
 }
@@ -395,6 +460,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/for-facilities': {
@@ -509,6 +581,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSavedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interview-questions/': {
+      id: '/interview-questions/'
+      path: '/interview-questions'
+      fullPath: '/interview-questions/'
+      preLoaderRoute: typeof InterviewQuestionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interview-questions/$slug': {
+      id: '/interview-questions/$slug'
+      path: '/interview-questions/$slug'
+      fullPath: '/interview-questions/$slug'
+      preLoaderRoute: typeof InterviewQuestionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/jobs/': {
       id: '/jobs/'
       path: '/jobs'
@@ -603,13 +703,18 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
   ForFacilitiesRoute: ForFacilitiesRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ShiftsRoute: ShiftsRoute,
   TermsRoute: TermsRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
+  InterviewQuestionsSlugRoute: InterviewQuestionsSlugRoute,
   JobsJobIdRoute: JobsJobIdRoute,
   SpecialtiesSlugRoute: SpecialtiesSlugRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
+  InterviewQuestionsIndexRoute: InterviewQuestionsIndexRoute,
   JobsIndexRoute: JobsIndexRoute,
   SpecialtiesIndexRoute: SpecialtiesIndexRoute,
 }
