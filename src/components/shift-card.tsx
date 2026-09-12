@@ -63,9 +63,9 @@ export function ShiftCard({
           <MapPin className="size-4 shrink-0" /> {shift.city}، {shift.country}
         </p>
         {shift.specialties && (
-          <p className="pt-1">
+          <div className="pt-1">
             <Badge variant="outline">{shift.specialties.name_ar}</Badge>
-          </p>
+          </div>
         )}
       </div>
 
