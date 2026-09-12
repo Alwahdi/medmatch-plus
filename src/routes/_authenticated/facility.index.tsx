@@ -403,7 +403,13 @@ function FacilityDashboard() {
             jobs.map((j) => (
               <div key={j.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
                 <div>
-                  <p className="font-bold">{j.title}</p>
+                  <Link
+                    to="/jobs/$jobId"
+                    params={{ jobId: j.slug ?? j.id }}
+                    className="font-bold hover:text-primary"
+                  >
+                    {j.title}
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
                     {employmentLabel(j.employment_type, lang)} · {c.applicantsCount(j.applications?.length ?? 0)}
@@ -413,8 +419,24 @@ function FacilityDashboard() {
                   <Badge variant={j.is_active ? "default" : "secondary"}>
                     {j.is_active ? c.published : c.closed}
                   </Badge>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/jobs/$jobId" params={{ jobId: j.slug ?? j.id }}>
+                      <Eye className="size-4" /> {c.view}
+                    </Link>
+                  </Button>
                   <Button size="sm" variant="ghost"
-                    onClick={() => toggleJob.mutate({ id: j.id, is_active: !j.is_active })}>
+                    onClick={async () => {
+                      if (j.is_active) {
+                        const ok = await confirm({
+                          title: c.confirmCloseTitle,
+                          description: c.confirmCloseDesc,
+                          confirmLabel: c.confirmCloseCta,
+                          destructive: true,
+                        });
+                        if (!ok) return;
+                      }
+                      toggleJob.mutate({ id: j.id, is_active: !j.is_active });
+                    }}>
                     {j.is_active ? c.close : c.republish}
                   </Button>
                 </div>
@@ -430,20 +452,48 @@ function FacilityDashboard() {
             shifts.map((s) => (
               <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
                 <div>
-                  <p className="font-bold">{s.title}</p>
+                  <Link
+                    to="/shifts/$shiftId"
+                    params={{ shiftId: s.id }}
+                    className="font-bold hover:text-primary"
+                  >
+                    {s.title}
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {formatDateTime(s.starts_at, lang)} · {formatMoney(Number(s.hourly_rate), s.currency, lang)}{c.perHour}
                   </p>
                 </div>
-                <Badge variant={s.status === "open" ? "default" : "secondary"}>
-                  {s.status === "open" ? c.open : c.bookedStatus}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant={s.status === "open" ? "default" : "secondary"}>
+                    {s.status === "open" ? c.open : s.status === "cancelled" ? c.cancelledStatus : c.bookedStatus}
+                  </Badge>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
+                      <Eye className="size-4" /> {c.view}
+                    </Link>
+                  </Button>
+                  {s.status === "open" && (
+                    <Button size="sm" variant="ghost"
+                      onClick={async () => {
+                        const ok = await confirm({
+                          title: c.confirmCancelShiftTitle,
+                          description: c.confirmCancelShiftDesc,
+                          confirmLabel: c.confirmCancelShiftCta,
+                          destructive: true,
+                        });
+                        if (ok) cancelShift.mutate(s.id);
+                      }}>
+                      {c.cancelShift}
+                    </Button>
+                  )}
+                </div>
               </div>
             ))
           ) : (
             <EmptyState icon={CalendarClock} title={c.noShifts} />
           )}
         </TabsContent>
+
 
         <TabsContent value="new-job" className="mt-6">
           <JobForm facilityId={facility.id} specialties={specialties ?? []}
