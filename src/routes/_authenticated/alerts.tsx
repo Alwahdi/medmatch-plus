@@ -96,6 +96,8 @@ const TXT = {
 function AlertsPage() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { confirm, confirmDialog } = useConfirm();
+
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [specialty, setSpecialty] = useState(ANY);

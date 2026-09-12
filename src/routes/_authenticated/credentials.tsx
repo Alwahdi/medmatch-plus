@@ -90,6 +90,8 @@ const TXT = {
 function CredentialsPage() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { confirm, confirmDialog } = useConfirm();
+
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ title: "", doc_type: "", issuer: "", expiry_date: "" });
