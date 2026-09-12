@@ -109,7 +109,7 @@ function Home() {
     navigate({ to: "/jobs" });
   }
 
-  const steps = tab === "employers" ? EMPLOYER_STEPS : SEEKER_STEPS;
+  const stepKeys = tab === "employers" ? EMPLOYER_STEP_KEYS : SEEKER_STEP_KEYS;
 
   return (
     <>
