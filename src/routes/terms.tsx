@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { FileText, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -77,23 +79,41 @@ const SECTIONS: { h: string; p: string[] }[] = [
 
 function Terms() {
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-3xl px-4">
-        <h1 className="font-display text-3xl font-extrabold md:text-4xl">شروط الاستخدام</h1>
-        <p className="mt-3 text-sm text-muted-foreground">آخر تحديث: سبتمبر ٢٠٢٦</p>
-        <div className="mt-8 space-y-8">
-          {SECTIONS.map((s) => (
-            <div key={s.h}>
-              <h2 className="font-display text-xl font-bold">{s.h}</h2>
-              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
-                {s.p.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <>
+      <section className="page-hero py-14 md:py-20">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
+            <FileText className="size-4" />
+            الاستخدام المسؤول
+          </span>
+          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">شروط الاستخدام</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">
+            آخر تحديث: سبتمبر ٢٠٢٦
+          </p>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section className="py-16 md:py-20">
+        <div className="mx-auto max-w-3xl px-4">
+          <div className="space-y-8">
+            {SECTIONS.map((s) => (
+              <div key={s.h} className="card-lift rounded-2xl border border-border bg-card p-6">
+                <h2 className="font-display text-xl font-bold">{s.h}</h2>
+                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+                  {s.p.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Button variant="outline" asChild>
+              <Link to="/contact">تواصل معنا <ArrowLeft className="size-4" /></Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
