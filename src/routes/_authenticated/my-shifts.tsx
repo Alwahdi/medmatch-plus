@@ -30,7 +30,7 @@ function MyShifts() {
       const { data, error } = await supabase
         .from("shift_bookings")
         .select(
-          "id,created_at,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country,facilities(name_ar))",
+          "id,created_at,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country)",
         )
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
@@ -72,7 +72,7 @@ function MyShifts() {
                   <div>
                     <p className="font-bold">{s.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {s.facilities?.name_ar} · {s.city}، {s.country}
+                      {s.city}، {s.country}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(s.starts_at)} · {hours} ساعات</p>
                   </div>

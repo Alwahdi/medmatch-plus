@@ -50,7 +50,7 @@ function Dashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select("id,status,created_at,jobs(id,title,facilities(name_ar))")
+        .select("id,status,created_at,jobs(id,title)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
         .limit(5);
@@ -74,7 +74,7 @@ function Dashboard() {
     queryFn: async () => {
       const { data } = await supabase
         .from("shift_bookings")
-        .select("id,shifts(id,title,starts_at,facilities(name_ar))")
+        .select("id,shifts(id,title,starts_at)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
         .limit(3);
@@ -88,7 +88,7 @@ function Dashboard() {
       const { data, error } = await supabase
         .from("jobs")
         .select(
-          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,specialty_id,required_license,facilities(name_ar,is_verified),specialties(name_ar)",
+          "id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar)",
         )
         .eq("is_active", true)
         .limit(20);
@@ -145,7 +145,7 @@ function Dashboard() {
                 <li key={a.id} className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0">
                   <div>
                     <p className="font-medium">{a.jobs?.title}</p>
-                    <p className="text-xs text-muted-foreground">{a.jobs?.facilities?.name_ar}</p>
+                    
                   </div>
                   <Badge variant="secondary">{APPLICATION_LABELS[a.status]}</Badge>
                 </li>
@@ -164,7 +164,7 @@ function Dashboard() {
                 <li key={b.id} className="border-b border-border pb-3 last:border-0">
                   <p className="font-medium">{b.shifts?.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {b.shifts?.facilities?.name_ar} · {b.shifts && formatDateTime(b.shifts.starts_at)}
+                    {b.shifts && formatDateTime(b.shifts.starts_at)}
                   </p>
                 </li>
               ))}
