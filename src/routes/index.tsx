@@ -214,7 +214,7 @@ function Home() {
   );
 }
 
-function Stat({ value, label }: { value?: number; label: string }) {
+function Stat({ value, label }: { value: number | undefined; label: string }) {
   return (
     <div>
       <dt className="font-display text-3xl font-extrabold">{value ?? "—"}</dt>
