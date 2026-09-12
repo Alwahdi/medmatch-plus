@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_deliveries: {
+        Row: {
+          alert_id: string
+          channel: string
+          id: string
+          job_id: string
+          sent_at: string
+        }
+        Insert: {
+          alert_id: string
+          channel: string
+          id?: string
+          job_id: string
+          sent_at?: string
+        }
+        Update: {
+          alert_id?: string
+          channel?: string
+          id?: string
+          job_id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_deliveries_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "job_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_deliveries_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           cover_letter: string | null
@@ -51,6 +90,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_handled: boolean
+          message: string
+          name: string
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_handled?: boolean
+          message: string
+          name: string
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_handled?: boolean
+          message?: string
+          name?: string
+          subject?: string | null
+        }
+        Relationships: []
       }
       conversations: {
         Row: {
