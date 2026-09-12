@@ -115,7 +115,7 @@ function Dashboard() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="font-display text-3xl font-extrabold">
-        أهلاً {profile?.full_name || "بك"} 👋
+        أهلاً {profile?.full_name || "بك"}
       </h1>
       <p className="mt-2 text-muted-foreground">هذه صورة سريعة عن حسابك اليوم.</p>
 

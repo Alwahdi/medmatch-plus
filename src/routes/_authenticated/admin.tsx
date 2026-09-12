@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -77,8 +77,14 @@ function AdminPage() {
   if (rolesLoading) return <p className="p-10 text-center text-muted-foreground">جارٍ التحميل...</p>;
   if (!isAdmin)
     return (
-      <div className="p-16 text-center">
+      <div className="mx-auto max-w-md px-4 py-24 text-center">
         <h1 className="font-display text-2xl font-extrabold">هذه الصفحة للإدارة فقط</h1>
+        <p className="mt-2 text-muted-foreground">
+          حسابك لا يملك صلاحية مراجعة الوثائق واعتماد المنشآت.
+        </p>
+        <Link to="/dashboard" className="mt-6 inline-block text-primary underline underline-offset-4">
+          العودة إلى لوحتك
+        </Link>
       </div>
     );
 
