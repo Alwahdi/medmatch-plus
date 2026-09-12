@@ -181,9 +181,9 @@ function JobsPage() {
       </section>
 
       <section className="py-8 md:py-12">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[320px_1fr]">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[320px_minmax(0,1fr)]">
           {/* Filters sidebar */}
-          <aside className="lg:order-2">
+          <aside className="lg:order-1">
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-5">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="font-display text-lg font-bold">{c.filters}</h2>
@@ -266,7 +266,7 @@ function JobsPage() {
           </aside>
 
           {/* Results */}
-          <div className="lg:order-1">
+          <div className="lg:order-2">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="section-label">{c.results}</p>
