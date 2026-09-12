@@ -175,9 +175,13 @@ function FacilityProfilePage() {
             </Link>
           </Button>
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <span className="grid size-16 place-items-center rounded-2xl bg-white/12 ring-1 ring-white/20">
-              <Building2 className="size-8" />
-            </span>
+            <RemoteAvatar
+              value={facility.logo_url}
+              alt={facility.name_ar}
+              icon={Building2}
+              className="size-16 bg-white/12 text-white ring-1 ring-white/20"
+            />
+
             <div>
               <h1 className="font-display text-3xl font-extrabold md:text-4xl">
                 {facility.name_ar}
