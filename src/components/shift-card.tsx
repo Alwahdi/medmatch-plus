@@ -36,7 +36,7 @@ export function ShiftCard({
   const open = shift.status === "open";
 
   return (
-    <div className="card-lift flex h-full flex-col rounded-2xl border border-border bg-card p-5">
+    <div className="card-lift flex h-full flex-col rounded-2xl border border-border bg-card p-5 hover:border-accent/30">
       <div className="flex flex-wrap items-center gap-2">
         {shift.is_urgent && <Badge variant="destructive">مستعجلة</Badge>}
         <Badge

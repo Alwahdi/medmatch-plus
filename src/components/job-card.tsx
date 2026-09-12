@@ -32,7 +32,7 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
     <Link
       to="/jobs/$jobId"
       params={{ jobId: job.id }}
-      className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5"
+      className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5 hover:border-accent/30"
     >
       <div className="flex flex-wrap items-center gap-2">
         {job.is_featured && (
