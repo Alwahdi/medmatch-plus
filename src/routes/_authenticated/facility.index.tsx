@@ -13,6 +13,7 @@ import {
   PlusCircle,
   Sparkles,
   Users,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -471,6 +472,11 @@ function FacilityDashboard() {
                       <Eye className="size-4" /> {c.view}
                     </Link>
                   </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
+                      <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
+                    </Link>
+                  </Button>
                   <Button size="sm" variant="ghost"
                     onClick={async () => {
                       if (j.is_active) {
@@ -517,6 +523,11 @@ function FacilityDashboard() {
                   <Button size="sm" variant="outline" asChild>
                     <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
                       <Eye className="size-4" /> {c.view}
+                    </Link>
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
+                      <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
                     </Link>
                   </Button>
                   {s.status === "open" && (
