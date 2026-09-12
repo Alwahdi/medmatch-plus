@@ -284,7 +284,8 @@ function MessagesPage() {
         verified: f?.is_verified ?? false,
         icon: Building2,
         image: revealed ? f!.logo_url : null,
-        to: revealed ? `/facilities/${conv.facility_id}` : null,
+        kind: "facility" as const,
+        linkId: revealed ? conv.facility_id : null,
       };
     }
     const p = data?.pros?.[conv.professional_user_id];
@@ -294,9 +295,11 @@ function MessagesPage() {
       verified: p?.is_verified ?? false,
       icon: UserRound,
       image: p?.avatar_url ?? null,
-      to: p ? `/facility/candidates/${conv.professional_user_id}` : null,
+      kind: "pro" as const,
+      linkId: p ? conv.professional_user_id : null,
     };
   }
+
 
   const activeInfo = active ? counterpart(active) : null;
   const activeJob = active?.job_id ? data?.jobs?.[active.job_id] : null;
