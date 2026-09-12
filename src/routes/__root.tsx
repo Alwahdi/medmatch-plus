@@ -126,18 +126,25 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const isApp = useRouterState({
+    select: (s) => s.matches.some((m) => m.routeId.startsWith("/_authenticated")),
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthSync />
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <SiteFooter />
-        </div>
+        {isApp ? (
+          <Outlet />
+        ) : (
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <SiteFooter />
+          </div>
+        )}
         <Toaster position="top-center" />
       </LanguageProvider>
     </QueryClientProvider>
