@@ -13,13 +13,22 @@ import {
   Paperclip,
   Send,
   ShieldCheck,
+  Smile,
   UserRound,
   X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { RemoteAvatar } from "@/components/remote-avatar";
+import { VoiceRecorder } from "@/components/voice-recorder";
 import {
   ChatAttachment,
   CHAT_MAX_BYTES,
@@ -30,6 +39,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { useOnlineUsers } from "@/lib/presence";
 import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +69,21 @@ type Conversation = {
   last_message_at: string;
 };
 
+type Msg = {
+  id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+  read_at: string | null;
+  delivered_at: string | null;
+  attachment_path: string | null;
+  attachment_name: string | null;
+  attachment_type: string | null;
+  attachment_size: number | null;
+};
+
+const EMOJIS = ["👍", "❤️", "😂", "🙏", "👏", "✅"];
+
 const TXT = {
   ar: {
     title: "الرسائل",
@@ -81,11 +106,26 @@ const TXT = {
     empty: "اكتب رسالة أو أرفق ملفاً",
     tooLong: "الرسالة طويلة جداً",
     failed: "تعذّر إرسال الرسالة",
-    hint: "اضغط Enter للإرسال، وShift+Enter لسطر جديد",
+    hint: "اضغط Enter للإرسال، واضغط مطوّلاً على أي رسالة لعرض التفاصيل والتفاعل",
     attach: "إرفاق ملف",
     tooBig: "حجم الملف يجب ألا يتجاوز 10 ميغابايت",
-    attachment: "مرفق",
-    uploading: "جارٍ رفع الملف...",
+    uploading: "جارٍ الرفع...",
+    online: "متصل الآن",
+    offline: "غير متصل",
+    voiceNote: "رسالة صوتية",
+    record: "تسجيل صوتي",
+    stop: "إيقاف وإرسال",
+    cancelRec: "إلغاء",
+    micUnsupported: "المتصفح لا يدعم التسجيل الصوتي",
+    micDenied: "تعذّر الوصول إلى الميكروفون",
+    infoTitle: "تفاصيل الرسالة",
+    infoSub: "أوقات الإرسال والاستلام والقراءة",
+    sentAt: "أُرسلت",
+    deliveredAt: "وصلت",
+    readAt: "قُرئت",
+    notYet: "لم يتم بعد",
+    react: "تفاعل",
+    reactions: "التفاعلات",
   },
   en: {
     title: "Messages",
@@ -108,11 +148,26 @@ const TXT = {
     empty: "Write a message or attach a file",
     tooLong: "Message is too long",
     failed: "Could not send the message",
-    hint: "Press Enter to send, Shift+Enter for a new line",
+    hint: "Press Enter to send. Long-press a message for details and reactions",
     attach: "Attach file",
     tooBig: "File must be 10MB or smaller",
-    attachment: "Attachment",
-    uploading: "Uploading file...",
+    uploading: "Uploading...",
+    online: "Online",
+    offline: "Offline",
+    voiceNote: "Voice note",
+    record: "Record voice",
+    stop: "Stop & send",
+    cancelRec: "Cancel",
+    micUnsupported: "This browser does not support recording",
+    micDenied: "Microphone access was denied",
+    infoTitle: "Message details",
+    infoSub: "Sent, delivered and read times",
+    sentAt: "Sent",
+    deliveredAt: "Delivered",
+    readAt: "Read",
+    notYet: "Not yet",
+    react: "React",
+    reactions: "Reactions",
   },
 } as const;
 
@@ -124,8 +179,11 @@ function MessagesPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [info, setInfo] = useState<Msg | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onlineUsers = useOnlineUsers(user);
 
   const { data, isLoading } = useQuery({
     queryKey: ["conversations", user?.id],
@@ -144,7 +202,15 @@ function MessagesPage() {
         previews: {} as Record<string, string>,
         facilities: {} as Record<
           string,
-          { id: string; name_ar: string; city: string; country: string; is_verified: boolean; logo_url: string | null }
+          {
+            id: string;
+            user_id: string | null;
+            name_ar: string;
+            city: string;
+            country: string;
+            is_verified: boolean;
+            logo_url: string | null;
+          }
         >,
         pros: {} as Record<
           string,
@@ -159,7 +225,7 @@ function MessagesPage() {
         await Promise.all([
           supabase
             .from("facilities")
-            .select("id,name_ar,city,country,is_verified,logo_url")
+            .select("id,user_id,name_ar,city,country,is_verified,logo_url")
             .in("id", Array.from(new Set(list.map((c) => c.facility_id)))),
           supabase
             .from("healthcare_professionals")
@@ -177,13 +243,17 @@ function MessagesPage() {
 
       const { data: lastMsgs } = await supabase
         .from("messages")
-        .select("conversation_id,body,attachment_name,created_at")
+        .select("conversation_id,body,attachment_name,attachment_type,created_at")
         .in("conversation_id", list.map((c) => c.id))
         .order("created_at", { ascending: false });
       const previews: Record<string, string> = {};
       for (const m of lastMsgs ?? []) {
         if (!previews[m.conversation_id])
-          previews[m.conversation_id] = m.body || `📎 ${m.attachment_name ?? ""}`;
+          previews[m.conversation_id] =
+            m.body ||
+            ((m.attachment_type ?? "").startsWith("audio/")
+              ? `🎤 ${c.voiceNote}`
+              : `📎 ${m.attachment_name ?? ""}`);
       }
 
       return {
@@ -216,16 +286,30 @@ function MessagesPage() {
     queryKey: ["messages", active?.id],
     enabled: !!active,
     refetchInterval: 15000,
-    queryFn: async () => {
+    queryFn: async (): Promise<Msg[]> => {
       const { data: rows, error } = await supabase
         .from("messages")
         .select(
-          "id,sender_id,body,created_at,read_at,attachment_path,attachment_name,attachment_type,attachment_size",
+          "id,sender_id,body,created_at,read_at,delivered_at,attachment_path,attachment_name,attachment_type,attachment_size",
         )
         .eq("conversation_id", active!.id)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return rows ?? [];
+      return (rows ?? []) as Msg[];
+    },
+  });
+
+  const { data: reactions } = useQuery({
+    queryKey: ["reactions", active?.id, messages?.length],
+    enabled: !!messages?.length,
+    queryFn: async () => {
+      const { data: rows } = await supabase
+        .from("message_reactions")
+        .select("id,message_id,user_id,emoji")
+        .in("message_id", (messages ?? []).map((m) => m.id));
+      const map: Record<string, { emoji: string; user_id: string; id: string }[]> = {};
+      for (const r of rows ?? []) (map[r.message_id] ??= []).push(r);
+      return map;
     },
   });
 
@@ -233,25 +317,40 @@ function MessagesPage() {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages]);
 
+  const toggleReaction = useMutation({
+    mutationFn: async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
+      const mine = (reactions?.[messageId] ?? []).find(
+        (r) => r.user_id === user!.id && r.emoji === emoji,
+      );
+      if (mine) {
+        const { error } = await supabase.from("message_reactions").delete().eq("id", mine.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("message_reactions")
+          .insert({ message_id: messageId, user_id: user!.id, emoji });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reactions"] }),
+    onError: () => toast.error(c.failed),
+  });
+
   const send = useMutation({
-    mutationFn: async () => {
-      const body = draft.trim();
-      if (!body && !file) throw new Error(c.empty);
+    mutationFn: async (voice?: File) => {
+      const body = voice ? "" : draft.trim();
+      const upload = voice ?? file;
+      if (!body && !upload) throw new Error(c.empty);
       if (body.length > 2000) throw new Error(c.tooLong);
 
-      let attachment: {
-        attachment_path: string;
-        attachment_name: string;
-        attachment_type: string;
-        attachment_size: number;
-      } | null = null;
-      if (file) {
-        const path = await uploadChatFile(active!.id, file);
+      let attachment: Record<string, unknown> = {};
+      if (upload) {
+        const path = await uploadChatFile(active!.id, upload);
         attachment = {
           attachment_path: path,
-          attachment_name: file.name,
-          attachment_type: file.type || "application/octet-stream",
-          attachment_size: file.size,
+          attachment_name: upload.name,
+          attachment_type: upload.type || "application/octet-stream",
+          attachment_size: upload.size,
         };
       }
 
@@ -259,7 +358,7 @@ function MessagesPage() {
         conversation_id: active!.id,
         sender_id: user!.id,
         body,
-        ...(attachment ?? {}),
+        ...attachment,
       });
       if (error) throw error;
     },
@@ -286,6 +385,7 @@ function MessagesPage() {
         image: revealed ? f!.logo_url : null,
         kind: "facility" as const,
         linkId: revealed ? conv.facility_id : null,
+        online: !!f?.user_id && onlineUsers.has(f.user_id),
       };
     }
     const p = data?.pros?.[conv.professional_user_id];
@@ -297,13 +397,49 @@ function MessagesPage() {
       image: p?.avatar_url ?? null,
       kind: "pro" as const,
       linkId: p ? conv.professional_user_id : null,
+      online: onlineUsers.has(conv.professional_user_id),
     };
   }
 
+  function startPress(m: Msg) {
+    pressTimer.current = setTimeout(() => setInfo(m), 450);
+  }
+  function endPress() {
+    if (pressTimer.current) clearTimeout(pressTimer.current);
+    pressTimer.current = null;
+  }
 
   const activeInfo = active ? counterpart(active) : null;
   const activeJob = active?.job_id ? data?.jobs?.[active.job_id] : null;
   const activeShift = active?.shift_id ? data?.shifts?.[active.shift_id] : null;
+
+  const headerBlock = activeInfo && (
+    <>
+      <span className="relative">
+        <RemoteAvatar value={activeInfo.image} icon={activeInfo.icon} className="size-10 rounded-xl" />
+        <span
+          className={cn(
+            "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
+            activeInfo.online ? "bg-emerald-500" : "bg-muted-foreground/40",
+          )}
+        />
+      </span>
+      <span>
+        <span className="flex items-center gap-2 font-bold">
+          {activeInfo.name}
+          {activeInfo.verified && <Badge variant="secondary">{c.verified}</Badge>}
+        </span>
+        <span className="flex items-center gap-2 text-xs">
+          <span className={activeInfo.online ? "text-emerald-600" : "text-muted-foreground"}>
+            {activeInfo.online ? c.online : c.offline}
+          </span>
+          {activeInfo.linkId && (
+            <span className="text-primary underline underline-offset-4">{c.viewProfile}</span>
+          )}
+        </span>
+      </span>
+    </>
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -334,11 +470,15 @@ function MessagesPage() {
                     )}
                   >
                     <span className="flex items-center gap-2 font-bold">
-                      <RemoteAvatar
-                        value={info.image}
-                        icon={Icon}
-                        className="size-8 shrink-0 rounded-xl"
-                      />
+                      <span className="relative shrink-0">
+                        <RemoteAvatar value={info.image} icon={Icon} className="size-8 rounded-xl" />
+                        <span
+                          className={cn(
+                            "absolute -bottom-0.5 -end-0.5 size-2.5 rounded-full border-2 border-card",
+                            info.online ? "bg-emerald-500" : "bg-muted-foreground/40",
+                          )}
+                        />
+                      </span>
                       <span className="truncate">{info.name}</span>
                       {info.verified && <ShieldCheck className="size-3.5 shrink-0 text-accent" />}
                       {(unread[conv.id] ?? 0) > 0 && (
@@ -386,20 +526,7 @@ function MessagesPage() {
                       className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
                       title={c.viewProfile}
                     >
-                      <RemoteAvatar
-                        value={activeInfo.image}
-                        icon={activeInfo.icon}
-                        className="size-10 rounded-xl"
-                      />
-                      <span>
-                        <span className="flex items-center gap-2 font-bold">
-                          {activeInfo.name}
-                          {activeInfo.verified && <Badge variant="secondary">{c.verified}</Badge>}
-                        </span>
-                        <span className="block text-xs text-primary underline underline-offset-4">
-                          {c.viewProfile}
-                        </span>
-                      </span>
+                      {headerBlock}
                     </Link>
                   ) : (
                     <Link
@@ -408,31 +535,11 @@ function MessagesPage() {
                       className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
                       title={c.viewProfile}
                     >
-                      <RemoteAvatar
-                        value={activeInfo.image}
-                        icon={activeInfo.icon}
-                        className="size-10 rounded-xl"
-                      />
-                      <span>
-                        <span className="flex items-center gap-2 font-bold">
-                          {activeInfo.name}
-                          {activeInfo.verified && <Badge variant="secondary">{c.verified}</Badge>}
-                        </span>
-                        <span className="block text-xs text-primary underline underline-offset-4">
-                          {c.viewProfile}
-                        </span>
-                      </span>
+                      {headerBlock}
                     </Link>
                   )
                 ) : (
-
-                  <div className="flex items-center gap-3">
-                    <RemoteAvatar value={null} icon={activeInfo.icon} className="size-10 rounded-xl" />
-                    <span>
-                      <span className="flex items-center gap-2 font-bold">{activeInfo.name}</span>
-                      <span className="block text-xs text-muted-foreground">{activeInfo.sub}</span>
-                    </span>
-                  </div>
+                  <div className="flex items-center gap-3">{headerBlock}</div>
                 )}
               </div>
 
@@ -467,37 +574,84 @@ function MessagesPage() {
                 {messages?.length ? (
                   messages.map((m) => {
                     const mine = m.sender_id === user?.id;
+                    const list = reactions?.[m.id] ?? [];
+                    const grouped = list.reduce<Record<string, number>>((acc, r) => {
+                      acc[r.emoji] = (acc[r.emoji] ?? 0) + 1;
+                      return acc;
+                    }, {});
                     return (
-                      <div key={m.id} className={cn("flex", mine ? "justify-start" : "justify-end")}>
-                        <div
-                          className={cn(
-                            "max-w-[80%] space-y-2 rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line",
-                            mine ? "bg-primary text-primary-foreground" : "bg-surface",
-                          )}
-                        >
-                          {m.attachment_path && (
-                            <ChatAttachment
-                              path={m.attachment_path}
-                              name={m.attachment_name}
-                              type={m.attachment_type}
-                              size={m.attachment_size}
-                              mine={mine}
-                            />
-                          )}
-                          {m.body}
+                      <div key={m.id} className={cn("group flex", mine ? "justify-start" : "justify-end")}>
+                        <div className="max-w-[80%]">
                           <div
+                            onPointerDown={() => startPress(m)}
+                            onPointerUp={endPress}
+                            onPointerLeave={endPress}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              setInfo(m);
+                            }}
                             className={cn(
-                              "mt-1 flex items-center gap-1 text-[10px]",
-                              mine ? "opacity-70" : "text-muted-foreground",
+                              "select-none space-y-2 rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line",
+                              mine ? "bg-primary text-primary-foreground" : "bg-surface",
                             )}
                           >
-                            {formatDateTime(m.created_at, lang)}
-                            {mine &&
-                              (m.read_at ? (
-                                <CheckCheck className="size-3" />
-                              ) : (
-                                <Check className="size-3" />
-                              ))}
+                            {m.attachment_path && (
+                              <ChatAttachment
+                                path={m.attachment_path}
+                                name={m.attachment_name}
+                                type={m.attachment_type}
+                                size={m.attachment_size}
+                                mine={mine}
+                              />
+                            )}
+                            {m.body}
+                            <div
+                              className={cn(
+                                "mt-1 flex items-center gap-1 text-[10px]",
+                                mine ? "opacity-70" : "text-muted-foreground",
+                              )}
+                            >
+                              {formatDateTime(m.created_at, lang)}
+                              {mine &&
+                                (m.read_at ? (
+                                  <CheckCheck className="size-3 text-sky-300" />
+                                ) : m.delivered_at ? (
+                                  <CheckCheck className="size-3" />
+                                ) : (
+                                  <Check className="size-3" />
+                                ))}
+                            </div>
+                          </div>
+
+                          <div
+                            className={cn(
+                              "mt-1 flex items-center gap-1",
+                              mine ? "justify-start" : "justify-end",
+                            )}
+                          >
+                            {Object.entries(grouped).map(([emoji, count]) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => toggleReaction.mutate({ messageId: m.id, emoji })}
+                                className={cn(
+                                  "rounded-full border px-2 py-0.5 text-xs transition",
+                                  list.some((r) => r.user_id === user?.id && r.emoji === emoji)
+                                    ? "border-primary bg-primary/10"
+                                    : "border-border bg-card hover:bg-secondary",
+                                )}
+                              >
+                                {emoji} {count > 1 ? count : ""}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => setInfo(m)}
+                              title={c.react}
+                              className="rounded-full border border-border bg-card p-1 text-muted-foreground opacity-0 transition hover:bg-secondary focus:opacity-100 group-hover:opacity-100"
+                            >
+                              <Smile className="size-3.5" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -535,14 +689,14 @@ function MessagesPage() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if ((draft.trim() || file) && !send.isPending) send.mutate();
+                      if ((draft.trim() || file) && !send.isPending) send.mutate(undefined);
                     }
                   }}
                   placeholder={c.placeholder}
                 />
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <Button
-                    onClick={() => send.mutate()}
+                    onClick={() => send.mutate(undefined)}
                     disabled={send.isPending || (!draft.trim() && !file)}
                   >
                     {send.isPending ? (
@@ -550,7 +704,7 @@ function MessagesPage() {
                     ) : (
                       <Send className="size-4" />
                     )}
-                    {send.isPending ? (file ? c.uploading : c.sending) : c.send}
+                    {send.isPending ? c.uploading : c.send}
                   </Button>
                   <Button
                     type="button"
@@ -560,11 +714,22 @@ function MessagesPage() {
                   >
                     <Paperclip className="size-4" /> {c.attach}
                   </Button>
+                  <VoiceRecorder
+                    disabled={send.isPending}
+                    labels={{
+                      record: c.record,
+                      stop: c.stop,
+                      cancel: c.cancelRec,
+                      unsupported: c.micUnsupported,
+                      denied: c.micDenied,
+                    }}
+                    onRecorded={(f) => send.mutate(f)}
+                  />
                   <input
                     ref={fileRef}
                     type="file"
                     className="hidden"
-                    accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
+                    accept="image/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx"
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (!f) return;
@@ -584,6 +749,54 @@ function MessagesPage() {
           )}
         </div>
       )}
+
+      <Dialog open={!!info} onOpenChange={(o) => !o && setInfo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{c.infoTitle}</DialogTitle>
+            <DialogDescription>{c.infoSub}</DialogDescription>
+          </DialogHeader>
+          {info && (
+            <div className="space-y-4">
+              <div className="rounded-xl bg-surface p-3 text-sm whitespace-pre-line">
+                {info.body || (info.attachment_type?.startsWith("audio/") ? c.voiceNote : info.attachment_name)}
+              </div>
+              <dl className="space-y-2 text-sm">
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">{c.sentAt}</dt>
+                  <dd>{formatDateTime(info.created_at, lang)}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">{c.deliveredAt}</dt>
+                  <dd>{info.delivered_at ? formatDateTime(info.delivered_at, lang) : c.notYet}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">{c.readAt}</dt>
+                  <dd>{info.read_at ? formatDateTime(info.read_at, lang) : c.notYet}</dd>
+                </div>
+              </dl>
+              <div>
+                <p className="text-sm font-bold">{c.reactions}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
+                        toggleReaction.mutate({ messageId: info.id, emoji });
+                        setInfo(null);
+                      }}
+                      className="rounded-full border border-border bg-card px-3 py-1.5 text-lg transition hover:bg-secondary"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
