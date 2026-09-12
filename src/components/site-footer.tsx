@@ -23,7 +23,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/jobs" className="hover:text-foreground">{t("footer.browseJobs")}</Link></li>
             <li><Link to="/shifts" className="hover:text-foreground">{t("footer.shiftMarket")}</Link></li>
-            <li><Link to="/auth" className="hover:text-foreground">{t("footer.createProfile")}</Link></li>
+            <li><Link to="/register" className="hover:text-foreground">{t("footer.createProfile")}</Link></li>
           </ul>
         </div>
         <div>
@@ -31,7 +31,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/for-facilities" className="hover:text-foreground">{t("footer.howItWorks")}</Link></li>
             <li><Link to="/pricing" className="hover:text-foreground">{t("footer.plans")}</Link></li>
-            <li><Link to="/auth" search={{ mode: "signup" }} className="hover:text-foreground">{t("footer.registerFacility")}</Link></li>
+            <li><Link to="/register/employer" className="hover:text-foreground">{t("footer.registerFacility")}</Link></li>
           </ul>
         </div>
         <div>

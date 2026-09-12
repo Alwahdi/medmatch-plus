@@ -78,7 +78,7 @@ function GuidePage() {
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Button asChild>
-              <Link to="/auth" search={{ mode: "signup" }}>إنشاء ملف مهني</Link>
+              <Link to="/register">إنشاء ملف مهني</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to="/jobs">تصفح الوظائف</Link>
