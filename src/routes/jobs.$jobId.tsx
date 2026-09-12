@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Building2, MapPin, Wallet, BriefcaseMedical, ShieldCheck, Clock } from "lucide-react";
+import { Building2, MapPin, Wallet, BriefcaseMedical, ShieldCheck, Clock, Bookmark, BookmarkCheck } from "lucide-react";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,39 @@ function JobDetail() {
     },
   });
 
+  const { data: saved } = useQuery({
+    queryKey: ["saved-job", jobId, user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("saved_jobs")
+        .select("id")
+        .eq("job_id", jobId)
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const toggleSave = useMutation({
+    mutationFn: async () => {
+      if (saved) {
+        const { error } = await supabase.from("saved_jobs").delete().eq("id", saved.id);
+        if (error) throw error;
+        return false;
+      }
+      const { error } = await supabase.from("saved_jobs").insert({ job_id: jobId, user_id: user!.id });
+      if (error) throw error;
+      return true;
+    },
+    onSuccess: (added) => {
+      toast.success(added ? "تم حفظ الوظيفة" : "تمت إزالة الوظيفة من المحفوظات");
+      queryClient.invalidateQueries({ queryKey: ["saved-job", jobId] });
+      queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
+    },
+    onError: () => toast.error("تعذّر تحديث المحفوظات"),
+  });
+
   const apply = useMutation({
     mutationFn: async () => {
       const parsed = coverSchema.safeParse(cover);
@@ -91,7 +124,15 @@ function JobDetail() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="card-lift rounded-2xl border border-border bg-card p-6">
-        <h1 className="font-display text-3xl font-extrabold">{job.title}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="font-display text-3xl font-extrabold">{job.title}</h1>
+          {user && (
+            <Button variant="outline" size="sm" onClick={() => toggleSave.mutate()} disabled={toggleSave.isPending}>
+              {saved ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
+              {saved ? "محفوظة" : "حفظ الوظيفة"}
+            </Button>
+          )}
+        </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-muted-foreground">
           <span className="flex items-center gap-2">
             <Building2 className="size-4" /> ناشر الوظيفة محجوب لحماية خصوصية المنشأة
