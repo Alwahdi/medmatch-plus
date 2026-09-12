@@ -113,7 +113,7 @@ function JobsPage() {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="ابحث بالمسمى أو المنشأة أو المدينة"
+              placeholder="ابحث بالمسمى أو التخصص أو المدينة"
               className="pr-9"
               maxLength={80}
             />
