@@ -371,11 +371,17 @@ function Home() {
           </ol>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild>
-              <Link to={tab === "employers" ? "/for-facilities" : "/auth"} search={undefined}>
-                {tab === "employers" ? "ابدأ التوظيف" : "أنشئ ملفك المهني"}
-              </Link>
-            </Button>
+            {tab === "employers" ? (
+              <Button asChild>
+                <Link to="/for-facilities">ابدأ التوظيف</Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/auth" search={{ mode: "signup" }}>
+                  أنشئ ملفك المهني
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
