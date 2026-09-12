@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.has_conversation_with_pro(uuid, uuid) FROM authenticated;
