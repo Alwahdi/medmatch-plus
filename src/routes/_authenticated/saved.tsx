@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -66,12 +68,16 @@ function SavedJobs() {
           ))}
         </div>
       ) : (
-        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center">
-          <p className="font-bold">{c.empty}</p>
-          <Button className="mt-4" asChild>
-            <Link to="/jobs">{c.browse}</Link>
-          </Button>
-        </div>
+        <EmptyState
+          className="mt-6"
+          icon={Bookmark}
+          title={c.empty}
+          action={
+            <Button asChild>
+              <Link to="/jobs">{c.browse}</Link>
+            </Button>
+          }
+        />
       )}
     </div>
   );

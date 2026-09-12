@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
+import { Briefcase, CheckCircle2, Clock, FileText, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, relativeTime } from "@/lib/format";
@@ -82,13 +85,18 @@ function ApplicationsPage() {
             return (
               <li key={a.id} className="card-lift rounded-2xl border border-border bg-card p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <Link to="/jobs/$jobId" params={{ jobId: a.jobs!.id }} className="font-bold hover:text-primary">
-                      {a.jobs?.title}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">
-                      {a.jobs?.city} · {c.appliedAt(relativeTime(a.created_at, lang))}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <Briefcase className="size-5" />
+                    </span>
+                    <div>
+                      <Link to="/jobs/$jobId" params={{ jobId: a.jobs!.id }} className="font-bold hover:text-primary">
+                        {a.jobs?.title}
+                      </Link>
+                      <p className="text-xs text-muted-foreground">
+                        {a.jobs?.city} · {c.appliedAt(relativeTime(a.created_at, lang))}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {a.status === "hired" && user && a.jobs?.facility_id && (
@@ -101,7 +109,8 @@ function ApplicationsPage() {
                         jobId={a.jobs.id}
                       />
                     )}
-                    <Badge variant={rejected ? "destructive" : "secondary"}>
+                    <Badge variant={rejected ? "destructive" : "secondary"} className="gap-1">
+                      {rejected ? <XCircle className="size-3.5" /> : a.status === "hired" ? <CheckCircle2 className="size-3.5" /> : <Clock className="size-3.5" />}
                       {applicationLabel(a.status, lang)}
                     </Badge>
                   </div>
@@ -121,9 +130,16 @@ function ApplicationsPage() {
           })}
         </ul>
       ) : (
-        <p className="mt-6 text-sm text-muted-foreground">
-          {c.empty} <Link to="/jobs" className="text-primary underline">{c.browseJobs}</Link>
-        </p>
+        <EmptyState
+          className="mt-6"
+          icon={FileText}
+          title={c.empty}
+          action={
+            <Button asChild>
+              <Link to="/jobs">{c.browseJobs}</Link>
+            </Button>
+          }
+        />
       )}
     </div>
   );
