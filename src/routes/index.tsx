@@ -119,7 +119,7 @@ function Home() {
           <div className="order-2 md:order-1">
             <img
               src={heroImage}
-              alt="كوادر صحية عربية في ممر مستشفى حديث"
+              alt={t("home.hero.title")}
               width={1600}
               height={1104}
               className="rounded-3xl shadow-2xl"
@@ -129,13 +129,13 @@ function Home() {
           <div className="order-1 md:order-2">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
               <span className="size-2 rounded-full bg-emerald-400" />
-              منصة عربية للتوظيف الطبي
+              {t("home.hero.badge")}
             </span>
             <h1 className="mt-5 font-display text-4xl leading-tight font-extrabold text-white md:text-5xl">
-              نبني مستقبل التوظيف الطبي
+              {t("home.hero.title")}
             </h1>
             <p className="mt-5 max-w-lg text-lg leading-relaxed text-white/85">
-              كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد.
+              {t("home.hero.subtitle")}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button
@@ -143,14 +143,14 @@ function Home() {
                 asChild
                 className="bg-accent text-accent-foreground hover:bg-accent/90"
               >
-                <Link to="/for-facilities">ابدأ التوظيف</Link>
+                <Link to="/for-facilities">{t("home.hero.ctaEmployers")}</Link>
               </Button>
               <Button
                 size="lg"
                 asChild
                 className="border border-white/25 bg-white/10 text-white hover:bg-white/20"
               >
-                <Link to="/jobs">تصفّح الوظائف</Link>
+                <Link to="/jobs">{t("home.hero.ctaSeekers")}</Link>
               </Button>
             </div>
           </div>
@@ -167,7 +167,7 @@ function Home() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="المسمى الوظيفي، الكلمة المفتاحية، أو التخصص"
+                placeholder={t("home.search.placeholderRole")}
                 maxLength={80}
                 className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
@@ -177,13 +177,13 @@ function Home() {
               <input
                 value={loc}
                 onChange={(e) => setLoc(e.target.value)}
-                placeholder="المدينة أو الموقع"
+                placeholder={t("home.search.placeholderLoc")}
                 maxLength={60}
                 className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
             <Button type="submit" size="lg" className="h-12 rounded-xl px-8">
-              تصفّح الوظائف
+              {t("home.search.button")}
             </Button>
           </form>
         </div>
@@ -193,16 +193,16 @@ function Home() {
       <section className="bg-background pt-24 pb-16 md:pt-28">
         <div className="mx-auto max-w-6xl px-4">
           <p className="text-center text-sm font-semibold tracking-wide text-accent">
-            لماذا SyndeoCare
+            {t("home.why.label")}
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map((f) => (
-              <div key={f.title} className="card-lift rounded-2xl border border-border bg-card p-6">
+              <div key={f.key} className="card-lift rounded-2xl border border-border bg-card p-6">
                 <span className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                   <f.icon className="size-5" />
                 </span>
-                <h3 className="mt-4 text-base font-bold">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.text}</p>
+                <h3 className="mt-4 text-base font-bold">{t(`home.why.${f.key}.title` as const)}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t(`home.why.${f.key}.text` as const)}</p>
               </div>
             ))}
           </div>
