@@ -20,6 +20,7 @@ import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
 import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
 import { Route as AuthenticatedCvRouteImport } from './routes/_authenticated/cv'
+import { Route as AuthenticatedCvImportRouteImport } from './routes/_authenticated/cv-import'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
@@ -27,6 +28,8 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
+import { Route as SpecialtiesIndexRouteImport } from './routes/specialties.index'
+import { Route as SpecialtiesSlugRouteImport } from './routes/specialties.$slug'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
 import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
 import { Route as AuthenticatedFacilityCandidatesRouteImport } from './routes/_authenticated/facility.candidates'
@@ -87,6 +90,11 @@ const AuthenticatedCvRoute = AuthenticatedCvRouteImport.update({
   path: '/cv',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCvImportRoute = AuthenticatedCvImportRouteImport.update({
+  id: '/cv-import',
+  path: '/cv-import',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -122,6 +130,16 @@ const JobsJobIdRoute = JobsJobIdRouteImport.update({
   path: '/jobs/$jobId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SpecialtiesIndexRoute = SpecialtiesIndexRouteImport.update({
+  id: '/specialties/',
+  path: '/specialties/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpecialtiesSlugRoute = SpecialtiesSlugRouteImport.update({
+  id: '/specialties/$slug',
+  path: '/specialties/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedFacilityIndexRoute =
   AuthenticatedFacilityIndexRouteImport.update({
     id: '/facility/',
@@ -152,13 +170,16 @@ export interface FileRoutesByFullPath {
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/cv': typeof AuthenticatedCvRoute
+  '/cv-import': typeof AuthenticatedCvImportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/specialties/$slug': typeof SpecialtiesSlugRoute
   '/jobs/': typeof JobsIndexRoute
+  '/specialties/': typeof SpecialtiesIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
   '/facility/': typeof AuthenticatedFacilityIndexRoute
@@ -174,13 +195,16 @@ export interface FileRoutesByTo {
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/cv': typeof AuthenticatedCvRoute
+  '/cv-import': typeof AuthenticatedCvImportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/specialties/$slug': typeof SpecialtiesSlugRoute
   '/jobs': typeof JobsIndexRoute
+  '/specialties': typeof SpecialtiesIndexRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
   '/facility': typeof AuthenticatedFacilityIndexRoute
@@ -198,13 +222,16 @@ export interface FileRoutesById {
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
   '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
   '/_authenticated/cv': typeof AuthenticatedCvRoute
+  '/_authenticated/cv-import': typeof AuthenticatedCvImportRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
+  '/specialties/$slug': typeof SpecialtiesSlugRoute
   '/jobs/': typeof JobsIndexRoute
+  '/specialties/': typeof SpecialtiesIndexRoute
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/_authenticated/facility/candidates': typeof AuthenticatedFacilityCandidatesRoute
   '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
@@ -222,13 +249,16 @@ export interface FileRouteTypes {
     | '/applications'
     | '/credentials'
     | '/cv'
+    | '/cv-import'
     | '/dashboard'
     | '/messages'
     | '/my-shifts'
     | '/profile'
     | '/saved'
     | '/jobs/$jobId'
+    | '/specialties/$slug'
     | '/jobs/'
+    | '/specialties/'
     | '/facility/applicants'
     | '/facility/candidates'
     | '/facility/'
@@ -244,13 +274,16 @@ export interface FileRouteTypes {
     | '/applications'
     | '/credentials'
     | '/cv'
+    | '/cv-import'
     | '/dashboard'
     | '/messages'
     | '/my-shifts'
     | '/profile'
     | '/saved'
     | '/jobs/$jobId'
+    | '/specialties/$slug'
     | '/jobs'
+    | '/specialties'
     | '/facility/applicants'
     | '/facility/candidates'
     | '/facility'
@@ -267,13 +300,16 @@ export interface FileRouteTypes {
     | '/_authenticated/applications'
     | '/_authenticated/credentials'
     | '/_authenticated/cv'
+    | '/_authenticated/cv-import'
     | '/_authenticated/dashboard'
     | '/_authenticated/messages'
     | '/_authenticated/my-shifts'
     | '/_authenticated/profile'
     | '/_authenticated/saved'
     | '/jobs/$jobId'
+    | '/specialties/$slug'
     | '/jobs/'
+    | '/specialties/'
     | '/_authenticated/facility/applicants'
     | '/_authenticated/facility/candidates'
     | '/_authenticated/facility/'
@@ -287,7 +323,9 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ShiftsRoute: typeof ShiftsRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
+  SpecialtiesSlugRoute: typeof SpecialtiesSlugRoute
   JobsIndexRoute: typeof JobsIndexRoute
+  SpecialtiesIndexRoute: typeof SpecialtiesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -369,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCvRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cv-import': {
+      id: '/_authenticated/cv-import'
+      path: '/cv-import'
+      fullPath: '/cv-import'
+      preLoaderRoute: typeof AuthenticatedCvImportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -418,6 +463,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JobsJobIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/specialties/': {
+      id: '/specialties/'
+      path: '/specialties'
+      fullPath: '/specialties/'
+      preLoaderRoute: typeof SpecialtiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/specialties/$slug': {
+      id: '/specialties/$slug'
+      path: '/specialties/$slug'
+      fullPath: '/specialties/$slug'
+      preLoaderRoute: typeof SpecialtiesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/facility/': {
       id: '/_authenticated/facility/'
       path: '/facility'
@@ -448,6 +507,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
   AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
   AuthenticatedCvRoute: typeof AuthenticatedCvRoute
+  AuthenticatedCvImportRoute: typeof AuthenticatedCvImportRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
@@ -464,6 +524,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,
   AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
   AuthenticatedCvRoute: AuthenticatedCvRoute,
+  AuthenticatedCvImportRoute: AuthenticatedCvImportRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
@@ -485,7 +546,9 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ShiftsRoute: ShiftsRoute,
   JobsJobIdRoute: JobsJobIdRoute,
+  SpecialtiesSlugRoute: SpecialtiesSlugRoute,
   JobsIndexRoute: JobsIndexRoute,
+  SpecialtiesIndexRoute: SpecialtiesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
