@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { getChannelStatus } from "@/lib/notifications.functions";
 
 export const Route = createFileRoute("/_authenticated/alerts")({
   head: () => ({
@@ -102,6 +103,12 @@ function AlertsPage() {
   const [channel, setChannel] = useState<"email" | "whatsapp">("email");
   const [phone, setPhone] = useState("");
 
+  const { data: channels } = useQuery({
+    queryKey: ["alert-channels"],
+    queryFn: () => getChannelStatus(),
+    staleTime: 5 * 60_000,
+  });
+
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
@@ -173,6 +180,14 @@ function AlertsPage() {
       <p className="mt-2 text-sm text-muted-foreground">
         {c.sub}
       </p>
+
+      {channels && !(channels.email && channels.whatsapp) && (
+        <div className="mt-4 rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
+          {lang === "ar"
+            ? "تفضيلاتك تُحفظ الآن، ويبدأ الإرسال الفعلي فور تفعيل مزوّد الرسائل عند الإطلاق."
+            : "Your preferences are saved now; actual delivery starts as soon as the messaging provider is activated at launch."}
+        </div>
+      )}
 
       <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
         <Select value={specialty} onValueChange={setSpecialty}>
