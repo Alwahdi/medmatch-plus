@@ -98,15 +98,15 @@ function SignInForm() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
     const parsed = z.object({ email: emailSchema, password: z.string().min(1, "أدخل كلمة المرور") })
       .safeParse({ email, password });
-    if (!parsed.success) return toast.error(parsed.error.issues[0]!.message);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]!.message); return; }
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     setBusy(false);
-    if (error) return toast.error("بيانات الدخول غير صحيحة");
+    if (error) { toast.error("بيانات الدخول غير صحيحة"); return; }
     toast.success("تم تسجيل الدخول");
   }
 
@@ -135,12 +135,12 @@ function SignUpForm() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
     const parsed = z
       .object({ fullName: nameSchema, email: emailSchema, password: passwordSchema })
       .safeParse({ fullName, email, password });
-    if (!parsed.success) return toast.error(parsed.error.issues[0]!.message);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]!.message); return; }
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
@@ -151,7 +151,7 @@ function SignUpForm() {
       },
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     if (!data.session) {
       setSent(true);
       return;
