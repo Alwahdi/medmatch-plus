@@ -170,6 +170,20 @@ function JobDetail() {
 
   const realJobId = job?.id;
 
+  const { data: revealedFacility } = useQuery({
+    queryKey: ["revealed-facility", job?.facility_id, user?.id],
+    enabled: !!user && !!job?.facility_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("facilities")
+        .select("id,name_ar,name_en,city,country,is_verified")
+        .eq("id", job!.facility_id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+
   const { data: existing } = useQuery({
     queryKey: ["application", realJobId, user?.id],
     enabled: !!user && !!realJobId,
