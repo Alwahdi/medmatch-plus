@@ -12,6 +12,7 @@ import { useLang } from "@/lib/i18n";
 
 export type JobRow = {
   id: string;
+  slug?: string | null;
   title: string;
   country: string;
   city: string;
