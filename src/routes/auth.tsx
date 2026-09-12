@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
+import { resolveLanding } from "@/lib/landing";
 import { DICT, useLang } from "@/lib/i18n";
 
 const searchSchema = z.object({
@@ -47,7 +48,14 @@ function AuthPage() {
   const [tab, setTab] = useState(mode === "signup" ? "signup" : "signin");
 
   useEffect(() => {
-    if (user) navigate({ to: "/onboarding", replace: true });
+    if (!user) return;
+    let cancelled = false;
+    resolveLanding(user.id).then((to) => {
+      if (!cancelled) navigate({ to, replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [user, navigate]);
 
   useEffect(() => {
