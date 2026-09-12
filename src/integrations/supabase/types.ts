@@ -52,6 +52,67 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          created_at: string
+          facility_id: string
+          id: string
+          identity_revealed: boolean
+          job_id: string | null
+          last_message_at: string
+          professional_user_id: string
+          shift_id: string | null
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          facility_id: string
+          id?: string
+          identity_revealed?: boolean
+          job_id?: string | null
+          last_message_at?: string
+          professional_user_id: string
+          shift_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          facility_id?: string
+          id?: string
+          identity_revealed?: boolean
+          job_id?: string | null
+          last_message_at?: string
+          professional_user_id?: string
+          shift_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credentials: {
         Row: {
           created_at: string
@@ -267,6 +328,63 @@ export type Database = {
           },
         ]
       }
+      job_alerts: {
+        Row: {
+          channel: string
+          city: string | null
+          country: string | null
+          created_at: string
+          employment_type: Database["public"]["Enums"]["employment_type"] | null
+          id: string
+          is_active: boolean
+          last_sent_at: string | null
+          specialty_id: string | null
+          updated_at: string
+          user_id: string
+          whatsapp_phone: string | null
+        }
+        Insert: {
+          channel?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          employment_type?:
+            | Database["public"]["Enums"]["employment_type"]
+            | null
+          id?: string
+          is_active?: boolean
+          last_sent_at?: string | null
+          specialty_id?: string | null
+          updated_at?: string
+          user_id: string
+          whatsapp_phone?: string | null
+        }
+        Update: {
+          channel?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          employment_type?:
+            | Database["public"]["Enums"]["employment_type"]
+            | null
+          id?: string
+          is_active?: boolean
+          last_sent_at?: string | null
+          specialty_id?: string | null
+          updated_at?: string
+          user_id?: string
+          whatsapp_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_alerts_specialty_id_fkey"
+            columns: ["specialty_id"]
+            isOneToOne: false
+            referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           applications_count: number
@@ -347,6 +465,41 @@ export type Database = {
             columns: ["specialty_id"]
             isOneToOne: false
             referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -639,12 +792,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_facility_identity: {
+        Args: { _facility_id: string; _user_id: string }
+        Returns: boolean
+      }
+      consume_candidate_search: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_conversation_participant: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
+      search_candidates: {
+        Args: {
+          _city?: string
+          _country?: string
+          _limit?: number
+          _min_experience?: number
+          _specialty_id?: string
+        }
+        Returns: {
+          bio: string
+          city: string
+          country: string
+          headline: string
+          id: string
+          is_open_to_shifts: boolean
+          is_verified: boolean
+          specialty_id: string
+          user_id: string
+          years_experience: number
+        }[]
       }
     }
     Enums: {
