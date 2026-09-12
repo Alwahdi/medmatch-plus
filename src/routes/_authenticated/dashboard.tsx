@@ -124,6 +124,19 @@ function Dashboard() {
     },
   });
 
+  const { data: pendingInvites } = useQuery({
+    queryKey: ["pending-invitations", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("invitations")
+        .select("id", { count: "exact", head: true })
+        .eq("professional_user_id", user!.id)
+        .eq("status", "pending");
+      return count ?? 0;
+    },
+  });
+
   const { data: jobs } = useQuery({
     queryKey: ["recommended-jobs"],
     queryFn: async () => {
@@ -168,6 +181,19 @@ function Dashboard() {
             {c.completeText}
           </p>
           <Button className="mt-4" asChild><Link to="/profile">{c.completeCta}</Link></Button>
+        </div>
+      )}
+
+      {!!pendingInvites && (
+        <div className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-5">
+          <p className="font-bold">
+            {lang === "ar"
+              ? `لديك ${pendingInvites} دعوة بانتظار ردك`
+              : `You have ${pendingInvites} invitation(s) awaiting your reply`}
+          </p>
+          <Button className="ms-auto" asChild>
+            <Link to="/invitations">{lang === "ar" ? "عرض الدعوات" : "View invitations"}</Link>
+          </Button>
         </div>
       )}
 

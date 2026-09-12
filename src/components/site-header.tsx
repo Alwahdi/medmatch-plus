@@ -110,6 +110,9 @@ export function SiteHeader() {
                       <Link to="/applications">{t("nav.applications")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <Link to="/invitations">{t("nav.invitations")}</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/cv">{t("nav.cv")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

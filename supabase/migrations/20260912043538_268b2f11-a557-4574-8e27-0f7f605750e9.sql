@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.on_invitation_response() FROM PUBLIC, anon, authenticated;

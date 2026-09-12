@@ -431,6 +431,64 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          created_at: string
+          facility_id: string
+          id: string
+          job_id: string | null
+          message: string | null
+          professional_user_id: string
+          responded_at: string | null
+          shift_id: string | null
+          status: Database["public"]["Enums"]["invitation_status"]
+        }
+        Insert: {
+          created_at?: string
+          facility_id: string
+          id?: string
+          job_id?: string | null
+          message?: string | null
+          professional_user_id: string
+          responded_at?: string | null
+          shift_id?: string | null
+          status?: Database["public"]["Enums"]["invitation_status"]
+        }
+        Update: {
+          created_at?: string
+          facility_id?: string
+          id?: string
+          job_id?: string | null
+          message?: string | null
+          professional_user_id?: string
+          responded_at?: string | null
+          shift_id?: string | null
+          status?: Database["public"]["Enums"]["invitation_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_alerts: {
         Row: {
           channel: string
@@ -1076,6 +1134,7 @@ export type Database = {
         | "contract"
         | "locum"
         | "shift"
+      invitation_status: "pending" | "accepted" | "declined" | "cancelled"
       review_direction: "pro_to_facility" | "facility_to_pro"
       shift_status: "open" | "booked" | "cancelled" | "completed"
     }
@@ -1217,6 +1276,7 @@ export const Constants = {
       ],
       credential_status: ["pending", "approved", "rejected"],
       employment_type: ["full_time", "part_time", "contract", "locum", "shift"],
+      invitation_status: ["pending", "accepted", "declined", "cancelled"],
       review_direction: ["pro_to_facility", "facility_to_pro"],
       shift_status: ["open", "booked", "cancelled", "completed"],
     },
