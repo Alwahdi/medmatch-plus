@@ -387,21 +387,31 @@ function JobDetail() {
                 </p>
               ) : (
                 <>
+                  <label htmlFor="cover" className="mt-4 block text-sm font-medium">
+                    {c.coverLabel} <span className="text-muted-foreground">({c.optional})</span>
+                  </label>
                   <Textarea
+                    id="cover"
                     value={cover}
                     onChange={(e) => setCover(e.target.value)}
                     maxLength={2000}
                     rows={5}
                     placeholder={c.coverPlaceholder}
-                    className="mt-4"
+                    className="mt-1.5"
+                    disabled={!isOpen}
                   />
+                  <div className="mt-1 text-end text-xs text-muted-foreground">
+                    {cover.length}/2000
+                  </div>
                   <Button
-                    className="mt-4 w-full"
+                    className="mt-3 w-full"
                     onClick={() => apply.mutate()}
-                    disabled={apply.isPending}
+                    disabled={apply.isPending || !isOpen}
                   >
-                    {apply.isPending ? c.sending : c.sendApply}
+                    {apply.isPending && <Loader2 className="size-4 animate-spin" />}
+                    {apply.isPending ? c.sending : isOpen ? c.sendApply : c.closed}
                   </Button>
+                  <p className="mt-2 text-xs text-muted-foreground">{c.applyHint}</p>
                 </>
               )}
             </div>
