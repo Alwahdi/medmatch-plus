@@ -59,9 +59,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  const { total: unreadTotal } = useUnread(user);
   const isFacility = roles?.includes("facility");
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
   if (roles?.includes("admin")) items.push({ to: "/admin", key: "nav.admin", icon: ShieldCheck });
+
 
   async function signOut() {
     await queryClient.cancelQueries();
