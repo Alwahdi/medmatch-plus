@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
@@ -58,7 +59,7 @@ function MyShifts() {
       const { data, error } = await supabase
         .from("shift_bookings")
         .select(
-          "id,created_at,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country)",
+          "id,created_at,status,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country,facility_id)",
         )
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
@@ -109,6 +110,18 @@ function MyShifts() {
                   <p className="font-display text-lg font-extrabold text-accent">
                     {formatMoney(s.hourly_rate * hours, s.currency, lang)}
                   </p>
+                  {b.status === "confirmed" && user && (
+                    <div className="mt-1 flex justify-end">
+                      <ReviewDialog
+                        direction="pro_to_facility"
+                        facilityId={s.facility_id}
+                        professionalUserId={user.id}
+                        authorUserId={user.id}
+                        targetName={s.title}
+                        shiftId={s.id}
+                      />
+                    </div>
+                  )}
                   <Button size="sm" variant="ghost"
                     onClick={() => cancel.mutate({ id: b.id, shiftId: s.id })}
                     disabled={cancel.isPending}>

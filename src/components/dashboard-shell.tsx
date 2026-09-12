@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
+import { useUnread } from "@/lib/unread";
+
 import { cn } from "@/lib/utils";
 
 type Item = { to: string; key: string; icon: typeof LayoutDashboard };
@@ -59,9 +61,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  const { total: unreadTotal } = useUnread(user);
   const isFacility = roles?.includes("facility");
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
   if (roles?.includes("admin")) items.push({ to: "/admin", key: "nav.admin", icon: ShieldCheck });
+
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -75,6 +79,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       {items.map((item) => {
         const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
         const Icon = item.icon;
+        const badge = item.to === "/messages" ? unreadTotal : 0;
         return (
           <Link
             key={item.to}
@@ -89,11 +94,22 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           >
             <Icon className="size-4 shrink-0" />
             <span className="truncate">{t(item.key)}</span>
+            {badge > 0 && (
+              <span
+                className={cn(
+                  "ms-auto rounded-full px-2 py-0.5 text-[11px] font-bold",
+                  active ? "bg-white/20 text-white" : "bg-destructive text-destructive-foreground",
+                )}
+              >
+                {badge > 99 ? "99+" : badge}
+              </span>
+            )}
           </Link>
         );
       })}
     </nav>
   );
+
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -125,11 +141,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <Globe className="size-4" />
               <span className="hidden sm:inline">{t("lang.switch")}</span>
             </Button>
-            <Button variant="ghost" size="icon" asChild aria-label={t("nav.messages")}>
+            <Button variant="ghost" size="icon" asChild aria-label={t("nav.messages")} className="relative">
               <Link to="/messages">
                 <MessagesSquare className="size-5" />
+                {unreadTotal > 0 && (
+                  <span className="absolute -end-0.5 -top-0.5 flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-destructive-foreground">
+                    {unreadTotal > 99 ? "99+" : unreadTotal}
+                  </span>
+                )}
               </Link>
             </Button>
+
             <Button variant="outline" size="sm" className="gap-1.5" onClick={signOut}>
               <LogOut className="size-4" />
               <span className="hidden sm:inline">{t("nav.signOut")}</span>

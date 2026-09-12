@@ -685,7 +685,12 @@ function JobForm({
         <Textarea id="jdesc" rows={6} maxLength={5000} value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })} />
       </div>
-      <Button onClick={() => create.mutate()} disabled={create.isPending}>
+      {(expired || quotaReached) && (
+        <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+          {expired ? c.subExpiredJob : c.quotaReachedJob}
+        </p>
+      )}
+      <Button onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
         {create.isPending ? c.publishing : c.publishJob}
       </Button>
     </div>
@@ -810,7 +815,12 @@ function ShiftForm({
         <Textarea id="snotes" rows={3} maxLength={1000} value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })} />
       </div>
-      <Button onClick={() => create.mutate()} disabled={create.isPending}>
+      {(expired || quotaReached) && (
+        <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+          {expired ? c.subExpiredShift : c.quotaReachedShift}
+        </p>
+      )}
+      <Button onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
         {create.isPending ? c.publishing : c.publishShift}
       </Button>
     </div>

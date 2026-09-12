@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Building2, Send, ShieldCheck, UserRound } from "lucide-react";
+import { Building2, Check, CheckCheck, Send, ShieldCheck, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/messages")({
@@ -56,6 +57,7 @@ const TXT = {
     empty: "اكتب رسالتك أولاً",
     tooLong: "الرسالة طويلة جداً",
     failed: "تعذّر إرسال الرسالة",
+    hint: "اضغط Enter للإرسال، وShift+Enter لسطر جديد",
   },
   en: {
     title: "Messages",
@@ -75,6 +77,7 @@ const TXT = {
     empty: "Write your message first",
     tooLong: "Message is too long",
     failed: "Could not send the message",
+    hint: "Press Enter to send, Shift+Enter for a new line",
   },
 } as const;
 
@@ -97,7 +100,14 @@ function MessagesPage() {
         .order("last_message_at", { ascending: false });
       if (error) throw error;
       const list = (convs ?? []) as Conversation[];
-      if (list.length === 0) return { list, facilities: {}, pros: {}, jobs: {} };
+      if (list.length === 0)
+        return {
+          list,
+          previews: {} as Record<string, string>,
+          facilities: {} as Record<string, { id: string; name_ar: string; city: string; country: string; is_verified: boolean }>,
+          pros: {} as Record<string, { user_id: string; full_name: string; headline: string | null; is_verified: boolean }>,
+          jobs: {} as Record<string, { id: string; title: string }>,
+        };
 
       const [{ data: facilities }, { data: pros }, { data: jobs }] = await Promise.all([
         supabase
@@ -114,8 +124,19 @@ function MessagesPage() {
           .in("id", list.map((c) => c.job_id).filter(Boolean) as string[]),
       ]);
 
+      const { data: lastMsgs } = await supabase
+        .from("messages")
+        .select("conversation_id,body,created_at")
+        .in("conversation_id", list.map((c) => c.id))
+        .order("created_at", { ascending: false });
+      const previews: Record<string, string> = {};
+      for (const m of lastMsgs ?? []) {
+        if (!previews[m.conversation_id]) previews[m.conversation_id] = m.body;
+      }
+
       return {
         list,
+        previews,
         facilities: Object.fromEntries((facilities ?? []).map((f) => [f.id, f])),
         pros: Object.fromEntries((pros ?? []).map((p) => [p.user_id, p])),
         jobs: Object.fromEntries((jobs ?? []).map((j) => [j.id, j])),
@@ -125,10 +146,19 @@ function MessagesPage() {
 
   const conversations = data?.list ?? [];
   const active = conversations.find((c) => c.id === activeId) ?? conversations[0] ?? null;
+  const { map: unread } = useUnread(user);
 
   useEffect(() => {
     if (!activeId && conversations[0]) setActiveId(conversations[0].id);
   }, [activeId, conversations]);
+
+  useEffect(() => {
+    if (!active || !user || !unread[active.id]) return;
+    void markConversationRead(active.id, user.id).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
+    });
+  }, [active, user, unread, queryClient]);
+
 
   const { data: messages } = useQuery({
     queryKey: ["messages", active?.id],
@@ -137,7 +167,7 @@ function MessagesPage() {
     queryFn: async () => {
       const { data: rows, error } = await supabase
         .from("messages")
-        .select("id,sender_id,body,created_at")
+        .select("id,sender_id,body,created_at,read_at")
         .eq("conversation_id", active!.id)
         .order("created_at", { ascending: true });
       if (error) throw error;
@@ -217,17 +247,33 @@ function MessagesPage() {
                   >
                     <span className="flex items-center gap-2 font-bold">
                       <Icon className="size-4 text-primary" />
-                      {info.name}
-                      {info.verified && <ShieldCheck className="size-3.5 text-accent" />}
+                      <span className="truncate">{info.name}</span>
+                      {info.verified && <ShieldCheck className="size-3.5 shrink-0 text-accent" />}
+                      {(unread[conv.id] ?? 0) > 0 && (
+                        <span className="ms-auto rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-destructive-foreground">
+                          {unread[conv.id]}
+                        </span>
+                      )}
                     </span>
-                    <span className="mt-1 block text-xs text-muted-foreground">
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">
                       {conv.job_id ? data?.jobs?.[conv.job_id]?.title ?? info.sub : info.sub}
                     </span>
+                    {data?.previews?.[conv.id] && (
+                      <span
+                        className={cn(
+                          "mt-1 block truncate text-xs",
+                          (unread[conv.id] ?? 0) > 0 ? "font-semibold text-foreground" : "text-muted-foreground",
+                        )}
+                      >
+                        {data.previews[conv.id]}
+                      </span>
+                    )}
                     <span className="mt-1 block text-[11px] text-muted-foreground">
                       {relativeTime(conv.last_message_at, lang)}
                     </span>
                   </button>
                 </li>
+
               );
             })}
           </ul>
@@ -259,9 +305,16 @@ function MessagesPage() {
                           )}
                         >
                           {m.body}
-                          <div className={cn("mt-1 text-[10px]", mine ? "opacity-70" : "text-muted-foreground")}>
+                          <div
+                            className={cn(
+                              "mt-1 flex items-center gap-1 text-[10px]",
+                              mine ? "opacity-70" : "text-muted-foreground",
+                            )}
+                          >
                             {formatDateTime(m.created_at, lang)}
+                            {mine && (m.read_at ? <CheckCheck className="size-3" /> : <Check className="size-3" />)}
                           </div>
+
                         </div>
                       </div>
                     );
@@ -278,12 +331,23 @@ function MessagesPage() {
                   maxLength={2000}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (draft.trim() && !send.isPending) send.mutate();
+                    }
+                  }}
                   placeholder={c.placeholder}
                 />
-                <Button className="mt-3" onClick={() => send.mutate()} disabled={send.isPending}>
-                  <Send className="size-4" /> {send.isPending ? c.sending : c.send}
-                </Button>
+                <div className="mt-3 flex items-center gap-3">
+                  <Button onClick={() => send.mutate()} disabled={send.isPending || !draft.trim()}>
+                    <Send className="size-4" /> {send.isPending ? c.sending : c.send}
+                  </Button>
+                  <span className="text-xs text-muted-foreground">{c.hint}</span>
+                  <span className="ms-auto text-xs text-muted-foreground">{draft.length}/2000</span>
+                </div>
               </div>
+
             </div>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, relativeTime } from "@/lib/format";
@@ -28,6 +29,7 @@ const TXT = {
     appliedAt: (t: string) => `قُدّم ${t}`,
     empty: "لا طلبات بعد.",
     browseJobs: "تصفح الوظائف",
+    employer: "المنشأة",
   },
   en: {
     title: "My applications",
@@ -36,6 +38,7 @@ const TXT = {
     appliedAt: (t: string) => `Applied ${t}`,
     empty: "No applications yet.",
     browseJobs: "Browse jobs",
+    employer: "the employer",
   },
 } as const;
 
@@ -49,11 +52,18 @@ function ApplicationsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select("id,status,created_at,cover_letter,jobs(id,title,city,country)")
+        .select("id,status,created_at,cover_letter,jobs(id,title,city,country,facility_id)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      const facilityIds = Array.from(new Set((data ?? []).map((a) => a.jobs?.facility_id).filter(Boolean) as string[]));
+      const { data: facs } = facilityIds.length
+        ? await supabase.from("facilities").select("id,name_ar").in("id", facilityIds)
+        : { data: [] as { id: string; name_ar: string }[] };
+      return (data ?? []).map((a) => ({
+        ...a,
+        facilityName: facs?.find((f) => f.id === a.jobs?.facility_id)?.name_ar ?? null,
+      }));
     },
   });
 
@@ -80,9 +90,21 @@ function ApplicationsPage() {
                       {a.jobs?.city} · {c.appliedAt(relativeTime(a.created_at, lang))}
                     </p>
                   </div>
-                  <Badge variant={rejected ? "destructive" : "secondary"}>
-                    {applicationLabel(a.status, lang)}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {a.status === "hired" && user && a.jobs?.facility_id && (
+                      <ReviewDialog
+                        direction="pro_to_facility"
+                        facilityId={a.jobs.facility_id}
+                        professionalUserId={user.id}
+                        authorUserId={user.id}
+                        targetName={a.facilityName ?? c.employer}
+                        jobId={a.jobs.id}
+                      />
+                    )}
+                    <Badge variant={rejected ? "destructive" : "secondary"}>
+                      {applicationLabel(a.status, lang)}
+                    </Badge>
+                  </div>
                 </div>
                 {!rejected && (
                   <div className="mt-4 flex gap-1">
