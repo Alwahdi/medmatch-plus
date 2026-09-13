@@ -219,8 +219,55 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             {account}
           </div>
         </aside>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1 pb-24 lg:pb-6">{children}</main>
       </div>
+
+      {/* Mobile bottom tab bar */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+        aria-label={t("nav.menu")}
+      >
+        <div className="grid grid-cols-6">
+          {mobileTabs.map((item) => {
+            const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+            const Icon = item.icon;
+            const badge = item.to === "/messages" ? unreadTotal : 0;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "relative flex flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors",
+                  active ? "text-primary" : "text-muted-foreground",
+                )}
+              >
+                <span className="relative">
+                  <Icon className={cn("size-5", active && "stroke-[2.4]")} />
+                  {badge > 0 && (
+                    <span className="absolute -end-2 -top-1.5 flex min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold leading-4 text-destructive-foreground">
+                      {badge > 99 ? "99+" : badge}
+                    </span>
+                  )}
+                </span>
+                <span className="max-w-full truncate">{t(item.key)}</span>
+                {active && <span className="absolute top-0 h-0.5 w-8 rounded-full bg-primary" />}
+              </Link>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className={cn(
+              "relative flex flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors",
+              open ? "text-primary" : "text-muted-foreground",
+            )}
+          >
+            <Menu className="size-5" />
+            <span>{t("nav.menu")}</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }
