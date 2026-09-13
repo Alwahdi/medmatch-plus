@@ -6,11 +6,15 @@ import {
   Briefcase,
   Building2,
   CalendarClock,
+  Camera,
   Check,
   CheckCheck,
   ExternalLink,
+  FileText,
+  Image as ImageIcon,
   Loader2,
   Paperclip,
+  Search,
   Send,
   ShieldCheck,
   Smile,
@@ -26,6 +30,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { VoiceRecorder } from "@/components/voice-recorder";
