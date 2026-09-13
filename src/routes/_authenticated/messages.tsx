@@ -642,14 +642,30 @@ function MessagesPage() {
           </div>
 
           {active && activeInfo && (
-            <div className="flex min-h-[420px] flex-col rounded-2xl border border-border bg-card">
-              <div className="flex flex-wrap items-center gap-3 border-b border-border p-4">
+            <div
+              className={cn(
+                "min-h-0 flex-col overflow-hidden border-border bg-card sm:rounded-2xl sm:border",
+                mobileOpen ? "flex" : "hidden md:flex",
+              )}
+            >
+              <div className="flex items-center gap-2 border-b border-border p-3 sm:p-4">
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  aria-label={c.back}
+                  className="size-9 shrink-0 rounded-full md:hidden"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <ChevronRight className="size-5 rtl:hidden" />
+                  <ChevronLeft className="hidden size-5 rtl:block" />
+                </Button>
                 {activeInfo.linkId ? (
                   activeInfo.kind === "facility" ? (
                     <Link
                       to="/facilities/$facilityId"
                       params={{ facilityId: activeInfo.linkId }}
-                      className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
                       title={c.viewProfile}
                     >
                       {headerBlock}
@@ -658,31 +674,31 @@ function MessagesPage() {
                     <Link
                       to="/facility/candidates/$userId"
                       params={{ userId: activeInfo.linkId }}
-                      className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
                       title={c.viewProfile}
                     >
                       {headerBlock}
                     </Link>
                   )
                 ) : (
-                  <div className="flex items-center gap-3">{headerBlock}</div>
+                  <div className="flex min-w-0 flex-1 items-center gap-3">{headerBlock}</div>
                 )}
               </div>
 
               {(activeJob || activeShift) && (
-                <div className="flex flex-wrap items-center gap-3 border-b border-border bg-surface px-4 py-3">
-                  <span className="flex items-center gap-2 text-sm font-semibold">
+                <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 sm:px-4 sm:py-3">
+                  <span className="flex min-w-0 items-center gap-2 text-xs font-semibold sm:text-sm">
                     {activeJob ? (
-                      <Briefcase className="size-4 text-primary" />
+                      <Briefcase className="size-4 shrink-0 text-primary" />
                     ) : (
-                      <CalendarClock className="size-4 text-primary" />
+                      <CalendarClock className="size-4 shrink-0 text-primary" />
                     )}
-                    <span className="text-muted-foreground">
+                    <span className="hidden text-muted-foreground sm:inline">
                       {activeJob ? c.aboutJob : c.aboutShift}:
                     </span>
-                    {activeJob ? activeJob.title : activeShift!.title}
+                    <span className="truncate">{activeJob ? activeJob.title : activeShift!.title}</span>
                   </span>
-                  <Button asChild size="sm" variant="outline" className="ms-auto">
+                  <Button asChild size="sm" variant="outline" className="ms-auto shrink-0">
                     {activeJob ? (
                       <Link to="/jobs/$jobId" params={{ jobId: activeJob.slug ?? activeJob.id }}>
                         <ExternalLink className="size-3.5" /> {c.viewPosting}
@@ -696,7 +712,8 @@ function MessagesPage() {
                 </div>
               )}
 
-              <div className="flex-1 space-y-3 overflow-y-auto p-4">
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-3 sm:p-4">
+
                 {messages?.length ? (
                   messages.map((m, i) => {
                     const mine = m.sender_id === user?.id;
