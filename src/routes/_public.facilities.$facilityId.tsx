@@ -45,6 +45,8 @@ const TXT = {
     perHour: "/ساعة",
     type: "نوع المنشأة",
     location: "الموقع",
+    online: "متصل الآن",
+    offline: "غير متصل",
   },
   en: {
     home: "Home",
@@ -68,6 +70,8 @@ const TXT = {
     perHour: "/hour",
     type: "Facility type",
     location: "Location",
+    online: "Online now",
+    offline: "Offline",
   },
 } as const;
 
