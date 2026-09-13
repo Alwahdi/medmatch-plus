@@ -188,18 +188,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
           </Link>
           <div className="ms-auto flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild aria-label={t("nav.messages")} className="relative">
-              <Link to="/messages">
-                <MessagesSquare className="size-5" />
-                {unreadTotal > 0 && (
-                  <span className="absolute -end-0.5 -top-0.5 flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-destructive-foreground">
-                    {unreadTotal > 99 ? "99+" : unreadTotal}
-                  </span>
-                )}
-              </Link>
-            </Button>
-
+            <NotificationBell />
           </div>
+
         </div>
         {open && (
           <div className="border-t border-border bg-background px-4 py-3 lg:hidden">
