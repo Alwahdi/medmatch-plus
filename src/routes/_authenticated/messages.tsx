@@ -439,9 +439,51 @@ function MessagesPage() {
     },
   });
 
+  // Place the "unread messages" divider before the first message the user has not read.
   useEffect(() => {
+    if (!active || !messages) return;
+    if (markerDone.current[active.id]) return;
+    markerDone.current[active.id] = true;
+    const count = pendingUnread.current[active.id] ?? 0;
+    if (!count) return;
+    const others = messages.filter((m) => m.sender_id !== user?.id);
+    const first = others[Math.max(0, others.length - count)];
+    if (first) setMarker({ convId: active.id, msgId: first.id });
+  }, [active, messages, user]);
+
+  // Open a conversation at its unread divider, otherwise at the newest message.
+  useEffect(() => {
+    if (!active || !messages?.length) return;
+    const id = window.setTimeout(() => {
+      if (marker?.convId === active.id && markerRef.current) {
+        markerRef.current.scrollIntoView({ block: "center" });
+      } else {
+        endRef.current?.scrollIntoView({ block: "end" });
+      }
+      setAtBottom(true);
+    }, 30);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active?.id, messages?.length === 0]);
+
+  // Follow new messages only when already at the bottom.
+  useEffect(() => {
+    if (!atBottom) return;
     endRef.current?.scrollIntoView({ block: "end" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+  }
+
+  function scrollToBottom() {
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    setAtBottom(true);
+  }
+
 
   const toggleReaction = useMutation({
     mutationFn: async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
