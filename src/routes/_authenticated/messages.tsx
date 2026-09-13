@@ -334,6 +334,17 @@ function MessagesPage() {
   });
 
   const conversations = data?.list ?? [];
+
+  function pickFile(input: HTMLInputElement) {
+    const f = input.files?.[0];
+    if (!f) return;
+    if (f.size > CHAT_MAX_BYTES) {
+      toast.error(c.tooBig);
+      input.value = "";
+      return;
+    }
+    setFile(f);
+  }
   const active = conversations.find((c) => c.id === activeId) ?? conversations[0] ?? null;
   const { map: unread } = useUnread(user);
 
