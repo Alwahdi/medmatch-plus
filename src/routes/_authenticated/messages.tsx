@@ -6,11 +6,15 @@ import {
   Briefcase,
   Building2,
   CalendarClock,
+  Camera,
   Check,
   CheckCheck,
   ExternalLink,
+  FileText,
+  Image as ImageIcon,
   Loader2,
   Paperclip,
+  Search,
   Send,
   ShieldCheck,
   Smile,
@@ -26,6 +30,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { VoiceRecorder } from "@/components/voice-recorder";
@@ -84,6 +96,38 @@ type Msg = {
 
 const EMOJIS = ["👍", "❤️", "😂", "🙏", "👏", "✅"];
 
+const PICKER_EMOJIS = [
+  "😀","😁","😂","🤣","😊","😍","😘","😎","🤩","🥳",
+  "🙂","😉","😌","😴","🤔","🤗","😇","🙃","😅","😭",
+  "😢","😤","😡","👍","👎","👏","🙏","💪","🤝","✌️",
+  "👌","🫶","❤️","🔥","⭐","✅","❌","⏰","📅","📎",
+  "🩺","💉","🏥","🚑","💊","🧑‍⚕️","📞","✉️","📍","🎉",
+];
+
+function dayKey(value: string) {
+  return new Date(value).toDateString();
+}
+
+function dayLabel(value: string, lang: "ar" | "en", today: string, yesterday: string) {
+  const key = dayKey(value);
+  const now = new Date();
+  if (key === now.toDateString()) return today;
+  const y = new Date(now.getTime() - 86400000);
+  if (key === y.toDateString()) return yesterday;
+  return new Date(value).toLocaleDateString(lang === "ar" ? "ar" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function timeLabel(value: string, lang: "ar" | "en") {
+  return new Date(value).toLocaleTimeString(lang === "ar" ? "ar" : "en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 const TXT = {
   ar: {
     title: "الرسائل",
@@ -126,6 +170,15 @@ const TXT = {
     notYet: "لم يتم بعد",
     react: "تفاعل",
     reactions: "التفاعلات",
+    searchPh: "ابحث في المحادثات",
+    noResults: "لا توجد نتائج مطابقة",
+    photo: "صورة أو فيديو",
+    camera: "التقاط صورة",
+    document: "مستند",
+    emoji: "إيموجي",
+    today: "اليوم",
+    yesterday: "أمس",
+    you: "أنت:",
   },
   en: {
     title: "Messages",
@@ -168,6 +221,15 @@ const TXT = {
     notYet: "Not yet",
     react: "React",
     reactions: "Reactions",
+    searchPh: "Search conversations",
+    noResults: "No matching conversations",
+    photo: "Photo or video",
+    camera: "Take a photo",
+    document: "Document",
+    emoji: "Emoji",
+    today: "Today",
+    yesterday: "Yesterday",
+    you: "You:",
   },
 } as const;
 
@@ -181,6 +243,10 @@ function MessagesPage() {
   const [file, setFile] = useState<File | null>(null);
   const [info, setInfo] = useState<Msg | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const [search, setSearch] = useState("");
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineUsers = useOnlineUsers(user);
