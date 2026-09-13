@@ -374,19 +374,19 @@ function FacilityDashboard() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       {confirmDialog}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-4">
           <RemoteAvatar
             value={facility.logo_url}
             alt={facility.name_ar}
             icon={Building2}
-            className="size-14 shrink-0"
+            className="size-12 shrink-0 sm:size-14"
           />
 
-          <div>
-            <h1 className="flex items-center gap-2 font-display text-3xl font-extrabold">
-              {facility.name_ar}
-              {facility.is_verified && <BadgeCheck className="size-6 text-primary" />}
+          <div className="min-w-0">
+            <h1 className="flex items-center gap-2 font-display text-xl font-extrabold sm:text-3xl">
+              <span className="truncate">{facility.name_ar}</span>
+              {facility.is_verified && <BadgeCheck className="size-5 shrink-0 text-primary sm:size-6" />}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {facility.city}، {countryLabel(facility.country, lang)}
@@ -394,7 +394,7 @@ function FacilityDashboard() {
             </p>
           </div>
         </div>
-        <Button variant="outline" className="gap-2" asChild>
+        <Button variant="outline" className="w-full gap-2 sm:w-auto" asChild>
           <Link to="/facility/applicants">
             <Users className="size-4" />
             {c.applicants}
@@ -403,10 +403,10 @@ function FacilityDashboard() {
       </div>
 
       {plan && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
-          <div>
+        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:p-5">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 font-bold">
-              <Sparkles className="size-5 text-primary" />
+              <Sparkles className="size-5 shrink-0 text-primary" />
               {c.plan(plan.name_ar)}
               {plan.is_trial && <Badge variant="secondary">{c.trial}</Badge>}
               {!subActive && <Badge variant="destructive">{c.expired}</Badge>}
@@ -417,7 +417,7 @@ function FacilityDashboard() {
               · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
             </p>
           </div>
-          <Button variant="outline" className="gap-2" asChild>
+          <Button variant="outline" className="w-full gap-2 sm:w-auto" asChild>
             <Link to="/pricing">
               <ArrowUpCircle className="size-4" />
               {c.upgrade}
@@ -426,31 +426,35 @@ function FacilityDashboard() {
         </div>
       )}
 
+
       <Tabs defaultValue="jobs" className="mt-8">
-        <TabsList>
-          <TabsTrigger value="jobs" className="gap-1.5">
-            <Briefcase className="size-4" />
-            {c.tabJobs(jobs?.length ?? 0)}
-          </TabsTrigger>
-          <TabsTrigger value="shifts" className="gap-1.5">
-            <CalendarClock className="size-4" />
-            {c.tabShifts(shifts?.length ?? 0)}
-          </TabsTrigger>
-          <TabsTrigger value="new-job" className="gap-1.5">
-            <PlusCircle className="size-4" />
-            {c.tabNewJob}
-          </TabsTrigger>
-          <TabsTrigger value="new-shift" className="gap-1.5">
-            <PlusCircle className="size-4" />
-            {c.tabNewShift}
-          </TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <TabsList className="w-max">
+            <TabsTrigger value="jobs" className="shrink-0 gap-1.5">
+              <Briefcase className="size-4" />
+              {c.tabJobs(jobs?.length ?? 0)}
+            </TabsTrigger>
+            <TabsTrigger value="shifts" className="shrink-0 gap-1.5">
+              <CalendarClock className="size-4" />
+              {c.tabShifts(shifts?.length ?? 0)}
+            </TabsTrigger>
+            <TabsTrigger value="new-job" className="shrink-0 gap-1.5">
+              <PlusCircle className="size-4" />
+              {c.tabNewJob}
+            </TabsTrigger>
+            <TabsTrigger value="new-shift" className="shrink-0 gap-1.5">
+              <PlusCircle className="size-4" />
+              {c.tabNewShift}
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
 
         <TabsContent value="jobs" className="mt-6 space-y-3">
           {jobs?.length ? (
             jobs.map((j) => (
-              <div key={j.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
-                <div>
+              <div key={j.id} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <Link
                     to="/jobs/$jobId"
                     params={{ jobId: j.slug ?? j.id }}
@@ -463,7 +467,8 @@ function FacilityDashboard() {
                     {employmentLabel(j.employment_type, lang)} · {c.applicantsCount(j.applications?.length ?? 0)}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+
                   <Badge variant={j.is_active ? "default" : "secondary"}>
                     {j.is_active ? c.published : c.closed}
                   </Badge>
@@ -503,8 +508,8 @@ function FacilityDashboard() {
         <TabsContent value="shifts" className="mt-6 space-y-3">
           {shifts?.length ? (
             shifts.map((s) => (
-              <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
-                <div>
+              <div key={s.id} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <Link
                     to="/shifts/$shiftId"
                     params={{ shiftId: s.id }}
@@ -516,7 +521,8 @@ function FacilityDashboard() {
                     {formatDateTime(s.starts_at, lang)} · {formatMoney(Number(s.hourly_rate), s.currency, lang)}{c.perHour}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+
                   <Badge variant={s.status === "open" ? "default" : "secondary"}>
                     {s.status === "open" ? c.open : s.status === "cancelled" ? c.cancelledStatus : c.bookedStatus}
                   </Badge>
