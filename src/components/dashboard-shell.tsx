@@ -150,16 +150,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </Link>
             </Button>
 
-            <NotificationBell />
-            <Button variant="ghost" size="icon" asChild aria-label={t("nav.settings")}>
-              <Link to="/settings">
-                <Settings className="size-5" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={signOut}>
-              <LogOut className="size-4" />
-              <span className="hidden sm:inline">{t("nav.signOut")}</span>
-            </Button>
           </div>
         </div>
         {open && (
