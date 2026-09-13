@@ -239,6 +239,8 @@ function MessagesPage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const [draft, setDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [info, setInfo] = useState<Msg | null>(null);
