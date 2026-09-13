@@ -733,7 +733,7 @@ function MessagesPage() {
                                 mine ? "opacity-70" : "text-muted-foreground",
                               )}
                             >
-                              {formatDateTime(m.created_at, lang)}
+                              {timeLabel(m.created_at, lang)}
                               {mine &&
                                 (m.read_at ? (
                                   <CheckCheck className="size-3 text-sky-300" />
@@ -775,6 +775,7 @@ function MessagesPage() {
                               <Smile className="size-3.5" />
                             </button>
                           </div>
+                        </div>
                         </div>
                       </div>
                     );
