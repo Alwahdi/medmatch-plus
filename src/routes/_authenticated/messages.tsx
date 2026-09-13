@@ -555,6 +555,9 @@ function MessagesPage() {
       if (e.name === "AbortError") return;
       toast.error(e.message || c.failed);
     },
+  });
+
+
 
 
   function counterpart(conv: Conversation) {
