@@ -134,6 +134,12 @@ function ProfilePage() {
     },
   });
 
+  const locked = !!profile?.is_verified;
+  const lockNote =
+    lang === "ar"
+      ? "هذا الحقل مقفل بعد توثيق حسابك. للتعديل تواصل مع الدعم."
+      : "Locked after verification. Contact support to change it.";
+
   const [form, setForm] = useState({
     full_name: "",
     headline: "",
@@ -246,8 +252,9 @@ function ProfilePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="name">{c.fullName}</Label>
-            <Input id="name" value={form.full_name} maxLength={100}
+            <Input id="name" value={form.full_name} maxLength={100} disabled={locked}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+            {locked && <p className="mt-1 text-xs text-muted-foreground">{lockNote}</p>}
           </div>
           <div>
             <Label htmlFor="headline">{c.headline}</Label>
@@ -284,7 +291,7 @@ function ProfilePage() {
           </div>
           <div>
             <Label>{c.licenseCountry}</Label>
-            <Select value={form.license_country} onValueChange={(v) => setForm({ ...form, license_country: v })}>
+            <Select value={form.license_country} disabled={locked} onValueChange={(v) => setForm({ ...form, license_country: v })}>
               <SelectTrigger><SelectValue placeholder={c.countryPh} /></SelectTrigger>
               <SelectContent>
                 {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
@@ -293,8 +300,9 @@ function ProfilePage() {
           </div>
           <div>
             <Label htmlFor="lic">{c.licenseNumber}</Label>
-            <Input id="lic" dir="ltr" value={form.license_number} maxLength={60}
+            <Input id="lic" dir="ltr" value={form.license_number} maxLength={60} disabled={locked}
               onChange={(e) => setForm({ ...form, license_number: e.target.value })} />
+            {locked && <p className="mt-1 text-xs text-muted-foreground">{lockNote}</p>}
           </div>
         </div>
 
