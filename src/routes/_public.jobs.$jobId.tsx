@@ -439,8 +439,9 @@ function JobDetail() {
                 </>
               )}
             </div>
+            )}
 
-            {user && (
+            {user && !isOwner && (
               <Button
                 variant="outline"
                 className="w-full"
