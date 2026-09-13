@@ -486,6 +486,21 @@ function MessagesPage() {
     pressTimer.current = null;
   }
 
+  const term = search.trim().toLowerCase();
+  const visibleConversations = term
+    ? conversations.filter((conv) => {
+        const info = counterpart(conv);
+        const topic = conv.job_id
+          ? data?.jobs?.[conv.job_id]?.title
+          : conv.shift_id
+            ? data?.shifts?.[conv.shift_id]?.title
+            : null;
+        return [info.name, info.sub, topic, data?.previews?.[conv.id]]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(term));
+      })
+    : conversations;
+
   const activeInfo = active ? counterpart(active) : null;
   const activeJob = active?.job_id ? data?.jobs?.[active.job_id] : null;
   const activeShift = active?.shift_id ? data?.shifts?.[active.shift_id] : null;
@@ -669,8 +684,10 @@ function MessagesPage() {
 
               <div className="flex-1 space-y-3 overflow-y-auto p-4">
                 {messages?.length ? (
-                  messages.map((m) => {
+                  messages.map((m, i) => {
                     const mine = m.sender_id === user?.id;
+                    const prev = messages[i - 1];
+                    const showDay = !prev || dayKey(prev.created_at) !== dayKey(m.created_at);
                     const list = reactions?.[m.id] ?? [];
                     const grouped = list.reduce<Record<string, number>>((acc, r) => {
                       acc[r.emoji] = (acc[r.emoji] ?? 0) + 1;
