@@ -951,35 +951,115 @@ function MessagesPage() {
                 )}
                 <div ref={endRef} />
               </div>
+                {!atBottom && (
+                  <button
+                    type="button"
+                    onClick={scrollToBottom}
+                    title={c.jumpLatest}
+                    aria-label={c.jumpLatest}
+                    className="absolute bottom-3 end-3 flex size-10 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg transition hover:bg-secondary"
+                  >
+                    <ArrowDown className="size-5" />
+                  </button>
+                )}
+              </div>
 
               <div className="shrink-0 border-t border-border bg-card p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3">
                 {file && (
-                  <div className="mb-2 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs">
-                    {file.type.startsWith("image/") ? (
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt=""
-                        className="size-10 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <FileText className="size-4 text-primary" />
-                    )}
-                    <span className="truncate font-semibold">{file.name}</span>
-                    <span className="text-muted-foreground">{formatBytes(file.size)}</span>
-                    <button
-                      type="button"
-                      className="ms-auto text-muted-foreground hover:text-destructive"
-                      onClick={() => {
-                        setFile(null);
-                        if (fileRef.current) fileRef.current.value = "";
-                        if (imageRef.current) imageRef.current.value = "";
-                        if (cameraRef.current) cameraRef.current.value = "";
-                      }}
-                    >
-                      <X className="size-4" />
-                    </button>
+                  <div className="mb-2 rounded-2xl border border-border bg-surface p-2">
+                    <div className="flex items-center gap-3">
+                      {filePreview && file.type.startsWith("image/") ? (
+                        <img
+                          src={filePreview}
+                          alt=""
+                          className="size-16 shrink-0 rounded-xl object-cover"
+                        />
+                      ) : filePreview && file.type.startsWith("video/") ? (
+                        <video
+                          src={filePreview}
+                          className="size-16 shrink-0 rounded-xl bg-black object-cover"
+                        />
+                      ) : (
+                        <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <FileText className="size-6" />
+                        </span>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold">{file.name}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {formatBytes(file.size)}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          {uploadPct === null ? c.previewTitle : `${c.uploading} ${uploadPct}%`}
+                        </p>
+                      </div>
+
+                      {uploadPct !== null ? (
+                        <button
+                          type="button"
+                          title={c.cancelUpload}
+                          aria-label={c.cancelUpload}
+                          onClick={() => uploadAbort.current?.abort()}
+                          className="relative flex size-11 shrink-0 items-center justify-center"
+                        >
+                          <svg viewBox="0 0 36 36" className="absolute inset-0 size-11 -rotate-90">
+                            <circle
+                              cx="18"
+                              cy="18"
+                              r="16"
+                              fill="none"
+                              strokeWidth="3"
+                              className="stroke-border"
+                            />
+                            <circle
+                              cx="18"
+                              cy="18"
+                              r="16"
+                              fill="none"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              className="stroke-primary transition-[stroke-dashoffset]"
+                              strokeDasharray={Math.PI * 32}
+                              strokeDashoffset={Math.PI * 32 * (1 - uploadPct / 100)}
+                            />
+                          </svg>
+                          <X className="size-4 text-muted-foreground" />
+                        </button>
+                      ) : (
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            title={c.cancelRec}
+                            aria-label={c.cancelRec}
+                            className="size-9 rounded-full text-muted-foreground hover:text-destructive"
+                            onClick={() => {
+                              setFile(null);
+                              if (fileRef.current) fileRef.current.value = "";
+                              if (imageRef.current) imageRef.current.value = "";
+                              if (cameraRef.current) cameraRef.current.value = "";
+                            }}
+                          >
+                            <X className="size-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon"
+                            title={c.confirmSend}
+                            aria-label={c.confirmSend}
+                            className="size-9 rounded-full"
+                            disabled={send.isPending}
+                            onClick={() => send.mutate(undefined)}
+                          >
+                            <Send className="size-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
+
 
                 <div className="flex items-end gap-1.5">
                   <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
