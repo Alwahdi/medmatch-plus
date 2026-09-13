@@ -991,12 +991,13 @@ function MessagesPage() {
                   />
                 </div>
 
-                <div className="mt-1.5 flex items-center gap-3 px-1">
+                <div className="mt-1.5 hidden items-center gap-3 px-1 sm:flex">
                   <span className="truncate text-[11px] text-muted-foreground">{c.hint}</span>
                   <span className="ms-auto shrink-0 text-[11px] text-muted-foreground">
                     {draft.length}/2000
                   </span>
                 </div>
+
               </div>
             </div>
           )}
