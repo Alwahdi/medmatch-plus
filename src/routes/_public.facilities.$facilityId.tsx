@@ -162,7 +162,7 @@ function FacilityProfilePage() {
       </div>
     );
 
-  const isOnline = online.has(facility.user_id);
+  const isOnline = facility.user_id ? online.has(facility.user_id) : false;
 
   return (
     <>
