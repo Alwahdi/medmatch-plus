@@ -186,3 +186,35 @@ export function relativeTime(value: string, lang: Lang = "ar") {
   if (days < 30) return `قبل ${days} يوم`;
   return `قبل ${Math.floor(days / 30)} شهر`;
 }
+
+export const FACILITY_DOC_TYPES = [
+  "رخصة مزاولة المنشأة",
+  "السجل التجاري",
+  "البطاقة الضريبية",
+  "هوية المفوّض بالتوقيع",
+  "شهادة اعتماد أو جودة",
+];
+
+export const FACILITY_DOC_TYPES_EN = [
+  "Facility operating license",
+  "Commercial registration",
+  "Tax card",
+  "Authorized signatory ID",
+  "Accreditation / quality certificate",
+];
+
+/** Document types that must be approved before a facility becomes verified. */
+export const FACILITY_REQUIRED_DOCS = ["رخصة مزاولة المنشأة", "السجل التجاري"];
+
+/** Document types a professional needs approved to earn the verified badge. */
+export const PRO_REQUIRED_DOCS = ["ترخيص مزاولة المهنة", "بطاقة الهوية / الجواز"];
+
+export function facilityDocTypes(lang: Lang = "ar") {
+  return lang === "en" ? FACILITY_DOC_TYPES_EN : FACILITY_DOC_TYPES;
+}
+
+export function facilityDocTypeLabel(value: string, lang: Lang = "ar") {
+  if (lang !== "en") return value;
+  const i = FACILITY_DOC_TYPES.indexOf(value);
+  return i >= 0 ? (FACILITY_DOC_TYPES_EN[i] as string) : value;
+}
