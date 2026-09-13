@@ -521,65 +521,85 @@ function MessagesPage() {
         </div>
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-[320px_1fr]">
-          <ul className="space-y-2">
-            {conversations.map((conv) => {
-              const info = counterpart(conv);
-              const Icon = info.icon;
-              return (
-                <li key={conv.id}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveId(conv.id)}
-                    className={cn(
-                      "w-full rounded-2xl border border-border bg-card p-4 text-start transition-colors hover:bg-secondary",
-                      active?.id === conv.id && "border-primary bg-secondary",
-                    )}
-                  >
-                    <span className="flex items-center gap-2 font-bold">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="border-b border-border p-3">
+              <div className="relative">
+                <Search className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={c.searchPh}
+                  className="h-10 rounded-full ps-9"
+                />
+              </div>
+            </div>
+            <ul className="max-h-[70vh] divide-y divide-border overflow-y-auto">
+              {visibleConversations.length === 0 && (
+                <li className="p-6 text-center text-sm text-muted-foreground">{c.noResults}</li>
+              )}
+              {visibleConversations.map((conv) => {
+                const info = counterpart(conv);
+                const Icon = info.icon;
+                const count = unread[conv.id] ?? 0;
+                const topic = conv.job_id
+                  ? data?.jobs?.[conv.job_id]?.title
+                  : conv.shift_id
+                    ? data?.shifts?.[conv.shift_id]?.title
+                    : null;
+                return (
+                  <li key={conv.id}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveId(conv.id)}
+                      className={cn(
+                        "flex w-full items-center gap-3 p-3 text-start transition-colors hover:bg-secondary",
+                        active?.id === conv.id && "bg-secondary",
+                      )}
+                    >
                       <span className="relative shrink-0">
-                        <RemoteAvatar value={info.image} icon={Icon} className="size-8 rounded-xl" />
+                        <RemoteAvatar value={info.image} icon={Icon} className="size-12 rounded-full" />
                         <span
                           className={cn(
-                            "absolute -bottom-0.5 -end-0.5 size-2.5 rounded-full border-2 border-card",
+                            "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
                             info.online ? "bg-emerald-500" : "bg-muted-foreground/40",
                           )}
                         />
                       </span>
-                      <span className="truncate">{info.name}</span>
-                      {info.verified && <ShieldCheck className="size-3.5 shrink-0 text-accent" />}
-                      {(unread[conv.id] ?? 0) > 0 && (
-                        <span className="ms-auto rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-destructive-foreground">
-                          {unread[conv.id]}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="truncate font-bold">{info.name}</span>
+                          {info.verified && <ShieldCheck className="size-3.5 shrink-0 text-accent" />}
+                          <span className="ms-auto shrink-0 text-[11px] text-muted-foreground">
+                            {relativeTime(conv.last_message_at, lang)}
+                          </span>
                         </span>
-                      )}
-                    </span>
-                    <span className="mt-1 block truncate text-xs text-muted-foreground">
-                      {conv.job_id
-                        ? data?.jobs?.[conv.job_id]?.title ?? info.sub
-                        : conv.shift_id
-                          ? data?.shifts?.[conv.shift_id]?.title ?? info.sub
-                          : info.sub}
-                    </span>
-                    {data?.previews?.[conv.id] && (
-                      <span
-                        className={cn(
-                          "mt-1 block truncate text-xs",
-                          (unread[conv.id] ?? 0) > 0
-                            ? "font-semibold text-foreground"
-                            : "text-muted-foreground",
+                        <span className="mt-0.5 flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "min-w-0 flex-1 truncate text-xs",
+                              count > 0 ? "font-semibold text-foreground" : "text-muted-foreground",
+                            )}
+                          >
+                            {data?.previews?.[conv.id] ?? topic ?? info.sub}
+                          </span>
+                          {count > 0 && (
+                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">
+                              {count}
+                            </span>
+                          )}
+                        </span>
+                        {topic && (
+                          <span className="mt-1 block truncate text-[11px] text-muted-foreground">
+                            {conv.job_id ? c.aboutJob : c.aboutShift}: {topic}
+                          </span>
                         )}
-                      >
-                        {data.previews[conv.id]}
                       </span>
-                    )}
-                    <span className="mt-1 block text-[11px] text-muted-foreground">
-                      {relativeTime(conv.last_message_at, lang)}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
           {active && activeInfo && (
             <div className="flex min-h-[420px] flex-col rounded-2xl border border-border bg-card">
