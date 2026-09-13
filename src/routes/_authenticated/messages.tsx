@@ -748,7 +748,7 @@ function MessagesPage() {
                           </div>
                         )}
                         <div className={cn("group flex", mine ? "justify-start" : "justify-end")}>
-                        <div className="max-w-[80%]">
+                        <div className="max-w-[88%] min-w-0 sm:max-w-[72%]">
                           <div
                             onPointerDown={() => startPress(m)}
                             onPointerUp={endPress}
@@ -758,10 +758,13 @@ function MessagesPage() {
                               setInfo(m);
                             }}
                             className={cn(
-                              "select-none space-y-2 rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line",
-                              mine ? "bg-primary text-primary-foreground" : "bg-surface",
+                              "select-none space-y-2 rounded-2xl px-3 py-2 text-sm leading-relaxed break-words hyphens-auto whitespace-pre-line shadow-sm sm:px-4 sm:py-3",
+                              mine
+                                ? "bg-primary text-primary-foreground rounded-ss-sm"
+                                : "bg-surface rounded-se-sm",
                             )}
                           >
+
                             {m.attachment_path && (
                               <ChatAttachment
                                 path={m.attachment_path}
