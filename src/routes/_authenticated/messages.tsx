@@ -877,8 +877,9 @@ function MessagesPage() {
                         <Smile className="size-5" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent align="start" className="w-72 p-2">
-                      <div className="grid max-h-56 grid-cols-10 gap-1 overflow-y-auto">
+                    <PopoverContent align="start" className="w-[min(20rem,92vw)] p-2">
+                      <div className="grid max-h-56 grid-cols-8 gap-1 overflow-y-auto sm:grid-cols-10">
+
                         {PICKER_EMOJIS.map((emoji) => (
                           <button
                             key={emoji}
