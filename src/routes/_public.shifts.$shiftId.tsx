@@ -423,15 +423,17 @@ function ShiftDetail() {
       </div>
 
       {/* Sticky mobile book bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-        <Button
-          className="w-full"
-          disabled={!isOpen}
-          onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-        >
-          {isOpen ? (booking ? c.alreadyBooked : c.bookTitle) : c.unavailable}
-        </Button>
-      </div>
+      {!isOwner && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+          <Button
+            className="w-full"
+            disabled={!isOpen}
+            onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+          >
+            {isOpen ? (booking ? c.alreadyBooked : c.bookTitle) : c.unavailable}
+          </Button>
+        </div>
+      )}
     </>
   );
 }
