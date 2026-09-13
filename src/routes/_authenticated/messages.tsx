@@ -235,6 +235,8 @@ const TXT = {
     today: "Today",
     yesterday: "Yesterday",
     you: "You:",
+    back: "Back",
+
   },
 } as const;
 
