@@ -149,6 +149,12 @@ function FacilityProfile() {
     });
   }, [facility]);
 
+  const locked = !!facility?.is_verified;
+  const lockNote =
+    lang === "ar"
+      ? "مقفل بعد توثيق المنشأة — للتعديل تواصل مع الدعم."
+      : "Locked after verification — contact support to change it.";
+
   const save = useMutation({
     mutationFn: async () => {
       const parsed = z
@@ -260,9 +266,11 @@ function FacilityProfile() {
             <Input
               id="name_ar"
               maxLength={120}
+              disabled={locked}
               value={form.name_ar}
               onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
             />
+            {locked && <p className="mt-1 text-xs text-muted-foreground">{lockNote}</p>}
           </div>
           <div>
             <Label htmlFor="name_en">{c.nameEn}</Label>
@@ -270,6 +278,7 @@ function FacilityProfile() {
               id="name_en"
               dir="ltr"
               maxLength={120}
+              disabled={locked}
               value={form.name_en}
               onChange={(e) => setForm({ ...form, name_en: e.target.value })}
             />
@@ -278,6 +287,7 @@ function FacilityProfile() {
             <Label>{c.type}</Label>
             <Select
               value={form.facility_type}
+              disabled={locked}
               onValueChange={(v) => setForm({ ...form, facility_type: v })}
             >
               <SelectTrigger>
@@ -294,7 +304,7 @@ function FacilityProfile() {
           </div>
           <div>
             <Label>{c.country}</Label>
-            <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
+            <Select value={form.country} disabled={locked} onValueChange={(v) => setForm({ ...form, country: v })}>
               <SelectTrigger>
                 <SelectValue placeholder={c.pickCountry} />
               </SelectTrigger>
