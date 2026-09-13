@@ -183,6 +183,17 @@ const TXT = {
     yesterday: "أمس",
     you: "أنت:",
     back: "رجوع",
+    unreadDivider: "رسائل غير مقروءة",
+    jumpLatest: "أحدث الرسائل",
+    pause: "إيقاف مؤقت",
+    resume: "متابعة التسجيل",
+    paused: "التسجيل متوقف مؤقتاً",
+    sendNow: "إرسال",
+    cancelUpload: "إلغاء الرفع",
+    previewTitle: "معاينة قبل الإرسال",
+    confirmSend: "تأكيد الإرسال",
+
+
 
   },
   en: {
@@ -236,6 +247,17 @@ const TXT = {
     yesterday: "Yesterday",
     you: "You:",
     back: "Back",
+    unreadDivider: "Unread messages",
+    jumpLatest: "Latest messages",
+    pause: "Pause",
+    resume: "Resume",
+    paused: "Recording paused",
+    sendNow: "Send",
+    cancelUpload: "Cancel upload",
+    previewTitle: "Preview before sending",
+    confirmSend: "Confirm send",
+
+
 
   },
 } as const;
