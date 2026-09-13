@@ -834,7 +834,7 @@ function MessagesPage() {
                 <div ref={endRef} />
               </div>
 
-              <div className="border-t border-border p-3">
+              <div className="shrink-0 border-t border-border bg-card p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3">
                 {file && (
                   <div className="mb-2 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs">
                     {file.type.startsWith("image/") ? (
