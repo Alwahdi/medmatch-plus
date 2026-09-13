@@ -10,6 +10,7 @@ import {
   CalendarClock,
   FileText,
   LayoutDashboard,
+  Lock,
   LogOut,
   Menu,
   MessagesSquare,
@@ -46,6 +47,7 @@ const PRO_NAV: Item[] = [
   { to: "/cv-import", key: "nav.cvImport", icon: Sparkles },
   { to: "/credentials", key: "nav.credentials", icon: ShieldCheck },
   { to: "/notifications", key: "nav.notifications", icon: Bell },
+  { to: "/security", key: "nav.security", icon: Lock },
   { to: "/settings", key: "nav.settings", icon: Settings },
 ];
 
@@ -60,6 +62,7 @@ const FACILITY_NAV: Item[] = [
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
   { to: "/pricing", key: "nav.pricing", icon: Sparkles },
   { to: "/notifications", key: "nav.notifications", icon: Bell },
+  { to: "/security", key: "nav.security", icon: Lock },
   { to: "/settings", key: "nav.settings", icon: Settings },
 ];
 
