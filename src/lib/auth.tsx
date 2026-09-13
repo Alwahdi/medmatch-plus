@@ -38,3 +38,27 @@ export function useRoles(user: User | null) {
     },
   });
 }
+
+/** الملف الخاص بالمنشأة التي يملكها المستخدم الحالي (إن وُجد). */
+export function useMyFacility(user: User | null) {
+  return useQuery({
+    queryKey: ["my-facility-lite", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("facilities")
+        .select("id,name_ar,name_en,logo_url,is_verified")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+}
+
+/** الصفحة الرئيسية المناسبة لدور المستخدم. */
+export function roleHome(roles: AppRole[] | undefined) {
+  if (!roles) return "/dashboard";
+  if (roles.includes("facility")) return "/facility";
+  if (roles.includes("admin")) return "/admin";
+  return "/dashboard";
+}
