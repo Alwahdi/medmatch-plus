@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Tracks which users are currently online using a shared Supabase presence channel.
- * Every signed-in user joins the same channel and broadcasts their user id.
+ * Every visitor (signed-in or anonymous) joins the same channel and broadcasts a key;
+ * signed-in users broadcast their user id so others can see them online.
  */
 export function useOnlineUsers(user: User | null | undefined) {
   const [online, setOnline] = useState<Set<string>>(new Set());
+  // Anonymous visitors still join the channel (read-only) with a random key.
+  const anonKey = useMemo(() => crypto.randomUUID(), []);
 
   useEffect(() => {
-    if (!user) return;
+    const key = user?.id ?? anonKey;
     const channel = supabase.channel("online-users", {
-      config: { presence: { key: user.id } },
+      config: { presence: { key } },
     });
 
     const sync = () => {
@@ -29,7 +32,7 @@ export function useOnlineUsers(user: User | null | undefined) {
       .on("presence", { event: "join" }, sync)
       .on("presence", { event: "leave" }, sync)
       .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
+        if (status === "SUBSCRIBED" && user) {
           void channel.track({ user_id: user.id, at: new Date().toISOString() });
         }
       });
@@ -37,11 +40,12 @@ export function useOnlineUsers(user: User | null | undefined) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id, anonKey, user]);
 
   return online;
 }
 
+/** Small online status dot + label, e.g. for profiles and chat headers. */
 export function OnlineDotClass(isOnline: boolean) {
   return isOnline ? "bg-emerald-500" : "bg-muted-foreground/40";
 }
