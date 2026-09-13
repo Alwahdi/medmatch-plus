@@ -81,6 +81,7 @@ function ForFacilities() {
 
   return (
     <>
+      <div className="pb-24 md:pb-0">
       <section className="page-hero py-14 md:py-20">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
@@ -93,10 +94,19 @@ function ForFacilities() {
           <p className="mx-auto mt-5 max-w-2xl text-lg text-white/85">
             {c.sub}
           </p>
-          <Button size="lg" variant="secondary" className="mt-8" asChild>
-            <Link to="/register/employer"
-            >{c.registerFree}</Link>
-          </Button>
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+            <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
+              <Link to="/register/employer">{c.registerFree}</Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full border-white/40 bg-transparent text-white hover:bg-white/10 sm:w-auto"
+              asChild
+            >
+              <Link to="/pricing">{c.seePricing}</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -137,16 +147,25 @@ function ForFacilities() {
               </div>
             ))}
           </div>
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <Button size="lg" asChild>
+          <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+            <Button size="lg" className="w-full sm:w-auto" asChild>
               <Link to="/register/employer">{c.registerNow}</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
               <Link to="/pricing">{c.seePricing}</Link>
             </Button>
           </div>
         </div>
       </section>
+
+      </div>
+
+      {/* Sticky mobile CTA */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        <Button className="w-full" size="lg" asChild>
+          <Link to="/register/employer">{c.registerFree}</Link>
+        </Button>
+      </div>
     </>
   );
 }
