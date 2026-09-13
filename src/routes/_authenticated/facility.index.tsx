@@ -620,7 +620,7 @@ function FacilityForm() {
       <h1 className="font-display text-3xl font-extrabold">{c.registerTitle}</h1>
       <p className="mt-2 text-muted-foreground">{c.registerSub}</p>
 
-      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
+      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
         <div>
           <Label htmlFor="fname">{c.facilityName}</Label>
           <Input id="fname" maxLength={120} value={form.name_ar}
@@ -665,7 +665,7 @@ function FacilityForm() {
           <Textarea id="fdesc" rows={4} maxLength={1000} value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
-        <Button onClick={() => save.mutate()} disabled={save.isPending}>
+        <Button className="w-full sm:w-auto" onClick={() => save.mutate()} disabled={save.isPending}>
           {save.isPending ? c.saving : c.createFacility}
         </Button>
       </div>
@@ -755,8 +755,9 @@ function JobForm({
   });
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
+
         <div>
           <Label htmlFor="jt">{c.jobTitle}</Label>
           <Input id="jt" maxLength={120} value={form.title}
@@ -836,7 +837,7 @@ function JobForm({
           {expired ? c.subExpiredJob : c.quotaReachedJob}
         </p>
       )}
-      <Button onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
+      <Button className="w-full sm:w-auto" onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
         {create.isPending ? c.publishing : c.publishJob}
       </Button>
     </div>
@@ -905,8 +906,9 @@ function ShiftForm({
   });
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
+
         <div>
           <Label htmlFor="st">{c.shiftTitle}</Label>
           <Input id="st" maxLength={120} placeholder={c.shiftTitlePlaceholder} value={form.title}
@@ -966,7 +968,7 @@ function ShiftForm({
           {expired ? c.subExpiredShift : c.quotaReachedShift}
         </p>
       )}
-      <Button onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
+      <Button className="w-full sm:w-auto" onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
         {create.isPending ? c.publishing : c.publishShift}
       </Button>
     </div>
