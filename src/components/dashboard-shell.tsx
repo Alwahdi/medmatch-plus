@@ -52,6 +52,8 @@ const PRO_NAV: Item[] = [
 const FACILITY_NAV: Item[] = [
   { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
   { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
+  { to: "/facility/verification", key: "nav.facilityVerification", icon: ShieldCheck },
+
 
   { to: "/facility/applicants", key: "nav.applicants", icon: Users },
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },

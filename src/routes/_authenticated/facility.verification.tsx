@@ -1,0 +1,504 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import {
+  BadgeCheck,
+  CheckCircle2,
+  Clock,
+  FileText,
+  ShieldAlert,
+  ShieldCheck,
+  Trash2,
+  Upload,
+  XCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useConfirm } from "@/components/confirm-dialog";
+import { EmptyState } from "@/components/empty-state";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/auth";
+import {
+  FACILITY_DOC_TYPES,
+  FACILITY_REQUIRED_DOCS,
+  credentialLabel,
+  facilityDocTypeLabel,
+  facilityDocTypes,
+  formatDate,
+} from "@/lib/format";
+import { useLang } from "@/lib/i18n";
+
+export const Route = createFileRoute("/_authenticated/facility/verification")({
+  head: () => ({
+    meta: [
+      { title: "توثيق المنشأة | SyndeoCare" },
+      {
+        name: "description",
+        content: "ارفع رخصة المنشأة والسجل التجاري لتوثيق حسابك ونيل شارة منشأة موثّقة.",
+      },
+      { property: "og:title", content: "توثيق المنشأة | SyndeoCare" },
+      { property: "og:description", content: "رفع مستندات المنشأة ومتابعة حالة المراجعة." },
+    ],
+  }),
+  component: FacilityVerification,
+});
+
+const TXT = {
+  ar: {
+    title: "توثيق المنشأة",
+    sub: "ارفع مستندات منشأتك الرسمية. يراجعها فريقنا خلال ٢٤–٤٨ ساعة، ولا تظهر للكوادر أبداً — يظهر لهم فقط شارة «منشأة موثّقة».",
+    noFacility: "أنشئ ملف المنشأة أولاً قبل رفع مستندات التوثيق.",
+    createNow: "إنشاء ملف المنشأة",
+    verified: "منشأة موثّقة",
+    verifiedSub: "شارة التوثيق تظهر الآن على وظائفك ومناوباتك وملفك العام.",
+    unverified: "المنشأة غير موثّقة بعد",
+    unverifiedSub: "اعتمد رخصة مزاولة المنشأة والسجل التجاري للحصول على شارة التوثيق تلقائياً.",
+    checklist: "المستندات المطلوبة",
+    progress: (a: number, b: number) => `${a} من ${b} مستند مطلوب معتمد`,
+    required: "مطلوب",
+    optional: "اختياري",
+    missing: "لم يُرفع",
+    addTitle: "رفع مستند",
+    docType: "نوع المستند",
+    docTypePh: "اختر النوع",
+    docTitle: "اسم المستند",
+    issuer: "الجهة المُصدِرة",
+    issuerPh: "مثال: وزارة الصحة العامة والسكان",
+    issueDate: "تاريخ الإصدار",
+    expiry: "تاريخ الانتهاء",
+    file: "الملف (PDF أو صورة، حتى ١٠ ميجابايت)",
+    upload: "رفع المستند",
+    uploading: "جارٍ الرفع...",
+    myDocs: "مستندات المنشأة",
+    loading: "جارٍ التحميل...",
+    emptyTitle: "لا مستندات بعد",
+    emptyDesc: "ابدأ برفع رخصة مزاولة المنشأة والسجل التجاري.",
+    view: "عرض الملف",
+    noFile: "لا يوجد ملف مرفق",
+    expiresOn: (d: string) => ` · ينتهي ${d}`,
+    issuedOn: (d: string) => ` · صدر ${d}`,
+    titleReq: "أدخل اسم المستند",
+    typeReq: "اختر نوع المستند",
+    fileReq: "أرفق ملف المستند",
+    fileTooBig: "حجم الملف يتجاوز ١٠ ميجابايت",
+    uploadFailed: "تعذّر رفع الملف",
+    uploaded: "تم رفع المستند، ستتم مراجعته خلال ٢٤–٤٨ ساعة",
+    saveFailed: "تعذّر الحفظ",
+    deleted: "تم حذف المستند",
+    deleteQ: "حذف هذا المستند؟",
+    deleteDesc: "سيُحذف الملف نهائياً وقد يتأثر توثيق منشأتك. يمكنك رفعه مجدداً لاحقاً.",
+    yesDelete: "نعم، احذف",
+  },
+  en: {
+    title: "Facility verification",
+    sub: "Upload your official facility documents. Our team reviews them within 24–48 hours; professionals never see the files — only the “Verified facility” badge.",
+    noFacility: "Create your facility profile before uploading verification documents.",
+    createNow: "Create facility profile",
+    verified: "Verified facility",
+    verifiedSub: "The verified badge now appears on your jobs, shifts and public profile.",
+    unverified: "Facility not verified yet",
+    unverifiedSub: "Get the operating license and commercial registration approved to earn the badge automatically.",
+    checklist: "Required documents",
+    progress: (a: number, b: number) => `${a} of ${b} required documents approved`,
+    required: "Required",
+    optional: "Optional",
+    missing: "Not uploaded",
+    addTitle: "Upload a document",
+    docType: "Document type",
+    docTypePh: "Choose type",
+    docTitle: "Document name",
+    issuer: "Issuing authority",
+    issuerPh: "e.g. Ministry of Public Health",
+    issueDate: "Issue date",
+    expiry: "Expiry date",
+    file: "File (PDF or image, up to 10 MB)",
+    upload: "Upload document",
+    uploading: "Uploading...",
+    myDocs: "Facility documents",
+    loading: "Loading...",
+    emptyTitle: "No documents yet",
+    emptyDesc: "Start with the operating license and commercial registration.",
+    view: "View file",
+    noFile: "No file attached",
+    expiresOn: (d: string) => ` · expires ${d}`,
+    issuedOn: (d: string) => ` · issued ${d}`,
+    titleReq: "Enter the document name",
+    typeReq: "Choose the document type",
+    fileReq: "Attach the document file",
+    fileTooBig: "File size exceeds 10 MB",
+    uploadFailed: "Failed to upload the file",
+    uploaded: "Document uploaded, it will be reviewed within 24–48 hours",
+    saveFailed: "Failed to save",
+    deleted: "Document deleted",
+    deleteQ: "Delete this document?",
+    deleteDesc: "The file is permanently removed and your verification may be affected.",
+    yesDelete: "Yes, delete",
+  },
+} as const;
+
+type FacilityDoc = {
+  id: string;
+  doc_type: string;
+  title: string;
+  issuer: string | null;
+  issue_date: string | null;
+  expiry_date: string | null;
+  file_path: string | null;
+  status: "pending" | "approved" | "rejected";
+  review_note: string | null;
+  created_at: string;
+};
+
+function FacilityVerification() {
+  const { lang } = useLang();
+  const c = TXT[lang];
+  const { user } = useSession();
+  const queryClient = useQueryClient();
+  const { confirm, confirmDialog } = useConfirm();
+
+  const [form, setForm] = useState({
+    doc_type: "",
+    title: "",
+    issuer: "",
+    issue_date: "",
+    expiry_date: "",
+  });
+  const [file, setFile] = useState<File | null>(null);
+
+  const { data: facility, isLoading: facLoading } = useQuery({
+    queryKey: ["my-facility-verify", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("facilities")
+        .select("id,name_ar,is_verified")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: docs, isLoading } = useQuery({
+    queryKey: ["facility-docs", facility?.id],
+    enabled: !!facility?.id,
+    queryFn: async (): Promise<FacilityDoc[]> => {
+      const { data, error } = await supabase
+        .from("facility_documents")
+        .select("id,doc_type,title,issuer,issue_date,expiry_date,file_path,status,review_note,created_at")
+        .eq("facility_id", facility!.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as FacilityDoc[];
+    },
+  });
+
+  const schema = z.object({
+    doc_type: z.string().min(1, c.typeReq),
+    title: z.string().trim().min(2, c.titleReq).max(120),
+  });
+
+  const add = useMutation({
+    mutationFn: async () => {
+      const parsed = schema.safeParse(form);
+      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+      if (!file) throw new Error(c.fileReq);
+      if (file.size > 10 * 1024 * 1024) throw new Error(c.fileTooBig);
+
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+      const filePath = `${facility!.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("facility-docs").upload(filePath, file);
+      if (upErr) throw new Error(c.uploadFailed);
+
+      const { error } = await supabase.from("facility_documents").insert({
+        facility_id: facility!.id,
+        doc_type: form.doc_type,
+        title: form.title.trim(),
+        issuer: form.issuer.trim() || null,
+        issue_date: form.issue_date || null,
+        expiry_date: form.expiry_date || null,
+        file_path: filePath,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.uploaded);
+      setForm({ doc_type: "", title: "", issuer: "", issue_date: "", expiry_date: "" });
+      setFile(null);
+      void queryClient.invalidateQueries({ queryKey: ["facility-docs"] });
+    },
+    onError: (e: Error) => toast.error(e.message || c.saveFailed),
+  });
+
+  const remove = useMutation({
+    mutationFn: async (doc: FacilityDoc) => {
+      if (doc.file_path) {
+        await supabase.storage.from("facility-docs").remove([doc.file_path]);
+      }
+      const { error } = await supabase.from("facility_documents").delete().eq("id", doc.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.deleted);
+      void queryClient.invalidateQueries({ queryKey: ["facility-docs"] });
+    },
+    onError: () => toast.error(c.saveFailed),
+  });
+
+  async function openFile(path: string | null) {
+    if (!path) {
+      toast.error(c.noFile);
+      return;
+    }
+    const { data, error } = await supabase.storage.from("facility-docs").createSignedUrl(path, 120);
+    if (error || !data?.signedUrl) {
+      toast.error(c.noFile);
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener");
+  }
+
+  if (facLoading) {
+    return <p className="mx-auto max-w-4xl px-4 py-10 text-sm text-muted-foreground">{c.loading}</p>;
+  }
+
+  if (!facility) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <EmptyState
+          icon={ShieldAlert}
+          title={c.title}
+          description={c.noFacility}
+          action={
+            <Button asChild>
+              <Link to="/facility/profile">{c.createNow}</Link>
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  const list = docs ?? [];
+  const approvedRequired = FACILITY_REQUIRED_DOCS.filter((t) =>
+    list.some((d) => d.doc_type === t && d.status === "approved"),
+  ).length;
+  const pct = Math.round((approvedRequired / FACILITY_REQUIRED_DOCS.length) * 100);
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-10">
+      {confirmDialog}
+
+      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
+
+      <div
+        className={`mt-6 flex flex-wrap items-center gap-3 rounded-2xl border p-5 ${
+          facility.is_verified ? "border-accent/40 bg-accent/5" : "border-border bg-card"
+        }`}
+      >
+        {facility.is_verified ? (
+          <BadgeCheck className="size-8 text-accent" />
+        ) : (
+          <ShieldAlert className="size-8 text-muted-foreground" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="font-bold">{facility.is_verified ? c.verified : c.unverified}</p>
+          <p className="text-xs text-muted-foreground">
+            {facility.is_verified ? c.verifiedSub : c.unverifiedSub}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold">{c.checklist}</h2>
+          <span className="text-xs text-muted-foreground">
+            {c.progress(approvedRequired, FACILITY_REQUIRED_DOCS.length)}
+          </span>
+        </div>
+        <Progress value={pct} className="mt-3" />
+        <ul className="mt-4 space-y-2">
+          {FACILITY_DOC_TYPES.map((type) => {
+            const doc = list.find((d) => d.doc_type === type);
+            const isRequired = FACILITY_REQUIRED_DOCS.includes(type);
+            const Icon =
+              doc?.status === "approved"
+                ? CheckCircle2
+                : doc?.status === "rejected"
+                  ? XCircle
+                  : doc
+                    ? Clock
+                    : ShieldCheck;
+            const tone =
+              doc?.status === "approved"
+                ? "text-accent"
+                : doc?.status === "rejected"
+                  ? "text-destructive"
+                  : "text-muted-foreground";
+            return (
+              <li key={type} className="flex items-center gap-3 rounded-xl border border-border/60 p-3">
+                <Icon className={`size-5 ${tone}`} />
+                <span className="min-w-0 flex-1 truncate text-sm">{facilityDocTypeLabel(type, lang)}</span>
+                <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
+                  {isRequired ? c.required : c.optional}
+                </Badge>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {doc ? credentialLabel(doc.status, lang) : c.missing}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
+        <h2 className="text-lg font-bold">{c.addTitle}</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>{c.docType}</Label>
+            <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
+              <SelectTrigger>
+                <SelectValue placeholder={c.docTypePh} />
+              </SelectTrigger>
+              <SelectContent>
+                {facilityDocTypes(lang).map((d, i) => (
+                  <SelectItem key={d} value={FACILITY_DOC_TYPES[i]!}>
+                    {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="fd-title">{c.docTitle}</Label>
+            <Input
+              id="fd-title"
+              maxLength={120}
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label htmlFor="fd-issuer">{c.issuer}</Label>
+            <Input
+              id="fd-issuer"
+              maxLength={120}
+              placeholder={c.issuerPh}
+              value={form.issuer}
+              onChange={(e) => setForm({ ...form, issuer: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="fd-issue">{c.issueDate}</Label>
+              <Input
+                id="fd-issue"
+                type="date"
+                value={form.issue_date}
+                onChange={(e) => setForm({ ...form, issue_date: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="fd-exp">{c.expiry}</Label>
+              <Input
+                id="fd-exp"
+                type="date"
+                value={form.expiry_date}
+                onChange={(e) => setForm({ ...form, expiry_date: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="fd-file">{c.file}</Label>
+          <Input
+            id="fd-file"
+            type="file"
+            accept=".pdf,image/*"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+        </div>
+        <Button onClick={() => add.mutate()} disabled={add.isPending}>
+          <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
+        </Button>
+      </div>
+
+      <h2 className="mt-10 text-lg font-bold">{c.myDocs}</h2>
+      {isLoading ? (
+        <p className="mt-4 text-sm text-muted-foreground">{c.loading}</p>
+      ) : list.length === 0 ? (
+        <div className="mt-4">
+          <EmptyState icon={FileText} title={c.emptyTitle} description={c.emptyDesc} />
+        </div>
+      ) : (
+        <ul className="mt-4 space-y-3">
+          {list.map((doc) => (
+            <li key={doc.id} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 items-start gap-3">
+                  <FileText className="mt-0.5 size-5 text-primary" />
+                  <div className="min-w-0">
+                    <p className="font-medium">{doc.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {facilityDocTypeLabel(doc.doc_type, lang)}
+                      {doc.issuer ? ` · ${doc.issuer}` : ""}
+                      {doc.issue_date ? c.issuedOn(formatDate(doc.issue_date, lang)) : ""}
+                      {doc.expiry_date ? c.expiresOn(formatDate(doc.expiry_date, lang)) : ""}
+                    </p>
+                    {doc.review_note && (
+                      <p className="mt-1 text-xs text-destructive">{doc.review_note}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={
+                      doc.status === "approved"
+                        ? "default"
+                        : doc.status === "rejected"
+                          ? "destructive"
+                          : "secondary"
+                    }
+                  >
+                    {credentialLabel(doc.status, lang)}
+                  </Badge>
+                  <Button size="sm" variant="outline" onClick={() => openFile(doc.file_path)}>
+                    <FileText className="size-4" /> {c.view}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={async () => {
+                      const ok = await confirm({
+                        title: c.deleteQ,
+                        description: c.deleteDesc,
+                        confirmLabel: c.yesDelete,
+                        destructive: true,
+                      });
+                      if (ok) remove.mutate(doc);
+                    }}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

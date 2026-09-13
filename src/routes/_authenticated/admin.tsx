@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
-import { credentialLabel, formatDate, formatDateTime, countryLabel } from "@/lib/format";
+import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -44,6 +44,7 @@ const TXT = {
     title: "لوحة الإدارة",
     sub: "مراجعة التوثيق، اعتماد المنشآت، ومتابعة رسائل التواصل.",
     tabDocs: "الوثائق",
+    tabFacDocs: "مستندات المنشآت",
     tabFacilities: "المنشآت",
     tabPros: "الكوادر",
     tabInbox: "رسائل التواصل",
@@ -59,6 +60,8 @@ const TXT = {
     view: "عرض الملف",
     noFile: "لا يوجد ملف مرفق",
     noDocs: "لا وثائق للمراجعة.",
+    noFacDocs: "لا مستندات منشآت للمراجعة.",
+    autoVerifyFac: "تُوثَّق المنشأة تلقائياً عند اعتماد رخصة المنشأة والسجل التجاري.",
     noteLabel: "سبب الرفض (يظهر لصاحب الوثيقة)",
     notePlaceholder: "مثال: صورة الترخيص غير واضحة، أعد رفعها بجودة أعلى.",
     unverify: "إلغاء التوثيق",
@@ -87,6 +90,7 @@ const TXT = {
     title: "Admin panel",
     sub: "Review credentials, verify facilities, and follow up on contact messages.",
     tabDocs: "Documents",
+    tabFacDocs: "Facility documents",
     tabFacilities: "Facilities",
     tabPros: "Professionals",
     tabInbox: "Contact inbox",
@@ -102,6 +106,8 @@ const TXT = {
     view: "View file",
     noFile: "No file attached",
     noDocs: "No documents to review.",
+    noFacDocs: "No facility documents to review.",
+    autoVerifyFac: "A facility is verified automatically once its operating license and commercial registration are approved.",
     noteLabel: "Rejection reason (shown to the owner)",
     notePlaceholder: "e.g. The license photo is unclear, please upload a higher quality scan.",
     unverify: "Remove verification",
@@ -188,6 +194,19 @@ function AdminPage() {
     },
   });
 
+  const { data: facDocs, isLoading: facDocsLoading } = useQuery({
+    queryKey: ["admin-facility-docs"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("facility_documents")
+        .select("*, facilities(name_ar)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const { data: inbox } = useQuery({
     queryKey: ["admin-inbox"],
     enabled: !!isAdmin,
@@ -223,6 +242,32 @@ function AdminPage() {
       setNote("");
       queryClient.invalidateQueries({ queryKey: ["admin-creds"] });
       queryClient.invalidateQueries({ queryKey: ["admin-pros"] });
+    },
+    onError: () => toast.error(c.updateFailed),
+  });
+
+  const reviewFacDoc = useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      reviewNote,
+    }: {
+      id: string;
+      status: "approved" | "rejected";
+      reviewNote?: string;
+    }) => {
+      const { error } = await supabase
+        .from("facility_documents")
+        .update({ status, review_note: reviewNote ?? null })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.docUpdated);
+      setRejectId(null);
+      setNote("");
+      queryClient.invalidateQueries({ queryKey: ["admin-facility-docs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
     onError: () => toast.error(c.updateFailed),
   });
@@ -276,6 +321,19 @@ function AdminPage() {
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   }
 
+  async function openFacilityFile(path: string | null) {
+    if (!path) {
+      toast.error(c.noFile);
+      return;
+    }
+    const { data, error } = await supabase.storage.from("facility-docs").createSignedUrl(path, 120);
+    if (error || !data) {
+      toast.error(c.fileFailed);
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  }
+
   if (rolesLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
   if (!isAdmin)
     return (
@@ -295,6 +353,8 @@ function AdminPage() {
   );
   const shownPros = (pros ?? []).filter((p) => (proQuery.trim() ? p.full_name.includes(proQuery.trim()) : true));
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
+  const pendingFacDocs = (facDocs ?? []).filter((d) => d.status === "pending");
+  const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -315,6 +375,14 @@ function AdminPage() {
             {pendingDocs.length > 0 && (
               <Badge variant="destructive" className="ms-2">
                 {pendingDocs.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="facdocs">
+            {c.tabFacDocs}
+            {pendingFacDocs.length > 0 && (
+              <Badge variant="destructive" className="ms-2">
+                {pendingFacDocs.length}
               </Badge>
             )}
           </TabsTrigger>
@@ -416,6 +484,100 @@ function AdminPage() {
                         className="mt-2"
                         disabled={review.isPending}
                         onClick={() => review.mutate({ id: cr.id, status: "rejected", reviewNote: note.trim() })}
+                      >
+                        {c.reject}
+                      </Button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
+
+        <TabsContent value="facdocs" className="mt-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant={pendingOnly ? "default" : "outline"} onClick={() => setPendingOnly(true)}>
+              {c.pendingOnly}
+            </Button>
+            <Button size="sm" variant={pendingOnly ? "outline" : "default"} onClick={() => setPendingOnly(false)}>
+              {c.all}
+            </Button>
+            <span className="text-xs text-muted-foreground">{c.autoVerifyFac}</span>
+          </div>
+
+          {facDocsLoading ? (
+            <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" /> {c.loading}
+            </p>
+          ) : shownFacDocs.length === 0 ? (
+            <p className="mt-6 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+              {c.noFacDocs}
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {shownFacDocs.map((fd) => (
+                <li key={fd.id} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-bold">{fd.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {facilityDocTypeLabel(fd.doc_type, lang)}
+                        {fd.facilities?.name_ar ? ` · ${fd.facilities.name_ar}` : ""}
+                        {fd.issuer ? ` · ${fd.issuer}` : ""}
+                        {fd.expiry_date ? ` · ${c.expires(formatDate(fd.expiry_date, lang))}` : ""}
+                        {` · ${formatDate(fd.created_at, lang)}`}
+                      </p>
+                      {fd.review_note && (
+                        <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">
+                          {fd.review_note}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant={
+                          fd.status === "approved" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"
+                        }
+                      >
+                        {credentialLabel(fd.status, lang)}
+                      </Badge>
+                      <Button size="sm" variant="outline" onClick={() => openFacilityFile(fd.file_path)}>
+                        <FileText className="size-4" /> {c.view}
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={reviewFacDoc.isPending}
+                        onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "approved" })}
+                      >
+                        <CheckCircle2 className="size-4" /> {c.approve}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setRejectId(rejectId === fd.id ? null : fd.id);
+                          setNote(fd.review_note ?? "");
+                        }}
+                      >
+                        <XCircle className="size-4" /> {c.reject}
+                      </Button>
+                    </div>
+                  </div>
+                  {rejectId === fd.id && (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs font-medium">{c.noteLabel}</p>
+                      <Textarea
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder={c.notePlaceholder}
+                        rows={3}
+                      />
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={reviewFacDoc.isPending}
+                        onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "rejected", reviewNote: note })}
                       >
                         {c.reject}
                       </Button>
