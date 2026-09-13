@@ -166,6 +166,8 @@ function ShiftDetail() {
     },
   });
 
+  const isOwner = !!myFacility && !!shift && shift.facility_id === myFacility.id;
+
   const { data: facility } = useQuery({
     queryKey: ["revealed-facility", shift?.facility_id, user?.id],
     enabled: !!user && !!shift?.facility_id,
