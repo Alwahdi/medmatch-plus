@@ -457,15 +457,17 @@ function JobDetail() {
       </div>
 
       {/* Sticky mobile apply bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-        <Button
-          className="w-full"
-          disabled={!isOpen}
-          onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-        >
-          {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.closed}
-        </Button>
-      </div>
+      {!isOwner && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+          <Button
+            className="w-full"
+            disabled={!isOpen}
+            onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+          >
+            {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.closed}
+          </Button>
+        </div>
+      )}
     </>
   );
 }
