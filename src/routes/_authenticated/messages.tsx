@@ -9,6 +9,9 @@ import {
   Camera,
   Check,
   CheckCheck,
+  ChevronLeft,
+  ChevronRight,
+
   ExternalLink,
   FileText,
   Image as ImageIcon,
