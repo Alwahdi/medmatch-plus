@@ -287,6 +287,18 @@ function MessagesPage() {
   const [marker, setMarker] = useState<{ convId: string; msgId: string } | null>(null);
   const pendingUnread = useRef<Record<string, number>>({});
   const markerDone = useRef<Record<string, boolean>>({});
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setFilePreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setFilePreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
 
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineUsers = useOnlineUsers(user);
