@@ -81,6 +81,23 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     navigate({ to: "/auth", replace: true });
   }
 
+  // Mobile bottom tab bar — Balto-style: 5 key tabs + "More" opening the full drawer
+  const mobileTabs: Item[] = isFacility
+    ? [
+        { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
+        { to: "/facility/applicants", key: "nav.applicants", icon: Users },
+        { to: "/messages", key: "nav.messages", icon: MessagesSquare },
+        { to: "/facility/candidates", key: "nav.candidates", icon: Search },
+        { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
+      ]
+    : [
+        { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
+        { to: "/jobs", key: "nav.jobs", icon: Briefcase },
+        { to: "/messages", key: "nav.messages", icon: MessagesSquare },
+        { to: "/shifts", key: "nav.shifts", icon: CalendarClock },
+        { to: "/profile", key: "nav.profile", icon: User },
+      ];
+
   const nav = (
     <nav className="space-y-1">
       {items.map((item) => {
