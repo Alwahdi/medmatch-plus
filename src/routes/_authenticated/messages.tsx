@@ -334,6 +334,17 @@ function MessagesPage() {
   });
 
   const conversations = data?.list ?? [];
+
+  function pickFile(input: HTMLInputElement) {
+    const f = input.files?.[0];
+    if (!f) return;
+    if (f.size > CHAT_MAX_BYTES) {
+      toast.error(c.tooBig);
+      input.value = "";
+      return;
+    }
+    setFile(f);
+  }
   const active = conversations.find((c) => c.id === activeId) ?? conversations[0] ?? null;
   const { map: unread } = useUnread(user);
 
@@ -475,6 +486,21 @@ function MessagesPage() {
     pressTimer.current = null;
   }
 
+  const term = search.trim().toLowerCase();
+  const visibleConversations = term
+    ? conversations.filter((conv) => {
+        const info = counterpart(conv);
+        const topic = conv.job_id
+          ? data?.jobs?.[conv.job_id]?.title
+          : conv.shift_id
+            ? data?.shifts?.[conv.shift_id]?.title
+            : null;
+        return [info.name, info.sub, topic, data?.previews?.[conv.id]]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(term));
+      })
+    : conversations;
+
   const activeInfo = active ? counterpart(active) : null;
   const activeJob = active?.job_id ? data?.jobs?.[active.job_id] : null;
   const activeShift = active?.shift_id ? data?.shifts?.[active.shift_id] : null;
@@ -521,65 +547,85 @@ function MessagesPage() {
         </div>
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-[320px_1fr]">
-          <ul className="space-y-2">
-            {conversations.map((conv) => {
-              const info = counterpart(conv);
-              const Icon = info.icon;
-              return (
-                <li key={conv.id}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveId(conv.id)}
-                    className={cn(
-                      "w-full rounded-2xl border border-border bg-card p-4 text-start transition-colors hover:bg-secondary",
-                      active?.id === conv.id && "border-primary bg-secondary",
-                    )}
-                  >
-                    <span className="flex items-center gap-2 font-bold">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="border-b border-border p-3">
+              <div className="relative">
+                <Search className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={c.searchPh}
+                  className="h-10 rounded-full ps-9"
+                />
+              </div>
+            </div>
+            <ul className="max-h-[70vh] divide-y divide-border overflow-y-auto">
+              {visibleConversations.length === 0 && (
+                <li className="p-6 text-center text-sm text-muted-foreground">{c.noResults}</li>
+              )}
+              {visibleConversations.map((conv) => {
+                const info = counterpart(conv);
+                const Icon = info.icon;
+                const count = unread[conv.id] ?? 0;
+                const topic = conv.job_id
+                  ? data?.jobs?.[conv.job_id]?.title
+                  : conv.shift_id
+                    ? data?.shifts?.[conv.shift_id]?.title
+                    : null;
+                return (
+                  <li key={conv.id}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveId(conv.id)}
+                      className={cn(
+                        "flex w-full items-center gap-3 p-3 text-start transition-colors hover:bg-secondary",
+                        active?.id === conv.id && "bg-secondary",
+                      )}
+                    >
                       <span className="relative shrink-0">
-                        <RemoteAvatar value={info.image} icon={Icon} className="size-8 rounded-xl" />
+                        <RemoteAvatar value={info.image} icon={Icon} className="size-12 rounded-full" />
                         <span
                           className={cn(
-                            "absolute -bottom-0.5 -end-0.5 size-2.5 rounded-full border-2 border-card",
+                            "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
                             info.online ? "bg-emerald-500" : "bg-muted-foreground/40",
                           )}
                         />
                       </span>
-                      <span className="truncate">{info.name}</span>
-                      {info.verified && <ShieldCheck className="size-3.5 shrink-0 text-accent" />}
-                      {(unread[conv.id] ?? 0) > 0 && (
-                        <span className="ms-auto rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-destructive-foreground">
-                          {unread[conv.id]}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="truncate font-bold">{info.name}</span>
+                          {info.verified && <ShieldCheck className="size-3.5 shrink-0 text-accent" />}
+                          <span className="ms-auto shrink-0 text-[11px] text-muted-foreground">
+                            {relativeTime(conv.last_message_at, lang)}
+                          </span>
                         </span>
-                      )}
-                    </span>
-                    <span className="mt-1 block truncate text-xs text-muted-foreground">
-                      {conv.job_id
-                        ? data?.jobs?.[conv.job_id]?.title ?? info.sub
-                        : conv.shift_id
-                          ? data?.shifts?.[conv.shift_id]?.title ?? info.sub
-                          : info.sub}
-                    </span>
-                    {data?.previews?.[conv.id] && (
-                      <span
-                        className={cn(
-                          "mt-1 block truncate text-xs",
-                          (unread[conv.id] ?? 0) > 0
-                            ? "font-semibold text-foreground"
-                            : "text-muted-foreground",
+                        <span className="mt-0.5 flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "min-w-0 flex-1 truncate text-xs",
+                              count > 0 ? "font-semibold text-foreground" : "text-muted-foreground",
+                            )}
+                          >
+                            {data?.previews?.[conv.id] ?? topic ?? info.sub}
+                          </span>
+                          {count > 0 && (
+                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">
+                              {count}
+                            </span>
+                          )}
+                        </span>
+                        {topic && (
+                          <span className="mt-1 block truncate text-[11px] text-muted-foreground">
+                            {conv.job_id ? c.aboutJob : c.aboutShift}: {topic}
+                          </span>
                         )}
-                      >
-                        {data.previews[conv.id]}
                       </span>
-                    )}
-                    <span className="mt-1 block text-[11px] text-muted-foreground">
-                      {relativeTime(conv.last_message_at, lang)}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
           {active && activeInfo && (
             <div className="flex min-h-[420px] flex-col rounded-2xl border border-border bg-card">
@@ -638,15 +684,25 @@ function MessagesPage() {
 
               <div className="flex-1 space-y-3 overflow-y-auto p-4">
                 {messages?.length ? (
-                  messages.map((m) => {
+                  messages.map((m, i) => {
                     const mine = m.sender_id === user?.id;
+                    const prev = messages[i - 1];
+                    const showDay = !prev || dayKey(prev.created_at) !== dayKey(m.created_at);
                     const list = reactions?.[m.id] ?? [];
                     const grouped = list.reduce<Record<string, number>>((acc, r) => {
                       acc[r.emoji] = (acc[r.emoji] ?? 0) + 1;
                       return acc;
                     }, {});
                     return (
-                      <div key={m.id} className={cn("group flex", mine ? "justify-start" : "justify-end")}>
+                      <div key={m.id}>
+                        {showDay && (
+                          <div className="my-4 flex justify-center">
+                            <span className="rounded-full bg-surface px-3 py-1 text-[11px] font-semibold text-muted-foreground shadow-sm">
+                              {dayLabel(m.created_at, lang, c.today, c.yesterday)}
+                            </span>
+                          </div>
+                        )}
+                        <div className={cn("group flex", mine ? "justify-start" : "justify-end")}>
                         <div className="max-w-[80%]">
                           <div
                             onPointerDown={() => startPress(m)}
@@ -677,7 +733,7 @@ function MessagesPage() {
                                 mine ? "opacity-70" : "text-muted-foreground",
                               )}
                             >
-                              {formatDateTime(m.created_at, lang)}
+                              {timeLabel(m.created_at, lang)}
                               {mine &&
                                 (m.read_at ? (
                                   <CheckCheck className="size-3 text-sky-300" />
@@ -720,6 +776,7 @@ function MessagesPage() {
                             </button>
                           </div>
                         </div>
+                        </div>
                       </div>
                     );
                   })
@@ -729,10 +786,18 @@ function MessagesPage() {
                 <div ref={endRef} />
               </div>
 
-              <div className="border-t border-border p-4">
+              <div className="border-t border-border p-3">
                 {file && (
-                  <div className="mb-3 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs">
-                    <Paperclip className="size-3.5 text-primary" />
+                  <div className="mb-2 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs">
+                    {file.type.startsWith("image/") ? (
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt=""
+                        className="size-10 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <FileText className="size-4 text-primary" />
+                    )}
                     <span className="truncate font-semibold">{file.name}</span>
                     <span className="text-muted-foreground">{formatBytes(file.size)}</span>
                     <button
@@ -741,74 +806,147 @@ function MessagesPage() {
                       onClick={() => {
                         setFile(null);
                         if (fileRef.current) fileRef.current.value = "";
+                        if (imageRef.current) imageRef.current.value = "";
+                        if (cameraRef.current) cameraRef.current.value = "";
                       }}
                     >
                       <X className="size-4" />
                     </button>
                   </div>
                 )}
-                <Textarea
-                  rows={3}
-                  maxLength={2000}
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if ((draft.trim() || file) && !send.isPending) send.mutate(undefined);
-                    }
-                  }}
-                  placeholder={c.placeholder}
-                />
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button
-                    onClick={() => send.mutate(undefined)}
-                    disabled={send.isPending || (!draft.trim() && !file)}
-                  >
-                    {send.isPending ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Send className="size-4" />
-                    )}
-                    {send.isPending ? c.uploading : c.send}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileRef.current?.click()}
-                    disabled={send.isPending}
-                  >
-                    <Paperclip className="size-4" /> {c.attach}
-                  </Button>
-                  <VoiceRecorder
-                    disabled={send.isPending}
-                    labels={{
-                      record: c.record,
-                      stop: c.stop,
-                      cancel: c.cancelRec,
-                      unsupported: c.micUnsupported,
-                      denied: c.micDenied,
+
+                <div className="flex items-end gap-1.5">
+                  <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        title={c.emoji}
+                        aria-label={c.emoji}
+                        className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                      >
+                        <Smile className="size-5" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-72 p-2">
+                      <div className="grid max-h-56 grid-cols-10 gap-1 overflow-y-auto">
+                        {PICKER_EMOJIS.map((emoji) => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => setDraft((d) => `${d}${emoji}`)}
+                            className="rounded-md p-1 text-lg transition hover:bg-secondary"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        title={c.attach}
+                        aria-label={c.attach}
+                        disabled={send.isPending}
+                        className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                      >
+                        <Paperclip className="size-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" side="top">
+                      <DropdownMenuItem onSelect={() => imageRef.current?.click()}>
+                        <ImageIcon className="size-4 text-primary" /> {c.photo}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => cameraRef.current?.click()}>
+                        <Camera className="size-4 text-emerald-600" /> {c.camera}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => fileRef.current?.click()}>
+                        <FileText className="size-4 text-sky-600" /> {c.document}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <Textarea
+                    rows={1}
+                    maxLength={2000}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if ((draft.trim() || file) && !send.isPending) send.mutate(undefined);
+                      }
                     }}
-                    onRecorded={(f) => send.mutate(f)}
+                    placeholder={c.placeholder}
+                    className="max-h-36 min-h-10 flex-1 resize-none rounded-2xl py-2.5"
                   />
+
+                  {draft.trim() || file ? (
+                    <Button
+                      type="button"
+                      size="icon"
+                      title={c.send}
+                      aria-label={c.send}
+                      onClick={() => send.mutate(undefined)}
+                      disabled={send.isPending}
+                      className="size-10 shrink-0 rounded-full"
+                    >
+                      {send.isPending ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Send className="size-4" />
+                      )}
+                    </Button>
+                  ) : (
+                    <VoiceRecorder
+                      compact
+                      disabled={send.isPending}
+                      labels={{
+                        record: c.record,
+                        stop: c.stop,
+                        cancel: c.cancelRec,
+                        unsupported: c.micUnsupported,
+                        denied: c.micDenied,
+                      }}
+                      onRecorded={(f) => send.mutate(f)}
+                    />
+                  )}
+
                   <input
                     ref={fileRef}
                     type="file"
                     className="hidden"
-                    accept="image/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (!f) return;
-                      if (f.size > CHAT_MAX_BYTES) {
-                        toast.error(c.tooBig);
-                        e.target.value = "";
-                        return;
-                      }
-                      setFile(f);
-                    }}
+                    accept="application/pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                    onChange={(e) => pickFile(e.target)}
                   />
-                  <span className="text-xs text-muted-foreground">{c.hint}</span>
-                  <span className="ms-auto text-xs text-muted-foreground">{draft.length}/2000</span>
+                  <input
+                    ref={imageRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*,video/*"
+                    onChange={(e) => pickFile(e.target)}
+                  />
+                  <input
+                    ref={cameraRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => pickFile(e.target)}
+                  />
+                </div>
+
+                <div className="mt-1.5 flex items-center gap-3 px-1">
+                  <span className="truncate text-[11px] text-muted-foreground">{c.hint}</span>
+                  <span className="ms-auto shrink-0 text-[11px] text-muted-foreground">
+                    {draft.length}/2000
+                  </span>
                 </div>
               </div>
             </div>
