@@ -393,11 +393,20 @@ function MessagesPage() {
   }, [activeId, conversations]);
 
   useEffect(() => {
+    if (!active) return;
+    const count = unread[active.id] ?? 0;
+    if (count > 0 && pendingUnread.current[active.id] === undefined) {
+      pendingUnread.current[active.id] = count;
+    }
+  }, [active, unread]);
+
+  useEffect(() => {
     if (!active || !user || !unread[active.id]) return;
     void markConversationRead(active.id, user.id).then(() => {
       queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
     });
   }, [active, user, unread, queryClient]);
+
 
   const { data: messages } = useQuery({
     queryKey: ["messages", active?.id],
