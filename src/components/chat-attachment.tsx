@@ -1,6 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Download, FileText, Loader2, Pause, Play, X } from "lucide-react";
+import {
+  Download,
+  FileArchive,
+  FileSpreadsheet,
+  FileText,
+  Film,
+  Loader2,
+  Pause,
+  Play,
+  Play as PlayIcon,
+  X,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -14,13 +25,61 @@ export function formatBytes(size?: number | null) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export async function uploadChatFile(conversationId: string, file: File) {
+function chatPath(conversationId: string, file: File) {
   const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-60);
-  const path = `${conversationId}/${Date.now()}-${safe}`;
-  const { error } = await supabase.storage
-    .from(CHAT_BUCKET)
-    .upload(path, file, { contentType: file.type || "application/octet-stream" });
-  if (error) throw error;
+  return `${conversationId}/${Date.now()}-${safe}`;
+}
+
+/**
+ * Uploads a chat attachment. When `onProgress` is provided the upload goes through
+ * XHR so the UI can show a WhatsApp-style percentage ring; `signal` aborts it.
+ */
+export async function uploadChatFile(
+  conversationId: string,
+  file: File,
+  options?: { onProgress?: (percent: number) => void; signal?: AbortSignal },
+) {
+  const path = chatPath(conversationId, file);
+  const contentType = file.type || "application/octet-stream";
+
+  const baseUrl = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
+  const apiKey = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] as string | undefined;
+
+  if (!options?.onProgress || !baseUrl || !apiKey || typeof XMLHttpRequest === "undefined") {
+    const { error } = await supabase.storage
+      .from(CHAT_BUCKET)
+      .upload(path, file, { contentType });
+    if (error) throw error;
+    return path;
+  }
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${baseUrl}/storage/v1/object/${CHAT_BUCKET}/${path}`);
+    xhr.setRequestHeader("apikey", apiKey);
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.setRequestHeader("x-upsert", "false");
+    xhr.setRequestHeader("content-type", contentType);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) options.onProgress?.(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        options.onProgress?.(100);
+        resolve();
+      } else {
+        reject(new Error(`upload_failed_${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error("upload_failed"));
+    xhr.onabort = () => reject(new DOMException("aborted", "AbortError"));
+    options.signal?.addEventListener("abort", () => xhr.abort(), { once: true });
+    xhr.send(file);
+  });
+
   return path;
 }
 
@@ -32,18 +91,25 @@ function clock(sec: number) {
 }
 
 const BARS = [7, 12, 18, 10, 22, 14, 8, 19, 25, 13, 9, 17, 21, 11, 15, 8, 20, 12, 16, 9, 23, 14, 10, 18];
+const SPEEDS = [1, 1.5, 2] as const;
 
-/** WhatsApp-style voice note player with a waveform scrubber. */
-function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined }) {
+/** WhatsApp-style voice note player with a waveform scrubber and speed control. */
+export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined }) {
   const ref = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [speedIndex, setSpeedIndex] = useState(0);
+  const speed = SPEEDS[speedIndex] ?? 1;
+
+  useEffect(() => {
+    if (ref.current) ref.current.playbackRate = speed;
+  }, [speed]);
 
   const progress = duration ? time / duration : 0;
 
   return (
-    <div className="flex w-60 max-w-full items-center gap-3">
+    <div className="flex w-60 max-w-full items-center gap-2">
       <audio
         ref={ref}
         src={url}
@@ -51,6 +117,7 @@ function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined })
         onLoadedMetadata={(e) => {
           const d = e.currentTarget.duration;
           if (Number.isFinite(d)) setDuration(d);
+          e.currentTarget.playbackRate = speed;
         }}
         onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
         onEnded={() => {
@@ -65,6 +132,7 @@ function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined })
           const el = ref.current;
           if (!el) return;
           if (el.paused) {
+            el.playbackRate = speed;
             void el.play();
             setPlaying(true);
           } else {
@@ -86,10 +154,7 @@ function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined })
           const el = ref.current;
           if (!el || !duration) return;
           const box = e.currentTarget.getBoundingClientRect();
-          const ratio = Math.min(
-            1,
-            Math.max(0, (e.clientX - box.left) / box.width),
-          );
+          const ratio = Math.min(1, Math.max(0, (e.clientX - box.left) / box.width));
           const target = document.dir === "rtl" ? 1 - ratio : ratio;
           el.currentTime = target * duration;
           setTime(el.currentTime);
@@ -112,9 +177,24 @@ function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined })
           />
         ))}
       </button>
-      <span className={cn("shrink-0 font-mono text-[11px] tabular-nums", mine ? "opacity-80" : "text-muted-foreground")}>
+      <span
+        className={cn(
+          "shrink-0 font-mono text-[11px] tabular-nums",
+          mine ? "opacity-80" : "text-muted-foreground",
+        )}
+      >
         {clock(playing || time ? time : duration)}
       </span>
+      <button
+        type="button"
+        onClick={() => setSpeedIndex((i) => (i + 1) % SPEEDS.length)}
+        className={cn(
+          "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums transition",
+          mine ? "bg-white/20 hover:bg-white/30" : "bg-secondary text-foreground hover:bg-secondary/70",
+        )}
+      >
+        {speed}x
+      </button>
     </div>
   );
 }
@@ -123,10 +203,12 @@ function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined })
 function Lightbox({
   url,
   name,
+  video,
   onClose,
 }: {
   url: string;
   name?: string | null | undefined;
+  video?: boolean;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -158,14 +240,44 @@ function Lightbox({
           <X className="size-5" />
         </button>
       </div>
-      <img
-        src={url}
-        alt={name ?? ""}
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-[85vh] max-w-full rounded-xl object-contain"
-      />
+      {name && (
+        <span className="absolute top-6 start-4 max-w-[60%] truncate text-sm text-white/80">
+          {name}
+        </span>
+      )}
+      {video ? (
+        <video
+          src={url}
+          controls
+          autoPlay
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-[85vh] max-w-full rounded-xl"
+        />
+      ) : (
+        <img
+          src={url}
+          alt={name ?? ""}
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-[85vh] max-w-full rounded-xl object-contain"
+        />
+      )}
     </div>
   );
+}
+
+function fileIcon(type?: string | null, name?: string | null) {
+  const value = `${type ?? ""} ${name ?? ""}`.toLowerCase();
+  if (value.includes("sheet") || /\.(xlsx?|csv)$/.test(value)) return FileSpreadsheet;
+  if (value.includes("zip") || value.includes("rar") || value.includes("compressed")) return FileArchive;
+  if (value.includes("video")) return Film;
+  return FileText;
+}
+
+function fileKind(type?: string | null, name?: string | null) {
+  const ext = (name ?? "").split(".").pop();
+  if (ext && ext.length <= 5 && !ext.includes("/")) return ext.toUpperCase();
+  const sub = (type ?? "").split("/")[1];
+  return sub ? sub.toUpperCase() : "FILE";
 }
 
 type Props = {
@@ -204,25 +316,55 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
 
   if (isVideo) {
     return (
-      <video controls preload="metadata" src={url} className="max-h-72 w-64 max-w-full rounded-xl" />
+      <>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="relative block w-64 max-w-full overflow-hidden rounded-xl"
+        >
+          <video
+            preload="metadata"
+            src={`${url}#t=0.1`}
+            className="max-h-72 w-full rounded-xl bg-black object-cover"
+          />
+          <span className="absolute inset-0 flex items-center justify-center">
+            <span className="flex size-12 items-center justify-center rounded-full bg-black/55 text-white">
+              <PlayIcon className="size-6" />
+            </span>
+          </span>
+          {size ? (
+            <span className="absolute bottom-2 start-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] text-white">
+              {formatBytes(size)}
+            </span>
+          ) : null}
+        </button>
+        {open && <Lightbox url={url} name={name} video onClose={() => setOpen(false)} />}
+      </>
     );
   }
 
   if (isImage) {
     return (
       <>
-        <button type="button" onClick={() => setOpen(true)} className="block w-full">
+        <button type="button" onClick={() => setOpen(true)} className="relative block w-full">
           <img
             src={url}
             alt={name ?? ""}
             loading="lazy"
             className="max-h-72 w-full rounded-xl border border-border/30 object-cover transition hover:opacity-95"
           />
+          {size ? (
+            <span className="absolute bottom-2 start-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] text-white">
+              {formatBytes(size)}
+            </span>
+          ) : null}
         </button>
         {open && <Lightbox url={url} name={name} onClose={() => setOpen(false)} />}
       </>
     );
   }
+
+  const Icon = fileIcon(type, name);
 
   return (
     <a
@@ -230,14 +372,26 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
       target="_blank"
       rel="noreferrer"
       className={cn(
-        "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs transition",
+        "flex w-60 max-w-full items-center gap-3 rounded-xl border p-2.5 transition",
         mine ? "border-white/25 hover:bg-white/10" : "border-border bg-card hover:bg-secondary",
       )}
     >
-      <FileText className="size-4 shrink-0" />
-      <span className="truncate font-semibold">{name ?? "file"}</span>
-      {size ? <span className="shrink-0 opacity-70">{formatBytes(size)}</span> : null}
-      <Download className="size-3.5 shrink-0 opacity-70" />
+      <span
+        className={cn(
+          "flex size-10 shrink-0 items-center justify-center rounded-lg",
+          mine ? "bg-white/20" : "bg-primary/10 text-primary",
+        )}
+      >
+        <Icon className="size-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-xs font-semibold">{name ?? "file"}</span>
+        <span className={cn("block text-[11px]", mine ? "opacity-75" : "text-muted-foreground")}>
+          {fileKind(type, name)}
+          {size ? ` · ${formatBytes(size)}` : ""}
+        </span>
+      </span>
+      <Download className="size-4 shrink-0 opacity-70" />
     </a>
   );
 }

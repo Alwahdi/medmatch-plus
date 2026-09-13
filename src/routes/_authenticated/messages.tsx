@@ -183,6 +183,17 @@ const TXT = {
     yesterday: "أمس",
     you: "أنت:",
     back: "رجوع",
+    unreadDivider: "رسائل غير مقروءة",
+    jumpLatest: "أحدث الرسائل",
+    pause: "إيقاف مؤقت",
+    resume: "متابعة التسجيل",
+    paused: "التسجيل متوقف مؤقتاً",
+    sendNow: "إرسال",
+    cancelUpload: "إلغاء الرفع",
+    previewTitle: "معاينة قبل الإرسال",
+    confirmSend: "تأكيد الإرسال",
+
+
 
   },
   en: {
@@ -236,6 +247,17 @@ const TXT = {
     yesterday: "Yesterday",
     you: "You:",
     back: "Back",
+    unreadDivider: "Unread messages",
+    jumpLatest: "Latest messages",
+    pause: "Pause",
+    resume: "Resume",
+    paused: "Recording paused",
+    sendNow: "Send",
+    cancelUpload: "Cancel upload",
+    previewTitle: "Preview before sending",
+    confirmSend: "Confirm send",
+
+
 
   },
 } as const;
@@ -257,6 +279,15 @@ function MessagesPage() {
   const [search, setSearch] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const markerRef = useRef<HTMLDivElement>(null);
+  const [atBottom, setAtBottom] = useState(true);
+  const [uploadPct, setUploadPct] = useState<number | null>(null);
+  const uploadAbort = useRef<AbortController | null>(null);
+  const [marker, setMarker] = useState<{ convId: string; msgId: string } | null>(null);
+  const pendingUnread = useRef<Record<string, number>>({});
+  const markerDone = useRef<Record<string, boolean>>({});
+
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineUsers = useOnlineUsers(user);
 
@@ -362,11 +393,20 @@ function MessagesPage() {
   }, [activeId, conversations]);
 
   useEffect(() => {
+    if (!active) return;
+    const count = unread[active.id] ?? 0;
+    if (count > 0 && pendingUnread.current[active.id] === undefined) {
+      pendingUnread.current[active.id] = count;
+    }
+  }, [active, unread]);
+
+  useEffect(() => {
     if (!active || !user || !unread[active.id]) return;
     void markConversationRead(active.id, user.id).then(() => {
       queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
     });
   }, [active, user, unread, queryClient]);
+
 
   const { data: messages } = useQuery({
     queryKey: ["messages", active?.id],
@@ -399,9 +439,51 @@ function MessagesPage() {
     },
   });
 
+  // Place the "unread messages" divider before the first message the user has not read.
   useEffect(() => {
+    if (!active || !messages) return;
+    if (markerDone.current[active.id]) return;
+    markerDone.current[active.id] = true;
+    const count = pendingUnread.current[active.id] ?? 0;
+    if (!count) return;
+    const others = messages.filter((m) => m.sender_id !== user?.id);
+    const first = others[Math.max(0, others.length - count)];
+    if (first) setMarker({ convId: active.id, msgId: first.id });
+  }, [active, messages, user]);
+
+  // Open a conversation at its unread divider, otherwise at the newest message.
+  useEffect(() => {
+    if (!active || !messages?.length) return;
+    const id = window.setTimeout(() => {
+      if (marker?.convId === active.id && markerRef.current) {
+        markerRef.current.scrollIntoView({ block: "center" });
+      } else {
+        endRef.current?.scrollIntoView({ block: "end" });
+      }
+      setAtBottom(true);
+    }, 30);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active?.id, messages?.length === 0]);
+
+  // Follow new messages only when already at the bottom.
+  useEffect(() => {
+    if (!atBottom) return;
     endRef.current?.scrollIntoView({ block: "end" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+  }
+
+  function scrollToBottom() {
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    setAtBottom(true);
+  }
+
 
   const toggleReaction = useMutation({
     mutationFn: async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
@@ -431,13 +513,24 @@ function MessagesPage() {
 
       let attachment: Record<string, unknown> = {};
       if (upload) {
-        const path = await uploadChatFile(active!.id, upload);
-        attachment = {
-          attachment_path: path,
-          attachment_name: upload.name,
-          attachment_type: upload.type || "application/octet-stream",
-          attachment_size: upload.size,
-        };
+        const controller = new AbortController();
+        uploadAbort.current = controller;
+        setUploadPct(0);
+        try {
+          const path = await uploadChatFile(active!.id, upload, {
+            onProgress: setUploadPct,
+            signal: controller.signal,
+          });
+          attachment = {
+            attachment_path: path,
+            attachment_name: upload.name,
+            attachment_type: upload.type || "application/octet-stream",
+            attachment_size: upload.size,
+          };
+        } finally {
+          uploadAbort.current = null;
+          setUploadPct(null);
+        }
       }
 
       const { error } = await supabase.from("messages").insert({
@@ -452,11 +545,20 @@ function MessagesPage() {
       setDraft("");
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
+      if (imageRef.current) imageRef.current.value = "";
+      if (cameraRef.current) cameraRef.current.value = "";
+      setAtBottom(true);
       queryClient.invalidateQueries({ queryKey: ["messages", active?.id] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: (e: Error) => toast.error(e.message || c.failed),
+    onError: (e: Error) => {
+      if (e.name === "AbortError") return;
+      toast.error(e.message || c.failed);
+    },
   });
+
+
+
 
   function counterpart(conv: Conversation) {
     const isPro = conv.professional_user_id === user?.id;
@@ -726,13 +828,19 @@ function MessagesPage() {
                 </div>
               )}
 
-              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-3 sm:p-4">
+              <div className="relative min-h-0 flex-1">
+              <div
+                ref={scrollRef}
+                onScroll={onScroll}
+                className="h-full space-y-3 overflow-y-auto overscroll-contain p-3 sm:p-4"
+              >
 
                 {messages?.length ? (
                   messages.map((m, i) => {
                     const mine = m.sender_id === user?.id;
                     const prev = messages[i - 1];
                     const showDay = !prev || dayKey(prev.created_at) !== dayKey(m.created_at);
+                    const showUnread = marker?.convId === active.id && marker.msgId === m.id;
                     const list = reactions?.[m.id] ?? [];
                     const grouped = list.reduce<Record<string, number>>((acc, r) => {
                       acc[r.emoji] = (acc[r.emoji] ?? 0) + 1;
@@ -747,6 +855,16 @@ function MessagesPage() {
                             </span>
                           </div>
                         )}
+                        {showUnread && (
+                          <div ref={markerRef} className="my-4 flex items-center gap-3">
+                            <span className="h-px flex-1 bg-emerald-500/40" />
+                            <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-600">
+                              {c.unreadDivider}
+                            </span>
+                            <span className="h-px flex-1 bg-emerald-500/40" />
+                          </div>
+                        )}
+
                         <div className={cn("group flex", mine ? "justify-start" : "justify-end")}>
                         <div className="max-w-[88%] min-w-0 sm:max-w-[72%]">
                           <div

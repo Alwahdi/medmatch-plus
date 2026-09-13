@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Square, Trash2 } from "lucide-react";
+import { Mic, Pause, Play, Send, Square, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { VoicePlayer } from "@/components/chat-attachment";
 
 function fmt(sec: number) {
   const m = Math.floor(sec / 60);
@@ -12,29 +13,48 @@ function fmt(sec: number) {
 type Props = {
   disabled?: boolean;
   compact?: boolean;
-  labels: { record: string; stop: string; cancel: string; unsupported: string; denied: string };
+  labels: {
+    record: string;
+    stop: string;
+    cancel: string;
+    unsupported: string;
+    denied: string;
+    pause?: string;
+    resume?: string;
+    send?: string;
+    paused?: string;
+  };
   onRecorded: (file: File) => void;
 };
 
-/** Records a short voice note with the microphone and returns it as an audio file. */
+/** Records a voice note with pause/resume and a preview before sending. */
 export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) {
   const [recording, setRecording] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [seconds, setSeconds] = useState(0);
+  const [preview, setPreview] = useState<{ file: File; url: string } | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const cancelledRef = useRef(false);
 
   useEffect(() => {
-    if (!recording) return;
+    if (!recording || paused) return;
     const t = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => clearInterval(t);
-  }, [recording]);
+  }, [recording, paused]);
 
   useEffect(() => {
     return () => {
       recorderRef.current?.stream.getTracks().forEach((t) => t.stop());
     };
   }, []);
+
+  function clearPreview() {
+    setPreview((p) => {
+      if (p) URL.revokeObjectURL(p.url);
+      return null;
+    });
+  }
 
   async function start() {
     if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -56,14 +76,28 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
         const type = rec.mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type });
         const ext = type.includes("mp4") ? "m4a" : "webm";
-        onRecorded(new File([blob], `voice-${Date.now()}.${ext}`, { type }));
+        const file = new File([blob], `voice-${Date.now()}.${ext}`, { type });
+        setPreview({ file, url: URL.createObjectURL(blob) });
       };
       rec.start();
       recorderRef.current = rec;
       setSeconds(0);
+      setPaused(false);
       setRecording(true);
     } catch {
       toast.error(labels.denied);
+    }
+  }
+
+  function togglePause() {
+    const rec = recorderRef.current;
+    if (!rec) return;
+    if (rec.state === "recording") {
+      rec.pause();
+      setPaused(true);
+    } else if (rec.state === "paused") {
+      rec.resume();
+      setPaused(false);
     }
   }
 
@@ -72,6 +106,40 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
     recorderRef.current?.stop();
     recorderRef.current = null;
     setRecording(false);
+    setPaused(false);
+  }
+
+  if (preview) {
+    return (
+      <div className="flex flex-1 items-center gap-2 rounded-2xl border border-border bg-surface px-2 py-1.5">
+        <button
+          type="button"
+          onClick={clearPreview}
+          title={labels.cancel}
+          aria-label={labels.cancel}
+          className="shrink-0 text-muted-foreground transition hover:text-destructive"
+        >
+          <Trash2 className="size-4" />
+        </button>
+        <div className="min-w-0 flex-1">
+          <VoicePlayer url={preview.url} />
+        </div>
+        <Button
+          type="button"
+          size="icon"
+          title={labels.send ?? labels.stop}
+          aria-label={labels.send ?? labels.stop}
+          disabled={disabled}
+          onClick={() => {
+            onRecorded(preview.file);
+            clearPreview();
+          }}
+          className="size-9 shrink-0 rounded-full"
+        >
+          <Send className="size-4" />
+        </Button>
+      </div>
+    );
   }
 
   if (!recording) {
@@ -98,45 +166,55 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
     );
   }
 
-  if (compact) {
-    return (
-      <div className="flex flex-1 items-center gap-2 rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1.5">
-        <button
-          type="button"
-          onClick={() => stop(true)}
-          title={labels.cancel}
-          aria-label={labels.cancel}
-          className="text-muted-foreground transition hover:text-destructive"
-        >
-          <Trash2 className="size-4" />
-        </button>
-        <span className="size-2 animate-pulse rounded-full bg-destructive" />
-        <span className="font-mono text-xs tabular-nums">{fmt(seconds)}</span>
-        <span className="truncate text-xs text-muted-foreground">{labels.record}</span>
-        <Button
-          type="button"
-          size="icon"
-          onClick={() => stop(false)}
-          title={labels.stop}
-          aria-label={labels.stop}
-          className="ms-auto size-9 shrink-0 rounded-full"
-        >
-          <Square className="size-4" />
-        </Button>
-      </div>
-    );
-  }
+  const pauseLabel = paused ? (labels.resume ?? labels.record) : (labels.pause ?? labels.stop);
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/5 px-3 py-1.5">
-      <span className="size-2 animate-pulse rounded-full bg-destructive" />
-      <span className="font-mono text-xs tabular-nums">{fmt(seconds)}</span>
-      <Button type="button" size="sm" onClick={() => stop(false)}>
-        <Square className="size-3.5" /> {labels.stop}
+    <div
+      className={cnClass(compact)}
+    >
+      <button
+        type="button"
+        onClick={() => stop(true)}
+        title={labels.cancel}
+        aria-label={labels.cancel}
+        className="shrink-0 text-muted-foreground transition hover:text-destructive"
+      >
+        <Trash2 className="size-4" />
+      </button>
+      <span
+        className={`size-2 shrink-0 rounded-full bg-destructive ${paused ? "" : "animate-pulse"}`}
+      />
+      <span className="shrink-0 font-mono text-xs tabular-nums">{fmt(seconds)}</span>
+      <span className="truncate text-xs text-muted-foreground">
+        {paused ? (labels.paused ?? labels.record) : labels.record}
+      </span>
+      <Button
+        type="button"
+        size="icon"
+        variant="ghost"
+        onClick={togglePause}
+        title={pauseLabel}
+        aria-label={pauseLabel}
+        className="ms-auto size-9 shrink-0 rounded-full"
+      >
+        {paused ? <Play className="size-4" /> : <Pause className="size-4" />}
       </Button>
-      <Button type="button" size="sm" variant="ghost" onClick={() => stop(true)}>
-        <Trash2 className="size-3.5" /> {labels.cancel}
+      <Button
+        type="button"
+        size="icon"
+        onClick={() => stop(false)}
+        title={labels.stop}
+        aria-label={labels.stop}
+        className="size-9 shrink-0 rounded-full"
+      >
+        <Square className="size-4" />
       </Button>
     </div>
   );
+}
+
+function cnClass(compact?: boolean) {
+  return compact
+    ? "flex flex-1 items-center gap-2 rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1.5"
+    : "flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/5 px-3 py-1.5";
 }
