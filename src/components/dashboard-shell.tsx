@@ -170,7 +170,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
       >
         <RemoteAvatar
-          value={isFacility ? myFacility?.logo_url : myProfile?.avatar_url}
+          value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
           alt={accountName}
           fallbackText={accountName}
           className="size-9 shrink-0 rounded-full text-sm"
