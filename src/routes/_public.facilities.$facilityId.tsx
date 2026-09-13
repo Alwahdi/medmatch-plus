@@ -17,8 +17,10 @@ import { EmptyState } from "@/components/empty-state";
 import { RatingStars } from "@/components/rating-stars";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, formatSalary } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 
 const TXT = {
   ar: {
