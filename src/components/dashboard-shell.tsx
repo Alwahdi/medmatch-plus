@@ -118,6 +118,39 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     </nav>
   );
 
+  const account = (
+    <div className="mt-3 space-y-1 border-t border-border/70 pt-3">
+      <div className="flex items-center gap-3 px-3 py-2">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
+          {(user?.email?.[0] ?? "S").toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{user?.email}</p>
+          <p className="text-xs text-muted-foreground">
+            {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
+          </p>
+        </div>
+      </div>
+      <Link
+        to="/settings"
+        onClick={() => setOpen(false)}
+        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      >
+        <Settings className="size-4 shrink-0" />
+        <span>{t("nav.settings")}</span>
+        <ChevronLeft className="ms-auto size-4 rtl:rotate-0 ltr:rotate-180" />
+      </Link>
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+      >
+        <LogOut className="size-4 shrink-0" />
+        <span>{t("nav.signOut")}</span>
+      </button>
+    </div>
+  );
+
 
   return (
     <div className="min-h-screen bg-muted/30">
