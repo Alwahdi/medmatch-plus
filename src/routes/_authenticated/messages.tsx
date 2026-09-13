@@ -586,7 +586,11 @@ function MessagesPage() {
                   <li key={conv.id}>
                     <button
                       type="button"
-                      onClick={() => setActiveId(conv.id)}
+                      onClick={() => {
+                        setActiveId(conv.id);
+                        setMobileOpen(true);
+                      }}
+
                       className={cn(
                         "flex w-full items-center gap-3 p-3 text-start transition-colors hover:bg-secondary",
                         active?.id === conv.id && "bg-secondary",
