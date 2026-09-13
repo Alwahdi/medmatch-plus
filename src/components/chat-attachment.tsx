@@ -34,7 +34,7 @@ function clock(sec: number) {
 const BARS = [7, 12, 18, 10, 22, 14, 8, 19, 25, 13, 9, 17, 21, 11, 15, 8, 20, 12, 16, 9, 23, 14, 10, 18];
 
 /** WhatsApp-style voice note player with a waveform scrubber. */
-function VoicePlayer({ url, mine }: { url: string; mine?: boolean }) {
+function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined }) {
   const ref = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -120,7 +120,15 @@ function VoicePlayer({ url, mine }: { url: string; mine?: boolean }) {
 }
 
 /** Fullscreen viewer for images and videos shared in chat. */
-function Lightbox({ url, name, onClose }: { url: string; name?: string | null; onClose: () => void }) {
+function Lightbox({
+  url,
+  name,
+  onClose,
+}: {
+  url: string;
+  name?: string | null | undefined;
+  onClose: () => void;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
