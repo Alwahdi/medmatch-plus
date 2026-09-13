@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import {
   Bell,
@@ -24,9 +24,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notification-bell";
+import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useRoles, useSession } from "@/lib/auth";
+import { useMyFacility, useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 
@@ -128,7 +129,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const nav = (
     <nav className="space-y-1">
       {items.map((item) => {
-        const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+        const active = isActive(item.to);
         const Icon = item.icon;
         const badge = item.to === "/messages" ? unreadTotal : 0;
         return (
@@ -246,7 +247,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       >
         <div className="grid grid-cols-6">
           {mobileTabs.map((item) => {
-            const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+            const active = isActive(item.to);
             const Icon = item.icon;
             const badge = item.to === "/messages" ? unreadTotal : 0;
             return (
