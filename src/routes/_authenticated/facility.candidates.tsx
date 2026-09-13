@@ -222,7 +222,7 @@ function Candidates() {
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+          <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{c.subtitle}</p>
         </div>
         <div className="text-sm text-muted-foreground">
@@ -235,7 +235,7 @@ function Candidates() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-5 md:grid-cols-4">
+      <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 sm:p-5 md:grid-cols-4">
         <Select value={specialty} onValueChange={setSpecialty}>
           <SelectTrigger><SelectValue placeholder={c.specialty} /></SelectTrigger>
           <SelectContent>
@@ -262,7 +262,7 @@ function Candidates() {
           value={minExp}
           onChange={(e) => setMinExp(e.target.value)}
         />
-        <Button className="md:col-span-4" onClick={() => search.mutate()} disabled={search.isPending}>
+        <Button className="w-full sm:col-span-2 md:col-span-4" onClick={() => search.mutate()} disabled={search.isPending}>
           <Search className="size-4" /> {search.isPending ? c.searching : c.searchBtn}
         </Button>
       </div>
@@ -270,10 +270,10 @@ function Candidates() {
       {results && (
         <ul className="mt-6 space-y-4">
           {results.map((cand) => (
-            <li key={cand.id} className="card-lift rounded-2xl border border-border bg-card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="flex items-center gap-2 font-bold">
+            <li key={cand.id} className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 font-bold">
                     {c.candidateIn(specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang) || c.genericSpecialty)}
                     {cand.is_verified && (
                       <Badge variant="secondary" className="gap-1">
@@ -287,10 +287,11 @@ function Candidates() {
                     {cand.is_open_to_shifts ? c.openToShifts : ""}
                   </p>
                 </div>
-                <Button size="sm" onClick={() => startChat.mutate(cand.user_id)} disabled={startChat.isPending}>
+                <Button size="sm" className="w-full sm:w-auto" onClick={() => startChat.mutate(cand.user_id)} disabled={startChat.isPending}>
                   <MessageSquare className="size-4" /> {c.contact}
                 </Button>
               </div>
+
               {cand.bio && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{cand.bio}</p>}
             </li>
           ))}
