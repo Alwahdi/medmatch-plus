@@ -182,6 +182,8 @@ const TXT = {
     today: "اليوم",
     yesterday: "أمس",
     you: "أنت:",
+    back: "رجوع",
+
   },
   en: {
     title: "Messages",
