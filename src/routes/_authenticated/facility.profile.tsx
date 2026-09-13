@@ -233,6 +233,11 @@ function FacilityProfile() {
             {!facility.is_verified && (
               <p className="text-xs text-muted-foreground">{c.verifyHint}</p>
             )}
+            <Button asChild size="sm" variant="link" className="h-auto p-0 text-xs">
+              <Link to="/facility/verification">
+                {lang === "ar" ? "إدارة مستندات التوثيق" : "Manage verification documents"}
+              </Link>
+            </Button>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
