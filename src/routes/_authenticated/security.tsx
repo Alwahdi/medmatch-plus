@@ -482,7 +482,7 @@ function SecurityPage() {
     if (!token) return null;
     try {
       const payload = JSON.parse(
-        atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+        atob((token.split(".")[1] ?? "").replace(/-/g, "+").replace(/_/g, "/")),
       ) as { session_id?: string };
       return payload.session_id ?? null;
     } catch {
