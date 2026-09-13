@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/lib/auth";
+import { useMyFacility, useSession } from "@/lib/auth";
+import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
@@ -151,6 +152,7 @@ function JobDetail() {
   const coverSchema = z.string().trim().max(2000, c.tooLong);
   const { jobId } = Route.useParams();
   const { user } = useSession();
+  const { data: myFacility } = useMyFacility(user);
   const queryClient = useQueryClient();
   const [cover, setCover] = useState("");
 
@@ -169,6 +171,7 @@ function JobDetail() {
   });
 
   const realJobId = job?.id;
+  const isOwner = !!myFacility && !!job && job.facility_id === myFacility.id;
 
   const { data: revealedFacility } = useQuery({
     queryKey: ["revealed-facility", job?.facility_id, user?.id],
@@ -387,6 +390,9 @@ function JobDetail() {
               </div>
             </div>
 
+            {isOwner ? (
+              <OwnerListingPanel kind="job" />
+            ) : (
             <div id="apply" className="card-lift scroll-mt-24 rounded-2xl border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.applyTitle}</h2>
               {!user ? (
@@ -436,8 +442,9 @@ function JobDetail() {
                 </>
               )}
             </div>
+            )}
 
-            {user && (
+            {user && !isOwner && (
               <Button
                 variant="outline"
                 className="w-full"
@@ -453,15 +460,17 @@ function JobDetail() {
       </div>
 
       {/* Sticky mobile apply bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-        <Button
-          className="w-full"
-          disabled={!isOpen}
-          onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-        >
-          {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.closed}
-        </Button>
-      </div>
+      {!isOwner && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+          <Button
+            className="w-full"
+            disabled={!isOpen}
+            onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+          >
+            {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.closed}
+          </Button>
+        </div>
+      )}
     </>
   );
 }

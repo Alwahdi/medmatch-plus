@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/lib/auth";
+import { useMyFacility, useSession } from "@/lib/auth";
+import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import {
   countryLabel,
   formatDateTime,
@@ -146,6 +147,7 @@ function ShiftDetail() {
   const c = TXT[lang];
   const { shiftId } = Route.useParams();
   const { user } = useSession();
+  const { data: myFacility } = useMyFacility(user);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
@@ -163,6 +165,8 @@ function ShiftDetail() {
       return data;
     },
   });
+
+  const isOwner = !!myFacility && !!shift && shift.facility_id === myFacility.id;
 
   const { data: facility } = useQuery({
     queryKey: ["revealed-facility", shift?.facility_id, user?.id],
@@ -372,6 +376,9 @@ function ShiftDetail() {
               </div>
             </div>
 
+            {isOwner ? (
+              <OwnerListingPanel kind="shift" />
+            ) : (
             <div id="book" className="card-lift scroll-mt-24 rounded-2xl border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.bookTitle}</h2>
               {!user ? (
@@ -402,6 +409,7 @@ function ShiftDetail() {
                 </>
               )}
             </div>
+            )}
 
             {facility && (
               <Button variant="outline" className="w-full" asChild>
@@ -415,15 +423,17 @@ function ShiftDetail() {
       </div>
 
       {/* Sticky mobile book bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-        <Button
-          className="w-full"
-          disabled={!isOpen}
-          onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-        >
-          {isOpen ? (booking ? c.alreadyBooked : c.bookTitle) : c.unavailable}
-        </Button>
-      </div>
+      {!isOwner && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+          <Button
+            className="w-full"
+            disabled={!isOpen}
+            onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+          >
+            {isOpen ? (booking ? c.alreadyBooked : c.bookTitle) : c.unavailable}
+          </Button>
+        </div>
+      )}
     </>
   );
 }

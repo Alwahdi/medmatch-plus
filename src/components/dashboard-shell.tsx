@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import {
   Bell,
@@ -24,9 +24,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notification-bell";
+import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useRoles, useSession } from "@/lib/auth";
+import { useMyFacility, useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 
@@ -75,6 +76,31 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
   if (roles?.includes("admin")) items.push({ to: "/admin", key: "nav.admin", icon: ShieldCheck });
 
+  const { data: myFacility } = useMyFacility(user);
+  const { data: myProfile } = useQuery({
+    queryKey: ["my-profile-lite", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name,avatar_url")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+  const accountName =
+    (isFacility ? myFacility?.name_ar : myProfile?.full_name) || user?.email || "SyndeoCare";
+
+  /** المسار النشط: مطابقة دقيقة مع تفضيل أطول مسار مطابق. */
+  function isActive(to: string) {
+    if (pathname === to) return true;
+    if (!pathname.startsWith(`${to}/`)) return false;
+    return !items.some(
+      (o) => o.to !== to && o.to.length > to.length && (pathname === o.to || pathname.startsWith(`${o.to}/`)),
+    );
+  }
+
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -103,7 +129,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const nav = (
     <nav className="space-y-1">
       {items.map((item) => {
-        const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+        const active = isActive(item.to);
         const Icon = item.icon;
         const badge = item.to === "/messages" ? unreadTotal : 0;
         return (
@@ -138,17 +164,25 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   const account = (
     <div className="mt-3 space-y-1 border-t border-border/70 pt-3">
-      <div className="flex items-center gap-3 px-3 py-2">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
-          {(user?.email?.[0] ?? "S").toUpperCase()}
-        </span>
+      <Link
+        to={isFacility ? "/facility/profile" : "/profile"}
+        onClick={() => setOpen(false)}
+        className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
+      >
+        <RemoteAvatar
+          value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+          alt={accountName}
+          fallbackText={accountName}
+          className="size-9 shrink-0 rounded-full text-sm"
+        />
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{user?.email}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="truncate text-sm font-semibold">{accountName}</p>
+          <p className="truncate text-xs text-muted-foreground">
             {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
           </p>
         </div>
-      </div>
+        <ChevronLeft className="ms-auto size-4 shrink-0 text-muted-foreground rtl:rotate-0 ltr:rotate-180" />
+      </Link>
       <Link
         to="/settings"
         onClick={() => setOpen(false)}
@@ -174,16 +208,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            aria-label={t("nav.menu")}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <Menu className="size-5" />
-          </Button>
-          <Link to="/" className="flex items-center gap-2">
+          <Link to={isFacility ? "/facility" : "/dashboard"} className="flex items-center gap-2">
             <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Stethoscope className="size-5" />
             </span>
@@ -222,7 +247,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       >
         <div className="grid grid-cols-6">
           {mobileTabs.map((item) => {
-            const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+            const active = isActive(item.to);
             const Icon = item.icon;
             const badge = item.to === "/messages" ? unreadTotal : 0;
             return (
