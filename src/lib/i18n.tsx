@@ -50,6 +50,7 @@ export const DICT: Dict = {
   "nav.facilityHome": { ar: "لوحة المنشأة", en: "Facility dashboard" },
   "nav.facilityProfile": { ar: "ملف المنشأة", en: "Facility profile" },
   "nav.facilityVerification": { ar: "توثيق المنشأة", en: "Facility verification" },
+  "nav.security": { ar: "الأمان وتسجيل الدخول", en: "Security & sign-in" },
 
   "dash.proArea": { ar: "حسابي", en: "My account" },
   "dash.facilityArea": { ar: "منطقة المنشأة", en: "Employer area" },
