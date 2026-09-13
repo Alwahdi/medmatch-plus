@@ -138,17 +138,25 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   const account = (
     <div className="mt-3 space-y-1 border-t border-border/70 pt-3">
-      <div className="flex items-center gap-3 px-3 py-2">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
-          {(user?.email?.[0] ?? "S").toUpperCase()}
-        </span>
+      <Link
+        to={isFacility ? "/facility/profile" : "/profile"}
+        onClick={() => setOpen(false)}
+        className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
+      >
+        <RemoteAvatar
+          value={isFacility ? myFacility?.logo_url : myProfile?.avatar_url}
+          alt={accountName}
+          fallbackText={accountName}
+          className="size-9 shrink-0 rounded-full text-sm"
+        />
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{user?.email}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="truncate text-sm font-semibold">{accountName}</p>
+          <p className="truncate text-xs text-muted-foreground">
             {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
           </p>
         </div>
-      </div>
+        <ChevronLeft className="ms-auto size-4 shrink-0 text-muted-foreground rtl:rotate-0 ltr:rotate-180" />
+      </Link>
       <Link
         to="/settings"
         onClick={() => setOpen(false)}
@@ -174,16 +182,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            aria-label={t("nav.menu")}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <Menu className="size-5" />
-          </Button>
-          <Link to="/" className="flex items-center gap-2">
+          <Link to={isFacility ? "/facility" : "/dashboard"} className="flex items-center gap-2">
             <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Stethoscope className="size-5" />
             </span>
