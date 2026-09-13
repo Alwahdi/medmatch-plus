@@ -96,6 +96,8 @@ function FacilityProfilePage() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { facilityId } = Route.useParams();
+  const { user } = useSession();
+  const online = useOnlineUsers(user);
 
   const { data: facility, isLoading } = useQuery({
     queryKey: ["public-facility", facilityId],
@@ -103,7 +105,7 @@ function FacilityProfilePage() {
       const { data } = await supabase
         .from("facilities")
         .select(
-          "id,name_ar,name_en,facility_type,country,city,description,website,logo_url,is_verified,rating_avg,rating_count",
+          "id,user_id,name_ar,name_en,facility_type,country,city,description,website,logo_url,is_verified,rating_avg,rating_count",
         )
         .eq("id", facilityId)
         .maybeSingle();
