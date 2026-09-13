@@ -279,6 +279,15 @@ function MessagesPage() {
   const [search, setSearch] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const markerRef = useRef<HTMLDivElement>(null);
+  const [atBottom, setAtBottom] = useState(true);
+  const [uploadPct, setUploadPct] = useState<number | null>(null);
+  const uploadAbort = useRef<AbortController | null>(null);
+  const [marker, setMarker] = useState<{ convId: string; msgId: string } | null>(null);
+  const pendingUnread = useRef<Record<string, number>>({});
+  const markerDone = useRef<Record<string, boolean>>({});
+
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineUsers = useOnlineUsers(user);
 
