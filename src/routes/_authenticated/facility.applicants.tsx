@@ -162,8 +162,8 @@ function Applicants() {
     <div className="mx-auto max-w-5xl px-4 py-10">
       {confirmDialog}
 
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
         <Link to="/facility" className="text-sm text-primary underline">{c.back}</Link>
       </div>
 
@@ -172,9 +172,9 @@ function Applicants() {
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((a) => (
-            <li key={a.id} className="card-lift rounded-2xl border border-border bg-card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
+            <li key={a.id} className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                <div className="min-w-0">
                   <p className="font-bold">
                     {a.pro?.full_name ?? c.healthcarePro}
                     {a.pro?.is_verified && <Badge className="ms-2" variant="secondary">{c.verified}</Badge>}
@@ -188,6 +188,7 @@ function Applicants() {
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
+
                 <Button
                   size="sm"
                   variant="outline"
@@ -230,7 +231,7 @@ function Applicants() {
                   }}
                 >
 
-                  <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {APPLICATION_STATUSES.map((k) => (
                       <SelectItem key={k} value={k}>{applicationLabel(k, lang)}</SelectItem>
