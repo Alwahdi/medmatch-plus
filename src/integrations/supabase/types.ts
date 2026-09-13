@@ -300,6 +300,59 @@ export type Database = {
         }
         Relationships: []
       }
+      facility_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          expiry_date: string | null
+          facility_id: string
+          file_path: string | null
+          id: string
+          issue_date: string | null
+          issuer: string | null
+          review_note: string | null
+          status: Database["public"]["Enums"]["credential_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          expiry_date?: string | null
+          facility_id: string
+          file_path?: string | null
+          id?: string
+          issue_date?: string | null
+          issuer?: string | null
+          review_note?: string | null
+          status?: Database["public"]["Enums"]["credential_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          expiry_date?: string | null
+          facility_id?: string
+          file_path?: string | null
+          id?: string
+          issue_date?: string | null
+          issuer?: string | null
+          review_note?: string | null
+          status?: Database["public"]["Enums"]["credential_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facility_documents_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       facility_subscriptions: {
         Row: {
           billing_period: string
