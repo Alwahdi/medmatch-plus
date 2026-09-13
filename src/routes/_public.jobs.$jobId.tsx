@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/lib/auth";
+import { useMyFacility, useSession } from "@/lib/auth";
+import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
@@ -151,6 +152,7 @@ function JobDetail() {
   const coverSchema = z.string().trim().max(2000, c.tooLong);
   const { jobId } = Route.useParams();
   const { user } = useSession();
+  const { data: myFacility } = useMyFacility(user);
   const queryClient = useQueryClient();
   const [cover, setCover] = useState("");
 

@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/lib/auth";
+import { useMyFacility, useSession } from "@/lib/auth";
+import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import {
   countryLabel,
   formatDateTime,
@@ -146,6 +147,7 @@ function ShiftDetail() {
   const c = TXT[lang];
   const { shiftId } = Route.useParams();
   const { user } = useSession();
+  const { data: myFacility } = useMyFacility(user);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
