@@ -749,10 +749,18 @@ function MessagesPage() {
                 <div ref={endRef} />
               </div>
 
-              <div className="border-t border-border p-4">
+              <div className="border-t border-border p-3">
                 {file && (
-                  <div className="mb-3 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs">
-                    <Paperclip className="size-3.5 text-primary" />
+                  <div className="mb-2 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs">
+                    {file.type.startsWith("image/") ? (
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt=""
+                        className="size-10 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <FileText className="size-4 text-primary" />
+                    )}
                     <span className="truncate font-semibold">{file.name}</span>
                     <span className="text-muted-foreground">{formatBytes(file.size)}</span>
                     <button
@@ -761,74 +769,147 @@ function MessagesPage() {
                       onClick={() => {
                         setFile(null);
                         if (fileRef.current) fileRef.current.value = "";
+                        if (imageRef.current) imageRef.current.value = "";
+                        if (cameraRef.current) cameraRef.current.value = "";
                       }}
                     >
                       <X className="size-4" />
                     </button>
                   </div>
                 )}
-                <Textarea
-                  rows={3}
-                  maxLength={2000}
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if ((draft.trim() || file) && !send.isPending) send.mutate(undefined);
-                    }
-                  }}
-                  placeholder={c.placeholder}
-                />
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button
-                    onClick={() => send.mutate(undefined)}
-                    disabled={send.isPending || (!draft.trim() && !file)}
-                  >
-                    {send.isPending ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Send className="size-4" />
-                    )}
-                    {send.isPending ? c.uploading : c.send}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileRef.current?.click()}
-                    disabled={send.isPending}
-                  >
-                    <Paperclip className="size-4" /> {c.attach}
-                  </Button>
-                  <VoiceRecorder
-                    disabled={send.isPending}
-                    labels={{
-                      record: c.record,
-                      stop: c.stop,
-                      cancel: c.cancelRec,
-                      unsupported: c.micUnsupported,
-                      denied: c.micDenied,
+
+                <div className="flex items-end gap-1.5">
+                  <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        title={c.emoji}
+                        aria-label={c.emoji}
+                        className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                      >
+                        <Smile className="size-5" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-72 p-2">
+                      <div className="grid max-h-56 grid-cols-10 gap-1 overflow-y-auto">
+                        {PICKER_EMOJIS.map((emoji) => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => setDraft((d) => `${d}${emoji}`)}
+                            className="rounded-md p-1 text-lg transition hover:bg-secondary"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        title={c.attach}
+                        aria-label={c.attach}
+                        disabled={send.isPending}
+                        className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                      >
+                        <Paperclip className="size-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" side="top">
+                      <DropdownMenuItem onSelect={() => imageRef.current?.click()}>
+                        <ImageIcon className="size-4 text-primary" /> {c.photo}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => cameraRef.current?.click()}>
+                        <Camera className="size-4 text-emerald-600" /> {c.camera}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => fileRef.current?.click()}>
+                        <FileText className="size-4 text-sky-600" /> {c.document}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <Textarea
+                    rows={1}
+                    maxLength={2000}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if ((draft.trim() || file) && !send.isPending) send.mutate(undefined);
+                      }
                     }}
-                    onRecorded={(f) => send.mutate(f)}
+                    placeholder={c.placeholder}
+                    className="max-h-36 min-h-10 flex-1 resize-none rounded-2xl py-2.5"
                   />
+
+                  {draft.trim() || file ? (
+                    <Button
+                      type="button"
+                      size="icon"
+                      title={c.send}
+                      aria-label={c.send}
+                      onClick={() => send.mutate(undefined)}
+                      disabled={send.isPending}
+                      className="size-10 shrink-0 rounded-full"
+                    >
+                      {send.isPending ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Send className="size-4" />
+                      )}
+                    </Button>
+                  ) : (
+                    <VoiceRecorder
+                      compact
+                      disabled={send.isPending}
+                      labels={{
+                        record: c.record,
+                        stop: c.stop,
+                        cancel: c.cancelRec,
+                        unsupported: c.micUnsupported,
+                        denied: c.micDenied,
+                      }}
+                      onRecorded={(f) => send.mutate(f)}
+                    />
+                  )}
+
                   <input
                     ref={fileRef}
                     type="file"
                     className="hidden"
-                    accept="image/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (!f) return;
-                      if (f.size > CHAT_MAX_BYTES) {
-                        toast.error(c.tooBig);
-                        e.target.value = "";
-                        return;
-                      }
-                      setFile(f);
-                    }}
+                    accept="application/pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                    onChange={(e) => pickFile(e.target)}
                   />
-                  <span className="text-xs text-muted-foreground">{c.hint}</span>
-                  <span className="ms-auto text-xs text-muted-foreground">{draft.length}/2000</span>
+                  <input
+                    ref={imageRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*,video/*"
+                    onChange={(e) => pickFile(e.target)}
+                  />
+                  <input
+                    ref={cameraRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => pickFile(e.target)}
+                  />
+                </div>
+
+                <div className="mt-1.5 flex items-center gap-3 px-1">
+                  <span className="truncate text-[11px] text-muted-foreground">{c.hint}</span>
+                  <span className="ms-auto shrink-0 text-[11px] text-muted-foreground">
+                    {draft.length}/2000
+                  </span>
                 </div>
               </div>
             </div>
