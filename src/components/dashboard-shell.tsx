@@ -10,7 +10,6 @@ import {
   CalendarClock,
   FileText,
   LayoutDashboard,
-  Lock,
   LogOut,
   Menu,
   MessagesSquare,
