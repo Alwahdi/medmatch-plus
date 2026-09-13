@@ -828,13 +828,19 @@ function MessagesPage() {
                 </div>
               )}
 
-              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-3 sm:p-4">
+              <div className="relative min-h-0 flex-1">
+              <div
+                ref={scrollRef}
+                onScroll={onScroll}
+                className="h-full space-y-3 overflow-y-auto overscroll-contain p-3 sm:p-4"
+              >
 
                 {messages?.length ? (
                   messages.map((m, i) => {
                     const mine = m.sender_id === user?.id;
                     const prev = messages[i - 1];
                     const showDay = !prev || dayKey(prev.created_at) !== dayKey(m.created_at);
+                    const showUnread = marker?.convId === active.id && marker.msgId === m.id;
                     const list = reactions?.[m.id] ?? [];
                     const grouped = list.reduce<Record<string, number>>((acc, r) => {
                       acc[r.emoji] = (acc[r.emoji] ?? 0) + 1;
@@ -849,6 +855,16 @@ function MessagesPage() {
                             </span>
                           </div>
                         )}
+                        {showUnread && (
+                          <div ref={markerRef} className="my-4 flex items-center gap-3">
+                            <span className="h-px flex-1 bg-emerald-500/40" />
+                            <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-600">
+                              {c.unreadDivider}
+                            </span>
+                            <span className="h-px flex-1 bg-emerald-500/40" />
+                          </div>
+                        )}
+
                         <div className={cn("group flex", mine ? "justify-start" : "justify-end")}>
                         <div className="max-w-[88%] min-w-0 sm:max-w-[72%]">
                           <div
