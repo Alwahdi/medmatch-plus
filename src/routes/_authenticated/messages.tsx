@@ -170,6 +170,15 @@ const TXT = {
     notYet: "لم يتم بعد",
     react: "تفاعل",
     reactions: "التفاعلات",
+    searchPh: "ابحث في المحادثات",
+    noResults: "لا توجد نتائج مطابقة",
+    photo: "صورة أو فيديو",
+    camera: "التقاط صورة",
+    document: "مستند",
+    emoji: "إيموجي",
+    today: "اليوم",
+    yesterday: "أمس",
+    you: "أنت:",
   },
   en: {
     title: "Messages",
@@ -212,6 +221,15 @@ const TXT = {
     notYet: "Not yet",
     react: "React",
     reactions: "Reactions",
+    searchPh: "Search conversations",
+    noResults: "No matching conversations",
+    photo: "Photo or video",
+    camera: "Take a photo",
+    document: "Document",
+    emoji: "Emoji",
+    today: "Today",
+    yesterday: "Yesterday",
+    you: "You:",
   },
 } as const;
 
@@ -225,6 +243,10 @@ function MessagesPage() {
   const [file, setFile] = useState<File | null>(null);
   const [info, setInfo] = useState<Msg | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const [search, setSearch] = useState("");
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineUsers = useOnlineUsers(user);
