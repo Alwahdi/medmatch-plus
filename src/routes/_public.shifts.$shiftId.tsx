@@ -409,6 +409,7 @@ function ShiftDetail() {
                 </>
               )}
             </div>
+            )}
 
             {facility && (
               <Button variant="outline" className="w-full" asChild>
