@@ -518,20 +518,27 @@ function MessagesPage() {
           )}
         />
       </span>
-      <span>
+      <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2 font-bold">
-          {activeInfo.name}
-          {activeInfo.verified && <Badge variant="secondary">{c.verified}</Badge>}
+          <span className="truncate">{activeInfo.name}</span>
+          {activeInfo.verified && (
+            <Badge variant="secondary" className="hidden shrink-0 sm:inline-flex">
+              {c.verified}
+            </Badge>
+          )}
         </span>
         <span className="flex items-center gap-2 text-xs">
           <span className={activeInfo.online ? "text-emerald-600" : "text-muted-foreground"}>
             {activeInfo.online ? c.online : c.offline}
           </span>
           {activeInfo.linkId && (
-            <span className="text-primary underline underline-offset-4">{c.viewProfile}</span>
+            <span className="hidden text-primary underline underline-offset-4 sm:inline">
+              {c.viewProfile}
+            </span>
           )}
         </span>
       </span>
+
     </>
   );
 
