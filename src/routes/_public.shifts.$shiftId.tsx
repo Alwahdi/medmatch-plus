@@ -306,9 +306,9 @@ function ShiftDetail() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-4xl px-4 py-10">
+      <div className="mx-auto max-w-4xl px-4 py-10 pb-28 lg:pb-10">
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-          <div className="card-lift rounded-2xl border border-border bg-card p-6">
+          <div className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-6">
             <div className="flex flex-wrap gap-2 text-xs">
               <Badge variant="outline" className="gap-1">
                 <MapPin className="size-3" /> {shift.city}، {countryLabel(shift.country, lang)}
@@ -353,7 +353,7 @@ function ShiftDetail() {
           </div>
 
           <div className="space-y-6">
-            <div className="card-lift rounded-2xl border border-border bg-card p-6">
+            <div className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-6">
               <div className="text-sm text-muted-foreground">{c.totalLabel}</div>
               <div className="mt-1 font-display text-3xl font-extrabold text-accent">
                 {formatMoney(total, shift.currency, lang)}
@@ -372,7 +372,7 @@ function ShiftDetail() {
               </div>
             </div>
 
-            <div className="card-lift rounded-2xl border border-border bg-card p-6">
+            <div id="book" className="card-lift scroll-mt-24 rounded-2xl border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.bookTitle}</h2>
               {!user ? (
                 <>
@@ -412,6 +412,17 @@ function ShiftDetail() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Sticky mobile book bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        <Button
+          className="w-full"
+          disabled={!isOpen}
+          onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+        >
+          {isOpen ? (booking ? c.alreadyBooked : c.bookTitle) : c.unavailable}
+        </Button>
       </div>
     </>
   );

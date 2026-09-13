@@ -358,7 +358,7 @@ function AdminPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+      <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -369,34 +369,37 @@ function AdminPage() {
       </div>
 
       <Tabs defaultValue="docs" className="mt-8">
-        <TabsList className="flex w-full flex-wrap justify-start">
-          <TabsTrigger value="docs">
-            {c.tabDocs}
-            {pendingDocs.length > 0 && (
-              <Badge variant="destructive" className="ms-2">
-                {pendingDocs.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="facdocs">
-            {c.tabFacDocs}
-            {pendingFacDocs.length > 0 && (
-              <Badge variant="destructive" className="ms-2">
-                {pendingFacDocs.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="facilities">{c.tabFacilities}</TabsTrigger>
-          <TabsTrigger value="pros">{c.tabPros}</TabsTrigger>
-          <TabsTrigger value="inbox">
-            {c.tabInbox}
-            {newMsgs.length > 0 && (
-              <Badge variant="destructive" className="ms-2">
-                {newMsgs.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <TabsList className="w-max justify-start">
+            <TabsTrigger value="docs" className="shrink-0">
+              {c.tabDocs}
+              {pendingDocs.length > 0 && (
+                <Badge variant="destructive" className="ms-2">
+                  {pendingDocs.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="facdocs" className="shrink-0">
+              {c.tabFacDocs}
+              {pendingFacDocs.length > 0 && (
+                <Badge variant="destructive" className="ms-2">
+                  {pendingFacDocs.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="facilities" className="shrink-0">{c.tabFacilities}</TabsTrigger>
+            <TabsTrigger value="pros" className="shrink-0">{c.tabPros}</TabsTrigger>
+            <TabsTrigger value="inbox" className="shrink-0">
+              {c.tabInbox}
+              {newMsgs.length > 0 && (
+                <Badge variant="destructive" className="ms-2">
+                  {newMsgs.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
 
         <TabsContent value="docs" className="mt-6">
           <div className="flex flex-wrap items-center gap-2">
