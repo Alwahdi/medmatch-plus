@@ -1173,7 +1173,12 @@ function MessagesPage() {
                         cancel: c.cancelRec,
                         unsupported: c.micUnsupported,
                         denied: c.micDenied,
+                        pause: c.pause,
+                        resume: c.resume,
+                        paused: c.paused,
+                        send: c.sendNow,
                       }}
+
                       onRecorded={(f) => send.mutate(f)}
                     />
                   )}
