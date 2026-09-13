@@ -4,6 +4,7 @@ import {
   Bell,
   Building2,
   Globe,
+  Lock,
   LogOut,
   Mail,
   ShieldCheck,
@@ -48,6 +49,7 @@ const TXT = {
     credentials: "التوثيق والمستندات",
     signOut: "تسجيل الخروج",
     signedInAs: "مسجّل الدخول باسم",
+    security: "الأمان وتسجيل الدخول",
   },
   en: {
     title: "Settings",
@@ -68,6 +70,7 @@ const TXT = {
     credentials: "Documents & verification",
     signOut: "Sign out",
     signedInAs: "Signed in as",
+    security: "Security & sign-in",
   },
 } as const;
 
@@ -158,6 +161,11 @@ function SettingsPage() {
               </Button>
             </>
           )}
+          <Button variant="outline" asChild>
+            <Link to="/security">
+              <Lock className="size-4" /> {c.security}
+            </Link>
+          </Button>
           <Button variant="ghost" onClick={signOut}>
             <LogOut className="size-4" /> {c.signOut}
           </Button>
