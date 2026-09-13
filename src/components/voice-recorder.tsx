@@ -17,7 +17,7 @@ type Props = {
 };
 
 /** Records a short voice note with the microphone and returns it as an audio file. */
-export function VoiceRecorder({ disabled, labels, onRecorded }: Props) {
+export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) {
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -75,10 +75,55 @@ export function VoiceRecorder({ disabled, labels, onRecorded }: Props) {
   }
 
   if (!recording) {
+    if (compact) {
+      return (
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          title={labels.record}
+          aria-label={labels.record}
+          onClick={start}
+          disabled={disabled}
+          className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+        >
+          <Mic className="size-5" />
+        </Button>
+      );
+    }
     return (
       <Button type="button" variant="outline" onClick={start} disabled={disabled}>
         <Mic className="size-4" /> {labels.record}
       </Button>
+    );
+  }
+
+  if (compact) {
+    return (
+      <div className="flex flex-1 items-center gap-2 rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1.5">
+        <button
+          type="button"
+          onClick={() => stop(true)}
+          title={labels.cancel}
+          aria-label={labels.cancel}
+          className="text-muted-foreground transition hover:text-destructive"
+        >
+          <Trash2 className="size-4" />
+        </button>
+        <span className="size-2 animate-pulse rounded-full bg-destructive" />
+        <span className="font-mono text-xs tabular-nums">{fmt(seconds)}</span>
+        <span className="truncate text-xs text-muted-foreground">{labels.record}</span>
+        <Button
+          type="button"
+          size="icon"
+          onClick={() => stop(false)}
+          title={labels.stop}
+          aria-label={labels.stop}
+          className="ms-auto size-9 shrink-0 rounded-full"
+        >
+          <Square className="size-4" />
+        </Button>
+      </div>
     );
   }
 
