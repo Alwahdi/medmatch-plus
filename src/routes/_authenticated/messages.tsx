@@ -694,7 +694,15 @@ function MessagesPage() {
                       return acc;
                     }, {});
                     return (
-                      <div key={m.id} className={cn("group flex", mine ? "justify-start" : "justify-end")}>
+                      <div key={m.id}>
+                        {showDay && (
+                          <div className="my-4 flex justify-center">
+                            <span className="rounded-full bg-surface px-3 py-1 text-[11px] font-semibold text-muted-foreground shadow-sm">
+                              {dayLabel(m.created_at, lang, c.today, c.yesterday)}
+                            </span>
+                          </div>
+                        )}
+                        <div className={cn("group flex", mine ? "justify-start" : "justify-end")}>
                         <div className="max-w-[80%]">
                           <div
                             onPointerDown={() => startPress(m)}
