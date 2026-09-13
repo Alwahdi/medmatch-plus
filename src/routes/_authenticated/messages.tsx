@@ -239,6 +239,8 @@ function MessagesPage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const [draft, setDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [info, setInfo] = useState<Msg | null>(null);
@@ -534,20 +536,27 @@ function MessagesPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
+    <div className="mx-auto flex h-[calc(100dvh-10rem)] max-w-6xl flex-col px-0 py-0 sm:px-4 sm:py-6 lg:h-[calc(100dvh-8rem)]">
+      <div className="hidden sm:block">
+        <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
+      </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-muted-foreground">{c.loading}</p>
+        <p className="mt-8 px-4 text-sm text-muted-foreground">{c.loading}</p>
       ) : conversations.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
+        <div className="mt-8 mx-4 rounded-2xl border border-border bg-card p-8 text-center sm:mx-0">
           <p className="font-bold">{c.emptyTitle}</p>
           <p className="mt-2 text-sm text-muted-foreground">{c.emptyBody}</p>
         </div>
       ) : (
-        <div className="mt-6 grid gap-4 md:grid-cols-[320px_1fr]">
-          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="mt-0 grid min-h-0 flex-1 gap-4 sm:mt-6 md:grid-cols-[320px_1fr]">
+          <div
+            className={cn(
+              "min-h-0 flex-col overflow-hidden border-border bg-card sm:rounded-2xl sm:border",
+              mobileOpen ? "hidden md:flex" : "flex",
+            )}
+          >
             <div className="border-b border-border p-3">
               <div className="relative">
                 <Search className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -559,7 +568,8 @@ function MessagesPage() {
                 />
               </div>
             </div>
-            <ul className="max-h-[70vh] divide-y divide-border overflow-y-auto">
+            <ul className="min-h-0 flex-1 divide-y divide-border overflow-y-auto overscroll-contain">
+
               {visibleConversations.length === 0 && (
                 <li className="p-6 text-center text-sm text-muted-foreground">{c.noResults}</li>
               )}
@@ -576,7 +586,11 @@ function MessagesPage() {
                   <li key={conv.id}>
                     <button
                       type="button"
-                      onClick={() => setActiveId(conv.id)}
+                      onClick={() => {
+                        setActiveId(conv.id);
+                        setMobileOpen(true);
+                      }}
+
                       className={cn(
                         "flex w-full items-center gap-3 p-3 text-start transition-colors hover:bg-secondary",
                         active?.id === conv.id && "bg-secondary",
