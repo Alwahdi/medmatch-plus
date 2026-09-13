@@ -17,6 +17,7 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  ChevronLeft,
   Sparkles,
   Stethoscope,
   User,
@@ -27,7 +28,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
-import { NotificationBell } from "@/components/notification-bell";
 
 import { cn } from "@/lib/utils";
 
