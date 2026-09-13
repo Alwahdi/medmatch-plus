@@ -46,9 +46,6 @@ const PRO_NAV: Item[] = [
   { to: "/cv", key: "nav.cv", icon: FileText },
   { to: "/cv-import", key: "nav.cvImport", icon: Sparkles },
   { to: "/credentials", key: "nav.credentials", icon: ShieldCheck },
-  { to: "/notifications", key: "nav.notifications", icon: Bell },
-  { to: "/security", key: "nav.security", icon: Lock },
-  { to: "/settings", key: "nav.settings", icon: Settings },
 ];
 
 const FACILITY_NAV: Item[] = [
@@ -61,9 +58,6 @@ const FACILITY_NAV: Item[] = [
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
   { to: "/pricing", key: "nav.pricing", icon: Sparkles },
-  { to: "/notifications", key: "nav.notifications", icon: Bell },
-  { to: "/security", key: "nav.security", icon: Lock },
-  { to: "/settings", key: "nav.settings", icon: Settings },
 ];
 
 export function DashboardShell({ children }: { children: ReactNode }) {
