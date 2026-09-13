@@ -186,7 +186,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         {open && (
-          <div className="border-t border-border bg-background px-4 py-3 lg:hidden">{nav}</div>
+          <div className="border-t border-border bg-background px-4 py-3 lg:hidden">
+            {nav}
+            {account}
+          </div>
         )}
       </header>
 
@@ -197,6 +200,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
             </p>
             {nav}
+            {account}
           </div>
         </aside>
         <main className="min-w-0 flex-1">{children}</main>
