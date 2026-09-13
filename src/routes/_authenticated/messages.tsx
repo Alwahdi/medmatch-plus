@@ -96,6 +96,38 @@ type Msg = {
 
 const EMOJIS = ["👍", "❤️", "😂", "🙏", "👏", "✅"];
 
+const PICKER_EMOJIS = [
+  "😀","😁","😂","🤣","😊","😍","😘","😎","🤩","🥳",
+  "🙂","😉","😌","😴","🤔","🤗","😇","🙃","😅","😭",
+  "😢","😤","😡","👍","👎","👏","🙏","💪","🤝","✌️",
+  "👌","🫶","❤️","🔥","⭐","✅","❌","⏰","📅","📎",
+  "🩺","💉","🏥","🚑","💊","🧑‍⚕️","📞","✉️","📍","🎉",
+];
+
+function dayKey(value: string) {
+  return new Date(value).toDateString();
+}
+
+function dayLabel(value: string, lang: "ar" | "en", today: string, yesterday: string) {
+  const key = dayKey(value);
+  const now = new Date();
+  if (key === now.toDateString()) return today;
+  const y = new Date(now.getTime() - 86400000);
+  if (key === y.toDateString()) return yesterday;
+  return new Date(value).toLocaleDateString(lang === "ar" ? "ar" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function timeLabel(value: string, lang: "ar" | "en") {
+  return new Date(value).toLocaleTimeString(lang === "ar" ? "ar" : "en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 const TXT = {
   ar: {
     title: "الرسائل",
