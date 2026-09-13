@@ -171,6 +171,7 @@ function JobDetail() {
   });
 
   const realJobId = job?.id;
+  const isOwner = !!myFacility && !!job && job.facility_id === myFacility.id;
 
   const { data: revealedFacility } = useQuery({
     queryKey: ["revealed-facility", job?.facility_id, user?.id],
