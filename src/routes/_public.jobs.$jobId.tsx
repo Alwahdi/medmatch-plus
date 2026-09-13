@@ -301,10 +301,10 @@ function JobDetail() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-4xl px-4 py-10">
+      <div className="mx-auto max-w-4xl px-4 py-10 pb-28 lg:pb-10">
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           {/* Main */}
-          <div className="card-lift rounded-2xl border border-border bg-card p-6">
+          <div className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-6">
             <div className="flex flex-wrap gap-2 text-xs">
               <Badge variant="outline" className="gap-1">
                 <MapPin className="size-3" /> {job.city}، {job.country}
@@ -387,7 +387,7 @@ function JobDetail() {
               </div>
             </div>
 
-            <div className="card-lift rounded-2xl border border-border bg-card p-6">
+            <div id="apply" className="card-lift scroll-mt-24 rounded-2xl border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.applyTitle}</h2>
               {!user ? (
                 <>
@@ -450,6 +450,17 @@ function JobDetail() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Sticky mobile apply bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        <Button
+          className="w-full"
+          disabled={!isOpen}
+          onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+        >
+          {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.closed}
+        </Button>
       </div>
     </>
   );
