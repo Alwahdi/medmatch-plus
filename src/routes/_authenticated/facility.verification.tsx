@@ -301,7 +301,7 @@ function FacilityVerification() {
     <div className="mx-auto max-w-4xl px-4 py-10">
       {confirmDialog}
 
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+      <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
 
       <div
@@ -349,22 +349,23 @@ function FacilityVerification() {
                   ? "text-destructive"
                   : "text-muted-foreground";
             return (
-              <li key={type} className="flex items-center gap-3 rounded-xl border border-border/60 p-3">
-                <Icon className={`size-5 ${tone}`} />
-                <span className="min-w-0 flex-1 truncate text-sm">{facilityDocTypeLabel(type, lang)}</span>
+              <li key={type} className="flex flex-wrap items-center gap-2 rounded-xl border border-border/60 p-3 sm:gap-3">
+                <Icon className={`size-5 shrink-0 ${tone}`} />
+                <span className="min-w-0 flex-1 basis-[60%] truncate text-sm">{facilityDocTypeLabel(type, lang)}</span>
                 <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
                   {isRequired ? c.required : c.optional}
                 </Badge>
                 <span className="shrink-0 text-xs text-muted-foreground">
                   {doc ? credentialLabel(doc.status, lang) : c.missing}
                 </span>
+
               </li>
             );
           })}
         </ul>
       </div>
 
-      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
+      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
         <h2 className="text-lg font-bold">{c.addTitle}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -431,7 +432,7 @@ function FacilityVerification() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
         </div>
-        <Button onClick={() => add.mutate()} disabled={add.isPending}>
+        <Button className="w-full sm:w-auto" onClick={() => add.mutate()} disabled={add.isPending}>
           <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
         </Button>
       </div>
@@ -463,7 +464,7 @@ function FacilityVerification() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                   <Badge
                     variant={
                       doc.status === "approved"
