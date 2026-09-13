@@ -513,13 +513,24 @@ function MessagesPage() {
 
       let attachment: Record<string, unknown> = {};
       if (upload) {
-        const path = await uploadChatFile(active!.id, upload);
-        attachment = {
-          attachment_path: path,
-          attachment_name: upload.name,
-          attachment_type: upload.type || "application/octet-stream",
-          attachment_size: upload.size,
-        };
+        const controller = new AbortController();
+        uploadAbort.current = controller;
+        setUploadPct(0);
+        try {
+          const path = await uploadChatFile(active!.id, upload, {
+            onProgress: setUploadPct,
+            signal: controller.signal,
+          });
+          attachment = {
+            attachment_path: path,
+            attachment_name: upload.name,
+            attachment_type: upload.type || "application/octet-stream",
+            attachment_size: upload.size,
+          };
+        } finally {
+          uploadAbort.current = null;
+          setUploadPct(null);
+        }
       }
 
       const { error } = await supabase.from("messages").insert({
@@ -534,11 +545,17 @@ function MessagesPage() {
       setDraft("");
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
+      if (imageRef.current) imageRef.current.value = "";
+      if (cameraRef.current) cameraRef.current.value = "";
+      setAtBottom(true);
       queryClient.invalidateQueries({ queryKey: ["messages", active?.id] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: (e: Error) => toast.error(e.message || c.failed),
-  });
+    onError: (e: Error) => {
+      if (e.name === "AbortError") return;
+      toast.error(e.message || c.failed);
+    },
+
 
   function counterpart(conv: Conversation) {
     const isPro = conv.professional_user_id === user?.id;
