@@ -11,6 +11,7 @@ function fmt(sec: number) {
 
 type Props = {
   disabled?: boolean;
+  compact?: boolean;
   labels: { record: string; stop: string; cancel: string; unsupported: string; denied: string };
   onRecorded: (file: File) => void;
 };
