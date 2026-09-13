@@ -75,6 +75,31 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
   if (roles?.includes("admin")) items.push({ to: "/admin", key: "nav.admin", icon: ShieldCheck });
 
+  const { data: myFacility } = useMyFacility(user);
+  const { data: myProfile } = useQuery({
+    queryKey: ["my-profile-lite", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name,avatar_url")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+  const accountName =
+    (isFacility ? myFacility?.name_ar : myProfile?.full_name) || user?.email || "SyndeoCare";
+
+  /** المسار النشط: مطابقة دقيقة مع تفضيل أطول مسار مطابق. */
+  function isActive(to: string) {
+    if (pathname === to) return true;
+    if (!pathname.startsWith(`${to}/`)) return false;
+    return !items.some(
+      (o) => o.to !== to && o.to.length > to.length && (pathname === o.to || pathname.startsWith(`${o.to}/`)),
+    );
+  }
+
 
   async function signOut() {
     await queryClient.cancelQueries();
