@@ -3,11 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { FileCheck2, Trash2, Upload } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Clock, FileCheck2, FileText, ShieldAlert, ShieldCheck, Trash2, Upload, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -19,7 +20,7 @@ import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
-import { credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
+import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/credentials")({
@@ -59,6 +60,17 @@ const TXT = {
     uploaded: "تم رفع الوثيقة، ستتم مراجعتها خلال ٢٤–٤٨ ساعة",
     saveFailed: "تعذّر الحفظ",
     deleted: "تم حذف الوثيقة",
+    checklist: "الوثائق المطلوبة",
+    progress: (a: number, b: number) => `${a} من ${b} وثيقة مطلوبة معتمدة`,
+    required: "مطلوبة",
+    optional: "اختيارية",
+    missing: "لم تُرفع",
+    verified: "حسابك موثّق",
+    verifiedSub: "شارة «موثّق» تظهر للمنشآت على ملفك وطلباتك.",
+    unverified: "حسابك غير موثّق بعد",
+    unverifiedSub: "اعتمد ترخيص مزاولة المهنة والهوية للحصول على شارة التوثيق.",
+    view: "عرض الملف",
+    noFile: "لا يوجد ملف مرفق",
   },
   en: {
     title: "Credentials",
@@ -84,6 +96,17 @@ const TXT = {
     uploaded: "Document uploaded, it will be reviewed within 24–48 hours",
     saveFailed: "Failed to save",
     deleted: "Document deleted",
+    checklist: "Required documents",
+    progress: (a: number, b: number) => `${a} of ${b} required documents approved`,
+    required: "Required",
+    optional: "Optional",
+    missing: "Not uploaded",
+    verified: "Your account is verified",
+    verifiedSub: "Employers see the verified badge on your profile and applications.",
+    unverified: "Your account is not verified yet",
+    unverifiedSub: "Get your practice license and ID approved to earn the verified badge.",
+    view: "View file",
+    noFile: "No file attached",
   },
 } as const;
 
@@ -161,6 +184,26 @@ function CredentialsPage() {
     },
   });
 
+  async function openFile(path: string | null) {
+    if (!path) {
+      toast.error(c.noFile);
+      return;
+    }
+    const { data, error } = await supabase.storage.from("credentials").createSignedUrl(path, 120);
+    if (error || !data?.signedUrl) {
+      toast.error(c.noFile);
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener");
+  }
+
+  const list = items ?? [];
+  const approvedRequired = PRO_REQUIRED_DOCS.filter((t) =>
+    list.some((d) => d.doc_type === t && d.status === "approved"),
+  ).length;
+  const isVerified = approvedRequired === PRO_REQUIRED_DOCS.length;
+  const pct = Math.round((approvedRequired / PRO_REQUIRED_DOCS.length) * 100);
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       {confirmDialog}
@@ -169,6 +212,64 @@ function CredentialsPage() {
       <p className="mt-2 text-muted-foreground">
         {c.sub}
       </p>
+
+      <div
+        className={`mt-6 flex flex-wrap items-center gap-3 rounded-2xl border p-5 ${
+          isVerified ? "border-accent/40 bg-accent/5" : "border-border bg-card"
+        }`}
+      >
+        {isVerified ? (
+          <BadgeCheck className="size-8 text-accent" />
+        ) : (
+          <ShieldAlert className="size-8 text-muted-foreground" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="font-bold">{isVerified ? c.verified : c.unverified}</p>
+          <p className="text-xs text-muted-foreground">{isVerified ? c.verifiedSub : c.unverifiedSub}</p>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold">{c.checklist}</h2>
+          <span className="text-xs text-muted-foreground">
+            {c.progress(approvedRequired, PRO_REQUIRED_DOCS.length)}
+          </span>
+        </div>
+        <Progress value={pct} className="mt-3" />
+        <ul className="mt-4 space-y-2">
+          {DOC_TYPES.map((type) => {
+            const doc = list.find((d) => d.doc_type === type);
+            const isRequired = PRO_REQUIRED_DOCS.includes(type);
+            const Icon =
+              doc?.status === "approved"
+                ? CheckCircle2
+                : doc?.status === "rejected"
+                  ? XCircle
+                  : doc
+                    ? Clock
+                    : ShieldCheck;
+            const tone =
+              doc?.status === "approved"
+                ? "text-accent"
+                : doc?.status === "rejected"
+                  ? "text-destructive"
+                  : "text-muted-foreground";
+            return (
+              <li key={type} className="flex items-center gap-3 rounded-xl border border-border/60 p-3">
+                <Icon className={`size-5 ${tone}`} />
+                <span className="min-w-0 flex-1 truncate text-sm">{docTypeLabel(type, lang)}</span>
+                <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
+                  {isRequired ? c.required : c.optional}
+                </Badge>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {doc ? credentialLabel(doc.status, lang) : c.missing}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
       <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
         <h2 className="text-lg font-bold">{c.addTitle}</h2>
@@ -230,6 +331,9 @@ function CredentialsPage() {
                 <Badge variant={cred.status === "approved" ? "default" : "secondary"}>
                   {credentialLabel(cred.status, lang)}
                 </Badge>
+                <Button size="sm" variant="outline" onClick={() => openFile(cred.file_path)}>
+                  <FileText className="size-4" /> {c.view}
+                </Button>
                 <Button
                   size="icon"
                   variant="ghost"
