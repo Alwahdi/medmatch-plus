@@ -16,6 +16,7 @@ import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+import { useSignedIn } from "@/components/page-chrome";
 import { countryLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
@@ -79,6 +80,10 @@ const TXT = {
     scopeMine: (n: string) => `My specialty: ${n}`,
     scopeField: "My medical field",
     scopeAll: "All specialties",
+    myHeading: (n: string) => `Shifts matching your specialty: ${n}`,
+    myHeadingPlain: "Shifts picked for you",
+    mySub: "Sorted by the soonest start, highlighting what fits your specialty.",
+
   },
 } as const;
 
@@ -125,6 +130,7 @@ function ShiftsPage() {
 
   const countries = useMemo(() => Array.from(new Set((shifts ?? []).map((s) => s.country))), [shifts]);
   const { mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
+  const signedIn = useSignedIn();
   const [scope, setScope] = useState<Scope>("all");
   const [scopeTouched, setScopeTouched] = useState(false);
   useEffect(() => {
@@ -135,11 +141,24 @@ function ShiftsPage() {
     setScope(next);
   };
 
+  const { data: myShiftIds } = useQuery({
+    queryKey: ["my-booked-shift-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("shift_bookings")
+        .select("shift_id")
+        .eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.shift_id));
+    },
+  });
+
   const filtered = (shifts ?? []).filter(
     (s) =>
       (country === ALL || s.country === country) &&
       inScope(scope, s.specialty_id, mySpecialtyId, fieldIds),
   );
+
 
   return (
     <>
@@ -223,11 +242,14 @@ function ShiftsPage() {
               <p className="section-label">{c.label}</p>
               <h2 className="mt-2 font-display text-2xl font-extrabold">{c.count(filtered.length)}</h2>
             </div>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/pricing">
-                {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
-              </Link>
-            </Button>
+            {!signedIn && (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/pricing">
+                  {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
+                </Link>
+              </Button>
+            )}
+
           </div>
 
           {isLoading ? (
@@ -250,6 +272,10 @@ function ShiftsPage() {
                   key={shift.id}
                   shift={shift}
                   busy={book.isPending}
+                  mine={!!myShiftIds?.has(shift.id)}
+                  recommended={
+                    signedIn && !!mySpecialtyId && shift.specialty_id === mySpecialtyId
+                  }
                   onBook={() => {
                     if (!user) {
                       navigate({ to: "/auth" });
@@ -261,6 +287,7 @@ function ShiftsPage() {
               ))}
             </div>
           )}
+
 
           {!user && (
             <div className="mt-10 rounded-2xl border border-border bg-surface p-6 text-center">
