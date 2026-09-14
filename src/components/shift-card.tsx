@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarClock, MapPin, ShieldCheck, Timer, Users } from "lucide-react";
+import { CalendarClock, CheckCircle2, MapPin, ShieldCheck, Sparkles, Timer, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,8 @@ const TXT = {
     total: "إجمالي المناوبة",
     book: "احجز المناوبة",
     details: "التفاصيل",
+    mine: "حجزتها",
+    recommended: "تناسبك",
   },
   en: {
     urgent: "Urgent",
@@ -53,26 +55,33 @@ const TXT = {
     total: "Shift total",
     book: "Book this shift",
     details: "Details",
-
+    mine: "Booked by you",
+    recommended: "Recommended",
   },
 } as const;
+
 
 export function ShiftCard({
   shift,
   onBook,
   busy,
   actionLabel,
+  mine,
+  recommended,
 }: {
   shift: ShiftRow;
   onBook?: () => void;
   busy?: boolean;
   actionLabel?: string;
+  mine?: boolean;
+  recommended?: boolean;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
   const hours = hoursBetween(shift.starts_at, shift.ends_at);
   const total = hours * Number(shift.hourly_rate);
   const open = shift.status === "open";
+
 
   return (
     <div className="relative pt-2">
@@ -130,7 +139,18 @@ export function ShiftCard({
                 <Users className="size-3.5" /> {c.applied(shift.applications_count)}
               </span>
             )}
+            {recommended && (
+              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                <Sparkles className="size-3.5" /> {c.recommended}
+              </span>
+            )}
+            {mine && (
+              <span className="flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
+                <CheckCircle2 className="size-3.5" /> {c.mine}
+              </span>
+            )}
           </div>
+
 
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
             <div className="text-xs text-muted-foreground">

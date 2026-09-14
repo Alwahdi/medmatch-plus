@@ -56,6 +56,10 @@ const TXT = {
     scopeMine: (n: string) => `تخصصي: ${n}`,
     scopeField: "مجالي الطبي",
     scopeAll: "كل التخصصات",
+    myHeading: (n: string) => `مناوبات تناسب تخصصك: ${n}`,
+    myHeadingPlain: "مناوبات مقترحة لك",
+    mySub: "مرتّبة حسب الأقرب موعداً، مع إبراز ما يناسب تخصصك.",
+
   },
   en: {
     badge: "Instant shifts with hourly pay",
@@ -139,21 +143,32 @@ function ShiftsPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="page-hero py-14 md:py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
-            <CalendarClock className="size-4" />
-            {c.badge}
-          </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">{c.sub}</p>
-        </div>
-      </section>
+      {signedIn ? (
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <p className="section-label">{c.label}</p>
+          <h1 className="mt-1 font-display text-2xl font-extrabold">
+            {mySpecialty ? c.myHeading(specialtyName(mySpecialty, lang)) : c.myHeadingPlain}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{c.mySub}</p>
+        </section>
+      ) : (
+        /* Hero */
+        <section className="page-hero py-14 md:py-20">
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
+              <CalendarClock className="size-4" />
+              {c.badge}
+            </span>
+            <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">{c.sub}</p>
+          </div>
+        </section>
+      )}
+
 
       {/* Filter */}
-      <div className="relative px-4">
-        <div className="mx-auto max-w-xl -translate-y-1/2">
+      <div className={signedIn ? "mt-4" : "relative px-4"}>
+        <div className={signedIn ? "max-w-xl" : "mx-auto max-w-xl -translate-y-1/2"}>
           <div className="card-lift flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-lg">
             <div className="relative flex-1">
               <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -176,8 +191,9 @@ function ShiftsPage() {
       </div>
 
       {/* Results */}
-      <section className="py-16 md:py-20">
-        <div className="mx-auto max-w-6xl px-4">
+      <section className={signedIn ? "py-6" : "py-16 md:py-20"}>
+        <div className={signedIn ? "" : "mx-auto max-w-6xl px-4"}>
+
           {hasSpecialty && (
             <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
               {(

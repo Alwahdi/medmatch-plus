@@ -13,12 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JobCard, type JobRow } from "@/components/job-card";
+import { useSignedIn } from "@/components/page-chrome";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { matchScore } from "@/lib/match";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+
 
 export const Route = createFileRoute("/_public/jobs/")({
   head: () => ({
@@ -53,6 +55,7 @@ const TXT = {
     allSpecialties: "كل التخصصات",
     all: "الكل",
     home: "الرئيسية",
+    dash: "لوحتي",
     filters: "التصفية",
     keyword: "كلمة البحث",
     jobType: "نوع الوظيفة",
@@ -66,6 +69,13 @@ const TXT = {
     scopeAll: "كل التخصصات",
     showFilters: "إظهار التصفية",
     hideFilters: "إخفاء التصفية",
+    sort: "الترتيب",
+    sortMatch: "الأنسب لي",
+    sortNew: "الأحدث",
+    hideApplied: "إخفاء ما قدّمت عليه",
+    myHeading: (n: string) => `وظائف تناسب تخصصك: ${n}`,
+    myHeadingPlain: "وظائف مقترحة لك",
+    mySub: "مرتّبة حسب توافقها مع ملفك المهني.",
   },
   en: {
     badge: "Permanent roles from verified employers",
@@ -78,6 +88,7 @@ const TXT = {
     allSpecialties: "All specialties",
     all: "All",
     home: "Home",
+    dash: "My dashboard",
     filters: "Filters",
     keyword: "Keyword",
     jobType: "Job type",
@@ -91,8 +102,16 @@ const TXT = {
     scopeAll: "All specialties",
     showFilters: "Show filters",
     hideFilters: "Hide filters",
+    sort: "Sort",
+    sortMatch: "Best match",
+    sortNew: "Newest",
+    hideApplied: "Hide jobs I applied to",
+    myHeading: (n: string) => `Jobs matching your specialty: ${n}`,
+    myHeadingPlain: "Jobs picked for you",
+    mySub: "Ordered by how well they match your profile.",
   },
 } as const;
+
 
 function JobsPage() {
   const { lang } = useLang();
@@ -134,13 +153,39 @@ function JobsPage() {
   });
 
   const { pro: profile, mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
+  const signedIn = useSignedIn();
   const [scope, setScope] = useState<Scope>("all");
   const [scopeTouched, setScopeTouched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [sort, setSort] = useState<"match" | "new">("new");
+  const [sortTouched, setSortTouched] = useState(false);
+  const [hideApplied, setHideApplied] = useState(true);
 
   useEffect(() => {
     if (!scopeTouched && hasSpecialty) setScope("field");
   }, [hasSpecialty, scopeTouched]);
+
+  useEffect(() => {
+    if (!sortTouched && profile) setSort("match");
+  }, [profile, sortTouched]);
+
+  const { data: appliedIds } = useQuery({
+    queryKey: ["my-applied-job-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("applications").select("job_id").eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.job_id));
+    },
+  });
+
+  const { data: savedIds } = useQuery({
+    queryKey: ["my-saved-job-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("saved_jobs").select("job_id").eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.job_id));
+    },
+  });
 
   const pickScope = (next: Scope) => {
     setScopeTouched(true);
@@ -152,14 +197,28 @@ function JobsPage() {
     [jobs],
   );
 
-  const filtered = (jobs ?? []).filter((j) => {
-    if (country !== ALL && j.country !== country) return false;
-    if (specialty !== ALL && j.specialty_id !== specialty) return false;
-    if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
-    if (type !== ALL && j.employment_type !== type) return false;
-    if (q && !`${j.title} ${j.specialties?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
-    return true;
-  });
+  const scoreOf = (j: { specialty_id: string | null; min_experience: number; country: string; required_license: string | null }) =>
+    matchScore(profile ?? null, {
+      specialty_id: j.specialty_id,
+      min_experience: j.min_experience,
+      country: j.country,
+      required_license: j.required_license,
+    });
+
+  const filtered = (jobs ?? [])
+    .filter((j) => {
+      if (country !== ALL && j.country !== country) return false;
+      if (specialty !== ALL && j.specialty_id !== specialty) return false;
+      if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
+      if (type !== ALL && j.employment_type !== type) return false;
+      if (q && !`${j.title} ${j.specialties?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
+      if (hideApplied && appliedIds?.has(j.id)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === "match" && profile) return (scoreOf(b) ?? 0) - (scoreOf(a) ?? 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
   const reset = () => {
     setQ("");
@@ -169,32 +228,46 @@ function JobsPage() {
     setType(ALL);
   };
 
+
   return (
     <>
-      {/* Breadcrumb */}
-      <div className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-primary">
-            {c.home}
-          </Link>
-          <span>/</span>
-          <span className="font-medium text-foreground">{c.title}</span>
-        </div>
-      </div>
+      {signedIn ? (
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <p className="section-label">{c.results}</p>
+          <h1 className="mt-1 font-display text-2xl font-extrabold">
+            {mySpecialty ? c.myHeading(specialtyName(mySpecialty, lang)) : c.myHeadingPlain}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{c.mySub}</p>
+        </section>
+      ) : (
+        <>
+          {/* Breadcrumb */}
+          <div className="border-b border-border bg-card">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
+              <Link to="/" className="hover:text-primary">
+                {c.home}
+              </Link>
+              <span>/</span>
+              <span className="font-medium text-foreground">{c.title}</span>
+            </div>
+          </div>
 
-      {/* Compact hero */}
-      <section className="page-hero py-10 md:py-12">
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-xs font-medium ring-1 ring-white/20">
-            <Briefcase className="size-4" />
-            {c.badge}
-          </span>
-          <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
-          <p className="mx-auto mt-3 max-w-xl text-white/85">{c.sub}</p>
-        </div>
-      </section>
+          {/* Compact hero */}
+          <section className="page-hero py-10 md:py-12">
+            <div className="mx-auto max-w-3xl px-4 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-xs font-medium ring-1 ring-white/20">
+                <Briefcase className="size-4" />
+                {c.badge}
+              </span>
+              <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
+              <p className="mx-auto mt-3 max-w-xl text-white/85">{c.sub}</p>
+            </div>
+          </section>
+        </>
+      )}
 
-      <section className="py-8 md:py-12">
+      <section className={signedIn ? "py-6" : "py-8 md:py-12"}>
+
         <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[320px_minmax(0,1fr)]">
           {/* Filters sidebar */}
           <aside className="lg:order-1">
@@ -322,12 +395,58 @@ function JobsPage() {
                   {c.count(filtered.length)}
                 </h2>
               </div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/pricing">
-                  {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
-                </Link>
-              </Button>
+              {!signedIn && (
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/pricing">
+                    {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
+                  </Link>
+                </Button>
+              )}
             </div>
+
+            {signedIn && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {profile && (
+                  <div className="flex items-center gap-1 rounded-xl bg-surface p-1">
+                    {(
+                      [
+                        ["match", c.sortMatch],
+                        ["new", c.sortNew],
+                      ] as ["match" | "new", string][]
+                    ).map(([key, label]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => {
+                          setSortTouched(true);
+                          setSort(key);
+                        }}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                          sort === key
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {!!appliedIds?.size && (
+                  <button
+                    type="button"
+                    onClick={() => setHideApplied((v) => !v)}
+                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                      hideApplied
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-surface text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {c.hideApplied}
+                  </button>
+                )}
+              </div>
+            )}
 
             {isLoading ? (
               <div className="mt-6 space-y-3">
@@ -344,20 +463,22 @@ function JobsPage() {
               </div>
             ) : (
               <div className="mt-6 space-y-3">
-                {filtered.map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    match={matchScore(profile ?? null, {
-                      specialty_id: job.specialty_id,
-                      min_experience: job.min_experience,
-                      country: job.country,
-                      required_license: job.required_license,
-                    })}
-                  />
-                ))}
+                {filtered.map((job) => {
+                  const score = scoreOf(job);
+                  return (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      match={score}
+                      applied={appliedIds?.has(job.id)}
+                      saved={savedIds?.has(job.id)}
+                      recommended={signedIn && typeof score === "number" && score >= 75}
+                    />
+                  );
+                })}
               </div>
             )}
+
           </div>
         </div>
       </section>

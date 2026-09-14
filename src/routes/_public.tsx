@@ -1,8 +1,7 @@
 import { Outlet, createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { PageChrome } from "@/components/page-chrome";
 import { roleHome, useRoles, useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/_public")({
@@ -25,12 +24,8 @@ function PublicLayout() {
   }, [loading, user, roles, pathname, navigate]);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <SiteFooter />
-    </div>
+    <PageChrome>
+      <Outlet />
+    </PageChrome>
   );
 }

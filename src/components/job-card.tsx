@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Building2, Clock3, MapPin, ShieldCheck } from "lucide-react";
+import { Bookmark, Building2, CheckCircle2, Clock3, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+
 import {
   countryLabel,
   employmentLabel,
@@ -37,6 +38,9 @@ const TXT = {
     closing: "يغلق قريباً",
     verified: "موثّق",
     match: "توافق",
+    applied: "قدّمت عليها",
+    saved: "محفوظة",
+    recommended: "يناسبك",
   },
   en: {
     featured: "Featured",
@@ -44,10 +48,25 @@ const TXT = {
     closing: "Closing soon",
     verified: "Verified",
     match: "Match",
+    applied: "Applied",
+    saved: "Saved",
+    recommended: "Recommended",
   },
 } as const;
 
-export function JobCard({ job, match }: { job: JobRow; match?: number | null }) {
+export function JobCard({
+  job,
+  match,
+  applied,
+  saved,
+  recommended,
+}: {
+  job: JobRow;
+  match?: number | null;
+  applied?: boolean;
+  saved?: boolean;
+  recommended?: boolean;
+}) {
   const { lang } = useLang();
   const c = TXT[lang];
   const isNew = Date.now() - new Date(job.created_at).getTime() < 2 * DAY;
@@ -61,6 +80,7 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
       : isNew
         ? { label: c.isNew, cls: "bg-success text-success-foreground" }
         : null;
+
 
   return (
     <div className="relative pt-2">
@@ -109,7 +129,23 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
                 <ShieldCheck className="size-3.5" /> {c.verified}
               </span>
             )}
+            {recommended && (
+              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                <Sparkles className="size-3.5" /> {c.recommended}
+              </span>
+            )}
+            {applied && (
+              <span className="flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
+                <CheckCircle2 className="size-3.5" /> {c.applied}
+              </span>
+            )}
+            {saved && (
+              <span className="flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-xs font-semibold">
+                <Bookmark className="size-3.5" /> {c.saved}
+              </span>
+            )}
           </div>
+
 
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
