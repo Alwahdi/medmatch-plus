@@ -403,12 +403,6 @@ function FacilityDashboard() {
             </p>
           </div>
         </div>
-        <Button variant="outline" className="w-full gap-2 sm:w-auto" asChild>
-          <Link to="/facility" search={{ tab: "applicants" }}>
-            <Users className="size-4" />
-            {c.applicants}
-          </Link>
-        </Button>
       </div>
 
       {plan && (
@@ -450,10 +444,6 @@ function FacilityDashboard() {
             <TabsTrigger value="shifts" className="shrink-0 gap-1.5">
               <CalendarClock className="size-4" />
               {c.tabShifts(shifts?.length ?? 0)}
-            </TabsTrigger>
-            <TabsTrigger value="applicants" className="shrink-0 gap-1.5">
-              <Users className="size-4" />
-              {c.applicants}
             </TabsTrigger>
             <TabsTrigger value="new-job" className="shrink-0 gap-1.5">
               <PlusCircle className="size-4" />
@@ -587,10 +577,6 @@ function FacilityDashboard() {
           )}
         </TabsContent>
 
-
-        <TabsContent value="applicants" className="mt-6">
-          <FacilityApplicantsPanel embedded />
-        </TabsContent>
 
         <TabsContent value="new-job" className="mt-6">
           <JobForm facilityId={facility.id} specialties={specialties ?? []}

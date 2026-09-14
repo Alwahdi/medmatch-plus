@@ -36,7 +36,7 @@ export function OwnerListingPanel({ kind }: { kind: "job" | "shift" }) {
       <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
       <div className="mt-4 grid gap-2">
         <Button asChild className="w-full">
-          <Link to="/facility" search={{ tab: "applicants" }}>
+          <Link to="/facility" search={{ tab: "jobs" }}>
             <Users className="size-4" /> {c.applicants}
           </Link>
         </Button>
