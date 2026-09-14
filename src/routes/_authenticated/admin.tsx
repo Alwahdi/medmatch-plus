@@ -154,6 +154,9 @@ function AdminPage() {
   const [note, setNote] = useState("");
   const [facQuery, setFacQuery] = useState("");
   const [proQuery, setProQuery] = useState("");
+  const [changeNote, setChangeNote] = useState("");
+  const [changeRejectId, setChangeRejectId] = useState<string | null>(null);
+  const [logQuery, setLogQuery] = useState("");
 
   const { data: creds, isLoading: credsLoading } = useQuery({
     queryKey: ["admin-creds"],
