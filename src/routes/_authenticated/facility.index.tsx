@@ -649,17 +649,27 @@ function FacilityForm() {
           </div>
           <div>
             <Label>{c.country}</Label>
-            <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-              <SelectTrigger><SelectValue placeholder={c.pickCountry} /></SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={countryOptions(lang)}
+              value={form.country}
+              onChange={(v) => setForm({ ...form, country: v, city: "" })}
+              placeholder={c.pickCountry}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+            />
           </div>
           <div>
-            <Label htmlFor="fcity">{c.city}</Label>
-            <Input id="fcity" maxLength={60} value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })} />
+            <Label>{c.city}</Label>
+            <Combobox
+              options={cityOptions(form.country, lang)}
+              value={form.city}
+              onChange={(v) => setForm({ ...form, city: v })}
+              placeholder={ct.choose}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+              allowCustom
+              customLabel={ct.add}
+            />
           </div>
           <div>
             <Label htmlFor="fweb">{c.website}</Label>
