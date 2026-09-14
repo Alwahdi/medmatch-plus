@@ -31,6 +31,7 @@ export const DICT: Dict = {
   "nav.messages": { ar: "الرسائل", en: "Messages" },
   "nav.candidates": { ar: "بحث المرشحين", en: "Candidate search" },
   "nav.profile": { ar: "ملفي المهني", en: "My profile" },
+  "nav.activity": { ar: "نشاطي", en: "My activity" },
   "nav.credentials": { ar: "ملف الاعتماد", en: "Credentials" },
   "nav.applications": { ar: "طلباتي", en: "My applications" },
   "nav.invitations": { ar: "الدعوات", en: "Invitations" },

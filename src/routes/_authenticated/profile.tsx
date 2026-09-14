@@ -1,4 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccountCard } from "@/components/account-card";
+import { CvPanel } from "@/components/panels/cv";
+import { CvImportPanel } from "@/components/panels/cv-import";
+import { CredentialsPanel } from "@/components/panels/credentials";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -27,7 +32,11 @@ import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
+type ProfileSearch = { tab?: string };
+
 export const Route = createFileRoute("/_authenticated/profile")({
+  validateSearch: (search: Record<string, unknown>): ProfileSearch =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "ملفي المهني | SyndeoCare" },
@@ -114,7 +123,7 @@ const schemaAr = z.object({
   license_number: z.string().trim().max(60).optional(),
 });
 
-function ProfilePage() {
+function ProfileOverview() {
   const { lang } = useLang();
   const c = TXT[lang];
   const ct = comboText(lang);
@@ -260,7 +269,7 @@ function ProfilePage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="mx-auto max-w-3xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
@@ -452,6 +461,51 @@ function ProfilePage() {
       )}
 
       <ChangeRequestsPanel requests={(requests ?? []).filter((r) => r.target === "professional")} />
+    </div>
+  );
+}
+
+const TABS = {
+  ar: { overview: "البيانات", cv: "سيرتي الذاتية", cvImport: "استيراد سيرة", credentials: "الوثائق والتراخيص" },
+  en: { overview: "Details", cv: "My CV", cvImport: "Import CV", credentials: "Documents" },
+} as const;
+
+function ProfilePage() {
+  const { lang } = useLang();
+  const tt = TABS[lang];
+  const tab = Route.useSearch().tab ?? "overview";
+  const navigate = useNavigate();
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => void navigate({ to: "/profile", search: { tab: v }, replace: true })}
+      >
+        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+          <TabsList className="w-max">
+            <TabsTrigger value="overview" className="shrink-0">{tt.overview}</TabsTrigger>
+            <TabsTrigger value="cv" className="shrink-0">{tt.cv}</TabsTrigger>
+            <TabsTrigger value="cv-import" className="shrink-0">{tt.cvImport}</TabsTrigger>
+            <TabsTrigger value="credentials" className="shrink-0">{tt.credentials}</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="overview" className="mt-6">
+          <ProfileOverview />
+        </TabsContent>
+        <TabsContent value="cv" className="mt-6">
+          <CvPanel />
+        </TabsContent>
+        <TabsContent value="cv-import" className="mt-6">
+          <CvImportPanel />
+        </TabsContent>
+        <TabsContent value="credentials" className="mt-6">
+          <CredentialsPanel />
+        </TabsContent>
+      </Tabs>
+
+      <AccountCard />
     </div>
   );
 }

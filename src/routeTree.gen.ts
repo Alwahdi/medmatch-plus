@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
@@ -67,6 +68,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedActivityRoute = AuthenticatedActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -325,6 +331,7 @@ const AuthenticatedFacilityCandidatesUserIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/activity': typeof AuthenticatedActivityRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -375,6 +382,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
+  '/activity': typeof AuthenticatedActivityRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -427,6 +435,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
+  '/_authenticated/activity': typeof AuthenticatedActivityRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
@@ -480,6 +489,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/activity'
     | '/admin'
     | '/alerts'
     | '/applications'
@@ -530,6 +540,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/activity'
     | '/admin'
     | '/alerts'
     | '/applications'
@@ -581,6 +592,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/_public'
+    | '/_authenticated/activity'
     | '/_authenticated/admin'
     | '/_authenticated/alerts'
     | '/_authenticated/applications'
@@ -652,6 +664,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/activity': {
+      id: '/_authenticated/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof AuthenticatedActivityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -1008,6 +1027,7 @@ const AuthenticatedFacilityCandidatesRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
@@ -1033,6 +1053,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivityRoute: AuthenticatedActivityRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,

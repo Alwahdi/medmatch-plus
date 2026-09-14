@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertsPanel } from "@/components/panels/alerts";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Bell,
@@ -15,7 +17,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
+type SettingsSearch = { tab?: string };
+
 export const Route = createFileRoute("/_authenticated/settings")({
+  validateSearch: (search: Record<string, unknown>): SettingsSearch =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "الإعدادات | SyndeoCare" },
@@ -82,6 +88,7 @@ function SettingsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isFacility = roles?.includes("facility");
+  const tab = Route.useSearch().tab ?? "general";
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -94,6 +101,33 @@ function SettingsPage() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-muted-foreground">{c.sub}</p>
+
+      <Tabs
+        value={tab}
+        onValueChange={(v) => void navigate({ to: "/settings", search: { tab: v }, replace: true })}
+        className="mt-6"
+      >
+        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+          <TabsList className="w-max">
+            <TabsTrigger value="general" className="shrink-0">
+              {lang === "ar" ? "عام" : "General"}
+            </TabsTrigger>
+            {!isFacility && (
+              <TabsTrigger value="alerts" className="shrink-0">
+                {lang === "ar" ? "تنبيهات الوظائف" : "Job alerts"}
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>
+
+        {!isFacility && (
+          <TabsContent value="alerts" className="mt-6">
+            <AlertsPanel />
+          </TabsContent>
+        )}
+
+        <TabsContent value="general" className="mt-0">
+
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center gap-2">
@@ -130,7 +164,7 @@ function SettingsPage() {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{c.alertsBody}</p>
           <Button className="mt-4" variant="outline" asChild>
-            <Link to="/alerts">{c.alertsCta}</Link>
+            <Link to="/settings" search={{ tab: "alerts" }}>{c.alertsCta}</Link>
           </Button>
         </section>
       )}
@@ -155,7 +189,7 @@ function SettingsPage() {
                 </Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link to="/credentials">
+                <Link to="/profile" search={{ tab: "credentials" }}>
                   <ShieldCheck className="size-4" /> {c.credentials}
                 </Link>
               </Button>
@@ -171,6 +205,9 @@ function SettingsPage() {
           </Button>
         </div>
       </section>
+        </TabsContent>
+      </Tabs>
     </div>
+
   );
 }

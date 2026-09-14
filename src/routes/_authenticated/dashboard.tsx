@@ -198,9 +198,9 @@ function Dashboard() {
       )}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={FileText} value={apps?.length ?? 0} label={c.statApps} to="/applications" />
-        <StatCard icon={ShieldCheck} value={approved} label={c.statCreds} to="/credentials" />
-        <StatCard icon={CalendarClock} value={bookings?.length ?? 0} label={c.statShifts} to="/my-shifts" />
+        <StatCard icon={FileText} value={apps?.length ?? 0} label={c.statApps} to="/activity" />
+        <StatCard icon={ShieldCheck} value={approved} label={c.statCreds} to="/profile" />
+        <StatCard icon={CalendarClock} value={bookings?.length ?? 0} label={c.statShifts} to="/activity" />
         <StatCard icon={Sparkles} value={profile?.years_experience ?? 0} label={c.statYears} to="/profile" />
       </div>
 
@@ -268,7 +268,7 @@ function StatCard({
   icon: typeof FileText;
   value: number;
   label: string;
-  to: "/applications" | "/credentials" | "/my-shifts" | "/profile";
+  to: "/activity" | "/profile";
 }) {
   return (
     <Link to={to} className="card-lift rounded-2xl border border-border bg-card p-5">
