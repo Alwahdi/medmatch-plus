@@ -271,6 +271,10 @@ function ShiftsPage() {
                   key={shift.id}
                   shift={shift}
                   busy={book.isPending}
+                  mine={myShiftIds?.has(shift.id)}
+                  recommended={
+                    signedIn && !!mySpecialtyId && shift.specialty_id === mySpecialtyId
+                  }
                   onBook={() => {
                     if (!user) {
                       navigate({ to: "/auth" });
@@ -282,6 +286,7 @@ function ShiftsPage() {
               ))}
             </div>
           )}
+
 
           {!user && (
             <div className="mt-10 rounded-2xl border border-border bg-surface p-6 text-center">
