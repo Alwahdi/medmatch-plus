@@ -99,6 +99,7 @@ const schemaAr = z.object({
 function ProfilePage() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const ct = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
 
