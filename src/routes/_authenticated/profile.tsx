@@ -438,10 +438,18 @@ function ProfilePage() {
             onCheckedChange={(v) => setForm({ ...form, is_open_to_shifts: v })} />
         </div>
 
-        <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          {save.isPending ? c.saving : c.save}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+            {save.isPending ? c.saving : c.save}
+          </Button>
+          {profile && (
+            <Button variant="outline" onClick={() => setMode("view")}>
+              <Eye className="size-4" /> {c.previewBtn}
+            </Button>
+          )}
+        </div>
       </div>
+      )}
 
       <ChangeRequestsPanel requests={(requests ?? []).filter((r) => r.target === "professional")} />
     </div>
