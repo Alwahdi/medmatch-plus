@@ -129,7 +129,7 @@ function ProfilePage() {
     },
   });
 
-  const { data: profile } = useQuery({
+  const { data: profile, isFetched: proFetched } = useQuery({
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
