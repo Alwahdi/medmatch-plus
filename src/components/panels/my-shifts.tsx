@@ -21,7 +21,8 @@ const TXT = {
     hours: (n: number) => `${n} ساعات`,
     cancel: "إلغاء الحجز",
     cancelled: "تم إلغاء الحجز",
-    cancelFailed: "تعذّر الإلغاء",
+    cancelFailed: "تعذّر الإلغاء. لا يمكن إلغاء الحجز بعد بدء المناوبة.",
+    started: "بدأت المناوبة — لا يمكن الإلغاء",
     confirmTitle: "إلغاء حجز المناوبة؟",
     confirmDesc: "ستُعاد المناوبة للسوق ويمكن لكادر آخر حجزها. لا يمكن التراجع عن هذا الإجراء.",
     confirmCta: "نعم، ألغِ الحجز",
@@ -38,7 +39,8 @@ const TXT = {
     hours: (n: number) => `${n} hours`,
     cancel: "Cancel booking",
     cancelled: "Booking cancelled",
-    cancelFailed: "Failed to cancel",
+    cancelFailed: "Couldn't cancel. Bookings can't be cancelled after the shift starts.",
+    started: "Shift started — cannot cancel",
     confirmTitle: "Cancel this shift booking?",
     confirmDesc: "The shift returns to the marketplace and another professional can book it. This can't be undone.",
     confirmCta: "Yes, cancel booking",
@@ -133,20 +135,24 @@ export function MyShiftsPanel() {
                       />
                     </div>
                   )}
-                  <Button size="sm" variant="ghost"
-                    onClick={async () => {
-                      const ok = await confirm({
-                        title: c.confirmTitle,
-                        description: c.confirmDesc,
-                        confirmLabel: c.confirmCta,
-                        cancelLabel: c.keep,
-                        destructive: true,
-                      });
-                      if (ok) cancel.mutate({ id: b.id });
-                    }}
-                    disabled={cancel.isPending}>
-                    {c.cancel}
-                  </Button>
+                  {new Date(s.starts_at).getTime() > Date.now() ? (
+                    <Button size="sm" variant="ghost"
+                      onClick={async () => {
+                        const ok = await confirm({
+                          title: c.confirmTitle,
+                          description: c.confirmDesc,
+                          confirmLabel: c.confirmCta,
+                          cancelLabel: c.keep,
+                          destructive: true,
+                        });
+                        if (ok) cancel.mutate({ id: b.id });
+                      }}
+                      disabled={cancel.isPending}>
+                      {c.cancel}
+                    </Button>
+                  ) : (
+                    <p className="mt-1 text-xs text-muted-foreground">{c.started}</p>
+                  )}
 
                 </div>
               </li>

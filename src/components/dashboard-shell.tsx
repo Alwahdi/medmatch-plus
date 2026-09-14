@@ -1,21 +1,18 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import {
+  Bell,
   Briefcase,
-  Building2,
   CalendarClock,
   FileText,
   LayoutDashboard,
-  LogOut,
   MessagesSquare,
   Search,
-  Settings,
   ShieldCheck,
-  ChevronLeft,
-  UserRound,
 } from "lucide-react";
 
+import { AccountHub, AccountHubSidebarTrigger } from "@/components/account-hub";
 import { NotificationBell } from "@/components/notification-bell";
 import { RemoteAvatar } from "@/components/remote-avatar";
 
@@ -28,20 +25,19 @@ import { cn } from "@/lib/utils";
 
 type Item = { to: string; key: string; icon: typeof LayoutDashboard };
 
+/** التنقل الأساسي = وجهات عمل فقط. إجراءات الحساب كلها في مركز الحساب. */
 const PRO_NAV: Item[] = [
   { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
   { to: "/jobs", key: "nav.jobs", icon: Briefcase },
   { to: "/shifts", key: "nav.shifts", icon: CalendarClock },
   { to: "/activity", key: "nav.activity", icon: FileText },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
-  { to: "/profile", key: "nav.profile", icon: UserRound },
 ];
 
 const FACILITY_NAV: Item[] = [
   { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
-  { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
 ];
 
 
@@ -49,8 +45,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const { user } = useSession();
   const { data: roles } = useRoles(user);
   const { t } = useLang();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const { total: unreadTotal } = useUnread(user);
@@ -84,28 +78,20 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
 
-  async function signOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  }
 
-  // Mobile bottom tab bar — Balto-style: 5 key tabs + "More" opening the full drawer
+  // شريط الجوال السفلي: 4 وجهات عمل + مركز الحساب
   const mobileTabs: Item[] = isFacility
     ? [
         { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
         { to: "/facility/candidates", key: "nav.candidates", icon: Search },
         { to: "/messages", key: "nav.messages", icon: MessagesSquare },
-        { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
-        { to: "/settings", key: "nav.settings", icon: Settings },
+        { to: "/notifications", key: "nav.notifications", icon: Bell },
       ]
     : [
         { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
         { to: "/jobs", key: "nav.jobs", icon: Briefcase },
         { to: "/shifts", key: "nav.shifts", icon: CalendarClock },
         { to: "/messages", key: "nav.messages", icon: MessagesSquare },
-        { to: "/profile", key: "nav.profile", icon: UserRound },
       ];
 
   const nav = (
@@ -144,65 +130,37 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 
   const account = (
-    <div className="mt-3 space-y-1 border-t border-border/70 pt-3">
-      <Link
-        to={isFacility ? "/facility/profile" : "/profile"}
-        className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-secondary"
-      >
-        <RemoteAvatar
-          value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
-          alt={accountName}
-          fallbackText={accountName}
-          className="size-9 shrink-0 rounded-full text-sm"
-        />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{accountName}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
-          </p>
-        </div>
-        <ChevronLeft className="ms-auto size-4 shrink-0 text-muted-foreground rtl:rotate-0 ltr:rotate-180" />
-      </Link>
-      <Link
-        to="/settings"
-        className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-      >
-        <Settings className="size-4 shrink-0" />
-        <span>{t("nav.settings")}</span>
-        <ChevronLeft className="ms-auto size-4 rtl:rotate-0 ltr:rotate-180" />
-      </Link>
-      <button
-        type="button"
-        onClick={() => void signOut()}
-        className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-      >
-        <LogOut className="size-4 shrink-0" />
-        <span>{t("nav.signOut")}</span>
-      </button>
+    <div className="mt-3 border-t border-border/70 pt-3">
+      <AccountHubSidebarTrigger />
     </div>
   );
-
-
-  const profileLink = isFacility ? "/facility/profile" : "/profile";
 
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4">
-          <Link to={profileLink} className="flex min-h-11 min-w-0 items-center gap-2">
-            <RemoteAvatar
-              value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
-              alt={accountName}
-              fallbackText={accountName}
-              className="size-9 shrink-0 rounded-full text-sm"
-            />
-            <span className="hidden min-w-0 flex-col sm:flex">
-              <span className="truncate text-sm font-bold leading-tight">{accountName}</span>
-              <span className="truncate text-[11px] text-muted-foreground">
-                {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
-              </span>
-            </span>
-          </Link>
+          <AccountHub
+            trigger={
+              <button
+                type="button"
+                aria-label={t("nav.account")}
+                className="flex min-h-11 min-w-0 items-center gap-2 rounded-full px-1 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <RemoteAvatar
+                  value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+                  alt={accountName}
+                  fallbackText={accountName}
+                  className="size-9 shrink-0 rounded-full text-sm"
+                />
+                <span className="hidden min-w-0 flex-col text-start sm:flex">
+                  <span className="truncate text-sm font-bold leading-tight">{accountName}</span>
+                  <span className="truncate text-[11px] text-muted-foreground">
+                    {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
+                  </span>
+                </span>
+              </button>
+            }
+          />
           <div className="ms-auto flex items-center gap-2">
             <NotificationBell />
           </div>
@@ -255,6 +213,25 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          <div className="flex items-center justify-center">
+            <AccountHub
+              trigger={
+                <button
+                  type="button"
+                  aria-label={t("nav.account")}
+                  className="flex min-h-16 w-full flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium text-muted-foreground"
+                >
+                  <RemoteAvatar
+                    value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+                    alt={accountName}
+                    fallbackText={accountName}
+                    className="size-5 shrink-0 rounded-full text-[9px]"
+                  />
+                  <span className="max-w-full truncate">{t("nav.account")}</span>
+                </button>
+              }
+            />
+          </div>
         </div>
       </nav>
     </div>

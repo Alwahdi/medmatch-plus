@@ -9,6 +9,7 @@ import {
   specialtyName,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { WorkTypeBadge } from "@/components/work-item";
 
 export type JobRow = {
   id: string;
@@ -97,7 +98,8 @@ export function JobCard({
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
+          <WorkTypeBadge type="job" />
+          <div className="mt-1.5 flex items-start justify-between gap-3">
             <h3 className="font-display text-base leading-snug font-bold group-hover:text-primary sm:text-lg">
               {job.title}
             </h3>

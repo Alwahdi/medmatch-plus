@@ -1374,6 +1374,7 @@ export type Database = {
       }
       claim_facility_role: { Args: never; Returns: boolean }
       claim_professional_role: { Args: never; Returns: boolean }
+      complete_shift: { Args: { _shift_id: string }; Returns: string }
       consume_candidate_search: { Args: never; Returns: number }
       has_engagement: {
         Args: { _facility_id: string; _professional_user_id: string }

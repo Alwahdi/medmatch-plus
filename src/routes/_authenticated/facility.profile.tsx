@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AccountCard } from "@/components/account-card";
 import { FacilityVerificationPanel } from "@/components/panels/facility.verification";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -521,7 +520,6 @@ function FacilityProfilePage() {
         </TabsContent>
       </Tabs>
 
-      <AccountCard showAlerts={false} />
     </div>
   );
 }

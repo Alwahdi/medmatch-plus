@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AccountCard } from "@/components/account-card";
 import { CvPanel } from "@/components/panels/cv";
 import { CvImportPanel } from "@/components/panels/cv-import";
 import { CredentialsPanel } from "@/components/panels/credentials";
@@ -521,7 +520,6 @@ function ProfilePage() {
         </TabsContent>
       </Tabs>
 
-      <AccountCard />
     </div>
   );
 }

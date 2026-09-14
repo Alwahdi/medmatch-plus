@@ -1,19 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertsPanel } from "@/components/panels/alerts";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  Bell,
-  Building2,
-  Globe,
-  Lock,
-  LogOut,
-  Mail,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { Bell, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
@@ -86,16 +75,8 @@ function SettingsPage() {
   const { lang, setLang } = useLang();
   const c = TXT[lang];
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const isFacility = roles?.includes("facility");
   const tab = Route.useSearch().tab ?? "general";
-
-  async function signOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    void navigate({ to: "/auth", replace: true });
-  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -156,55 +137,9 @@ function SettingsPage() {
         </Button>
       </section>
 
-      {!isFacility && (
-        <section className="mt-4 rounded-2xl border border-border bg-card p-5">
-          <div className="flex items-center gap-2">
-            <Mail className="size-5 text-primary" />
-            <h2 className="font-bold">{c.alertsTitle}</h2>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">{c.alertsBody}</p>
-          <Button className="mt-4" variant="outline" asChild>
-            <Link to="/settings" search={{ tab: "alerts" }}>{c.alertsCta}</Link>
-          </Button>
-        </section>
-      )}
-
-      <section className="mt-4 rounded-2xl border border-border bg-card p-5">
-        <h2 className="font-bold">{c.accountTitle}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {c.signedInAs} {user?.email}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {isFacility ? (
-            <Button variant="outline" asChild>
-              <Link to="/facility/profile">
-                <Building2 className="size-4" /> {c.facility}
-              </Link>
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" asChild>
-                <Link to="/profile">
-                  <UserRound className="size-4" /> {c.profile}
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/profile" search={{ tab: "credentials" }}>
-                  <ShieldCheck className="size-4" /> {c.credentials}
-                </Link>
-              </Button>
-            </>
-          )}
-          <Button variant="outline" asChild>
-            <Link to="/security">
-              <Lock className="size-4" /> {c.security}
-            </Link>
-          </Button>
-          <Button variant="ghost" onClick={signOut}>
-            <LogOut className="size-4" /> {c.signOut}
-          </Button>
-        </div>
-      </section>
+      <p className="mt-4 text-xs text-muted-foreground">
+        {c.signedInAs} {user?.email}
+      </p>
         </TabsContent>
       </Tabs>
     </div>
