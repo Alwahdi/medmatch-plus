@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { MapPin, CalendarClock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import {
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+import { specialtyName } from "@/lib/format";
 import { countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
@@ -52,6 +54,9 @@ const TXT = {
     signIn: "تسجيل الدخول",
     booked: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
     failed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
+    scopeMine: (n: string) => `تخصصي: ${n}`,
+    scopeField: "مجالي الطبي",
+    scopeAll: "كل التخصصات",
   },
   en: {
     badge: "Instant shifts with hourly pay",
@@ -68,6 +73,9 @@ const TXT = {
     signIn: "Sign in",
     booked: "Shift booked — you'll find it under My shifts",
     failed: "Booking failed, the shift may have just been taken",
+    scopeMine: (n: string) => `My specialty: ${n}`,
+    scopeField: "My medical field",
+    scopeAll: "All specialties",
   },
 } as const;
 
@@ -85,11 +93,11 @@ function ShiftsPage() {
       const { data, error } = await supabase
         .from("shifts")
         .select(
-          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialties(name_ar,name_en)",
+          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialty_id,specialties(name_ar,name_en)",
         )
         .order("starts_at", { ascending: true });
       if (error) throw error;
-      return data as unknown as ShiftRow[];
+      return data as unknown as (ShiftRow & { specialty_id: string | null })[];
     },
   });
 
@@ -113,7 +121,22 @@ function ShiftsPage() {
 
 
   const countries = useMemo(() => Array.from(new Set((shifts ?? []).map((s) => s.country))), [shifts]);
-  const filtered = (shifts ?? []).filter((s) => country === ALL || s.country === country);
+  const { mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
+  const [scope, setScope] = useState<Scope>("all");
+  const [scopeTouched, setScopeTouched] = useState(false);
+  useEffect(() => {
+    if (!scopeTouched && hasSpecialty) setScope("field");
+  }, [hasSpecialty, scopeTouched]);
+  const pickScope = (next: Scope) => {
+    setScopeTouched(true);
+    setScope(next);
+  };
+
+  const filtered = (shifts ?? []).filter(
+    (s) =>
+      (country === ALL || s.country === country) &&
+      inScope(scope, s.specialty_id, mySpecialtyId, fieldIds),
+  );
 
   return (
     <>
@@ -156,6 +179,30 @@ function ShiftsPage() {
       {/* Results */}
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
+          {hasSpecialty && (
+            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
+              {(
+                [
+                  ["mine", c.scopeMine(specialtyName(mySpecialty!, lang))],
+                  ["field", c.scopeField],
+                  ["all", c.scopeAll],
+                ] as [Scope, string][]
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => pickScope(key)}
+                  className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                    scope === key
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-surface text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="section-label">{c.label}</p>

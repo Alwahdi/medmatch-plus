@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarClock, ClipboardList, ShieldCheck, Users, Sparkles, ArrowLeft, Bell, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { useMyFacility, useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/_public/for-facilities")({
   head: () => ({
@@ -76,6 +77,9 @@ const TXT = {
 
 function ForFacilities() {
   const { lang } = useLang();
+  const { user } = useSession();
+  const { data: myFacility } = useMyFacility(user);
+  const employerHref = !user ? "/register/employer" : myFacility ? "/facility" : "/onboarding";
   const c = TXT[lang];
   const stepIcons: LucideIcon[] = [ClipboardList, Users, ShieldCheck, CalendarClock];
 
@@ -96,7 +100,7 @@ function ForFacilities() {
           </p>
           <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
             <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
-              <Link to="/register/employer">{c.registerFree}</Link>
+              <Link to={employerHref}>{c.registerFree}</Link>
             </Button>
             <Button
               size="lg"
@@ -149,7 +153,7 @@ function ForFacilities() {
           </div>
           <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
             <Button size="lg" className="w-full sm:w-auto" asChild>
-              <Link to="/register/employer">{c.registerNow}</Link>
+              <Link to={employerHref}>{c.registerNow}</Link>
             </Button>
             <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
               <Link to="/pricing">{c.seePricing}</Link>
@@ -163,7 +167,7 @@ function ForFacilities() {
       {/* Sticky mobile CTA */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
         <Button className="w-full" size="lg" asChild>
-          <Link to="/register/employer">{c.registerFree}</Link>
+          <Link to={employerHref}>{c.registerFree}</Link>
         </Button>
       </div>
     </>

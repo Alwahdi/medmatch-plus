@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { useSession } from "@/lib/auth";
 import { matchScore } from "@/lib/match";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
 
 export const Route = createFileRoute("/_public/jobs/")({
   head: () => ({
@@ -60,6 +61,11 @@ const TXT = {
     employer: "أنت ناشر وظائف؟",
     empty: "لا توجد وظائف مطابقة لبحثك.",
     reset: "إعادة ضبط الفلاتر",
+    scopeMine: (n: string) => `تخصصي: ${n}`,
+    scopeField: "مجالي الطبي",
+    scopeAll: "كل التخصصات",
+    showFilters: "إظهار التصفية",
+    hideFilters: "إخفاء التصفية",
   },
   en: {
     badge: "Permanent roles from verified employers",
@@ -80,6 +86,11 @@ const TXT = {
     employer: "Hiring? See plans",
     empty: "No jobs match your search.",
     reset: "Reset filters",
+    scopeMine: (n: string) => `My specialty: ${n}`,
+    scopeField: "My medical field",
+    scopeAll: "All specialties",
+    showFilters: "Show filters",
+    hideFilters: "Hide filters",
   },
 } as const;
 
@@ -122,18 +133,18 @@ function JobsPage() {
     },
   });
 
-  const { data: profile } = useQuery({
-    queryKey: ["my-pro", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("healthcare_professionals")
-        .select("specialty_id,years_experience,country,license_country")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      return data;
-    },
-  });
+  const { pro: profile, mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
+  const [scope, setScope] = useState<Scope>("all");
+  const [scopeTouched, setScopeTouched] = useState(false);
+
+  useEffect(() => {
+    if (!scopeTouched && hasSpecialty) setScope("field");
+  }, [hasSpecialty, scopeTouched]);
+
+  const pickScope = (next: Scope) => {
+    setScopeTouched(true);
+    setScope(next);
+  };
 
   const countries = useMemo(
     () => Array.from(new Set((jobs ?? []).map((j) => j.country))),
@@ -143,6 +154,7 @@ function JobsPage() {
   const filtered = (jobs ?? []).filter((j) => {
     if (country !== ALL && j.country !== country) return false;
     if (specialty !== ALL && j.specialty_id !== specialty) return false;
+    if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
     if (type !== ALL && j.employment_type !== type) return false;
     if (q && !`${j.title} ${j.specialties?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
     return true;
@@ -150,6 +162,7 @@ function JobsPage() {
 
   const reset = () => {
     setQ("");
+    pickScope("all");
     setCountry(ALL);
     setSpecialty(ALL);
     setType(ALL);
@@ -267,6 +280,30 @@ function JobsPage() {
 
           {/* Results */}
           <div className="lg:order-2">
+            {hasSpecialty && (
+              <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
+                {(
+                  [
+                    ["mine", c.scopeMine(specialtyName(mySpecialty!, lang))],
+                    ["field", c.scopeField],
+                    ["all", c.scopeAll],
+                  ] as [Scope, string][]
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => pickScope(key)}
+                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                      scope === key
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-surface text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="section-label">{c.results}</p>
