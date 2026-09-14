@@ -204,28 +204,62 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 
 
+  const profileLink = isFacility ? "/facility/profile" : "/profile";
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4">
-          <Link to={isFacility ? "/facility" : "/dashboard"} className="flex items-center gap-2">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Stethoscope className="size-5" />
+          <Link to={profileLink} className="flex min-w-0 items-center gap-2">
+            <RemoteAvatar
+              value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+              alt={accountName}
+              fallbackText={accountName}
+              className="size-9 shrink-0 rounded-full text-sm"
+            />
+            <span className="hidden min-w-0 flex-col sm:flex">
+              <span className="truncate text-sm font-bold leading-tight">{accountName}</span>
+              <span className="truncate text-[11px] text-muted-foreground">
+                {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
+              </span>
             </span>
-            <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
           </Link>
           <div className="ms-auto flex items-center gap-2">
             <NotificationBell />
           </div>
-
         </div>
-        {open && (
-          <div className="border-t border-border bg-background px-4 py-3 lg:hidden">
-            {nav}
-            {account}
-          </div>
-        )}
       </header>
+
+      <MobileMenuSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t("nav.menu")}
+        closeLabel={t("nav.menu")}
+        header={
+          <Link
+            to={profileLink}
+            onClick={() => setOpen(false)}
+            className="flex min-w-0 items-center gap-3"
+          >
+            <RemoteAvatar
+              value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+              alt={accountName}
+              fallbackText={accountName}
+              className="size-10 shrink-0 rounded-full text-sm"
+            />
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-bold">{accountName}</span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
+              </span>
+            </span>
+          </Link>
+        }
+      >
+        {nav}
+        {account}
+      </MobileMenuSheet>
+
 
       <div className="mx-auto flex max-w-[1400px] gap-6 px-4 py-6">
         <aside className="hidden w-64 shrink-0 lg:block">
