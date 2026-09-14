@@ -11,7 +11,10 @@ import {
   Building2,
   CalendarClock,
   Eye,
+  MessageSquare,
   PlusCircle,
+  Search,
+  ShieldAlert,
   Sparkles,
   Users,
   UserPlus,
@@ -46,6 +49,7 @@ import {
   specialtyName,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { useUnread } from "@/lib/unread";
 
 type FacilitySearch = { tab?: string };
 
@@ -77,6 +81,16 @@ const TXT = {
     activeJobsCount: (a: number, b: number) => `الوظائف النشطة ${a}/${b}`,
     activeShiftsCount: (a: number, b: number) => `المناوبات المتاحة ${a}/${b}`,
     upgrade: "ترقية الباقة",
+    publish: "نشر جديد",
+    verifyNow: "أكمل توثيق منشأتك",
+    verifyBody: "ارفع المستندات المطلوبة ليظهر للكوادر أن منشأتك موثّقة.",
+    newApplicants: "طلبات جديدة",
+    unreadMessages: "رسائل غير مقروءة",
+    activeJobs: "وظائف نشطة",
+    openShifts: "مناوبات متاحة",
+    searchesRemaining: (n: number) => `${n} عملية بحث متبقية`,
+    loadFailed: "تعذّر تحميل بيانات المنشأة.",
+    retry: "إعادة المحاولة",
     tabJobs: (n: number) => `الوظائف (${n})`,
     tabShifts: (n: number) => `المناوبات (${n})`,
     tabNewJob: "نشر وظيفة",
@@ -174,6 +188,16 @@ const TXT = {
     activeJobsCount: (a: number, b: number) => `Active jobs ${a}/${b}`,
     activeShiftsCount: (a: number, b: number) => `Open shifts ${a}/${b}`,
     upgrade: "Upgrade plan",
+    publish: "Create listing",
+    verifyNow: "Complete facility verification",
+    verifyBody: "Upload the required documents so professionals can trust your verified facility badge.",
+    newApplicants: "New applications",
+    unreadMessages: "Unread messages",
+    activeJobs: "Active jobs",
+    openShifts: "Open shifts",
+    searchesRemaining: (n: number) => `${n} searches remaining`,
+    loadFailed: "We couldn't load your facility data.",
+    retry: "Try again",
     tabJobs: (n: number) => `Jobs (${n})`,
     tabShifts: (n: number) => `Shifts (${n})`,
     tabNewJob: "Post a job",
@@ -273,6 +297,7 @@ type SubRow = {
   status: string;
   ends_at: string | null;
   plan_code: string;
+  searches_used: number;
   subscription_plans: PlanRow | null;
 };
 
@@ -285,20 +310,23 @@ function FacilityDashboard() {
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
 
   const { user } = useSession();
+  const { total: unreadMessages } = useUnread(user);
   const queryClient = useQueryClient();
 
-  const { data: facility, isLoading } = useQuery({
+  const facilityQuery = useQuery({
     queryKey: ["my-facility", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facilities")
         .select("*")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
+  const { data: facility, isLoading } = facilityQuery;
 
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
@@ -312,11 +340,12 @@ function FacilityDashboard() {
     queryKey: ["facility-jobs", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("jobs")
-        .select("*,applications(id)")
+        .select("*,applications(id,status)")
         .eq("facility_id", facility!.id)
         .order("created_at", { ascending: false });
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -325,11 +354,12 @@ function FacilityDashboard() {
     queryKey: ["facility-shifts", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("shifts")
         .select("*")
         .eq("facility_id", facility!.id)
         .order("starts_at", { ascending: true });
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -338,11 +368,12 @@ function FacilityDashboard() {
     queryKey: ["facility-sub", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facility_subscriptions")
         .select("*,subscription_plans(*)")
         .eq("facility_id", facility!.id)
         .maybeSingle();
+      if (error) throw error;
       return data as unknown as SubRow | null;
     },
   });
@@ -354,6 +385,13 @@ function FacilityDashboard() {
     (!sub.ends_at || new Date(sub.ends_at) > new Date());
   const activeJobs = (jobs ?? []).filter((j) => j.is_active).length;
   const activeShifts = (shifts ?? []).filter((s) => s.status === "open").length;
+  const newApplicants = (jobs ?? []).reduce(
+    (count, job) => count + (job.applications ?? []).filter((application) => application.status === "submitted").length,
+    0,
+  );
+  const searchesRemaining = plan
+    ? Math.max(plan.candidate_searches - (sub?.searches_used ?? 0), 0)
+    : null;
 
   const toggleJob = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
@@ -376,6 +414,16 @@ function FacilityDashboard() {
   });
 
   if (isLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
+  if (facilityQuery.isError) {
+    return (
+      <EmptyState
+        className="mx-auto mt-10 max-w-2xl"
+        icon={ShieldAlert}
+        title={c.loadFailed}
+        action={<Button variant="outline" onClick={() => void facilityQuery.refetch()}>{c.retry}</Button>}
+      />
+    );
+  }
   if (!facility) return <FacilityForm />;
 
 
@@ -383,7 +431,7 @@ function FacilityDashboard() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       {confirmDialog}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-center gap-4">
           <RemoteAvatar
             value={facility.logo_url}
@@ -403,10 +451,38 @@ function FacilityDashboard() {
             </p>
           </div>
         </div>
+        <div className="grid grid-cols-2 gap-2 sm:flex">
+          <Button onClick={() => void navigate({ to: "/facility", search: { tab: "new-job" } })}>
+            <PlusCircle className="size-4" /> {c.tabNewJob}
+          </Button>
+          <Button variant="outline" onClick={() => void navigate({ to: "/facility", search: { tab: "new-shift" } })}>
+            <CalendarClock className="size-4" /> {c.tabNewShift}
+          </Button>
+        </div>
       </div>
 
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <DashboardMetric icon={Users} value={newApplicants} label={c.newApplicants} />
+        <DashboardMetric icon={MessageSquare} value={unreadMessages} label={c.unreadMessages} />
+        <DashboardMetric icon={Briefcase} value={activeJobs} label={c.activeJobs} />
+        <DashboardMetric icon={CalendarClock} value={activeShifts} label={c.openShifts} />
+      </div>
+
+      {!facility.is_verified && (
+        <div className="mt-6 flex flex-col gap-4 rounded-lg border border-warning/40 bg-warning/10 p-4 sm:flex-row sm:items-center">
+          <ShieldAlert className="size-6 shrink-0 text-warning-foreground" />
+          <div className="min-w-0">
+            <p className="font-bold">{c.verifyNow}</p>
+            <p className="text-sm text-muted-foreground">{c.verifyBody}</p>
+          </div>
+          <Button className="sm:ms-auto" variant="outline" asChild>
+            <Link to="/facility/profile" search={{ tab: "verification" }}>{c.verifyNow}</Link>
+          </Button>
+        </div>
+      )}
+
       {plan && (
-        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:p-5">
+        <div className="mt-6 flex flex-col gap-4 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 font-bold">
               <Sparkles className="size-5 shrink-0 text-primary" />
@@ -417,7 +493,8 @@ function FacilityDashboard() {
 
             <p className="mt-1 text-xs text-muted-foreground">
               {sub?.ends_at ? c.endsAt(formatDateTime(sub.ends_at, lang)) : c.activeSub}{" "}
-              · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
+               · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
+               {searchesRemaining !== null ? ` · ${c.searchesRemaining(searchesRemaining)}` : ""}
             </p>
           </div>
           <Button variant="outline" className="w-full gap-2 sm:w-auto" asChild>
@@ -444,14 +521,6 @@ function FacilityDashboard() {
             <TabsTrigger value="shifts" className="shrink-0 gap-1.5">
               <CalendarClock className="size-4" />
               {c.tabShifts(shifts?.length ?? 0)}
-            </TabsTrigger>
-            <TabsTrigger value="new-job" className="shrink-0 gap-1.5">
-              <PlusCircle className="size-4" />
-              {c.tabNewJob}
-            </TabsTrigger>
-            <TabsTrigger value="new-shift" className="shrink-0 gap-1.5">
-              <PlusCircle className="size-4" />
-              {c.tabNewShift}
             </TabsTrigger>
           </TabsList>
         </div>
