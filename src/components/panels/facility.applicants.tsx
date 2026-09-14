@@ -57,7 +57,7 @@ const TXT = {
   },
 } as const;
 
-export function FacilityApplicantsPanel() {
+export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: string; embedded?: boolean } = {}) {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
@@ -67,7 +67,7 @@ export function FacilityApplicantsPanel() {
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["facility-applicants", user?.id],
+    queryKey: ["facility-applicants", user?.id, jobId ?? "all"],
     enabled: !!user,
     queryFn: async () => {
       const { data: facility } = await supabase
@@ -78,7 +78,7 @@ export function FacilityApplicantsPanel() {
       if (!facility) return [];
       const facilityId = facility.id;
       const { data: jobs } = await supabase.from("jobs").select("id,title").eq("facility_id", facility.id);
-      const ids = (jobs ?? []).map((j) => j.id);
+      const ids = (jobs ?? []).map((j) => j.id).filter((id) => !jobId || id === jobId);
       if (ids.length === 0) return [];
       const { data: apps, error } = await supabase
         .from("applications")
@@ -148,13 +148,15 @@ export function FacilityApplicantsPanel() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
+    <div className={embedded ? "" : "mx-auto max-w-5xl"}>
       {confirmDialog}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
-        <Link to="/facility" className="text-sm text-primary underline">{c.back}</Link>
-      </div>
+      {!embedded && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
+          <Link to="/facility" className="text-sm text-primary underline">{c.back}</Link>
+        </div>
+      )}
 
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
