@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { MapPin, CalendarClock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,9 @@ const TXT = {
     signIn: "تسجيل الدخول",
     booked: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
     failed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
+    scopeMine: (n: string) => `تخصصي: ${n}`,
+    scopeField: "مجالي الطبي",
+    scopeAll: "كل التخصصات",
   },
   en: {
     badge: "Instant shifts with hourly pay",
