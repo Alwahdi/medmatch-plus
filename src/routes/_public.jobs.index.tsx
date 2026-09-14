@@ -9,7 +9,6 @@ import { JobCard, type JobRow } from "@/components/job-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { matchScore } from "@/lib/match";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
@@ -45,12 +44,12 @@ export const Route = createFileRoute("/_public/jobs/")({
       {
         name: "description",
         content:
-          "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في اليمن والخليج ومصر، مع نطاق راتب معلن ونسبة توافق لكل وظيفة.",
+           "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في اليمن والخليج ومصر، مع نطاق راتب معلن وفلاتر دقيقة.",
       },
       { property: "og:title", content: "الوظائف الطبية | SyndeoCare" },
       {
         property: "og:description",
-        content: "وظائف طبية في المنطقة العربية بنطاق راتب معلن ومطابقة ذكية.",
+         content: "وظائف طبية في المنطقة العربية بنطاق راتب معلن وفلاتر حسب التخصص والموقع.",
       },
     ],
   }),
@@ -63,7 +62,7 @@ const TXT = {
   ar: {
     badge: "وظائف دائمة من منشآت موثّقة",
     title: "الوظائف الطبية المفتوحة",
-    sub: "فرص دائمة لأطباء، تمريض، صيادلة، وفنيين في اليمن والمنطقة العربية — بنطاق راتب معلن ومطابقة ذكية.",
+    sub: "فرص دائمة لأطباء، تمريض، صيادلة، وفنيين في اليمن والمنطقة العربية — بنطاق راتب معلن وفلاتر دقيقة.",
     search: "ابحث بالمسمى أو التخصص أو المدينة",
     country: "الدولة",
     allCountries: "كل الدول",
@@ -93,12 +92,12 @@ const TXT = {
     hideApplied: "إخفاء ما قدّمت عليه",
     myHeading: (n: string) => `وظائف تناسب تخصصك: ${n}`,
     myHeadingPlain: "وظائف مقترحة لك",
-    mySub: "مرتّبة حسب توافقها مع ملفك المهني.",
+    mySub: "مرتّبة حسب التخصص والموقع المسجلين في ملفك.",
   },
   en: {
     badge: "Permanent roles from verified employers",
     title: "Open medical jobs",
-    sub: "Permanent roles for physicians, nurses, pharmacists and technicians across Yemen and the Arab region — with published salary ranges and smart matching.",
+    sub: "Permanent roles for physicians, nurses, pharmacists and technicians across Yemen and the Arab region — with published salary ranges and precise filters.",
     search: "Search by title, specialty or city",
     country: "Country",
     allCountries: "All countries",
@@ -128,7 +127,7 @@ const TXT = {
     hideApplied: "Hide jobs I applied to",
     myHeading: (n: string) => `Jobs matching your specialty: ${n}`,
     myHeadingPlain: "Jobs picked for you",
-    mySub: "Ordered by how well they match your profile.",
+    mySub: "Ordered using the specialty and location saved in your profile.",
   },
 } as const;
 
@@ -252,13 +251,9 @@ function JobsPage() {
     [jobs, country, lang],
   );
 
-  const scoreOf = (j: { specialty_id: string | null; min_experience: number; country: string; required_license: string | null }) =>
-    matchScore(profile ?? null, {
-      specialty_id: j.specialty_id,
-      min_experience: j.min_experience,
-      country: j.country,
-      required_license: j.required_license,
-    });
+  const relevanceOf = (j: { specialty_id: string | null; country: string }) =>
+    Number(!!profile?.specialty_id && j.specialty_id === profile.specialty_id) * 2 +
+    Number(!!profile?.country && j.country === profile.country);
 
   const filtered = (jobs ?? [])
     .filter((j) => {
@@ -287,7 +282,7 @@ function JobsPage() {
       return true;
     })
     .sort((a, b) => {
-      if (sort === "match" && profile) return (scoreOf(b) ?? 0) - (scoreOf(a) ?? 0);
+      if (sort === "match" && profile) return relevanceOf(b) - relevanceOf(a);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
@@ -583,14 +578,14 @@ function JobsPage() {
             ) : (
               <div className="mt-6 space-y-3">
                 {filtered.map((job) => {
-                  const score = scoreOf(job);
+                  const relevant = relevanceOf(job) > 0;
                   return (
                     <JobCard
                       key={job.id}
                       job={job}
                       applied={!!appliedIds?.has(job.id)}
                       saved={!!savedIds?.has(job.id)}
-                      recommended={signedIn && typeof score === "number" && score >= 75}
+                      recommended={signedIn && relevant}
                     />
                   );
                 })}

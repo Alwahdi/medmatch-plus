@@ -17,7 +17,7 @@ type Dict = Record<string, { ar: string; en: string }>;
 export const DICT: Dict = {
   "nav.home": { ar: "الرئيسية", en: "Home" },
   "nav.jobs": { ar: "الوظائف", en: "Jobs" },
-  "nav.shifts": { ar: "الشيفتات", en: "Shifts" },
+  "nav.shifts": { ar: "المناوبات", en: "Shifts" },
   "nav.guides": { ar: "الأدلة", en: "Guides" },
   "nav.questions": { ar: "بنوك الأسئلة", en: "Question banks" },
   "nav.about": { ar: "من نحن", en: "About" },
@@ -88,7 +88,7 @@ export const DICT: Dict = {
     en: "SyndeoCare | Trusted medical jobs & shifts across the Arab world",
   },
   "home.metaDescription": {
-    ar: "كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد. وظائف دائمة، شيفتات فورية، وناشرو وظائف موثّقون.",
+    ar: "كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد. وظائف دائمة، مناوبات فورية، وناشرو وظائف موثّقون.",
     en: "All the medical talent you need — doctors, pharmacists, nurses, and technicians — in one place. Permanent jobs, instant shifts, verified employers.",
   },
   "home.hero.badge": { ar: "منصة عربية للتوظيف الطبي", en: "Arab healthcare hiring platform" },
