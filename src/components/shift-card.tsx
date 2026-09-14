@@ -85,24 +85,22 @@ export function ShiftCard({
 
   return (
     <div className="relative pt-2">
-      {(shift.is_urgent || !open) && (
-        <span
-          className={`absolute top-0 z-10 rounded-full px-3 py-1 text-[11px] font-bold shadow-sm start-4 ${
-            shift.is_urgent && open
-              ? "bg-warning text-warning-foreground"
-              : "bg-muted text-muted-foreground"
-          }`}
-        >
-          {shift.is_urgent && open ? c.urgent : c.booked}
+      {shift.is_urgent && open && (
+        <span className="absolute top-0 z-10 rounded-full bg-warning px-3 py-1 text-[11px] font-bold text-warning-foreground shadow-sm start-4">
+          {c.urgent}
         </span>
       )}
-      <div className="card-lift flex items-start gap-4 rounded-2xl border border-border bg-card p-4 hover:border-accent/40 sm:p-5">
-        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface text-muted-foreground sm:size-14">
+      <div className="card-lift flex items-start gap-4 rounded-2xl border border-border border-s-4 border-s-accent/70 bg-card p-4 hover:border-accent/40 sm:p-5">
+        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent sm:size-14">
           <CalendarClock className="size-6" />
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <WorkTypeBadge type="shift" />
+            <WorkStatusBadge status={shift.status as "open" | "booked" | "cancelled" | "completed"} />
+          </div>
+          <div className="mt-1.5 flex flex-wrap items-start justify-between gap-2">
             <Link
               to="/shifts/$shiftId"
               params={{ shiftId: shift.id }}
