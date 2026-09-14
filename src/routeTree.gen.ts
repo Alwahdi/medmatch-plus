@@ -12,12 +12,19 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
+import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
+import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
+import { Route as AuthenticatedCvRouteImport } from './routes/_authenticated/cv'
+import { Route as AuthenticatedCvImportRouteImport } from './routes/_authenticated/cv-import'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as PublicIndexRouteImport } from './routes/_public.index'
@@ -30,9 +37,11 @@ import { Route as PublicPricingRouteImport } from './routes/_public.pricing'
 import { Route as PublicPrivacyRouteImport } from './routes/_public.privacy'
 import { Route as PublicTermsRouteImport } from './routes/_public.terms'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
+import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
 import { Route as AuthenticatedFacilityCandidatesRouteImport } from './routes/_authenticated/facility.candidates'
 import { Route as AuthenticatedFacilityInviteRouteImport } from './routes/_authenticated/facility.invite'
 import { Route as AuthenticatedFacilityProfileRouteImport } from './routes/_authenticated/facility.profile'
+import { Route as AuthenticatedFacilityVerificationRouteImport } from './routes/_authenticated/facility.verification'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
 import { Route as PublicFacilitiesFacilityIdRouteImport } from './routes/_public.facilities.$facilityId'
@@ -64,6 +73,33 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedApplicationsRoute =
+  AuthenticatedApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCredentialsRoute =
+  AuthenticatedCredentialsRouteImport.update({
+    id: '/credentials',
+    path: '/credentials',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCvRoute = AuthenticatedCvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCvImportRoute = AuthenticatedCvImportRouteImport.update({
+  id: '/cv-import',
+  path: '/cv-import',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -80,6 +116,11 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyShiftsRoute = AuthenticatedMyShiftsRouteImport.update({
+  id: '/my-shifts',
+  path: '/my-shifts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedNotificationsRoute =
   AuthenticatedNotificationsRouteImport.update({
     id: '/notifications',
@@ -94,6 +135,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
@@ -157,6 +203,12 @@ const AuthenticatedFacilityIndexRoute =
     path: '/facility/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFacilityApplicantsRoute =
+  AuthenticatedFacilityApplicantsRouteImport.update({
+    id: '/facility/applicants',
+    path: '/facility/applicants',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFacilityCandidatesRoute =
   AuthenticatedFacilityCandidatesRouteImport.update({
     id: '/facility/candidates',
@@ -173,6 +225,12 @@ const AuthenticatedFacilityProfileRoute =
   AuthenticatedFacilityProfileRouteImport.update({
     id: '/facility/profile',
     path: '/facility/profile',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFacilityVerificationRoute =
+  AuthenticatedFacilityVerificationRouteImport.update({
+    id: '/facility/verification',
+    path: '/facility/verification',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
@@ -268,12 +326,19 @@ const AuthenticatedFacilityCandidatesUserIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/applications': typeof AuthenticatedApplicationsRoute
+  '/credentials': typeof AuthenticatedCredentialsRoute
+  '/cv': typeof AuthenticatedCvRoute
+  '/cv-import': typeof AuthenticatedCvImportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/about': typeof PublicAboutRoute
@@ -284,9 +349,11 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PublicPricingRoute
   '/privacy': typeof PublicPrivacyRoute
   '/terms': typeof PublicTermsRoute
+  '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
   '/facility/invite': typeof AuthenticatedFacilityInviteRoute
   '/facility/profile': typeof AuthenticatedFacilityProfileRoute
+  '/facility/verification': typeof AuthenticatedFacilityVerificationRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/guides/$slug': typeof PublicGuidesSlugRoute
@@ -309,12 +376,19 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/applications': typeof AuthenticatedApplicationsRoute
+  '/credentials': typeof AuthenticatedCredentialsRoute
+  '/cv': typeof AuthenticatedCvRoute
+  '/cv-import': typeof AuthenticatedCvImportRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/about': typeof PublicAboutRoute
@@ -325,9 +399,11 @@ export interface FileRoutesByTo {
   '/pricing': typeof PublicPricingRoute
   '/privacy': typeof PublicPrivacyRoute
   '/terms': typeof PublicTermsRoute
+  '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
   '/facility/invite': typeof AuthenticatedFacilityInviteRoute
   '/facility/profile': typeof AuthenticatedFacilityProfileRoute
+  '/facility/verification': typeof AuthenticatedFacilityVerificationRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/guides/$slug': typeof PublicGuidesSlugRoute
@@ -352,12 +428,19 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
+  '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
+  '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
+  '/_authenticated/cv': typeof AuthenticatedCvRoute
+  '/_authenticated/cv-import': typeof AuthenticatedCvImportRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
+  '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_public/about': typeof PublicAboutRoute
@@ -369,9 +452,11 @@ export interface FileRoutesById {
   '/_public/privacy': typeof PublicPrivacyRoute
   '/_public/terms': typeof PublicTermsRoute
   '/_public/': typeof PublicIndexRoute
+  '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/_authenticated/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
   '/_authenticated/facility/invite': typeof AuthenticatedFacilityInviteRoute
   '/_authenticated/facility/profile': typeof AuthenticatedFacilityProfileRoute
+  '/_authenticated/facility/verification': typeof AuthenticatedFacilityVerificationRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/facilities/$facilityId': typeof PublicFacilitiesFacilityIdRoute
   '/_public/guides/$slug': typeof PublicGuidesSlugRoute
@@ -396,12 +481,19 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/alerts'
+    | '/applications'
+    | '/credentials'
+    | '/cv'
+    | '/cv-import'
     | '/dashboard'
     | '/invitations'
     | '/messages'
+    | '/my-shifts'
     | '/notifications'
     | '/onboarding'
     | '/profile'
+    | '/saved'
     | '/security'
     | '/settings'
     | '/about'
@@ -412,9 +504,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/terms'
+    | '/facility/applicants'
     | '/facility/candidates'
     | '/facility/invite'
     | '/facility/profile'
+    | '/facility/verification'
     | '/blog/$slug'
     | '/facilities/$facilityId'
     | '/guides/$slug'
@@ -437,12 +531,19 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/alerts'
+    | '/applications'
+    | '/credentials'
+    | '/cv'
+    | '/cv-import'
     | '/dashboard'
     | '/invitations'
     | '/messages'
+    | '/my-shifts'
     | '/notifications'
     | '/onboarding'
     | '/profile'
+    | '/saved'
     | '/security'
     | '/settings'
     | '/about'
@@ -453,9 +554,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/terms'
+    | '/facility/applicants'
     | '/facility/candidates'
     | '/facility/invite'
     | '/facility/profile'
+    | '/facility/verification'
     | '/blog/$slug'
     | '/facilities/$facilityId'
     | '/guides/$slug'
@@ -479,12 +582,19 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_public'
     | '/_authenticated/admin'
+    | '/_authenticated/alerts'
+    | '/_authenticated/applications'
+    | '/_authenticated/credentials'
+    | '/_authenticated/cv'
+    | '/_authenticated/cv-import'
     | '/_authenticated/dashboard'
     | '/_authenticated/invitations'
     | '/_authenticated/messages'
+    | '/_authenticated/my-shifts'
     | '/_authenticated/notifications'
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
+    | '/_authenticated/saved'
     | '/_authenticated/security'
     | '/_authenticated/settings'
     | '/_public/about'
@@ -496,9 +606,11 @@ export interface FileRouteTypes {
     | '/_public/privacy'
     | '/_public/terms'
     | '/_public/'
+    | '/_authenticated/facility/applicants'
     | '/_authenticated/facility/candidates'
     | '/_authenticated/facility/invite'
     | '/_authenticated/facility/profile'
+    | '/_authenticated/facility/verification'
     | '/_public/blog/$slug'
     | '/_public/facilities/$facilityId'
     | '/_public/guides/$slug'
@@ -548,6 +660,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/applications': {
+      id: '/_authenticated/applications'
+      path: '/applications'
+      fullPath: '/applications'
+      preLoaderRoute: typeof AuthenticatedApplicationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/credentials': {
+      id: '/_authenticated/credentials'
+      path: '/credentials'
+      fullPath: '/credentials'
+      preLoaderRoute: typeof AuthenticatedCredentialsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cv': {
+      id: '/_authenticated/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof AuthenticatedCvRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cv-import': {
+      id: '/_authenticated/cv-import'
+      path: '/cv-import'
+      fullPath: '/cv-import'
+      preLoaderRoute: typeof AuthenticatedCvImportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -569,6 +716,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-shifts': {
+      id: '/_authenticated/my-shifts'
+      path: '/my-shifts'
+      fullPath: '/my-shifts'
+      preLoaderRoute: typeof AuthenticatedMyShiftsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/notifications': {
       id: '/_authenticated/notifications'
       path: '/notifications'
@@ -588,6 +742,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/saved': {
+      id: '/_authenticated/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof AuthenticatedSavedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/security': {
@@ -674,6 +835,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/facility/applicants': {
+      id: '/_authenticated/facility/applicants'
+      path: '/facility/applicants'
+      fullPath: '/facility/applicants'
+      preLoaderRoute: typeof AuthenticatedFacilityApplicantsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/facility/candidates': {
       id: '/_authenticated/facility/candidates'
       path: '/facility/candidates'
@@ -693,6 +861,13 @@ declare module '@tanstack/react-router' {
       path: '/facility/profile'
       fullPath: '/facility/profile'
       preLoaderRoute: typeof AuthenticatedFacilityProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/facility/verification': {
+      id: '/_authenticated/facility/verification'
+      path: '/facility/verification'
+      fullPath: '/facility/verification'
+      preLoaderRoute: typeof AuthenticatedFacilityVerificationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_public/blog/': {
@@ -834,34 +1009,53 @@ const AuthenticatedFacilityCandidatesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
+  AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
+  AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
+  AuthenticatedCvRoute: typeof AuthenticatedCvRoute
+  AuthenticatedCvImportRoute: typeof AuthenticatedCvImportRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
+  AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedFacilityApplicantsRoute: typeof AuthenticatedFacilityApplicantsRoute
   AuthenticatedFacilityCandidatesRoute: typeof AuthenticatedFacilityCandidatesRouteWithChildren
   AuthenticatedFacilityInviteRoute: typeof AuthenticatedFacilityInviteRoute
   AuthenticatedFacilityProfileRoute: typeof AuthenticatedFacilityProfileRoute
+  AuthenticatedFacilityVerificationRoute: typeof AuthenticatedFacilityVerificationRoute
   AuthenticatedFacilityIndexRoute: typeof AuthenticatedFacilityIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
+  AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,
+  AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
+  AuthenticatedCvRoute: AuthenticatedCvRoute,
+  AuthenticatedCvImportRoute: AuthenticatedCvImportRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
+  AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSavedRoute: AuthenticatedSavedRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedFacilityApplicantsRoute: AuthenticatedFacilityApplicantsRoute,
   AuthenticatedFacilityCandidatesRoute:
     AuthenticatedFacilityCandidatesRouteWithChildren,
   AuthenticatedFacilityInviteRoute: AuthenticatedFacilityInviteRoute,
   AuthenticatedFacilityProfileRoute: AuthenticatedFacilityProfileRoute,
+  AuthenticatedFacilityVerificationRoute:
+    AuthenticatedFacilityVerificationRoute,
   AuthenticatedFacilityIndexRoute: AuthenticatedFacilityIndexRoute,
 }
 

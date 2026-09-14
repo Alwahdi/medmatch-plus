@@ -27,7 +27,12 @@ import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
+type ProfileSearch = { tab: string };
+
 export const Route = createFileRoute("/_authenticated/profile")({
+  validateSearch: (search: Record<string, unknown>): ProfileSearch => ({
+    tab: typeof search.tab === "string" ? search.tab : "overview",
+  }),
   head: () => ({
     meta: [
       { title: "ملفي المهني | SyndeoCare" },
@@ -114,7 +119,7 @@ const schemaAr = z.object({
   license_number: z.string().trim().max(60).optional(),
 });
 
-function ProfilePage() {
+function ProfileOverview() {
   const { lang } = useLang();
   const c = TXT[lang];
   const ct = comboText(lang);
@@ -260,7 +265,7 @@ function ProfilePage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="mx-auto max-w-3xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
