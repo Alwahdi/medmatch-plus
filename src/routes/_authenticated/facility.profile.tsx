@@ -446,13 +446,20 @@ function FacilityProfile() {
           <p className="mt-1 text-xs text-muted-foreground">{c.descHint}</p>
         </div>
 
-        <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          {save.isPending && <Loader2 className="size-4 animate-spin" />}
-          {save.isPending ? c.saving : c.save}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+            {save.isPending && <Loader2 className="size-4 animate-spin" />}
+            {save.isPending ? c.saving : c.save}
+          </Button>
+          <Button variant="outline" onClick={() => setMode("view")}>
+            <Eye className="size-4" /> {c.previewBtn}
+          </Button>
+        </div>
       </div>
+      )}
 
       <ChangeRequestsPanel requests={(requests ?? []).filter((r) => r.target === "facility")} />
+
     </div>
   );
 }
