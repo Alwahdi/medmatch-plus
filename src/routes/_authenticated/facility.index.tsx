@@ -788,7 +788,7 @@ function JobForm({
             options={specialties.map((s) => ({
               value: s.id,
               label: specialtyName(s, lang) ?? "",
-              keywords: [s.name_ar, s.name_en],
+              keywords: [s.name_ar, s.name_en].filter(Boolean) as string[],
             }))}
             value={form.specialty_id}
             onChange={(v) => setForm({ ...form, specialty_id: v })}
@@ -968,7 +968,7 @@ function ShiftForm({
             options={specialties.map((s) => ({
               value: s.id,
               label: specialtyName(s, lang) ?? "",
-              keywords: [s.name_ar, s.name_en],
+              keywords: [s.name_ar, s.name_en].filter(Boolean) as string[],
             }))}
             value={form.specialty_id}
             onChange={(v) => setForm({ ...form, specialty_id: v })}
