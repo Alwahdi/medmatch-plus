@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
+import { fieldLabel } from "@/components/change-request";
 import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
