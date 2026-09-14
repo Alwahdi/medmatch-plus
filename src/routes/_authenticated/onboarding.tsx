@@ -77,12 +77,19 @@ function Onboarding() {
     try {
       const stored = localStorage.getItem("sc_signup_intent");
       if (stored === "facility" || stored === "professional") intent = stored;
-      localStorage.removeItem("sc_signup_intent");
     } catch {
       /* storage unavailable */
     }
-    if (metaRole) setPath(metaRole);
-    else if (intent) setPath(intent);
+    const chosen = metaRole ?? intent;
+    if (chosen) {
+      setPath(chosen);
+      // النية استُهلكت فعلاً بعد اختيار المسار.
+      try {
+        localStorage.removeItem("sc_signup_intent");
+      } catch {
+        /* storage unavailable */
+      }
+    }
     setReady(true);
   }, [existing, isPending, metaRole, navigate]);
 
