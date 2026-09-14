@@ -52,6 +52,8 @@ const TXT = {
     search: "ابحث بالمسمى أو التخصص أو المدينة",
     country: "الدولة",
     allCountries: "كل الدول",
+    city: "المدينة",
+    allCities: "كل المدن",
     specialty: "التخصص",
     allSpecialties: "كل التخصصات",
     all: "الكل",
@@ -85,6 +87,8 @@ const TXT = {
     search: "Search by title, specialty or city",
     country: "Country",
     allCountries: "All countries",
+    city: "City",
+    allCities: "All cities",
     specialty: "Specialty",
     allSpecialties: "All specialties",
     all: "All",
@@ -120,6 +124,7 @@ function JobsPage() {
   const c = TXT[lang];
   const [q, setQ] = useState("");
   const [country, setCountry] = useState(ALL);
+  const [city, setCity] = useState(ALL);
   const [specialty, setSpecialty] = useState(ALL);
   const [type, setType] = useState(ALL);
   const { user } = useSession();
@@ -199,6 +204,19 @@ function JobsPage() {
     [jobs],
   );
 
+  const cities = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (jobs ?? [])
+            .filter((j) => country === ALL || j.country === country)
+            .map((j) => j.city)
+            .filter((x): x is string => Boolean(x)),
+        ),
+      ).sort((a, b) => a.localeCompare(b, lang === "en" ? "en" : "ar")),
+    [jobs, country, lang],
+  );
+
   const scoreOf = (j: { specialty_id: string | null; min_experience: number; country: string; required_license: string | null }) =>
     matchScore(profile ?? null, {
       specialty_id: j.specialty_id,
@@ -210,6 +228,7 @@ function JobsPage() {
   const filtered = (jobs ?? [])
     .filter((j) => {
       if (country !== ALL && j.country !== country) return false;
+      if (city !== ALL && j.city !== city) return false;
       if (specialty !== ALL && j.specialty_id !== specialty) return false;
       if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
       if (type !== ALL && j.employment_type !== type) return false;
@@ -226,6 +245,7 @@ function JobsPage() {
     setQ("");
     pickScope("all");
     setCountry(ALL);
+    setCity(ALL);
     setSpecialty(ALL);
     setType(ALL);
   };
@@ -315,8 +335,25 @@ function JobsPage() {
                         ...countries.map((x) => ({ value: x, label: countryLabel(x, lang), keywords: [x] })),
                       ]}
                       value={country}
-                      onChange={setCountry}
+                      onChange={(v) => { setCountry(v); setCity(ALL); }}
                       placeholder={c.allCountries}
+                      searchPlaceholder={cbx.search}
+                      emptyText={cbx.empty}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">{c.city}</label>
+                  <div className="mt-1.5">
+                    <Combobox
+                      options={[
+                        { value: ALL, label: c.allCities },
+                        ...cities.map((x) => ({ value: x, label: x, keywords: [x] })),
+                      ]}
+                      value={city}
+                      onChange={setCity}
+                      placeholder={c.allCities}
                       searchPlaceholder={cbx.search}
                       emptyText={cbx.empty}
                     />

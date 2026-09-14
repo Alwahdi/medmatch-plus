@@ -310,9 +310,9 @@ function countryData(stored: string | null | undefined) {
   return COUNTRIES.find((c) => c.code === code) ?? null;
 }
 
-/** Cities of the chosen country (falls back to the launch market). */
+/** Cities of the chosen country. Empty when no (known) country is given. */
 export function cityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {
-  const data = countryData(stored) ?? countryData(DEFAULT_COUNTRY);
+  const data = countryData(stored);
   if (!data) return [];
   const seen = new Set<string>();
   const out: Option[] = [];
@@ -329,6 +329,34 @@ export function cityOptions(stored: string | null | undefined, lang: Lang = "ar"
   }
   return out.sort((a, b) => a.label.localeCompare(b.label, lang === "en" ? "en" : "ar"));
 }
+
+/** Cities of every supported country, labelled with the country name. */
+export function allCityOptions(lang: Lang = "ar"): Option[] {
+  const seen = new Set<string>();
+  const out: Option[] = [];
+  for (const country of COUNTRIES) {
+    const cName = lang === "en" ? country.en : country.ar;
+    for (const region of country.regions) {
+      for (const city of region.cities) {
+        if (seen.has(city.ar)) continue;
+        seen.add(city.ar);
+        out.push({
+          value: city.ar,
+          label: `${lang === "en" ? city.en : city.ar} — ${cName}`,
+          keywords: [city.ar, city.en, region.ar, region.en, country.ar, country.en],
+        });
+      }
+    }
+  }
+  return out.sort((a, b) => a.label.localeCompare(b.label, lang === "en" ? "en" : "ar"));
+}
+
+/** Cities for a filter: all countries when nothing is selected. */
+export function filterCityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {
+  const data = countryData(stored);
+  return data ? cityOptions(stored, lang) : allCityOptions(lang);
+}
+
 
 export function employerTypeOptions(lang: Lang = "ar"): Option[] {
   return EMPLOYER_TYPES.map((t) => ({

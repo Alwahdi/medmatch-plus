@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { cityOptions, countryOptions } from "@/lib/geo";
+import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 
@@ -223,7 +223,7 @@ function AlertsPage() {
           emptyText={cbx.empty}
         />
         <Combobox
-          options={cityOptions(country === ANY ? "" : country, lang)}
+          options={filterCityOptions(country === ANY ? "" : country, lang)}
           value={city}
           onChange={setCity}
           placeholder={c.cityPh}

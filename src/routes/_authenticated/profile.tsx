@@ -393,9 +393,9 @@ function ProfilePage() {
             <Combobox
               options={cityOptions(form.country, lang)}
               value={form.city}
-              disabled={locked}
+              disabled={locked || !form.country}
               onChange={(v) => setForm({ ...form, city: v })}
-              placeholder={ct.choose}
+              placeholder={form.country ? ct.choose : ct.pickCountryFirst}
               searchPlaceholder={ct.search}
               emptyText={ct.empty}
               allowCustom

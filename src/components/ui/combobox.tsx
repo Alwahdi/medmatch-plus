@@ -134,11 +134,14 @@ export function comboText(lang: "ar" | "en") {
         empty: "No results",
         add: (q: string) => `Use "${q}"`,
         choose: "Select",
+        pickCountryFirst: "Choose a country first",
       }
     : {
         search: "ابحث…",
         empty: "لا نتائج",
         add: (q: string) => `استخدام «${q}»`,
         choose: "اختر",
+        pickCountryFirst: "اختر الدولة أولاً",
       };
 }
+
