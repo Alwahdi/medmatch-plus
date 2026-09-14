@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { BadgeCheck, Building2, ExternalLink, Loader2, ShieldAlert, Star } from "lucide-react";
+import { BadgeCheck, Building2, ExternalLink, Eye, Loader2, Pencil, ShieldAlert, Star } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { RatingStars } from "@/components/rating-stars";
 import { ImageUpload } from "@/components/image-upload";
+import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
