@@ -1,4 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccountCard } from "@/components/account-card";
+import { FacilityVerificationPanel } from "@/components/panels/facility.verification";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -107,7 +110,12 @@ const TXT = {
   },
 } as const;
 
+type FacilityProfileSearch = { tab: string };
+
 export const Route = createFileRoute("/_authenticated/facility/profile")({
+  validateSearch: (search: Record<string, unknown>): FacilityProfileSearch => ({
+    tab: typeof search.tab === "string" ? search.tab : "profile",
+  }),
   head: () => ({
     meta: [
       { title: "ملف المنشأة | SyndeoCare" },
@@ -116,7 +124,7 @@ export const Route = createFileRoute("/_authenticated/facility/profile")({
       { property: "og:description", content: "إدارة بيانات المنشأة الصحية على SyndeoCare." },
     ],
   }),
-  component: FacilityProfile,
+  component: FacilityProfilePage,
 });
 
 function FacilityProfile() {
@@ -269,7 +277,7 @@ function FacilityProfile() {
               <p className="text-xs text-muted-foreground">{c.verifyHint}</p>
             )}
             <Button asChild size="sm" variant="link" className="h-auto p-0 text-xs">
-              <Link to="/facility/verification">
+              <Link to="/facility/profile" search={{ tab: "verification" }}>
                 {lang === "ar" ? "إدارة مستندات التوثيق" : "Manage verification documents"}
               </Link>
             </Button>
@@ -460,6 +468,61 @@ function FacilityProfile() {
 
       <ChangeRequestsPanel requests={(requests ?? []).filter((r) => r.target === "facility")} />
 
+    </div>
+  );
+}
+
+const PTABS = {
+  ar: { profile: "الملف", verification: "التوثيق", plan: "الباقة" },
+  en: { profile: "Profile", verification: "Verification", plan: "Plan" },
+} as const;
+
+function FacilityProfilePage() {
+  const { lang } = useLang();
+  const tt = PTABS[lang];
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate();
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <Tabs
+        value={tab}
+        onValueChange={(v) =>
+          void navigate({ to: "/facility/profile", search: { tab: v }, replace: true })
+        }
+      >
+        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+          <TabsList className="w-max">
+            <TabsTrigger value="profile" className="shrink-0">{tt.profile}</TabsTrigger>
+            <TabsTrigger value="verification" className="shrink-0">{tt.verification}</TabsTrigger>
+            <TabsTrigger value="plan" className="shrink-0">{tt.plan}</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="profile" className="mt-2">
+          <FacilityProfile />
+        </TabsContent>
+        <TabsContent value="verification" className="mt-2">
+          <FacilityVerificationPanel />
+        </TabsContent>
+        <TabsContent value="plan" className="mt-6">
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h2 className="font-display text-xl font-extrabold">
+              {lang === "ar" ? "باقة الاشتراك" : "Subscription plan"}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {lang === "ar"
+                ? "اطّلع على حدود باقتك الحالية وقارن بين الباقات المتاحة."
+                : "Review your current plan limits and compare available plans."}
+            </p>
+            <Button className="mt-4" asChild>
+              <Link to="/pricing">{lang === "ar" ? "عرض الباقات" : "View plans"}</Link>
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <AccountCard showAlerts={false} />
     </div>
   );
 }
