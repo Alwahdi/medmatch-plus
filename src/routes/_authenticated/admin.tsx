@@ -447,6 +447,17 @@ function AdminPage() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="changes" className="shrink-0">
+              {lang === "ar" ? "طلبات تعديل البيانات" : "Data change requests"}
+              {pendingChanges.length > 0 && (
+                <Badge variant="destructive" className="ms-2">
+                  {pendingChanges.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="changelog" className="shrink-0">
+              {lang === "ar" ? "سجل التعديلات" : "Change log"}
+            </TabsTrigger>
           </TabsList>
         </div>
 
