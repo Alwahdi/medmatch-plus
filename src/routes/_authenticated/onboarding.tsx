@@ -393,6 +393,7 @@ function FacilitySteps() {
   const { user } = useSession();
   const navigate = useNavigate();
   const { t, lang } = useLang();
+  const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
