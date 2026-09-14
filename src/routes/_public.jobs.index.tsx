@@ -55,6 +55,7 @@ const TXT = {
     allSpecialties: "كل التخصصات",
     all: "الكل",
     home: "الرئيسية",
+    dash: "لوحتي",
     filters: "التصفية",
     keyword: "كلمة البحث",
     jobType: "نوع الوظيفة",
@@ -68,6 +69,13 @@ const TXT = {
     scopeAll: "كل التخصصات",
     showFilters: "إظهار التصفية",
     hideFilters: "إخفاء التصفية",
+    sort: "الترتيب",
+    sortMatch: "الأنسب لي",
+    sortNew: "الأحدث",
+    hideApplied: "إخفاء ما قدّمت عليه",
+    myHeading: (n: string) => `وظائف تناسب تخصصك: ${n}`,
+    myHeadingPlain: "وظائف مقترحة لك",
+    mySub: "مرتّبة حسب توافقها مع ملفك المهني.",
   },
   en: {
     badge: "Permanent roles from verified employers",
@@ -80,6 +88,7 @@ const TXT = {
     allSpecialties: "All specialties",
     all: "All",
     home: "Home",
+    dash: "My dashboard",
     filters: "Filters",
     keyword: "Keyword",
     jobType: "Job type",
@@ -93,8 +102,16 @@ const TXT = {
     scopeAll: "All specialties",
     showFilters: "Show filters",
     hideFilters: "Hide filters",
+    sort: "Sort",
+    sortMatch: "Best match",
+    sortNew: "Newest",
+    hideApplied: "Hide jobs I applied to",
+    myHeading: (n: string) => `Jobs matching your specialty: ${n}`,
+    myHeadingPlain: "Jobs picked for you",
+    mySub: "Ordered by how well they match your profile.",
   },
 } as const;
+
 
 function JobsPage() {
   const { lang } = useLang();
