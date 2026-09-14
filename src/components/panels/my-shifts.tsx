@@ -133,20 +133,24 @@ export function MyShiftsPanel() {
                       />
                     </div>
                   )}
-                  <Button size="sm" variant="ghost"
-                    onClick={async () => {
-                      const ok = await confirm({
-                        title: c.confirmTitle,
-                        description: c.confirmDesc,
-                        confirmLabel: c.confirmCta,
-                        cancelLabel: c.keep,
-                        destructive: true,
-                      });
-                      if (ok) cancel.mutate({ id: b.id });
-                    }}
-                    disabled={cancel.isPending}>
-                    {c.cancel}
-                  </Button>
+                  {new Date(s.starts_at).getTime() > Date.now() ? (
+                    <Button size="sm" variant="ghost"
+                      onClick={async () => {
+                        const ok = await confirm({
+                          title: c.confirmTitle,
+                          description: c.confirmDesc,
+                          confirmLabel: c.confirmCta,
+                          cancelLabel: c.keep,
+                          destructive: true,
+                        });
+                        if (ok) cancel.mutate({ id: b.id });
+                      }}
+                      disabled={cancel.isPending}>
+                      {c.cancel}
+                    </Button>
+                  ) : (
+                    <p className="mt-1 text-xs text-muted-foreground">{c.started}</p>
+                  )}
 
                 </div>
               </li>
