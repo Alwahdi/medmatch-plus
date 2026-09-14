@@ -301,6 +301,8 @@ function ShiftsPage() {
       <section className={signedIn ? "py-6" : "py-16 md:py-20"}>
         <div className={signedIn ? "" : "mx-auto max-w-6xl px-4"}>
 
+          <FilterBar className="mb-4" count={filtered.length} filters={activeFilters} onClearAll={resetFilters} />
+
           {hasSpecialty && (
             <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
               {(
@@ -349,7 +351,7 @@ function ShiftsPage() {
           ) : filtered.length === 0 ? (
             <div className="mt-16 rounded-2xl border border-border bg-card p-10 text-center">
               <p className="text-muted-foreground">{c.empty}</p>
-              <Button className="mt-4" variant="outline" onClick={() => setCountry(ALL)}>
+              <Button className="mt-4" variant="outline" onClick={resetFilters}>
                 {c.showAll}
               </Button>
             </div>
