@@ -20,7 +20,6 @@ import { matchScore } from "@/lib/match";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
-import { useSignedIn } from "@/components/page-chrome";
 
 
 export const Route = createFileRoute("/_public/jobs/")({
