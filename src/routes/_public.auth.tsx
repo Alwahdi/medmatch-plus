@@ -91,6 +91,11 @@ const TXT = {
   badCreds: { ar: "بيانات الدخول غير صحيحة", en: "Invalid sign-in details" },
   signedIn: { ar: "تم تسجيل الدخول", en: "Signed in" },
   googleError: { ar: "تعذّر تسجيل الدخول عبر جوجل", en: "Google sign-in failed" },
+  newHere: { ar: "جديد على المنصة؟ اختر نوع حسابك", en: "New here? Choose your account type" },
+  typeHint: {
+    ar: "لكل بريد حساب واحد: إما كادر صحي يبحث عن عمل، أو منشأة تنشر الوظائف والمناوبات.",
+    en: "One account type per email: a healthcare professional looking for work, or a facility posting jobs and shifts.",
+  },
 } as const;
 
 function AuthPage() {
@@ -148,25 +153,29 @@ function AuthPage() {
 
             <SignInForm tx={tx} />
 
-            <div className="mt-6 space-y-3">
-              <div className="rounded-2xl bg-secondary/60 p-3 text-center">
-                <p className="text-xs text-muted-foreground">{tx("seekerQ")}</p>
-                <Button asChild variant="outline" className="mt-2 w-full bg-card">
-                  <Link to="/register">
-                    <UserRound className="size-4" />
-                    {tx("seekerCta")}
-                  </Link>
-                </Button>
+            <div className="mt-6 rounded-2xl bg-secondary/60 p-3">
+              <p className="text-center text-xs font-semibold">{tx("newHere")}</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <Link
+                  to="/register"
+                  className="rounded-xl border border-border bg-card p-3 text-start transition-colors hover:border-primary/50"
+                >
+                  <UserRound className="size-5 text-primary" />
+                  <p className="mt-2 text-sm font-bold">{tx("seekerCta")}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{tx("seekerQ")}</p>
+                </Link>
+                <Link
+                  to="/register/employer"
+                  className="rounded-xl border border-border bg-card p-3 text-start transition-colors hover:border-primary/50"
+                >
+                  <Building2 className="size-5 text-primary" />
+                  <p className="mt-2 text-sm font-bold">{tx("employerCta")}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{tx("employerQ")}</p>
+                </Link>
               </div>
-              <div className="rounded-2xl bg-secondary/60 p-3 text-center">
-                <p className="text-xs text-muted-foreground">{tx("employerQ")}</p>
-                <Button asChild variant="outline" className="mt-2 w-full bg-card">
-                  <Link to="/register/employer">
-                    <Building2 className="size-4" />
-                    {tx("employerCta")}
-                  </Link>
-                </Button>
-              </div>
+              <p className="mt-3 text-center text-[11px] leading-relaxed text-muted-foreground">
+                {tx("typeHint")}
+              </p>
             </div>
           </div>
         </div>

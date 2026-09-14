@@ -136,6 +136,7 @@ function JobsPage() {
   const { pro: profile, mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
   const [scope, setScope] = useState<Scope>("all");
   const [scopeTouched, setScopeTouched] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     if (!scopeTouched && hasSpecialty) setScope("field");
@@ -197,7 +198,17 @@ function JobsPage() {
         <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[320px_minmax(0,1fr)]">
           {/* Filters sidebar */}
           <aside className="lg:order-1">
-            <div className="sticky top-24 rounded-2xl border border-border bg-card p-5">
+            <Button
+              variant="outline"
+              className="mb-3 w-full gap-2 lg:hidden"
+              onClick={() => setShowFilters((v) => !v)}
+            >
+              <SlidersHorizontal className="size-4" />
+              {showFilters ? c.hideFilters : c.showFilters}
+            </Button>
+            <div
+              className={`${showFilters ? "" : "hidden lg:block"} sticky top-24 rounded-2xl border border-border bg-card p-5`}
+            >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="font-display text-lg font-bold">{c.filters}</h2>
                 <span className="grid size-9 place-items-center rounded-xl bg-surface text-muted-foreground">
