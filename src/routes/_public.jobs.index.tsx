@@ -13,12 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JobCard, type JobRow } from "@/components/job-card";
+import { useSignedIn } from "@/components/page-chrome";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { matchScore } from "@/lib/match";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+
 
 export const Route = createFileRoute("/_public/jobs/")({
   head: () => ({
