@@ -102,6 +102,33 @@ function SettingsPage() {
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-muted-foreground">{c.sub}</p>
 
+      <Tabs
+        value={tab}
+        onValueChange={(v) => void navigate({ to: "/settings", search: { tab: v }, replace: true })}
+        className="mt-6"
+      >
+        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+          <TabsList className="w-max">
+            <TabsTrigger value="general" className="shrink-0">
+              {lang === "ar" ? "عام" : "General"}
+            </TabsTrigger>
+            {!isFacility && (
+              <TabsTrigger value="alerts" className="shrink-0">
+                {lang === "ar" ? "تنبيهات الوظائف" : "Job alerts"}
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>
+
+        {!isFacility && (
+          <TabsContent value="alerts" className="mt-6">
+            <AlertsPanel />
+          </TabsContent>
+        )}
+
+        <TabsContent value="general" className="mt-0">
+
+
       <section className="mt-6 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <Globe className="size-5 text-primary" />
