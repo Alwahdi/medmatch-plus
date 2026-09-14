@@ -60,6 +60,11 @@ const TXT = {
     failed: "تعذّر الحفظ",
     nameRequired: "أدخل اسم المنشأة",
     cityRequired: "أدخل المدينة",
+    editBtn: "تعديل الملف",
+    previewBtn: "معاينة",
+    asOthersSee: "هكذا يرى الآخرون ملف منشأتك",
+    noAbout: "لم تُضف نبذة تعريفية بعد.",
+
   },
   en: {
     title: "Facility profile",
@@ -93,6 +98,11 @@ const TXT = {
     failed: "Could not save",
     nameRequired: "Enter the facility name",
     cityRequired: "Enter the city",
+    editBtn: "Edit profile",
+    previewBtn: "Preview",
+    asOthersSee: "This is how others see your facility profile",
+    noAbout: "No description added yet.",
+
   },
 } as const;
 
