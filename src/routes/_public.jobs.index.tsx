@@ -395,12 +395,58 @@ function JobsPage() {
                   {c.count(filtered.length)}
                 </h2>
               </div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/pricing">
-                  {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
-                </Link>
-              </Button>
+              {!signedIn && (
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/pricing">
+                    {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
+                  </Link>
+                </Button>
+              )}
             </div>
+
+            {signedIn && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {profile && (
+                  <div className="flex items-center gap-1 rounded-xl bg-surface p-1">
+                    {(
+                      [
+                        ["match", c.sortMatch],
+                        ["new", c.sortNew],
+                      ] as ["match" | "new", string][]
+                    ).map(([key, label]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => {
+                          setSortTouched(true);
+                          setSort(key);
+                        }}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                          sort === key
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {!!appliedIds?.size && (
+                  <button
+                    type="button"
+                    onClick={() => setHideApplied((v) => !v)}
+                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                      hideApplied
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-surface text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {c.hideApplied}
+                  </button>
+                )}
+              </div>
+            )}
 
             {isLoading ? (
               <div className="mt-6 space-y-3">
@@ -417,20 +463,22 @@ function JobsPage() {
               </div>
             ) : (
               <div className="mt-6 space-y-3">
-                {filtered.map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    match={matchScore(profile ?? null, {
-                      specialty_id: job.specialty_id,
-                      min_experience: job.min_experience,
-                      country: job.country,
-                      required_license: job.required_license,
-                    })}
-                  />
-                ))}
+                {filtered.map((job) => {
+                  const score = scoreOf(job);
+                  return (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      match={score}
+                      applied={appliedIds?.has(job.id)}
+                      saved={savedIds?.has(job.id)}
+                      recommended={signedIn && typeof score === "number" && score >= 75}
+                    />
+                  );
+                })}
               </div>
             )}
+
           </div>
         </div>
       </section>
