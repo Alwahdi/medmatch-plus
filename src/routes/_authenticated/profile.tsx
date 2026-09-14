@@ -32,12 +32,11 @@ import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
-type ProfileSearch = { tab: string };
+type ProfileSearch = { tab?: string };
 
 export const Route = createFileRoute("/_authenticated/profile")({
-  validateSearch: (search: Record<string, unknown>): ProfileSearch => ({
-    tab: typeof search.tab === "string" ? search.tab : "overview",
-  }),
+  validateSearch: (search: Record<string, unknown>): ProfileSearch =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "ملفي المهني | SyndeoCare" },
@@ -474,7 +473,7 @@ const TABS = {
 function ProfilePage() {
   const { lang } = useLang();
   const tt = TABS[lang];
-  const { tab } = Route.useSearch();
+  const tab = Route.useSearch().tab ?? "overview";
   const navigate = useNavigate();
 
   return (

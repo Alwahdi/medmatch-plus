@@ -17,12 +17,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
-type SettingsSearch = { tab: string };
+type SettingsSearch = { tab?: string };
 
 export const Route = createFileRoute("/_authenticated/settings")({
-  validateSearch: (search: Record<string, unknown>): SettingsSearch => ({
-    tab: typeof search.tab === "string" ? search.tab : "general",
-  }),
+  validateSearch: (search: Record<string, unknown>): SettingsSearch =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "الإعدادات | SyndeoCare" },
@@ -89,7 +88,7 @@ function SettingsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isFacility = roles?.includes("facility");
-  const { tab } = Route.useSearch();
+  const tab = Route.useSearch().tab ?? "general";
 
   async function signOut() {
     await queryClient.cancelQueries();

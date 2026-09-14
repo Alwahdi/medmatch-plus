@@ -110,12 +110,11 @@ const TXT = {
   },
 } as const;
 
-type FacilityProfileSearch = { tab: string };
+type FacilityProfileSearch = { tab?: string };
 
 export const Route = createFileRoute("/_authenticated/facility/profile")({
-  validateSearch: (search: Record<string, unknown>): FacilityProfileSearch => ({
-    tab: typeof search.tab === "string" ? search.tab : "profile",
-  }),
+  validateSearch: (search: Record<string, unknown>): FacilityProfileSearch =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "ملف المنشأة | SyndeoCare" },
@@ -480,7 +479,7 @@ const PTABS = {
 function FacilityProfilePage() {
   const { lang } = useLang();
   const tt = PTABS[lang];
-  const { tab } = Route.useSearch();
+  const tab = Route.useSearch().tab ?? "profile";
   const navigate = useNavigate();
 
   return (

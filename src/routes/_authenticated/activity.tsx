@@ -6,12 +6,11 @@ import { MyShiftsPanel } from "@/components/panels/my-shifts";
 import { SavedPanel } from "@/components/panels/saved";
 import { useLang } from "@/lib/i18n";
 
-type ActivitySearch = { tab: string };
+type ActivitySearch = { tab?: string };
 
 export const Route = createFileRoute("/_authenticated/activity")({
-  validateSearch: (search: Record<string, unknown>): ActivitySearch => ({
-    tab: typeof search.tab === "string" ? search.tab : "applications",
-  }),
+  validateSearch: (search: Record<string, unknown>): ActivitySearch =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "نشاطي | SyndeoCare" },
@@ -31,7 +30,7 @@ const TXT = {
 function ActivityPage() {
   const { lang } = useLang();
   const c = TXT[lang];
-  const { tab } = Route.useSearch();
+  const tab = Route.useSearch().tab ?? "applications";
   const navigate = useNavigate();
 
   return (

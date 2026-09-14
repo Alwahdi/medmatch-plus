@@ -47,12 +47,11 @@ import {
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-type FacilitySearch = { tab: string };
+type FacilitySearch = { tab?: string };
 
 export const Route = createFileRoute("/_authenticated/facility/")({
-  validateSearch: (search: Record<string, unknown>): FacilitySearch => ({
-    tab: typeof search.tab === "string" ? search.tab : "jobs",
-  }),
+  validateSearch: (search: Record<string, unknown>): FacilitySearch =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "لوحة المنشأة | SyndeoCare" },
@@ -281,7 +280,7 @@ function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
-  const { tab } = Route.useSearch();
+  const tab = Route.useSearch().tab ?? "jobs";
   const navigate = useNavigate();
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
 
