@@ -243,17 +243,18 @@ function InvitePage() {
   const search = useMutation({
     mutationFn: async () => {
       const args: {
+        _request_id: string;
         _limit: number;
         _specialty_id?: string;
         _country?: string;
         _city?: string;
         _min_experience?: number;
-      } = { _limit: 20 };
+      } = { _request_id: crypto.randomUUID(), _limit: 20 };
       if (specialty !== ANY) args._specialty_id = specialty;
       if (country !== ANY) args._country = country;
       if (city.trim()) args._city = city.trim();
       if (minExp) args._min_experience = Number(minExp);
-      const { data, error } = await supabase.rpc("search_candidates_atomic", args);
+      const { data, error } = await supabase.rpc("search_candidates_idempotent", args);
       if (error) {
         const key = error.message.replace(
           /.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s,
@@ -273,14 +274,19 @@ function InvitePage() {
   const invite = useMutation({
     mutationFn: async (professionalUserId: string) => {
       if (!facility || (!jobId && !shiftId)) throw new Error(c.noTarget);
-      const { error } = await supabase.from("invitations").insert({
-        facility_id: facility.id,
-        professional_user_id: professionalUserId,
-        job_id: jobId ?? null,
-        shift_id: shiftId ?? null,
-        message: message.trim() || null,
-      });
-      if (error) throw new Error(error.code === "23505" ? c.duplicate : c.failed);
+      const args: {
+        _professional_user_id: string;
+        _job_id?: string;
+        _shift_id?: string;
+        _message?: string;
+      } = {
+        _professional_user_id: professionalUserId,
+      };
+      if (jobId) args._job_id = jobId;
+      if (shiftId) args._shift_id = shiftId;
+      if (message.trim()) args._message = message.trim();
+      const { error } = await supabase.rpc("send_candidate_invitation", args);
+      if (error) throw new Error(error.message.includes("INVITATION_EXISTS") ? c.duplicate : c.failed);
     },
     onSuccess: () => {
       toast.success(c.sent);
@@ -438,14 +444,14 @@ function InvitePage() {
                 <RemoteAvatar value={null} icon={UserRound} className="size-10 rounded-xl" />
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 font-bold">
-                    {cand.headline ??
-                      specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang)}
+                    {specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang)}
                     {cand.is_verified && (
                       <Badge variant="secondary" className="gap-1">
                         <ShieldCheck className="size-3" /> {c.verified}
                       </Badge>
                     )}
                   </p>
+                  {cand.headline && <p className="truncate text-sm text-muted-foreground">{cand.headline}</p>}
                   <p className="truncate text-xs text-muted-foreground">
                     {c.experience(cand.years_experience)} ·{" "}
                     {[cand.city, countryLabel(cand.country, lang)].filter(Boolean).join("، ")}

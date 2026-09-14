@@ -126,6 +126,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
     },
     onError: () => toast.error(c.updateFailed),
   });
+  const pendingApplicationId = setStatus.isPending ? setStatus.variables?.id : null;
 
   const startChat = useMutation({
     mutationFn: async ({ candidateUserId, jobId }: { candidateUserId: string; jobId: string }) => {
@@ -202,6 +203,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                 </Button>
                 <Select
                   value={a.status}
+                  disabled={pendingApplicationId === a.id}
                   onValueChange={async (v) => {
                     if (v === "rejected") {
                       const ok = await confirm({

@@ -136,6 +136,38 @@ export type Database = {
           },
         ]
       }
+      candidate_search_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          facility_id: string
+          request_id: string
+          result: Json
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          facility_id: string
+          request_id: string
+          result?: Json
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          facility_id?: string
+          request_id?: string
+          result?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_search_requests_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -1331,6 +1363,7 @@ export type Database = {
           issue_code: string
         }[]
       }
+      book_open_shift: { Args: { _shift_id: string }; Returns: string }
       can_view_facility_identity: {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean
@@ -1430,6 +1463,37 @@ export type Database = {
           years_experience: number
         }[]
       }
+      search_candidates_idempotent: {
+        Args: {
+          _city?: string
+          _country?: string
+          _limit?: number
+          _min_experience?: number
+          _request_id: string
+          _specialty_id?: string
+        }
+        Returns: {
+          bio: string
+          city: string
+          country: string
+          headline: string
+          id: string
+          is_open_to_shifts: boolean
+          is_verified: boolean
+          specialty_id: string
+          user_id: string
+          years_experience: number
+        }[]
+      }
+      send_candidate_invitation: {
+        Args: {
+          _job_id?: string
+          _message?: string
+          _professional_user_id: string
+          _shift_id?: string
+        }
+        Returns: string
+      }
       slugify: { Args: { input: string }; Returns: string }
       start_candidate_conversation: {
         Args: {
@@ -1438,6 +1502,10 @@ export type Database = {
           _shift_id?: string
           _subject?: string
         }
+        Returns: string
+      }
+      submit_job_application: {
+        Args: { _cover_letter?: string; _job_id: string }
         Returns: string
       }
     }

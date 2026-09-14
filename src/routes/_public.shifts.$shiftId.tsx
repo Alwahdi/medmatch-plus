@@ -197,9 +197,7 @@ function ShiftDetail() {
 
   const book = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from("shift_bookings")
-        .insert({ shift_id: shiftId, user_id: user!.id });
+      const { error } = await supabase.rpc("book_open_shift", { _shift_id: shiftId });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -271,7 +269,7 @@ function ShiftDetail() {
             className="mt-3 text-white/80 hover:bg-white/10 hover:text-white"
           >
             <Link to="/shifts">
-              <ArrowLeft className="size-4" /> {c.back}
+              <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{shift.title}</h1>

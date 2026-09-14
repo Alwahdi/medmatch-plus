@@ -188,17 +188,18 @@ function Candidates() {
   const search = useMutation({
     mutationFn: async () => {
       const args: {
+        _request_id: string;
         _specialty_id?: string;
         _country?: string;
         _city?: string;
         _min_experience?: number;
         _limit?: number;
-      } = { _limit: 20 };
+      } = { _request_id: crypto.randomUUID(), _limit: 20 };
       if (specialty !== ANY) args._specialty_id = specialty;
       if (country !== ANY) args._country = country;
       if (city.trim()) args._city = city.trim();
       if (minExp) args._min_experience = Number(minExp);
-      const { data, error } = await supabase.rpc("search_candidates_atomic", args);
+      const { data, error } = await supabase.rpc("search_candidates_idempotent", args);
       if (error) {
         const key = error.message.replace(/.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s, "$1") as keyof typeof c.errors;
         throw new Error(c.errors[key] ?? c.searchFailed);
