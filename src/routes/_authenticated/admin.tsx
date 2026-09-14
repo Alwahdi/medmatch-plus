@@ -405,6 +405,11 @@ function AdminPage() {
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
   const pendingFacDocs = (facDocs ?? []).filter((d) => d.status === "pending");
   const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
+  const pendingChanges = (changeReqs ?? []).filter((r) => r.status === "pending");
+  const shownChanges = pendingOnly ? pendingChanges : changeReqs ?? [];
+  const shownLog = (changeLog ?? []).filter((l) =>
+    logQuery.trim() ? `${l.field} ${l.old_value ?? ""} ${l.new_value ?? ""}`.includes(logQuery.trim()) : true,
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
