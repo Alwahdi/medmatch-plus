@@ -782,23 +782,33 @@ function JobForm({
         </div>
         <div>
           <Label>{c.specialty}</Label>
-          <Select value={form.specialty_id} onValueChange={(v) => setForm({ ...form, specialty_id: v })}>
-            <SelectTrigger><SelectValue placeholder={c.pickSpecialty} /></SelectTrigger>
-            <SelectContent>
-              {specialties.map((s) => <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={specialties.map((s) => ({
+              value: s.id,
+              label: specialtyName(s, lang) ?? "",
+              keywords: [s.name_ar, s.name_en],
+            }))}
+            value={form.specialty_id}
+            onChange={(v) => setForm({ ...form, specialty_id: v })}
+            placeholder={c.pickSpecialty}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
         <div>
           <Label>{c.employmentType}</Label>
-          <Select value={form.employment_type} onValueChange={(v) => setForm({ ...form, employment_type: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {["full_time", "part_time", "contract", "locum", "shift"].map((k) => (
-                <SelectItem key={k} value={k}>{employmentLabel(k, lang)}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={["full_time", "part_time", "contract", "locum", "shift"].map((k) => ({
+              value: k,
+              label: employmentLabel(k, lang),
+              keywords: [k],
+            }))}
+            value={form.employment_type}
+            onChange={(v) => setForm({ ...form, employment_type: v })}
+            placeholder={ct.choose}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
         <div>
           <Label htmlFor="jexp">{c.minExperience}</Label>
@@ -807,17 +817,27 @@ function JobForm({
         </div>
         <div>
           <Label>{c.country}</Label>
-          <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-            <SelectTrigger><SelectValue placeholder={c.pickCountry} /></SelectTrigger>
-            <SelectContent>
-              {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={countryOptions(lang)}
+            value={form.country}
+            onChange={(v) => setForm({ ...form, country: v, city: "" })}
+            placeholder={c.pickCountry}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
         <div>
-          <Label htmlFor="jcity">{c.city}</Label>
-          <Input id="jcity" maxLength={60} value={form.city}
-            onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          <Label>{c.city}</Label>
+          <Combobox
+            options={cityOptions(form.country, lang)}
+            value={form.city}
+            onChange={(v) => setForm({ ...form, city: v })}
+            placeholder={ct.choose}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+            allowCustom
+            customLabel={ct.add}
+          />
         </div>
         <div>
           <Label htmlFor="jmin">{c.salaryFrom}</Label>
@@ -830,18 +850,26 @@ function JobForm({
             onChange={(e) => setForm({ ...form, salary_max: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="jcur">{c.currency}</Label>
-          <Input id="jcur" dir="ltr" maxLength={5} value={form.currency}
-            onChange={(e) => setForm({ ...form, currency: e.target.value.toUpperCase() })} />
+          <Label>{c.currency}</Label>
+          <Combobox
+            options={currencyOptions(lang)}
+            value={form.currency}
+            onChange={(v) => setForm({ ...form, currency: v })}
+            placeholder={ct.choose}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
         <div>
           <Label>{c.requiredLicense}</Label>
-          <Select value={form.required_license} onValueChange={(v) => setForm({ ...form, required_license: v })}>
-            <SelectTrigger><SelectValue placeholder={c.licensePlaceholder} /></SelectTrigger>
-            <SelectContent>
-              {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={countryOptions(lang)}
+            value={form.required_license}
+            onChange={(v) => setForm({ ...form, required_license: v })}
+            placeholder={c.licensePlaceholder}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
       </div>
       <div>
