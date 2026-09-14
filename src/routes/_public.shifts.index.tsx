@@ -79,6 +79,10 @@ const TXT = {
     scopeMine: (n: string) => `My specialty: ${n}`,
     scopeField: "My medical field",
     scopeAll: "All specialties",
+    myHeading: (n: string) => `Shifts matching your specialty: ${n}`,
+    myHeadingPlain: "Shifts picked for you",
+    mySub: "Sorted by the soonest start, highlighting what fits your specialty.",
+
   },
 } as const;
 
