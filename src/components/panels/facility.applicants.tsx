@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReviewDialog } from "@/components/review-dialog";
+import { Users as UsersIcon } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useConfirm } from "@/components/confirm-dialog";
 
@@ -241,7 +242,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
           ))}
         </ul>
       ) : (
-        <EmptyState className="mt-6" icon={Users} title={c.empty} />
+        <EmptyState className="mt-6" icon={UsersIcon} title={c.empty} />
       )}
     </div>
   );
