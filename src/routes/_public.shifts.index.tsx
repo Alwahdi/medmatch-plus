@@ -139,17 +139,28 @@ function ShiftsPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="page-hero py-14 md:py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
-            <CalendarClock className="size-4" />
-            {c.badge}
-          </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">{c.sub}</p>
-        </div>
-      </section>
+      {signedIn ? (
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <p className="section-label">{c.label}</p>
+          <h1 className="mt-1 font-display text-2xl font-extrabold">
+            {mySpecialty ? c.myHeading(specialtyName(mySpecialty, lang)) : c.myHeadingPlain}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{c.mySub}</p>
+        </section>
+      ) : (
+        /* Hero */
+        <section className="page-hero py-14 md:py-20">
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
+              <CalendarClock className="size-4" />
+              {c.badge}
+            </span>
+            <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">{c.sub}</p>
+          </div>
+        </section>
+      )}
+
 
       {/* Filter */}
       <div className="relative px-4">
