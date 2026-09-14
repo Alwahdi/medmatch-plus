@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
+import { fieldLabel } from "@/components/change-request";
 import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
@@ -154,6 +155,9 @@ function AdminPage() {
   const [note, setNote] = useState("");
   const [facQuery, setFacQuery] = useState("");
   const [proQuery, setProQuery] = useState("");
+  const [changeNote, setChangeNote] = useState("");
+  const [changeRejectId, setChangeRejectId] = useState<string | null>(null);
+  const [logQuery, setLogQuery] = useState("");
 
   const { data: creds, isLoading: credsLoading } = useQuery({
     queryKey: ["admin-creds"],
@@ -219,6 +223,50 @@ function AdminPage() {
       return data ?? [];
     },
   });
+
+  const { data: changeReqs } = useQuery({
+    queryKey: ["admin-change-requests"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profile_change_requests")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: changeLog } = useQuery({
+    queryKey: ["admin-change-log"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profile_change_log")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(300);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const reviewChange = useMutation({
+    mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
+      const args = note ? { _id: id, _approve: approve, _note: note } : { _id: id, _approve: approve };
+      const { error } = await supabase.rpc("review_change_request", args);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.docUpdated);
+      setChangeNote("");
+      setChangeRejectId(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-change-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-change-log"] });
+    },
+    onError: (e: Error) => toast.error(e.message || c.updateFailed),
+  });
+
 
   const review = useMutation({
     mutationFn: async ({
@@ -355,6 +403,11 @@ function AdminPage() {
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
   const pendingFacDocs = (facDocs ?? []).filter((d) => d.status === "pending");
   const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
+  const pendingChanges = (changeReqs ?? []).filter((r) => r.status === "pending");
+  const shownChanges = pendingOnly ? pendingChanges : changeReqs ?? [];
+  const shownLog = (changeLog ?? []).filter((l) =>
+    logQuery.trim() ? `${l.field} ${l.old_value ?? ""} ${l.new_value ?? ""}`.includes(logQuery.trim()) : true,
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -396,6 +449,17 @@ function AdminPage() {
                   {newMsgs.length}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="changes" className="shrink-0">
+              {lang === "ar" ? "طلبات تعديل البيانات" : "Data change requests"}
+              {pendingChanges.length > 0 && (
+                <Badge variant="destructive" className="ms-2">
+                  {pendingChanges.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="changelog" className="shrink-0">
+              {lang === "ar" ? "سجل التعديلات" : "Change log"}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -713,6 +777,132 @@ function AdminPage() {
                       </Button>
                     </div>
                   </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
+
+        <TabsContent value="changes" className="mt-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant={pendingOnly ? "default" : "outline"} onClick={() => setPendingOnly(true)}>
+              {c.pendingOnly}
+            </Button>
+            <Button size="sm" variant={pendingOnly ? "outline" : "default"} onClick={() => setPendingOnly(false)}>
+              {c.all}
+            </Button>
+          </div>
+          {shownChanges.length === 0 ? (
+            <p className="mt-4 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+              {lang === "ar" ? "لا توجد طلبات تعديل." : "No change requests."}
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {shownChanges.map((r) => (
+                <li key={r.id} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-bold">
+                        {fieldLabel(r.field, lang)}
+                        <Badge variant="secondary" className="ms-2">
+                          {r.target === "facility"
+                            ? lang === "ar" ? "منشأة" : "Facility"
+                            : lang === "ar" ? "مختص" : "Professional"}
+                        </Badge>
+                        {r.status !== "pending" && (
+                          <Badge variant={r.status === "approved" ? "default" : "destructive"} className="ms-2">
+                            {r.status === "approved"
+                              ? lang === "ar" ? "مقبول" : "Approved"
+                              : lang === "ar" ? "مرفوض" : "Rejected"}
+                          </Badge>
+                        )}
+                      </p>
+                      <p className="mt-1 text-sm">
+                        <span className="text-muted-foreground">{r.old_value || "—"}</span> → <b>{r.new_value}</b>
+                      </p>
+                      {r.reason && <p className="mt-1 text-xs text-muted-foreground">{r.reason}</p>}
+                      <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(r.created_at, lang)}</p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {r.attachment_path && (
+                        <Button size="sm" variant="outline" onClick={() => openFile(r.attachment_path)}>
+                          <FileText className="size-4" />
+                          {lang === "ar" ? "المرفق" : "Attachment"}
+                        </Button>
+                      )}
+                      {r.status === "pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            disabled={reviewChange.isPending}
+                            onClick={() => reviewChange.mutate({ id: r.id, approve: true })}
+                          >
+                            {reviewChange.isPending ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
+                            {lang === "ar" ? "قبول" : "Approve"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setChangeRejectId(changeRejectId === r.id ? null : r.id)}
+                          >
+                            <XCircle className="size-4" />
+                            {lang === "ar" ? "رفض" : "Reject"}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {changeRejectId === r.id && (
+                    <div className="mt-3 space-y-2">
+                      <Textarea
+                        rows={2}
+                        value={changeNote}
+                        maxLength={300}
+                        onChange={(e) => setChangeNote(e.target.value)}
+                        placeholder={lang === "ar" ? "سبب الرفض (يظهر لصاحب الطلب)" : "Rejection reason (shown to the requester)"}
+                      />
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={reviewChange.isPending}
+                        onClick={() => reviewChange.mutate({ id: r.id, approve: false, note: changeNote })}
+                      >
+                        {lang === "ar" ? "تأكيد الرفض" : "Confirm rejection"}
+                      </Button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
+
+        <TabsContent value="changelog" className="mt-6">
+          <div className="relative max-w-sm">
+            <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" />
+            <Input
+              className="ps-9"
+              value={logQuery}
+              onChange={(e) => setLogQuery(e.target.value)}
+              placeholder={c.search}
+            />
+          </div>
+          {shownLog.length === 0 ? (
+            <p className="mt-4 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+              {lang === "ar" ? "لا توجد تعديلات مسجّلة." : "No recorded changes."}
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-2">
+              {shownLog.map((l) => (
+                <li
+                  key={l.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm"
+                >
+                  <span>
+                    <b>{fieldLabel(l.field, lang)}</b>{" "}
+                    <span className="text-muted-foreground">{l.old_value || "—"}</span> → {l.new_value || "—"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{formatDateTime(l.created_at, lang)}</span>
                 </li>
               ))}
             </ul>
