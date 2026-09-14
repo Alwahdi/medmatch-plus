@@ -1141,6 +1141,7 @@ function ShiftForm({
       setForm({ ...form, title: "", starts_at: "", ends_at: "", hourly_rate: "", notes: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      void navigate({ to: "/facility", search: { tab: "shifts" } });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
