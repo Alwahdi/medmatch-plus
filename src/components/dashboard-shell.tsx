@@ -36,23 +36,16 @@ const PRO_NAV: Item[] = [
   { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
   { to: "/jobs", key: "nav.jobs", icon: Briefcase },
   { to: "/shifts", key: "nav.shifts", icon: CalendarClock },
-  { to: "/applications", key: "nav.applications", icon: FileText },
-  { to: "/my-shifts", key: "nav.myShifts", icon: CalendarClock },
-  { to: "/saved", key: "nav.saved", icon: Bookmark },
+  { to: "/activity", key: "nav.activity", icon: FileText },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
-  { to: "/alerts", key: "nav.alerts", icon: Bell },
-  { to: "/cv", key: "nav.cv", icon: FileText },
-  { to: "/cv-import", key: "nav.cvImport", icon: Sparkles },
-  { to: "/credentials", key: "nav.credentials", icon: ShieldCheck },
+  { to: "/profile", key: "nav.profile", icon: UserRound },
 ];
 
 const FACILITY_NAV: Item[] = [
   { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
-  { to: "/facility/verification", key: "nav.facilityVerification", icon: ShieldCheck },
-  { to: "/facility/applicants", key: "nav.applicants", icon: Users },
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
-  { to: "/pricing", key: "nav.pricing", icon: Sparkles },
+  { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
 ];
 
 
@@ -107,18 +100,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const mobileTabs: Item[] = isFacility
     ? [
         { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
-        { to: "/facility/applicants", key: "nav.applicants", icon: Users },
-        { to: "/messages", key: "nav.messages", icon: MessagesSquare },
         { to: "/facility/candidates", key: "nav.candidates", icon: Search },
-        { to: "/facility/verification", key: "nav.facilityVerification", icon: ShieldCheck },
+        { to: "/messages", key: "nav.messages", icon: MessagesSquare },
+        { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
+        { to: "/settings", key: "nav.settings", icon: Settings },
       ]
     : [
         { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
         { to: "/jobs", key: "nav.jobs", icon: Briefcase },
-        { to: "/messages", key: "nav.messages", icon: MessagesSquare },
         { to: "/shifts", key: "nav.shifts", icon: CalendarClock },
-        { to: "/applications", key: "nav.applications", icon: FileText },
-
+        { to: "/messages", key: "nav.messages", icon: MessagesSquare },
+        { to: "/profile", key: "nav.profile", icon: UserRound },
       ];
 
   const nav = (
