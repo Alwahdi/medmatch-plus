@@ -5,8 +5,6 @@ import {
   Bell,
   Bookmark,
   Briefcase,
-  Building2,
-
   CalendarClock,
   FileText,
   LayoutDashboard,
@@ -18,12 +16,11 @@ import {
   ShieldCheck,
   ChevronLeft,
   Sparkles,
-  Stethoscope,
-  User,
   Users,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { NotificationBell } from "@/components/notification-bell";
+import { MobileMenuSheet } from "@/components/mobile-menu-sheet";
 import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +41,6 @@ const PRO_NAV: Item[] = [
   { to: "/saved", key: "nav.saved", icon: Bookmark },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
   { to: "/alerts", key: "nav.alerts", icon: Bell },
-  { to: "/profile", key: "nav.profile", icon: User },
   { to: "/cv", key: "nav.cv", icon: FileText },
   { to: "/cv-import", key: "nav.cvImport", icon: Sparkles },
   { to: "/credentials", key: "nav.credentials", icon: ShieldCheck },
@@ -52,15 +48,13 @@ const PRO_NAV: Item[] = [
 
 const FACILITY_NAV: Item[] = [
   { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
-  { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
   { to: "/facility/verification", key: "nav.facilityVerification", icon: ShieldCheck },
-
-
   { to: "/facility/applicants", key: "nav.applicants", icon: Users },
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
   { to: "/pricing", key: "nav.pricing", icon: Sparkles },
 ];
+
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const { user } = useSession();
@@ -116,14 +110,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         { to: "/facility/applicants", key: "nav.applicants", icon: Users },
         { to: "/messages", key: "nav.messages", icon: MessagesSquare },
         { to: "/facility/candidates", key: "nav.candidates", icon: Search },
-        { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
+        { to: "/facility/verification", key: "nav.facilityVerification", icon: ShieldCheck },
       ]
     : [
         { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
         { to: "/jobs", key: "nav.jobs", icon: Briefcase },
         { to: "/messages", key: "nav.messages", icon: MessagesSquare },
         { to: "/shifts", key: "nav.shifts", icon: CalendarClock },
-        { to: "/profile", key: "nav.profile", icon: User },
+        { to: "/applications", key: "nav.applications", icon: FileText },
+
       ];
 
   const nav = (
@@ -204,28 +199,62 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 
 
+  const profileLink = isFacility ? "/facility/profile" : "/profile";
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4">
-          <Link to={isFacility ? "/facility" : "/dashboard"} className="flex items-center gap-2">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Stethoscope className="size-5" />
+          <Link to={profileLink} className="flex min-w-0 items-center gap-2">
+            <RemoteAvatar
+              value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+              alt={accountName}
+              fallbackText={accountName}
+              className="size-9 shrink-0 rounded-full text-sm"
+            />
+            <span className="hidden min-w-0 flex-col sm:flex">
+              <span className="truncate text-sm font-bold leading-tight">{accountName}</span>
+              <span className="truncate text-[11px] text-muted-foreground">
+                {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
+              </span>
             </span>
-            <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
           </Link>
           <div className="ms-auto flex items-center gap-2">
             <NotificationBell />
           </div>
-
         </div>
-        {open && (
-          <div className="border-t border-border bg-background px-4 py-3 lg:hidden">
-            {nav}
-            {account}
-          </div>
-        )}
       </header>
+
+      <MobileMenuSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t("nav.menu")}
+        closeLabel={t("nav.menu")}
+        header={
+          <Link
+            to={profileLink}
+            onClick={() => setOpen(false)}
+            className="flex min-w-0 items-center gap-3"
+          >
+            <RemoteAvatar
+              value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+              alt={accountName}
+              fallbackText={accountName}
+              className="size-10 shrink-0 rounded-full text-sm"
+            />
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-bold">{accountName}</span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
+              </span>
+            </span>
+          </Link>
+        }
+      >
+        {nav}
+        {account}
+      </MobileMenuSheet>
+
 
       <div className="mx-auto flex max-w-[1400px] gap-6 px-4 py-6">
         <aside className="hidden w-64 shrink-0 lg:block">

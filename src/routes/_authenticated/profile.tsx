@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { BadgeCheck, Eye, Pencil } from "lucide-react";
+import { RemoteAvatar } from "@/components/remote-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,6 +63,14 @@ const TXT = {
     nameShort: "الاسم قصير جداً",
     saved: "تم حفظ ملفك المهني",
     saveFailed: "تعذّر الحفظ",
+    editBtn: "تعديل الملف",
+    previewBtn: "معاينة",
+    asOthersSee: "هكذا يرى الآخرون ملفك",
+    noBio: "لم تُضف نبذة مهنية بعد.",
+    verified: "موثّق",
+    yearsLabel: "سنوات خبرة",
+    openBadge: "متاح للمناوبات",
+
   },
   en: {
     title: "My professional profile",
@@ -85,6 +95,14 @@ const TXT = {
     nameShort: "Name is too short",
     saved: "Your profile has been saved",
     saveFailed: "Failed to save",
+    editBtn: "Edit profile",
+    previewBtn: "Preview",
+    asOthersSee: "This is how others see your profile",
+    noBio: "No professional bio yet.",
+    verified: "Verified",
+    yearsLabel: "years of experience",
+    openBadge: "Open to shifts",
+
   },
 } as const;
 
@@ -102,6 +120,7 @@ function ProfilePage() {
   const ct = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const [mode, setMode] = useState<"view" | "edit">("view");
 
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
@@ -112,7 +131,7 @@ function ProfilePage() {
     },
   });
 
-  const { data: profile } = useQuery({
+  const { data: profile, isFetched: proFetched } = useQuery({
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -161,6 +180,12 @@ function ProfilePage() {
     const url = profile?.avatar_url ?? account?.avatar_url;
     if (url) setAvatar(url);
   }, [account, profile]);
+
+  useEffect(() => {
+    if (proFetched && !profile) setMode("edit");
+  }, [proFetched, profile]);
+
+
 
 
 
@@ -228,6 +253,7 @@ function ProfilePage() {
       toast.success(c.saved);
       queryClient.invalidateQueries({ queryKey: ["my-pro"] });
       queryClient.invalidateQueries({ queryKey: ["my-account"] });
+      setMode("view");
     },
 
     onError: (e: Error) => toast.error(e.message || c.saveFailed),
@@ -235,11 +261,73 @@ function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div>
-        <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-        <p className="mt-1 text-muted-foreground">{c.sub}</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
+          <p className="mt-1 text-muted-foreground">{c.sub}</p>
+        </div>
+        {mode === "view" ? (
+          <Button onClick={() => setMode("edit")}>
+            <Pencil className="size-4" /> {c.editBtn}
+          </Button>
+        ) : (
+          <Button variant="outline" onClick={() => setMode("view")}>
+            <Eye className="size-4" /> {c.previewBtn}
+          </Button>
+        )}
       </div>
 
+      {mode === "view" && (
+        <div className="card-lift mt-6 rounded-2xl border border-border bg-card p-6">
+          <p className="text-xs text-muted-foreground">{c.asOthersSee}</p>
+          <div className="mt-4 flex items-start gap-4">
+            <RemoteAvatar
+              value={avatar || null}
+              alt={form.full_name}
+              fallbackText={form.full_name || "?"}
+              className="size-16 shrink-0 rounded-full text-lg"
+            />
+            <div className="min-w-0">
+              <h2 className="flex items-center gap-2 text-xl font-extrabold">
+                <span className="truncate">{form.full_name}</span>
+                {profile?.is_verified && <BadgeCheck className="size-5 shrink-0 text-primary" />}
+              </h2>
+              {form.headline && (
+                <p className="truncate text-sm text-muted-foreground">{form.headline}</p>
+              )}
+              <p className="mt-1 text-sm text-muted-foreground">
+                {[
+                  specialtyName(specialties?.find((s) => s.id === form.specialty_id) ?? null, lang) ?? "",
+                  form.city,
+                  form.country ? countryLabel(form.country, lang) : "",
+                ]
+                  .filter(Boolean)
+                  .join(" • ")}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                <span className="rounded-full bg-surface px-3 py-1 text-muted-foreground">
+                  {form.years_experience} {c.yearsLabel}
+                </span>
+                {profile?.is_verified && (
+                  <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
+                    {c.verified}
+                  </span>
+                )}
+                {form.is_open_to_shifts && (
+                  <span className="rounded-full bg-success/10 px-3 py-1 font-medium text-success">
+                    {c.openBadge}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <p className="mt-5 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+            {form.bio || c.noBio}
+          </p>
+        </div>
+      )}
+
+      {mode === "edit" && (
       <div className="card-lift mt-6 rounded-2xl border border-border bg-card p-6">
         <ImageUpload
           value={avatar}
@@ -249,8 +337,11 @@ function ProfilePage() {
           prefix="avatar"
         />
       </div>
+      )}
 
 
+
+      {mode === "edit" && (
       <div className="card-lift mt-6 space-y-5 rounded-2xl border border-border bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <LockedField label={c.fullName} locked={locked} target="professional" field="full_name"
@@ -347,10 +438,18 @@ function ProfilePage() {
             onCheckedChange={(v) => setForm({ ...form, is_open_to_shifts: v })} />
         </div>
 
-        <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          {save.isPending ? c.saving : c.save}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+            {save.isPending ? c.saving : c.save}
+          </Button>
+          {profile && (
+            <Button variant="outline" onClick={() => setMode("view")}>
+              <Eye className="size-4" /> {c.previewBtn}
+            </Button>
+          )}
+        </div>
       </div>
+      )}
 
       <ChangeRequestsPanel requests={(requests ?? []).filter((r) => r.target === "professional")} />
     </div>
