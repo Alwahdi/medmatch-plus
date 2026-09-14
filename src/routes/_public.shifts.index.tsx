@@ -18,6 +18,7 @@ import { useSession } from "@/lib/auth";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
 import { useSignedIn } from "@/components/page-chrome";
 import { countryLabel, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_public/shifts/")({
@@ -89,6 +90,7 @@ const TXT = {
 
 function ShiftsPage() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
