@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { COUNTRIES } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -166,7 +167,8 @@ function Stepper({ step, total }: { step: number; total: number }) {
 function ProfessionalSteps({ defaultName }: { defaultName: string }) {
   const { user } = useSession();
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
@@ -266,21 +268,18 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
             <p className="font-bold">{t("ob.pro.step2")}</p>
             <div>
               <Label>{t("ob.field.specialty")}</Label>
-              <Select
+              <Combobox
+                options={(specialties ?? []).map((s) => ({
+                  value: s.id,
+                  label: s.name_ar,
+                  keywords: [s.name_ar],
+                }))}
                 value={form.specialty_id}
-                onValueChange={(v) => setForm({ ...form, specialty_id: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("ob.selectPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {(specialties ?? []).map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name_ar}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setForm({ ...form, specialty_id: v })}
+                placeholder={t("ob.selectPlaceholder")}
+                searchPlaceholder={ct.search}
+                emptyText={ct.empty}
+              />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
@@ -297,27 +296,27 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
               </div>
               <div>
                 <Label>{t("ob.field.country")}</Label>
-                <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("ob.selectPlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COUNTRIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  options={countryOptions(lang)}
+                  value={form.country}
+                  onChange={(v) => setForm({ ...form, country: v, city: "" })}
+                  placeholder={t("ob.selectPlaceholder")}
+                  searchPlaceholder={ct.search}
+                  emptyText={ct.empty}
+                />
               </div>
             </div>
             <div>
-              <Label htmlFor="ob-city">{t("ob.field.city")}</Label>
-              <Input
-                id="ob-city"
-                maxLength={60}
+              <Label>{t("ob.field.city")}</Label>
+              <Combobox
+                options={cityOptions(form.country, lang)}
                 value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                onChange={(v) => setForm({ ...form, city: v })}
+                placeholder={ct.choose}
+                searchPlaceholder={ct.search}
+                emptyText={ct.empty}
+                allowCustom
+                customLabel={ct.add}
               />
             </div>
           </>
@@ -393,6 +392,7 @@ function FacilitySteps() {
   const { user } = useSession();
   const navigate = useNavigate();
   const { t, lang } = useLang();
+  const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
@@ -480,26 +480,26 @@ function FacilitySteps() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label>{t("ob.field.country")}</Label>
-                <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("ob.selectPlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COUNTRIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  options={countryOptions(lang)}
+                  value={form.country}
+                  onChange={(v) => setForm({ ...form, country: v, city: "" })}
+                  placeholder={t("ob.selectPlaceholder")}
+                  searchPlaceholder={ct.search}
+                  emptyText={ct.empty}
+                />
               </div>
               <div>
-                <Label htmlFor="ob-fac-city">{t("ob.field.city")}</Label>
-                <Input
-                  id="ob-fac-city"
-                  maxLength={60}
+                <Label>{t("ob.field.city")}</Label>
+                <Combobox
+                  options={cityOptions(form.country, lang)}
                   value={form.city}
-                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                  onChange={(v) => setForm({ ...form, city: v })}
+                  placeholder={ct.choose}
+                  searchPlaceholder={ct.search}
+                  emptyText={ct.empty}
+                  allowCustom
+                  customLabel={ct.add}
                 />
               </div>
             </div>
