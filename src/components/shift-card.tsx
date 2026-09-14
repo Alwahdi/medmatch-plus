@@ -139,7 +139,18 @@ export function ShiftCard({
                 <Users className="size-3.5" /> {c.applied(shift.applications_count)}
               </span>
             )}
+            {recommended && (
+              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                <Sparkles className="size-3.5" /> {c.recommended}
+              </span>
+            )}
+            {mine && (
+              <span className="flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
+                <CheckCircle2 className="size-3.5" /> {c.mine}
+              </span>
+            )}
           </div>
+
 
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
             <div className="text-xs text-muted-foreground">
