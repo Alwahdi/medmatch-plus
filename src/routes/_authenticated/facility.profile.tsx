@@ -235,12 +235,24 @@ function FacilityProfile() {
             <p className="mt-1 text-sm text-muted-foreground">{c.sub}</p>
           </div>
         </div>
-        <Button variant="outline" asChild>
-          <Link to="/facilities/$facilityId" params={{ facilityId: facility.id }}>
-            <ExternalLink className="size-4" /> {c.publicView}
-          </Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {mode === "view" ? (
+            <Button onClick={() => setMode("edit")}>
+              <Pencil className="size-4" /> {c.editBtn}
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={() => setMode("view")}>
+              <Eye className="size-4" /> {c.previewBtn}
+            </Button>
+          )}
+          <Button variant="outline" asChild>
+            <Link to="/facilities/$facilityId" params={{ facilityId: facility.id }}>
+              <ExternalLink className="size-4" /> {c.publicView}
+            </Link>
+          </Button>
+        </div>
       </div>
+
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
