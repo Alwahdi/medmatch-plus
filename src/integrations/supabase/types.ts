@@ -1421,6 +1421,18 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
+      save_engagement_review: {
+        Args: {
+          _comment?: string
+          _direction: Database["public"]["Enums"]["review_direction"]
+          _facility_id: string
+          _job_id?: string
+          _professional_user_id: string
+          _rating: number
+          _shift_id?: string
+        }
+        Returns: string
+      }
       search_candidates: {
         Args: {
           _city?: string
