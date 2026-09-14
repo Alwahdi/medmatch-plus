@@ -588,7 +588,6 @@ function JobsPage() {
                     <JobCard
                       key={job.id}
                       job={job}
-                      match={score}
                       applied={!!appliedIds?.has(job.id)}
                       saved={!!savedIds?.has(job.id)}
                       recommended={signedIn && typeof score === "number" && score >= 75}

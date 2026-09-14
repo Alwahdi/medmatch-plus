@@ -249,8 +249,8 @@ function Dashboard() {
         <section className="mt-10">
           <h2 className="font-display text-2xl font-extrabold">{c.recommended}</h2>
           <div className="mt-6 space-y-3">
-            {ranked.map(({ job, score }) => (
-              <JobCard key={job.id} job={job} match={profile ? score : null} />
+            {ranked.map(({ job }) => (
+              <JobCard key={job.id} job={job} recommended={!!profile} />
             ))}
           </div>
         </section>
