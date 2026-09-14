@@ -16,6 +16,7 @@ import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+import { useSignedIn } from "@/components/page-chrome";
 import { countryLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
