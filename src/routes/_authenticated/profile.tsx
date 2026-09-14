@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUpload } from "@/components/image-upload";
 import { supabase } from "@/integrations/supabase/client";
+import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
 
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
