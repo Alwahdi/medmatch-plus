@@ -231,30 +231,43 @@ function JobsPage() {
 
   return (
     <>
-      {/* Breadcrumb */}
-      <div className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-primary">
-            {c.home}
-          </Link>
-          <span>/</span>
-          <span className="font-medium text-foreground">{c.title}</span>
-        </div>
-      </div>
+      {signedIn ? (
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <p className="section-label">{c.results}</p>
+          <h1 className="mt-1 font-display text-2xl font-extrabold">
+            {mySpecialty ? c.myHeading(specialtyName(mySpecialty, lang)) : c.myHeadingPlain}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{c.mySub}</p>
+        </section>
+      ) : (
+        <>
+          {/* Breadcrumb */}
+          <div className="border-b border-border bg-card">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
+              <Link to="/" className="hover:text-primary">
+                {c.home}
+              </Link>
+              <span>/</span>
+              <span className="font-medium text-foreground">{c.title}</span>
+            </div>
+          </div>
 
-      {/* Compact hero */}
-      <section className="page-hero py-10 md:py-12">
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-xs font-medium ring-1 ring-white/20">
-            <Briefcase className="size-4" />
-            {c.badge}
-          </span>
-          <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
-          <p className="mx-auto mt-3 max-w-xl text-white/85">{c.sub}</p>
-        </div>
-      </section>
+          {/* Compact hero */}
+          <section className="page-hero py-10 md:py-12">
+            <div className="mx-auto max-w-3xl px-4 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-xs font-medium ring-1 ring-white/20">
+                <Briefcase className="size-4" />
+                {c.badge}
+              </span>
+              <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
+              <p className="mx-auto mt-3 max-w-xl text-white/85">{c.sub}</p>
+            </div>
+          </section>
+        </>
+      )}
 
-      <section className="py-8 md:py-12">
+      <section className={signedIn ? "py-6" : "py-8 md:py-12"}>
+
         <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[320px_minmax(0,1fr)]">
           {/* Filters sidebar */}
           <aside className="lg:order-1">
