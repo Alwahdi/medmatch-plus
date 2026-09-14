@@ -220,6 +220,53 @@ function AdminPage() {
     },
   });
 
+  const { data: changeReqs } = useQuery({
+    queryKey: ["admin-change-requests"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profile_change_requests")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: changeLog } = useQuery({
+    queryKey: ["admin-change-log"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profile_change_log")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(300);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const reviewChange = useMutation({
+    mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
+      const { error } = await supabase.rpc("review_change_request", {
+        _id: id,
+        _approve: approve,
+        _note: note ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.docUpdated);
+      setChangeNote("");
+      setChangeRejectId(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-change-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-change-log"] });
+    },
+    onError: (e: Error) => toast.error(e.message || c.updateFailed),
+  });
+
+
   const review = useMutation({
     mutationFn: async ({
       id,
