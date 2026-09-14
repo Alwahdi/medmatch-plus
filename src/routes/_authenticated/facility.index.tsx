@@ -681,6 +681,7 @@ function FacilityDashboard() {
           {shifts?.length ? (
             shifts.map((s) => {
               const ended = new Date(s.ends_at).getTime() <= Date.now();
+              const bookings = s.shift_bookings?.length ?? 0;
               return (
                 <PublishedWorkCard
                   key={s.id}
@@ -698,7 +699,7 @@ function FacilityDashboard() {
                   }
                   actions={
                     <>
-                      <WorkCountButton type="shift" count={s.applications_count ?? 0} />
+                      <WorkCountButton type="shift" count={bookings} />
                       <Button size="sm" variant="outline" asChild>
                         <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
                           <Eye className="size-4" /> {c.view}
