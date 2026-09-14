@@ -37,7 +37,6 @@ const TXT = {
     isNew: "جديدة",
     closing: "يغلق قريباً",
     verified: "موثّق",
-    match: "توافق",
     applied: "قدّمت عليها",
     saved: "محفوظة",
     recommended: "يناسبك",
@@ -47,7 +46,6 @@ const TXT = {
     isNew: "New",
     closing: "Closing soon",
     verified: "Verified",
-    match: "Match",
     applied: "Applied",
     saved: "Saved",
     recommended: "Recommended",
@@ -56,13 +54,11 @@ const TXT = {
 
 export function JobCard({
   job,
-  match,
   applied,
   saved,
   recommended,
 }: {
   job: JobRow;
-  match?: number | null;
   applied?: boolean;
   saved?: boolean;
   recommended?: boolean;
@@ -105,11 +101,6 @@ export function JobCard({
             <h3 className="font-display text-base leading-snug font-bold group-hover:text-primary sm:text-lg">
               {job.title}
             </h3>
-            {typeof match === "number" && (
-              <span className="shrink-0 rounded-lg bg-accent/12 px-2 py-1 text-xs font-bold text-accent">
-                {match}% {c.match}
-              </span>
-            )}
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">

@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
-import { matchScore } from "@/lib/match";
 import { applicationLabel, formatDateTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
@@ -29,7 +28,7 @@ const TXT = {
     you: "بك",
     sub: "هذه صورة سريعة عن حسابك اليوم.",
     completeTitle: "أكمل ملفك المهني أولاً",
-    completeText: "بدون التخصص وسنوات الخبرة لن نستطيع حساب نسبة التوافق أو ترشيح الوظائف المناسبة لك.",
+    completeText: "أضف تخصصك وسنوات الخبرة لنرتّب لك الوظائف الأقرب إلى ملفك.",
     completeCta: "إكمال الملف المهني",
     statApps: "طلب تقديم",
     statCreds: "وثيقة موثّقة",
@@ -47,7 +46,7 @@ const TXT = {
     you: "there",
     sub: "Here's a quick snapshot of your account today.",
     completeTitle: "Complete your professional profile first",
-    completeText: "Without your specialty and years of experience we can't calculate a match score or recommend the right jobs for you.",
+    completeText: "Add your specialty and experience so we can order the most relevant jobs first.",
     completeCta: "Complete profile",
     statApps: "Application",
     statCreds: "Verified document",
@@ -154,17 +153,15 @@ function Dashboard() {
 
   const approved = (creds ?? []).filter((c) => c.status === "approved").length;
   const ranked = (jobs ?? [])
-    .map((j) => ({
-      job: j,
-      score:
-        matchScore(profile ?? null, {
-          specialty_id: j.specialty_id,
-          min_experience: j.min_experience,
-          country: j.country,
-          required_license: j.required_license,
-        }) ?? 0,
-    }))
-    .sort((a, b) => b.score - a.score)
+    .map((job) => ({ job }))
+    .sort((a, b) => {
+      const aSpecialty = profile?.specialty_id && a.job.specialty_id === profile.specialty_id ? 1 : 0;
+      const bSpecialty = profile?.specialty_id && b.job.specialty_id === profile.specialty_id ? 1 : 0;
+      if (aSpecialty !== bSpecialty) return bSpecialty - aSpecialty;
+      const aCountry = profile?.country && a.job.country === profile.country ? 1 : 0;
+      const bCountry = profile?.country && b.job.country === profile.country ? 1 : 0;
+      return bCountry - aCountry;
+    })
     .slice(0, 3);
 
   return (
@@ -249,8 +246,8 @@ function Dashboard() {
         <section className="mt-10">
           <h2 className="font-display text-2xl font-extrabold">{c.recommended}</h2>
           <div className="mt-6 space-y-3">
-            {ranked.map(({ job, score }) => (
-              <JobCard key={job.id} job={job} match={profile ? score : null} />
+            {ranked.map(({ job }) => (
+              <JobCard key={job.id} job={job} recommended={!!profile} />
             ))}
           </div>
         </section>

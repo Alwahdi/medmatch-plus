@@ -110,6 +110,32 @@ export type Database = {
           },
         ]
       }
+      candidate_search_access: {
+        Row: {
+          facility_id: string
+          last_searched_at: string
+          professional_user_id: string
+        }
+        Insert: {
+          facility_id: string
+          last_searched_at?: string
+          professional_user_id: string
+        }
+        Update: {
+          facility_id?: string
+          last_searched_at?: string
+          professional_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_search_access_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -420,6 +446,7 @@ export type Database = {
           headline: string | null
           id: string
           is_open_to_shifts: boolean
+          is_searchable: boolean
           is_verified: boolean
           license_country: string | null
           license_number: string | null
@@ -442,6 +469,7 @@ export type Database = {
           headline?: string | null
           id?: string
           is_open_to_shifts?: boolean
+          is_searchable?: boolean
           is_verified?: boolean
           license_country?: string | null
           license_number?: string | null
@@ -464,6 +492,7 @@ export type Database = {
           headline?: string | null
           id?: string
           is_open_to_shifts?: boolean
+          is_searchable?: boolean
           is_verified?: boolean
           license_country?: string | null
           license_number?: string | null
@@ -1293,9 +1322,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_data_integrity_report: {
+        Args: never
+        Returns: {
+          detail: string
+          entity_id: string
+          entity_type: string
+          issue_code: string
+        }[]
+      }
       can_view_facility_identity: {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean
+      }
+      cancel_my_shift_booking: {
+        Args: { _booking_id: string }
+        Returns: string
       }
       claim_facility_role: { Args: never; Returns: boolean }
       claim_professional_role: { Args: never; Returns: boolean }
@@ -1313,6 +1355,10 @@ export type Database = {
       }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_known_city_country_valid: {
+        Args: { _city: string; _country: string }
         Returns: boolean
       }
       my_sessions: {
@@ -1363,7 +1409,37 @@ export type Database = {
           years_experience: number
         }[]
       }
+      search_candidates_atomic: {
+        Args: {
+          _city?: string
+          _country?: string
+          _limit?: number
+          _min_experience?: number
+          _specialty_id?: string
+        }
+        Returns: {
+          bio: string
+          city: string
+          country: string
+          headline: string
+          id: string
+          is_open_to_shifts: boolean
+          is_verified: boolean
+          specialty_id: string
+          user_id: string
+          years_experience: number
+        }[]
+      }
       slugify: { Args: { input: string }; Returns: string }
+      start_candidate_conversation: {
+        Args: {
+          _job_id?: string
+          _professional_user_id: string
+          _shift_id?: string
+          _subject?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "facility" | "professional"

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bookmark } from "lucide-react";
+import { AlertCircle, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { JobCard, type JobRow } from "@/components/job-card";
@@ -15,12 +15,16 @@ const TXT = {
     loading: "جارٍ التحميل...",
     empty: "لم تحفظ أي وظيفة بعد",
     browse: "تصفح الوظائف",
+    error: "تعذّر تحميل الوظائف المحفوظة.",
+    retry: "إعادة المحاولة",
   },
   en: {
     title: "Saved jobs",
     loading: "Loading...",
     empty: "You haven't saved any job yet",
     browse: "Browse jobs",
+    error: "We couldn't load saved jobs.",
+    retry: "Try again",
   },
 } as const;
 
@@ -29,7 +33,7 @@ export function SavedPanel() {
   const c = TXT[lang];
   const { user } = useSession();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["saved-jobs", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -50,6 +54,8 @@ export function SavedPanel() {
 
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+      ) : isError ? (
+        <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {data.map((job) => (

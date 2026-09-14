@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CalendarClock } from "lucide-react";
+import { AlertCircle, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
 import { useConfirm } from "@/components/confirm-dialog";
 
@@ -27,6 +28,8 @@ const TXT = {
     keep: "احتفظ بالحجز",
     empty: "لا مناوبات محجوزة.",
     browse: "تصفح السوق",
+    error: "تعذّر تحميل مناوباتك.",
+    retry: "إعادة المحاولة",
   },
   en: {
     title: "My shifts",
@@ -42,6 +45,8 @@ const TXT = {
     keep: "Keep booking",
     empty: "No shifts booked.",
     browse: "Browse marketplace",
+    error: "We couldn't load your shifts.",
+    retry: "Try again",
   },
 
 } as const;
@@ -55,7 +60,7 @@ export function MyShiftsPanel() {
 
 
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["my-shifts", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -72,10 +77,9 @@ export function MyShiftsPanel() {
   });
 
   const cancel = useMutation({
-    mutationFn: async ({ id, shiftId }: { id: string; shiftId: string }) => {
-      const { error } = await supabase.from("shift_bookings").delete().eq("id", id);
+    mutationFn: async ({ id }: { id: string }) => {
+      const { error } = await supabase.rpc("cancel_my_shift_booking", { _booking_id: id });
       if (error) throw error;
-      await supabase.from("shifts").update({ status: "open", booked_by: null }).eq("id", shiftId);
     },
     onSuccess: () => {
       toast.success(c.cancelled);
@@ -94,6 +98,8 @@ export function MyShiftsPanel() {
 
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+      ) : isError ? (
+        <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((b) => {
@@ -136,7 +142,7 @@ export function MyShiftsPanel() {
                         cancelLabel: c.keep,
                         destructive: true,
                       });
-                      if (ok) cancel.mutate({ id: b.id, shiftId: s.id });
+                      if (ok) cancel.mutate({ id: b.id });
                     }}
                     disabled={cancel.isPending}>
                     {c.cancel}

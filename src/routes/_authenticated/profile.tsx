@@ -67,6 +67,8 @@ const TXT = {
     bioPh: "اكتب ملخصاً عن خبرتك، أبرز إنجازاتك، والمهارات السريرية التي تتقنها.",
     openTitle: "متاح للمناوبات الفورية",
     openText: "سنعرض مناوبات تناسب تخصصك ومدينتك.",
+    searchableTitle: "الظهور في بحث المنشآت",
+    searchableText: "عند إيقافه لن يظهر ملفك في عمليات بحث المنشآت الجديدة.",
     save: "حفظ الملف",
     saving: "جارٍ الحفظ...",
     nameShort: "الاسم قصير جداً",
@@ -99,6 +101,8 @@ const TXT = {
     bioPh: "Write a summary of your experience, key achievements, and clinical skills.",
     openTitle: "Available for instant shifts",
     openText: "We'll show shifts that fit your specialty and city.",
+    searchableTitle: "Appear in facility search",
+    searchableText: "Turn this off to hide your profile from new facility searches.",
     save: "Save profile",
     saving: "Saving...",
     nameShort: "Name is too short",
@@ -182,6 +186,7 @@ function ProfileOverview() {
     license_country: "",
     license_number: "",
     is_open_to_shifts: true,
+    is_searchable: true,
   });
   const [avatar, setAvatar] = useState("");
 
@@ -211,6 +216,7 @@ function ProfileOverview() {
       license_country: profile.license_country ?? "",
       license_number: profile.license_number ?? "",
       is_open_to_shifts: profile.is_open_to_shifts ?? true,
+      is_searchable: profile.is_searchable ?? true,
     });
   }, [profile]);
 
@@ -237,6 +243,7 @@ function ProfileOverview() {
         license_country: form.license_country || null,
         license_number: form.license_number.trim() || null,
         is_open_to_shifts: form.is_open_to_shifts,
+        is_searchable: form.is_searchable,
         avatar_url: avatar || null,
       };
 
@@ -445,6 +452,15 @@ function ProfileOverview() {
           </div>
           <Switch checked={form.is_open_to_shifts}
             onCheckedChange={(v) => setForm({ ...form, is_open_to_shifts: v })} />
+        </div>
+
+        <div className="flex items-center justify-between gap-4 rounded-xl bg-surface p-4">
+          <div>
+            <p className="font-medium">{c.searchableTitle}</p>
+            <p className="text-xs text-muted-foreground">{c.searchableText}</p>
+          </div>
+          <Switch checked={form.is_searchable}
+            onCheckedChange={(v) => setForm({ ...form, is_searchable: v })} />
         </div>
 
         <div className="flex flex-wrap gap-2">

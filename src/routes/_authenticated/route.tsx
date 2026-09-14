@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { roleHome, useRoles, useSession } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 // ملاحظة: فحص الجلسة يتم بعد الترطيب (داخل المكوّن) وليس في beforeLoad،
 // حتى لا يحدث تعارض Hydration عند تحويل الزائر غير المسجّل إلى /auth.
@@ -40,21 +41,24 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [ready, setReady] = useState(false);
-  const { user } = useSession();
-  const { data: roles } = useRoles(user);
+  const [authError, setAuthError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const { user, loading: sessionLoading, error: sessionError } = useSession();
+  const rolesQuery = useRoles(user);
+  const { data: roles } = rolesQuery;
 
   useEffect(() => {
     let active = true;
-    // شبكة الأمان: لا يبقى المستخدم على مؤشر التحميل إن تأخر فحص الجلسة.
-    const timer = setTimeout(() => {
-      if (active) void navigate({ to: "/auth", replace: true });
-    }, 8000);
+    setAuthError(false);
     supabase.auth
       .getUser()
       .then(({ data, error }) => {
         if (!active) return;
-        clearTimeout(timer);
-        if (error || !data.user) {
+        if (error) {
+          setAuthError(true);
+          return;
+        }
+        if (!data.user) {
           void navigate({ to: "/auth", replace: true });
           return;
         }
@@ -62,14 +66,12 @@ function AuthenticatedLayout() {
       })
       .catch(() => {
         if (!active) return;
-        clearTimeout(timer);
-        void navigate({ to: "/auth", replace: true });
+        setAuthError(true);
       });
     return () => {
       active = false;
-      clearTimeout(timer);
     };
-  }, [navigate]);
+  }, [navigate, attempt]);
 
 
   // حارس الأدوار: كل دور يصل إلى صفحاته فقط.
@@ -92,7 +94,26 @@ function AuthenticatedLayout() {
     }
   }, [ready, roles, pathname, navigate]);
 
-  if (!ready) {
+  if (authError || sessionError || rolesQuery.isError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 text-center">
+          <p className="font-bold">تعذّر التحقق من حسابك</p>
+          <p className="mt-2 text-sm text-muted-foreground">تحقق من اتصالك ثم حاول مجدداً. لن يتم تسجيل خروجك بسبب بطء الشبكة.</p>
+          <Button className="mt-5" onClick={() => {
+            setReady(false);
+            setAuthError(false);
+            setAttempt((value) => value + 1);
+            void rolesQuery.refetch();
+          }}>
+            إعادة المحاولة
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!ready || sessionLoading || (user && rolesQuery.isLoading)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

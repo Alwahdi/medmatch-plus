@@ -8,20 +8,26 @@ export type AppRole = "admin" | "facility" | "professional";
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data, error: sessionError }) => {
+      if (sessionError) setError(sessionError);
       setSession(data.session);
+      setLoading(false);
+    }).catch((sessionError: Error) => {
+      setError(sessionError);
       setLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
+      setError(null);
       setLoading(false);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  return { session, user: session?.user ?? null, loading };
+  return { session, user: session?.user ?? null, loading, error };
 }
 
 export function useRoles(user: User | null) {
@@ -29,10 +35,11 @@ export function useRoles(user: User | null) {
     queryKey: ["roles", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", user!.id);
+        .eq("user_id", user.id);
       if (error) throw error;
       return (data ?? []).map((r) => r.role as AppRole);
     },
@@ -45,11 +52,13 @@ export function useMyFacility(user: User | null) {
     queryKey: ["my-facility-lite", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      if (!user) return null;
+      const { data, error } = await supabase
         .from("facilities")
         .select("id,name_ar,name_en,logo_url,is_verified")
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });

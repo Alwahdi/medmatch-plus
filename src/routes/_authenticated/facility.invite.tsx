@@ -18,7 +18,7 @@ import { EmptyState } from "@/components/empty-state";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
+import { countryLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
@@ -253,7 +253,7 @@ function InvitePage() {
       if (country !== ANY) args._country = country;
       if (city.trim()) args._city = city.trim();
       if (minExp) args._min_experience = Number(minExp);
-      const { data, error } = await supabase.rpc("search_candidates", args);
+      const { data, error } = await supabase.rpc("search_candidates_atomic", args);
       if (error) {
         const key = error.message.replace(
           /.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s,
@@ -261,7 +261,6 @@ function InvitePage() {
         ) as keyof typeof c.errors;
         throw new Error(c.errors[key] ?? c.searchFailed);
       }
-      await supabase.rpc("consume_candidate_search");
       return (data ?? []) as Candidate[];
     },
     onSuccess: (rows) => {

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MessageSquare, UserRound } from "lucide-react";
+import { AlertCircle, MessageSquare, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +40,8 @@ const TXT = {
     chatFailed: "تعذّر بدء المحادثة",
     empty: "لا يوجد متقدمون بعد.",
     viewProfile: "الملف الكامل",
+    loadFailed: "تعذّر تحميل طلبات هذه الوظيفة.",
+    retry: "إعادة المحاولة",
   },
   en: {
     title: "Applicants",
@@ -56,6 +58,8 @@ const TXT = {
     chatFailed: "Failed to start conversation",
     empty: "No applicants yet.",
     viewProfile: "Full profile",
+    loadFailed: "We couldn't load applications for this job.",
+    retry: "Try again",
   },
 } as const;
 
@@ -68,18 +72,21 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["facility-applicants", user?.id, jobId ?? "all"],
     enabled: !!user,
     queryFn: async () => {
-      const { data: facility } = await supabase
+      if (!user) return [];
+      const { data: facility, error: facilityError } = await supabase
         .from("facilities")
         .select("id")
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .maybeSingle();
+      if (facilityError) throw facilityError;
       if (!facility) return [];
       const facilityId = facility.id;
-      const { data: jobs } = await supabase.from("jobs").select("id,title").eq("facility_id", facility.id);
+      const { data: jobs, error: jobsError } = await supabase.from("jobs").select("id,title").eq("facility_id", facility.id);
+      if (jobsError) throw jobsError;
       const ids = (jobs ?? []).map((j) => j.id).filter((id) => !jobId || id === jobId);
       if (ids.length === 0) return [];
       const { data: apps, error } = await supabase
@@ -90,10 +97,11 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       if (error) throw error;
 
       const userIds = Array.from(new Set((apps ?? []).map((a) => a.user_id)));
-      const { data: pros } = await supabase
+      const { data: pros, error: prosError } = await supabase
         .from("healthcare_professionals")
         .select("user_id,full_name,headline,years_experience,country,city,is_verified")
         .in("user_id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"]);
+      if (prosError) throw prosError;
 
       return (apps ?? []).map((a) => ({
         ...a,
@@ -121,24 +129,9 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
 
   const startChat = useMutation({
     mutationFn: async ({ candidateUserId, jobId }: { candidateUserId: string; jobId: string }) => {
-      const { data: facility } = await supabase
-        .from("facilities")
-        .select("id")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      if (!facility) throw new Error("no facility");
-      const { data: existing } = await supabase
-        .from("conversations")
-        .select("id")
-        .eq("facility_id", facility.id)
-        .eq("professional_user_id", candidateUserId)
-        .eq("job_id", jobId)
-        .maybeSingle();
-      if (existing) return;
-      const { error } = await supabase.from("conversations").insert({
-        facility_id: facility.id,
-        professional_user_id: candidateUserId,
-        job_id: jobId,
+      const { error } = await supabase.rpc("start_candidate_conversation", {
+        _professional_user_id: candidateUserId,
+        _job_id: jobId,
       });
       if (error) throw error;
     },
@@ -162,6 +155,8 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
 
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+      ) : isError ? (
+        <EmptyState className="mt-6" icon={AlertCircle} title={c.loadFailed} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((a) => (

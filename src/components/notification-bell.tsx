@@ -23,7 +23,7 @@ const TXT = {
   ar: {
     title: "الإشعارات",
     empty: "لا توجد إشعارات بعد",
-    emptyBody: "ستصلك هنا إشعارات الرسائل والدعوات والطلبات والتوثيق.",
+    emptyBody: "ستصلك هنا تحديثات الدعوات والطلبات والتوثيق. للرسائل عداد مستقل.",
     markAll: "تعليم الكل كمقروء",
     clear: "حذف الكل",
     viewAll: "عرض كل الإشعارات",
@@ -32,7 +32,7 @@ const TXT = {
   en: {
     title: "Notifications",
     empty: "No notifications yet",
-    emptyBody: "Messages, invitations, applications and verification updates appear here.",
+    emptyBody: "Invitation, application and verification updates appear here. Messages have a separate counter.",
     markAll: "Mark all as read",
     clear: "Clear all",
     viewAll: "View all notifications",

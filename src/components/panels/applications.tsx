@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
-import { Briefcase, CheckCircle2, Clock, FileText, XCircle } from "lucide-react";
+import { AlertCircle, Briefcase, CheckCircle2, Clock, FileText, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, relativeTime } from "@/lib/format";
@@ -22,6 +22,8 @@ const TXT = {
     empty: "لا طلبات بعد.",
     browseJobs: "تصفح الوظائف",
     employer: "المنشأة",
+    error: "تعذّر تحميل طلباتك.",
+    retry: "إعادة المحاولة",
   },
   en: {
     title: "My applications",
@@ -31,6 +33,8 @@ const TXT = {
     empty: "No applications yet.",
     browseJobs: "Browse jobs",
     employer: "the employer",
+    error: "We couldn't load your applications.",
+    retry: "Try again",
   },
 } as const;
 
@@ -38,7 +42,7 @@ export function ApplicationsPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["my-apps-full", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -66,6 +70,8 @@ export function ApplicationsPanel() {
 
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+      ) : isError ? (
+        <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((a) => {

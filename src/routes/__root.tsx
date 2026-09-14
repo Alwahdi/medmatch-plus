@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { LanguageProvider } from "@/lib/i18n";
+import { LanguageProvider, useLang } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -128,12 +128,24 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        <LanguageDocumentSync />
         <AuthSync />
         <Outlet />
         <Toaster position="top-center" />
       </LanguageProvider>
     </QueryClientProvider>
   );
+}
+
+function LanguageDocumentSync() {
+  const { lang } = useLang();
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  }, [lang]);
+
+  return null;
 }
 
 function AuthSync() {
