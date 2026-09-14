@@ -20,6 +20,7 @@ import { RatingStars } from "@/components/rating-stars";
 import { ImageUpload } from "@/components/image-upload";
 
 import { supabase } from "@/integrations/supabase/client";
+import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
