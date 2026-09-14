@@ -18,9 +18,21 @@ import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
+import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
+import { countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
+type CandidatesSearch = { specialty?: string; country?: string; city?: string; minExp?: string };
+
 export const Route = createFileRoute("/_authenticated/facility/candidates")({
+  validateSearch: (search: Record<string, unknown>): CandidatesSearch => {
+    const out: CandidatesSearch = {};
+    for (const k of ["specialty", "country", "city", "minExp"] as const) {
+      const v = search[k];
+      if (typeof v === "string" && v) out[k] = v;
+    }
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "بحث المرشحين | SyndeoCare" },
@@ -71,6 +83,7 @@ const TXT = {
     searching: "جارٍ البحث...",
     searchBtn: "ابحث (يخصم من حصة الباقة)",
     noResults: "لا توجد نتائج مطابقة",
+    widenHint: "جرّب إزالة فلتر المدينة أو التخصص، أو قلّل سنوات الخبرة.",
     candidateIn: (spec: string) => `مرشح في ${spec}`,
     genericSpecialty: "تخصص طبي",
     verified: "موثّق",
@@ -102,6 +115,7 @@ const TXT = {
     searching: "Searching...",
     searchBtn: "Search (uses one search from your quota)",
     noResults: "No matching results",
+    widenHint: "Try removing the city or specialty filter, or lower the years of experience.",
     candidateIn: (spec: string) => `Candidate in ${spec}`,
     genericSpecialty: "medical specialty",
     verified: "Verified",
@@ -121,10 +135,21 @@ function Candidates() {
   const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
-  const [specialty, setSpecialty] = useState(ANY);
-  const [country, setCountry] = useState(ANY);
-  const [city, setCity] = useState("");
-  const [minExp, setMinExp] = useState("");
+  const sp = Route.useSearch();
+  const setParams = (next: Partial<CandidatesSearch>) => {
+    const merged: CandidatesSearch = { ...sp, ...next };
+    for (const k of Object.keys(merged) as (keyof CandidatesSearch)[]) {
+      if (!merged[k] || merged[k] === ANY) delete merged[k];
+    }
+    void navigate({ to: "/facility/candidates", search: merged, replace: true });
+  };
+  const specialty = sp.specialty ?? ANY;
+  const country = sp.country ?? ANY;
+  const city = sp.city ?? "";
+  const minExp = sp.minExp ?? "";
+  const setSpecialty = (v: string) => setParams({ specialty: v });
+  const setCity = (v: string) => setParams({ city: v });
+  const setMinExp = (v: string) => setParams({ minExp: v });
   const [results, setResults] = useState<Candidate[] | null>(null);
 
   const { data: specialties } = useQuery({
@@ -215,6 +240,21 @@ function Candidates() {
     onError: () => toast.error(c.chatFailed),
   });
 
+  const activeFilters: ActiveFilter[] = [
+    specialty !== ANY
+      ? {
+          key: "specialty",
+          label: specialtyName((specialties ?? []).find((s) => s.id === specialty), lang) ?? c.specialty,
+          onClear: () => setSpecialty(ANY),
+        }
+      : null,
+    country !== ANY
+      ? { key: "country", label: countryLabel(country, lang), onClear: () => setParams({ country: "", city: "" }) }
+      : null,
+    city ? { key: "city", label: city, onClear: () => setCity("") } : null,
+    minExp ? { key: "minExp", label: `${minExp}+`, onClear: () => setMinExp("") } : null,
+  ].filter(Boolean) as ActiveFilter[];
+
   const plan = quota?.subscription_plans;
   const remaining =
     plan && typeof quota?.searches_used === "number"
@@ -257,7 +297,7 @@ function Candidates() {
         <Combobox
           options={[{ value: ANY, label: c.allCountries }, ...countryOptions(lang)]}
           value={country}
-          onChange={(v) => { setCountry(v); setCity(""); }}
+          onChange={(v) => setParams({ country: v, city: "" })}
           placeholder={c.country}
           searchPlaceholder={cbx.search}
           emptyText={cbx.empty}
@@ -284,7 +324,22 @@ function Candidates() {
         </Button>
       </div>
 
-      {results && (
+      {activeFilters.length > 0 && (
+        <FilterBar
+          className="mt-4"
+          filters={activeFilters}
+          onClearAll={() => void navigate({ to: "/facility/candidates", search: {}, replace: true })}
+        />
+      )}
+
+      {results && results.length === 0 && (
+        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center">
+          <p className="font-semibold">{c.noResults}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{c.widenHint}</p>
+        </div>
+      )}
+
+      {results && results.length > 0 && (
         <ul className="mt-6 space-y-4">
           {results.map((cand) => (
             <li key={cand.id} className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-5">
