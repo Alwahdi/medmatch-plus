@@ -288,7 +288,60 @@ function FacilityProfile() {
         </div>
       </div>
 
+      {mode === "view" && (
+        <div className="card-lift mt-6 rounded-2xl border border-border bg-card p-6">
+          <p className="text-xs text-muted-foreground">{c.asOthersSee}</p>
+          <div className="mt-4 flex items-start gap-4">
+            <RemoteAvatar
+              value={facility.logo_url}
+              alt={facility.name_ar ?? ""}
+              fallbackText={facility.name_ar ?? "?"}
+              className="size-16 shrink-0 rounded-2xl text-lg"
+            />
+            <div className="min-w-0">
+              <h2 className="flex items-center gap-2 text-xl font-extrabold">
+                <span className="truncate">{facility.name_ar}</span>
+                {facility.is_verified && <BadgeCheck className="size-5 shrink-0 text-primary" />}
+              </h2>
+              {facility.name_en && (
+                <p dir="ltr" className="truncate text-sm text-muted-foreground">{facility.name_en}</p>
+              )}
+              <p className="mt-1 text-sm text-muted-foreground">
+                {[
+                  c[facility.facility_type as "hospital"] ?? facility.facility_type,
+                  facility.city,
+                  facility.country ? countryLabel(facility.country, lang) : "",
+                ]
+                  .filter(Boolean)
+                  .join(" • ")}
+              </p>
+              {facility.rating_count > 0 && (
+                <div className="mt-2">
+                  <RatingStars value={Number(facility.rating_avg)} count={facility.rating_count} />
+                </div>
+              )}
+              {facility.website && (
+                <a
+                  href={facility.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  dir="ltr"
+                  className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                >
+                  <ExternalLink className="size-4" /> {facility.website}
+                </a>
+              )}
+            </div>
+          </div>
+          <p className="mt-5 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+            {facility.description || c.noAbout}
+          </p>
+        </div>
+      )}
+
+      {mode === "edit" && (
       <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
+
         <div className="grid gap-4 sm:grid-cols-2">
           <LockedField label={c.nameAr} locked={locked} target="facility" field="name_ar"
             currentValue={form.name_ar} facilityId={facility.id} pending={pendingOf("name_ar")}>
