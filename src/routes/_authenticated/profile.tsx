@@ -118,6 +118,7 @@ function ProfilePage() {
   const ct = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const [mode, setMode] = useState<"view" | "edit">("view");
 
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
