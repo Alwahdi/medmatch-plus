@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
@@ -272,8 +271,8 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
               <Combobox
                 options={(specialties ?? []).map((s) => ({
                   value: s.id,
-                  label: specialtyName(s, lang) ?? s.name_ar,
-                  keywords: [s.name_ar, s.name_en],
+                  label: s.name_ar,
+                  keywords: [s.name_ar],
                 }))}
                 value={form.specialty_id}
                 onChange={(v) => setForm({ ...form, specialty_id: v })}
