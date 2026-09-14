@@ -205,6 +205,9 @@ function SettingsPage() {
           </Button>
         </div>
       </section>
+        </TabsContent>
+      </Tabs>
     </div>
+
   );
 }
