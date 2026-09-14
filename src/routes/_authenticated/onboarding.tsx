@@ -220,7 +220,7 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
       toast.error(t("ob.error"));
       return;
     }
-    await supabase.from("user_roles").insert({ user_id: user!.id, role: "professional" });
+    await supabase.rpc("claim_professional_role");
     setBusy(false);
     toast.success(t("ob.done"));
     navigate({ to: "/dashboard", replace: true });
