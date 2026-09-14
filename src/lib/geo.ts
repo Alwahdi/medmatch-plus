@@ -351,6 +351,20 @@ export function allCityOptions(lang: Lang = "ar"): Option[] {
   return out.sort((a, b) => a.label.localeCompare(b.label, lang === "en" ? "en" : "ar"));
 }
 
+/** اسم المدينة مع دولتها: «صنعاء — اليمن». */
+export function labelCityWithCountry(city: string, lang: Lang = "ar"): string {
+  for (const country of COUNTRIES) {
+    for (const region of country.regions) {
+      for (const c of region.cities) {
+        if (c.ar === city || c.en === city) {
+          return `${lang === "en" ? c.en : c.ar} — ${lang === "en" ? country.en : country.ar}`;
+        }
+      }
+    }
+  }
+  return city;
+}
+
 /** Cities for a filter: all countries when nothing is selected. */
 export function filterCityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {
   const data = countryData(stored);

@@ -2,7 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { BellRing, Trash2 } from "lucide-react";
+import { Bell, BellRing, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
+import { EmptyState } from "@/components/empty-state";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 
@@ -218,15 +219,21 @@ export function AlertsPanel() {
           allowCustom
           customLabel={cbx.add}
         />
-        <Select value={employment} onValueChange={setEmployment}>
-          <SelectTrigger><SelectValue placeholder={c.employment} /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ANY}>{c.allTypes}</SelectItem>
-            {EMPLOYMENT_KEYS.map((k) => (
-              <SelectItem key={k} value={k}>{employmentLabel(k, lang)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Combobox
+          options={[
+            { value: ANY, label: c.allTypes },
+            ...EMPLOYMENT_KEYS.map((k) => ({
+              value: k,
+              label: employmentLabel(k, lang),
+              keywords: [employmentLabel(k, "ar"), employmentLabel(k, "en")],
+            })),
+          ]}
+          value={employment}
+          onChange={setEmployment}
+          placeholder={c.employment}
+          searchPlaceholder={cbx.search}
+          emptyText={cbx.empty}
+        />
         <Select value={channel} onValueChange={(v) => setChannel(v as "email" | "whatsapp")}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -292,7 +299,7 @@ export function AlertsPanel() {
       </ul>
 
       {!alerts?.length && (
-        <p className="mt-6 text-sm text-muted-foreground">{c.empty}</p>
+        <EmptyState className="mt-6" icon={Bell} title={c.empty} />
       )}
     </div>
   );

@@ -669,16 +669,20 @@ function FacilityForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label>{c.facilityType}</Label>
-            <Select value={form.facility_type} onValueChange={(v) => setForm({ ...form, facility_type: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="hospital">{c.hospital}</SelectItem>
-                <SelectItem value="clinic">{c.clinic}</SelectItem>
-                <SelectItem value="polyclinic">{c.polyclinic}</SelectItem>
-                <SelectItem value="pharmacy">{c.pharmacy}</SelectItem>
-                <SelectItem value="lab">{c.lab}</SelectItem>
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={[
+                { value: "hospital", label: c.hospital },
+                { value: "clinic", label: c.clinic },
+                { value: "polyclinic", label: c.polyclinic },
+                { value: "pharmacy", label: c.pharmacy },
+                { value: "lab", label: c.lab },
+              ]}
+              value={form.facility_type}
+              onChange={(v) => setForm({ ...form, facility_type: v })}
+              placeholder={c.facilityType}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+            />
           </div>
           <div>
             <Label>{c.country}</Label>

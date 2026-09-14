@@ -1,17 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,9 +14,31 @@ import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from 
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+import { labelCityWithCountry } from "@/lib/geo";
+import { matchesQuery } from "@/lib/search";
+import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 
+
+type JobsSearch = {
+  q?: string;
+  country?: string;
+  city?: string;
+  specialty?: string;
+  type?: string;
+  sort?: string;
+};
+
+const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
 
 export const Route = createFileRoute("/_public/jobs/")({
+  validateSearch: (search: Record<string, unknown>): JobsSearch => {
+    const out: JobsSearch = {};
+    for (const k of ["q", "country", "city", "specialty", "type", "sort"] as const) {
+      const v = str(search[k]);
+      if (v) out[k] = v;
+    }
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "الوظائف الطبية | SyndeoCare" },
@@ -122,11 +137,24 @@ function JobsPage() {
   const { lang } = useLang();
   const cbx = comboText(lang);
   const c = TXT[lang];
-  const [q, setQ] = useState("");
-  const [country, setCountry] = useState(ALL);
-  const [city, setCity] = useState(ALL);
-  const [specialty, setSpecialty] = useState(ALL);
-  const [type, setType] = useState(ALL);
+  const sp = Route.useSearch();
+  const navigate = useNavigate();
+  const setParams = (next: Partial<JobsSearch>) => {
+    const merged: JobsSearch = { ...sp, ...next };
+    for (const k of Object.keys(merged) as (keyof JobsSearch)[]) {
+      if (!merged[k] || merged[k] === ALL) delete merged[k];
+    }
+    void navigate({ to: "/jobs", search: merged, replace: true });
+  };
+  const q = sp.q ?? "";
+  const country = sp.country ?? ALL;
+  const city = sp.city ?? ALL;
+  const specialty = sp.specialty ?? ALL;
+  const type = sp.type ?? ALL;
+  const setQ = (v: string) => setParams({ q: v });
+  const setCity = (v: string) => setParams({ city: v });
+  const setSpecialty = (v: string) => setParams({ specialty: v });
+  const setType = (v: string) => setParams({ type: v });
   const { user } = useSession();
 
   const { data: specialties } = useQuery({
@@ -164,7 +192,8 @@ function JobsPage() {
   const [scope, setScope] = useState<Scope>("all");
   const [scopeTouched, setScopeTouched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [sort, setSort] = useState<"match" | "new">("new");
+  const [sortState, setSort] = useState<"match" | "new">("new");
+  const sort: "match" | "new" = sp.sort === "match" || sp.sort === "new" ? sp.sort : sortState;
   const [sortTouched, setSortTouched] = useState(false);
   const [hideApplied, setHideApplied] = useState(true);
 
@@ -213,7 +242,13 @@ function JobsPage() {
             .map((j) => j.city)
             .filter((x): x is string => Boolean(x)),
         ),
-      ).sort((a, b) => a.localeCompare(b, lang === "en" ? "en" : "ar")),
+      )
+        .sort((a, b) => a.localeCompare(b, lang === "en" ? "en" : "ar"))
+        .map((x) => ({
+          value: x,
+          label: country === ALL ? labelCityWithCountry(x, lang) : x,
+          keywords: [x, labelCityWithCountry(x, lang)],
+        })),
     [jobs, country, lang],
   );
 
@@ -232,7 +267,22 @@ function JobsPage() {
       if (specialty !== ALL && j.specialty_id !== specialty) return false;
       if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
       if (type !== ALL && j.employment_type !== type) return false;
-      if (q && !`${j.title} ${j.specialties?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
+      if (
+        q &&
+        !matchesQuery(
+          [
+            j.title,
+            j.specialties?.name_ar,
+            j.specialties?.name_en,
+            j.city,
+            j.country,
+            countryLabel(j.country, lang),
+            employmentLabel(j.employment_type, lang),
+          ],
+          q,
+        )
+      )
+        return false;
       if (hideApplied && appliedIds?.has(j.id)) return false;
       return true;
     })
@@ -242,13 +292,29 @@ function JobsPage() {
     });
 
   const reset = () => {
-    setQ("");
     pickScope("all");
-    setCountry(ALL);
-    setCity(ALL);
-    setSpecialty(ALL);
-    setType(ALL);
+    void navigate({ to: "/jobs", search: {}, replace: true });
   };
+
+  const activeFilters: ActiveFilter[] = [
+    q ? { key: "q", label: q, onClear: () => setParams({ q: "" }) } : null,
+    country !== ALL
+      ? { key: "country", label: countryLabel(country, lang), onClear: () => setParams({ country: "", city: "" }) }
+      : null,
+    city !== ALL ? { key: "city", label: city, onClear: () => setCity(ALL) } : null,
+    specialty !== ALL
+      ? {
+          key: "specialty",
+          label:
+            specialtyName((specialties ?? []).find((s2) => s2.id === specialty) ?? null, lang) ??
+            c.specialty,
+          onClear: () => setSpecialty(ALL),
+        }
+      : null,
+    type !== ALL
+      ? { key: "type", label: employmentLabel(type, lang), onClear: () => setType(ALL) }
+      : null,
+  ].filter(Boolean) as ActiveFilter[];
 
 
   return (
@@ -335,7 +401,7 @@ function JobsPage() {
                         ...countries.map((x) => ({ value: x, label: countryLabel(x, lang), keywords: [x] })),
                       ]}
                       value={country}
-                      onChange={(v) => { setCountry(v); setCity(ALL); }}
+                      onChange={(v) => setParams({ country: v, city: "" })}
                       placeholder={c.allCountries}
                       searchPlaceholder={cbx.search}
                       emptyText={cbx.empty}
@@ -349,7 +415,7 @@ function JobsPage() {
                     <Combobox
                       options={[
                         { value: ALL, label: c.allCities },
-                        ...cities.map((x) => ({ value: x, label: x, keywords: [x] })),
+                        ...cities,
                       ]}
                       value={city}
                       onChange={setCity}
@@ -383,19 +449,23 @@ function JobsPage() {
 
                 <div>
                   <label className="text-sm font-medium">{c.jobType}</label>
-                  <Select value={type} onValueChange={setType}>
-                    <SelectTrigger className="mt-1.5 h-11">
-                      <SelectValue placeholder={c.all} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ALL}>{c.all}</SelectItem>
-                      {Object.keys(EMPLOYMENT_LABELS).map((key) => (
-                        <SelectItem key={key} value={key}>
-                          {employmentLabel(key, lang)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="mt-1.5">
+                    <Combobox
+                      options={[
+                        { value: ALL, label: c.all },
+                        ...Object.keys(EMPLOYMENT_LABELS).map((key) => ({
+                          value: key,
+                          label: employmentLabel(key, lang),
+                          keywords: [employmentLabel(key, "ar"), employmentLabel(key, "en")],
+                        })),
+                      ]}
+                      value={type}
+                      onChange={setType}
+                      placeholder={c.all}
+                      searchPlaceholder={cbx.search}
+                      emptyText={cbx.empty}
+                    />
+                  </div>
                 </div>
 
                 <Button variant="outline" className="w-full gap-2" onClick={reset}>
@@ -437,6 +507,11 @@ function JobsPage() {
                 <h2 className="mt-1 font-display text-xl font-extrabold">
                   {c.count(filtered.length)}
                 </h2>
+                <FilterBar
+                  className="mt-2"
+                  filters={activeFilters}
+                  onClearAll={reset}
+                />
               </div>
               {!signedIn && (
                 <Button variant="ghost" size="sm" asChild>
@@ -463,6 +538,7 @@ function JobsPage() {
                         onClick={() => {
                           setSortTouched(true);
                           setSort(key);
+                          setParams({ sort: key });
                         }}
                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                           sort === key

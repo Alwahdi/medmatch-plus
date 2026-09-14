@@ -16,12 +16,27 @@ import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+import { labelCityWithCountry } from "@/lib/geo";
+import { matchesQuery } from "@/lib/search";
+import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { useSignedIn } from "@/components/page-chrome";
 import { countryLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
 
+type ShiftsSearch = { q?: string; country?: string; city?: string };
+
 export const Route = createFileRoute("/_public/shifts/")({
+  validateSearch: (search: Record<string, unknown>): ShiftsSearch => {
+    const out: ShiftsSearch = {};
+    for (const k of ["q", "country", "city"] as const) {
+      const v = search[k];
+      if (typeof v === "string" && v) out[k] = v;
+    }
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "سوق المناوبات الطبية الفورية | SyndeoCare" },
@@ -47,6 +62,7 @@ const TXT = {
     pick: "اختر الدولة",
     allCountries: "كل الدول",
     allCities: "كل المدن",
+    searchPlaceholder: "ابحث بعنوان المناوبة أو المدينة",
     label: "متاحة للحجز",
     count: (n: number) => `${n} مناوبة متاحة`,
     employer: "أنت ناشر شيفتات؟",
@@ -71,6 +87,7 @@ const TXT = {
     pick: "Choose a country",
     allCountries: "All countries",
     allCities: "All cities",
+    searchPlaceholder: "Search by shift title or city",
     label: "Open for booking",
     count: (n: number) => `${n} shifts available`,
     employer: "Posting shifts? See plans",
@@ -97,8 +114,18 @@ function ShiftsPage() {
   const { user } = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [country, setCountry] = useState(ALL);
-  const [city, setCity] = useState(ALL);
+  const sp = Route.useSearch();
+  const setParams = (next: Partial<ShiftsSearch>) => {
+    const merged: ShiftsSearch = { ...sp, ...next };
+    for (const k of Object.keys(merged) as (keyof ShiftsSearch)[]) {
+      if (!merged[k] || merged[k] === ALL) delete merged[k];
+    }
+    void navigate({ to: "/shifts", search: merged, replace: true });
+  };
+  const q = sp.q ?? "";
+  const country = sp.country ?? ALL;
+  const city = sp.city ?? ALL;
+  const setCity = (v: string) => setParams({ city: v });
 
   const { data: shifts, isLoading } = useQuery({
     queryKey: ["shifts"],
@@ -143,7 +170,13 @@ function ShiftsPage() {
             .map((s) => s.city)
             .filter((x): x is string => Boolean(x)),
         ),
-      ).sort((a, b) => a.localeCompare(b, lang === "en" ? "en" : "ar")),
+      )
+        .sort((a, b) => a.localeCompare(b, lang === "en" ? "en" : "ar"))
+        .map((x) => ({
+          value: x,
+          label: country === ALL ? labelCityWithCountry(x, lang) : x,
+          keywords: [x, labelCityWithCountry(x, lang)],
+        })),
     [shifts, country, lang],
   );
   const { mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
@@ -174,8 +207,25 @@ function ShiftsPage() {
     (s) =>
       (country === ALL || s.country === country) &&
       (city === ALL || s.city === city) &&
+      matchesQuery(
+        [s.title, s.notes, s.city, s.country, countryLabel(s.country, lang), s.specialties?.name_ar, s.specialties?.name_en],
+        q,
+      ) &&
       inScope(scope, s.specialty_id, mySpecialtyId, fieldIds),
   );
+
+  const resetFilters = () => {
+    pickScope("all");
+    void navigate({ to: "/shifts", search: {}, replace: true });
+  };
+
+  const activeFilters: ActiveFilter[] = [
+    q ? { key: "q", label: q, onClear: () => setParams({ q: "" }) } : null,
+    country !== ALL
+      ? { key: "country", label: countryLabel(country, lang), onClear: () => setParams({ country: "", city: "" }) }
+      : null,
+    city !== ALL ? { key: "city", label: city, onClear: () => setCity(ALL) } : null,
+  ].filter(Boolean) as ActiveFilter[];
 
 
   return (
@@ -207,6 +257,16 @@ function ShiftsPage() {
       <div className={signedIn ? "mt-4" : "relative px-4"}>
         <div className={signedIn ? "max-w-xl" : "mx-auto max-w-xl -translate-y-1/2"}>
           <div className="card-lift flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-lg">
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-muted-foreground end-3" />
+              <Input
+                value={q}
+                onChange={(e) => setParams({ q: e.target.value })}
+                placeholder={c.searchPlaceholder}
+                className="h-11 pe-9"
+                maxLength={80}
+              />
+            </div>
             <div className="relative flex-1">
               <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Combobox
@@ -215,7 +275,7 @@ function ShiftsPage() {
                   ...countries.map((x) => ({ value: x, label: countryLabel(x, lang), keywords: [x] })),
                 ]}
                 value={country}
-                onChange={(v) => { setCountry(v); setCity(ALL); }}
+                onChange={(v) => setParams({ country: v, city: "" })}
                 placeholder={c.pick}
                 searchPlaceholder={cbx.search}
                 emptyText={cbx.empty}
@@ -225,7 +285,7 @@ function ShiftsPage() {
             <Combobox
               options={[
                 { value: ALL, label: c.allCities },
-                ...cities.map((x) => ({ value: x, label: x, keywords: [x] })),
+                ...cities,
               ]}
               value={city}
               onChange={setCity}
@@ -240,6 +300,8 @@ function ShiftsPage() {
       {/* Results */}
       <section className={signedIn ? "py-6" : "py-16 md:py-20"}>
         <div className={signedIn ? "" : "mx-auto max-w-6xl px-4"}>
+
+          <FilterBar className="mb-4" count={filtered.length} filters={activeFilters} onClearAll={resetFilters} />
 
           {hasSpecialty && (
             <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
@@ -289,7 +351,7 @@ function ShiftsPage() {
           ) : filtered.length === 0 ? (
             <div className="mt-16 rounded-2xl border border-border bg-card p-10 text-center">
               <p className="text-muted-foreground">{c.empty}</p>
-              <Button className="mt-4" variant="outline" onClick={() => setCountry(ALL)}>
+              <Button className="mt-4" variant="outline" onClick={resetFilters}>
                 {c.showAll}
               </Button>
             </div>
