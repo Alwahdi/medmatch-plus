@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -40,20 +40,6 @@ import {
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/facility/verification")({
-  head: () => ({
-    meta: [
-      { title: "توثيق المنشأة | SyndeoCare" },
-      {
-        name: "description",
-        content: "ارفع رخصة المنشأة والسجل التجاري لتوثيق حسابك ونيل شارة منشأة موثّقة.",
-      },
-      { property: "og:title", content: "توثيق المنشأة | SyndeoCare" },
-      { property: "og:description", content: "رفع مستندات المنشأة ومتابعة حالة المراجعة." },
-    ],
-  }),
-  component: FacilityVerification,
-});
 
 const TXT = {
   ar: {
@@ -161,7 +147,7 @@ type FacilityDoc = {
   created_at: string;
 };
 
-function FacilityVerification() {
+export function FacilityVerificationPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();

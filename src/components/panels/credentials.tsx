@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -23,17 +23,6 @@ import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/credentials")({
-  head: () => ({
-    meta: [
-      { title: "ملف الاعتماد والتراخيص | SyndeoCare" },
-      { name: "description", content: "ارفع ترخيص المزاولة والشهادات ليتم توثيقها قبل التقديم." },
-      { property: "og:title", content: "ملف الاعتماد | SyndeoCare" },
-      { property: "og:description", content: "توثيق التراخيص والشهادات الطبية." },
-    ],
-  }),
-  component: CredentialsPage,
-});
 
 const TXT = {
   ar: {
@@ -110,7 +99,7 @@ const TXT = {
   },
 } as const;
 
-function CredentialsPage() {
+export function CredentialsPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();

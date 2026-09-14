@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,20 +7,6 @@ import { useSession } from "@/lib/auth";
 import { countryLabel, credentialLabel, docTypeLabel, formatDate, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/cv")({
-  head: () => ({
-    meta: [
-      { title: "سيرتي الذاتية ATS | SyndeoCare" },
-      {
-        name: "description",
-        content: "سيرة ذاتية طبية بصيغة نصية بسيطة متوافقة مع أنظمة الفرز الآلي ATS، جاهزة للطباعة.",
-      },
-      { property: "og:title", content: "سيرة ذاتية ATS | SyndeoCare" },
-      { property: "og:description", content: "سيرة ذاتية طبية متوافقة مع أنظمة الفرز الآلي." },
-    ],
-  }),
-  component: CvPage,
-});
 
 const TXT = {
   ar: {
@@ -69,7 +55,7 @@ const TXT = {
   },
 } as const;
 
-function CvPage() {
+export function CvPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();

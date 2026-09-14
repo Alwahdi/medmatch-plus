@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,6 @@ import { useSession } from "@/lib/auth";
 import { applicationLabel, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/applications")({
-  head: () => ({
-    meta: [
-      { title: "طلباتي | SyndeoCare" },
-      { name: "description", content: "تابع حالة كل طلب تقدّمت به من التقديم حتى التعيين." },
-      { property: "og:title", content: "طلباتي | SyndeoCare" },
-      { property: "og:description", content: "متابعة طلبات التوظيف الطبية." },
-    ],
-  }),
-  component: ApplicationsPage,
-});
 
 const STAGES = ["submitted", "reviewing", "shortlisted", "interview", "offer", "hired"];
 
@@ -45,7 +34,7 @@ const TXT = {
   },
 } as const;
 
-function ApplicationsPage() {
+export function ApplicationsPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();

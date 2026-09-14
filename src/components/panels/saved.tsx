@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,17 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/saved")({
-  head: () => ({
-    meta: [
-      { title: "الوظائف المحفوظة | SyndeoCare" },
-      { name: "description", content: "الوظائف الطبية التي حفظتها للرجوع إليها والتقديم عليها لاحقاً." },
-      { property: "og:title", content: "الوظائف المحفوظة | SyndeoCare" },
-      { property: "og:description", content: "قائمة الوظائف المحفوظة في حسابك." },
-    ],
-  }),
-  component: SavedJobs,
-});
 
 const TXT = {
   ar: {
@@ -35,7 +24,7 @@ const TXT = {
   },
 } as const;
 
-function SavedJobs() {
+export function SavedPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();

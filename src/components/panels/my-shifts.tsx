@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CalendarClock } from "lucide-react";
@@ -11,17 +11,6 @@ import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/my-shifts")({
-  head: () => ({
-    meta: [
-      { title: "مناوباتي | SyndeoCare" },
-      { name: "description", content: "جدول مناوباتك المحجوزة وتفاصيل الأجر والمكان." },
-      { property: "og:title", content: "مناوباتي | SyndeoCare" },
-      { property: "og:description", content: "جدول المناوبات الطبية المحجوزة." },
-    ],
-  }),
-  component: MyShifts,
-});
 
 const TXT = {
   ar: {
@@ -57,7 +46,7 @@ const TXT = {
 
 } as const;
 
-function MyShifts() {
+export function MyShiftsPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();

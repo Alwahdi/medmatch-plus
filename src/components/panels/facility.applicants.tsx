@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MessageSquare, UserRound } from "lucide-react";
@@ -19,17 +19,6 @@ import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/facility/applicants")({
-  head: () => ({
-    meta: [
-      { title: "المتقدمون | SyndeoCare" },
-      { name: "description", content: "راجع المتقدمين لوظائف منشأتك وحرّك كل طلب بين مراحل الفرز." },
-      { property: "og:title", content: "المتقدمون | SyndeoCare" },
-      { property: "og:description", content: "إدارة المتقدمين لوظائف المنشأة." },
-    ],
-  }),
-  component: Applicants,
-});
 
 const APPLICATION_STATUSES = ["submitted", "reviewing", "shortlisted", "interview", "offer", "hired", "rejected"];
 
@@ -68,7 +57,7 @@ const TXT = {
   },
 } as const;
 
-function Applicants() {
+export function FacilityApplicantsPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();

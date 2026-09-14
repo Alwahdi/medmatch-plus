@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,20 +24,6 @@ import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 
-export const Route = createFileRoute("/_authenticated/alerts")({
-  head: () => ({
-    meta: [
-      { title: "تنبيهات الوظائف | SyndeoCare" },
-      {
-        name: "description",
-        content: "فعّل تنبيهات الوظائف والمناوبات حسب تخصصك ومدينتك عبر البريد أو واتساب.",
-      },
-      { property: "og:title", content: "تنبيهات الوظائف | SyndeoCare" },
-      { property: "og:description", content: "تنبيهات فورية للفرص المناسبة لتخصصك." },
-    ],
-  }),
-  component: AlertsPage,
-});
 
 const ANY = "any";
 type EmploymentType = "full_time" | "part_time" | "contract" | "locum" | "shift";
@@ -95,7 +81,7 @@ const TXT = {
   },
 } as const;
 
-function AlertsPage() {
+export function AlertsPanel() {
   const { lang } = useLang();
   const cbx = comboText(lang);
   const c = TXT[lang];

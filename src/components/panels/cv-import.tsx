@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -11,20 +11,6 @@ import { useSession } from "@/lib/auth";
 import { parseCv, type ParsedCv } from "@/lib/cv.functions";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/cv-import")({
-  head: () => ({
-    meta: [
-      { title: "بناء الملف من السيرة الذاتية | SyndeoCare" },
-      {
-        name: "description",
-        content: "الصق نص سيرتك الذاتية ونبني ملفك المهني الطبي تلقائياً بالذكاء الاصطناعي.",
-      },
-      { property: "og:title", content: "بناء الملف من السيرة الذاتية | SyndeoCare" },
-      { property: "og:description", content: "ملف مهني جاهز خلال ثوانٍ من سيرتك الذاتية." },
-    ],
-  }),
-  component: CvImport,
-});
 
 const TXT = {
   ar: {
@@ -83,7 +69,7 @@ const TXT = {
   },
 } as const;
 
-function CvImport() {
+export function CvImportPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();
