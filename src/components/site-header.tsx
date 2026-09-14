@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Globe, Menu, Stethoscope } from "lucide-react";
 import { NotificationBell } from "@/components/notification-bell";
+import { MobileMenuSheet } from "@/components/mobile-menu-sheet";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
