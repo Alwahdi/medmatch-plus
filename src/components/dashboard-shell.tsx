@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notification-bell";
+import { MobileMenuSheet } from "@/components/mobile-menu-sheet";
 import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +45,6 @@ const PRO_NAV: Item[] = [
   { to: "/saved", key: "nav.saved", icon: Bookmark },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
   { to: "/alerts", key: "nav.alerts", icon: Bell },
-  { to: "/profile", key: "nav.profile", icon: User },
   { to: "/cv", key: "nav.cv", icon: FileText },
   { to: "/cv-import", key: "nav.cvImport", icon: Sparkles },
   { to: "/credentials", key: "nav.credentials", icon: ShieldCheck },
@@ -52,15 +52,13 @@ const PRO_NAV: Item[] = [
 
 const FACILITY_NAV: Item[] = [
   { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
-  { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
   { to: "/facility/verification", key: "nav.facilityVerification", icon: ShieldCheck },
-
-
   { to: "/facility/applicants", key: "nav.applicants", icon: Users },
   { to: "/facility/candidates", key: "nav.candidates", icon: Search },
   { to: "/messages", key: "nav.messages", icon: MessagesSquare },
   { to: "/pricing", key: "nav.pricing", icon: Sparkles },
 ];
+
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const { user } = useSession();
