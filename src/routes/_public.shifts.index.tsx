@@ -129,6 +129,7 @@ function ShiftsPage() {
 
   const countries = useMemo(() => Array.from(new Set((shifts ?? []).map((s) => s.country))), [shifts]);
   const { mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
+  const signedIn = useSignedIn();
   const [scope, setScope] = useState<Scope>("all");
   const [scopeTouched, setScopeTouched] = useState(false);
   useEffect(() => {
@@ -139,11 +140,24 @@ function ShiftsPage() {
     setScope(next);
   };
 
+  const { data: myShiftIds } = useQuery({
+    queryKey: ["my-booked-shift-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("shift_bookings")
+        .select("shift_id")
+        .eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.shift_id));
+    },
+  });
+
   const filtered = (shifts ?? []).filter(
     (s) =>
       (country === ALL || s.country === country) &&
       inScope(scope, s.specialty_id, mySpecialtyId, fieldIds),
   );
+
 
   return (
     <>
