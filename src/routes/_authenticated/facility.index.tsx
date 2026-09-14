@@ -961,12 +961,18 @@ function ShiftForm({
         </div>
         <div>
           <Label>{c.specialty}</Label>
-          <Select value={form.specialty_id} onValueChange={(v) => setForm({ ...form, specialty_id: v })}>
-            <SelectTrigger><SelectValue placeholder={c.pickSpecialty} /></SelectTrigger>
-            <SelectContent>
-              {specialties.map((s) => <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={specialties.map((s) => ({
+              value: s.id,
+              label: specialtyName(s, lang) ?? "",
+              keywords: [s.name_ar, s.name_en],
+            }))}
+            value={form.specialty_id}
+            onChange={(v) => setForm({ ...form, specialty_id: v })}
+            placeholder={c.pickSpecialty}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
         <div>
           <Label htmlFor="ss">{c.shiftStartsAt}</Label>
