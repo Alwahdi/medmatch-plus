@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  Chrome,
   Eye,
   EyeOff,
   Fingerprint,
@@ -26,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { EmptyState } from "@/components/empty-state";
+import { GoogleIcon } from "@/components/google-icon";
+import { lovable } from "@/integrations/lovable/index";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
