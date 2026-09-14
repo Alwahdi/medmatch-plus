@@ -114,14 +114,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         { to: "/facility/applicants", key: "nav.applicants", icon: Users },
         { to: "/messages", key: "nav.messages", icon: MessagesSquare },
         { to: "/facility/candidates", key: "nav.candidates", icon: Search },
-        { to: "/facility/profile", key: "nav.facilityProfile", icon: Building2 },
+        { to: "/facility/verification", key: "nav.facilityVerification", icon: ShieldCheck },
       ]
     : [
         { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
         { to: "/jobs", key: "nav.jobs", icon: Briefcase },
         { to: "/messages", key: "nav.messages", icon: MessagesSquare },
         { to: "/shifts", key: "nav.shifts", icon: CalendarClock },
-        { to: "/profile", key: "nav.profile", icon: User },
+        { to: "/applications", key: "nav.applications", icon: FileText },
+
       ];
 
   const nav = (
