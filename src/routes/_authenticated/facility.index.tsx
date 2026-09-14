@@ -958,6 +958,8 @@ function JobForm({
       toast.success(c.jobPublished);
       setForm({ ...form, title: "", description: "", salary_min: "", salary_max: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      void navigate({ to: "/facility", search: { tab: "jobs" } });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
