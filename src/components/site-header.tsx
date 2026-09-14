@@ -156,7 +156,7 @@ export function SiteHeader() {
                   {t("nav.signUp")}
                 </Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button size="sm" asChild className="hidden sm:inline-flex">
                 <Link to="/for-facilities">{t("nav.postJob")}</Link>
               </Button>
             </>
@@ -185,6 +185,19 @@ export function SiteHeader() {
               {t(item.key)}
             </Link>
           ))}
+          {!loading && !user && (
+            <div className="mt-2 space-y-2 border-t border-border pt-3">
+              <Button className="w-full" asChild onClick={() => setOpen(false)}>
+                <Link to="/for-facilities">{t("nav.postJob")}</Link>
+              </Button>
+              <Button variant="outline" className="w-full" asChild onClick={() => setOpen(false)}>
+                <Link to="/register">{t("nav.signUp")}</Link>
+              </Button>
+              <Button variant="ghost" className="w-full" asChild onClick={() => setOpen(false)}>
+                <Link to="/auth">{t("nav.signIn")}</Link>
+              </Button>
+            </div>
+          )}
         </nav>
       )}
     </header>
