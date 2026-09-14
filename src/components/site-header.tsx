@@ -173,20 +173,35 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {open && (
-        <nav className="border-t border-border bg-background px-4 py-2 lg:hidden">
+      <MobileMenuSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t("nav.menu")}
+        closeLabel={t("nav.menu")}
+      >
+        <nav className="space-y-1">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary"
+              className="block rounded-xl px-3 py-3 text-base font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
             >
               {t(item.key)}
             </Link>
           ))}
+        </nav>
+        <div className="mt-4 space-y-2 border-t border-border pt-4">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2"
+            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+          >
+            <Globe className="size-4" />
+            {t("lang.switch")}
+          </Button>
           {!loading && !user && (
-            <div className="mt-2 space-y-2 border-t border-border pt-3">
+            <>
               <Button className="w-full" asChild onClick={() => setOpen(false)}>
                 <Link to="/for-facilities">{t("nav.postJob")}</Link>
               </Button>
@@ -196,10 +211,28 @@ export function SiteHeader() {
               <Button variant="ghost" className="w-full" asChild onClick={() => setOpen(false)}>
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
-            </div>
+            </>
           )}
-        </nav>
-      )}
+          {!loading && user && (
+            <>
+              <Button variant="outline" className="w-full" asChild onClick={() => setOpen(false)}>
+                <Link to={homeLink}>{t("nav.dashboard")}</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setOpen(false);
+                  void signOut();
+                }}
+              >
+                {t("nav.signOut")}
+              </Button>
+            </>
+          )}
+        </div>
+      </MobileMenuSheet>
+
     </header>
   );
 }
