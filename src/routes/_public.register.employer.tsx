@@ -77,6 +77,7 @@ const AR = {
   f2: "توظيف خلال 24-72 ساعة",
   f3: "بدون بطاقة ائتمان",
   invalid: "تحقق من صحة البيانات المدخلة",
+  setupFailed: "تم إنشاء الحساب، لكن تعذّر إكمال ملف المنشأة. سجّل الدخول لإكماله دون إعادة التسجيل.",
   sent: "أرسلنا رسالة تأكيد إلى بريدك الإلكتروني. افتح الرابط لتفعيل حساب ناشر الوظائف.",
   show: "إظهار كلمة المرور",
 };
@@ -126,6 +127,7 @@ const EN: typeof AR = {
   f2: "Hire within 24-72 hours",
   f3: "No credit card",
   invalid: "Please check the information you entered",
+  setupFailed: "Your account was created, but the employer profile could not be completed. Sign in to resume setup.",
   sent: "We sent a confirmation email. Open the link to activate your employer account.",
   show: "Show password",
 };
@@ -229,14 +231,24 @@ function RegisterEmployer() {
       return;
     }
     if (data.session && data.user) {
-      await supabase.from("facilities").insert({
+      const { error: facilityError } = await supabase.from("facilities").insert({
         user_id: data.user.id,
         name_ar: parsed.data.name,
         facility_type: parsed.data.type,
         country: countryName,
         city: parsed.data.city,
       });
-      await supabase.rpc("claim_facility_role");
+      if (facilityError) {
+        setBusy(false);
+        toast.error(L.setupFailed);
+        return;
+      }
+      const { data: claimed, error: roleError } = await supabase.rpc("claim_facility_role");
+      if (roleError || !claimed) {
+        setBusy(false);
+        toast.error(L.setupFailed);
+        return;
+      }
       setBusy(false);
       navigate({ to: "/facility" });
       return;

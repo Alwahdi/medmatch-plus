@@ -55,6 +55,7 @@ const TXT = {
     chatOpened: "تم فتح المحادثة",
     chatFailed: "تعذّر بدء المحادثة",
     noFacility: "أكمل بيانات المنشأة أولاً",
+    initialContact: "تواصل بخصوص فرصة مهنية",
     expected: "الراتب المتوقع",
     license: "الترخيص",
     online: "متصل الآن",
@@ -80,6 +81,7 @@ const TXT = {
     chatOpened: "Conversation opened",
     chatFailed: "Failed to start conversation",
     noFacility: "Complete your facility profile first",
+    initialContact: "Contact about a professional opportunity",
     expected: "Expected salary",
     license: "License",
     online: "Online now",
@@ -158,16 +160,10 @@ function CandidateProfile() {
   const startChat = useMutation({
     mutationFn: async () => {
       if (!data?.facility) throw new Error("no-facility");
-      const { data: existing } = await supabase
-        .from("conversations")
-        .select("id")
-        .eq("facility_id", data.facility.id)
-        .eq("professional_user_id", userId)
-        .maybeSingle();
-      if (existing) return;
-      const { error } = await supabase
-        .from("conversations")
-        .insert({ facility_id: data.facility.id, professional_user_id: userId });
+      const { error } = await supabase.rpc("start_candidate_conversation", {
+        _professional_user_id: userId,
+        _subject: c.initialContact,
+      });
       if (error) throw error;
     },
     onSuccess: () => {

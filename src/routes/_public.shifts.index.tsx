@@ -143,9 +143,7 @@ function ShiftsPage() {
 
   const book = useMutation({
     mutationFn: async (shiftId: string) => {
-      const { error } = await supabase
-        .from("shift_bookings")
-        .insert({ shift_id: shiftId, user_id: user!.id });
+      const { error } = await supabase.rpc("book_open_shift", { _shift_id: shiftId });
       if (error) throw error;
     },
     onSuccess: () => {

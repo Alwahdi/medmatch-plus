@@ -240,9 +240,9 @@ function JobDetail() {
     mutationFn: async () => {
       const parsed = coverSchema.safeParse(cover);
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
-      const { error } = await supabase
-        .from("applications")
-        .insert({ job_id: realJobId!, user_id: user!.id, cover_letter: parsed.data || null });
+      const args: { _job_id: string; _cover_letter?: string } = { _job_id: realJobId! };
+      if (parsed.data) args._cover_letter = parsed.data;
+      const { error } = await supabase.rpc("submit_job_application", args);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -278,7 +278,7 @@ function JobDetail() {
           </nav>
           <Button variant="ghost" size="sm" asChild className="mt-3 text-white/80 hover:bg-white/10 hover:text-white">
             <Link to="/jobs">
-              <ArrowLeft className="size-4" /> {c.back}
+              <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>

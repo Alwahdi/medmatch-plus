@@ -54,7 +54,7 @@ export function SiteHeader() {
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Stethoscope className="size-5" />
           </span>
-          <span className="font-display text-lg font-extrabold tracking-tight">SyndeoCare</span>
+          <span className="hidden font-display text-lg font-extrabold tracking-tight sm:inline">SyndeoCare</span>
         </Link>
 
         <nav className="mx-2 hidden items-center gap-0.5 lg:flex">
@@ -78,12 +78,12 @@ export function SiteHeader() {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5"
+              className="gap-1.5 px-2"
               aria-label={t("lang.label")}
               onClick={() => setLang(lang === "ar" ? "en" : "ar")}
             >
               <Globe className="size-4" />
-              <span className="hidden sm:inline">{t("lang.switch")}</span>
+              <span className="hidden xl:inline">{t("lang.switch")}</span>
             </Button>
           )}
           {!loading && user ? (
@@ -150,15 +150,15 @@ export function SiteHeader() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+              <Button variant="ghost" size="sm" asChild className="hidden xl:inline-flex">
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
-              <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
+              <Button variant="outline" size="sm" asChild className="hidden xl:inline-flex">
                 <Link to="/register">
                   {t("nav.signUp")}
                 </Link>
               </Button>
-              <Button size="sm" asChild className="hidden sm:inline-flex">
+              <Button size="sm" asChild className="hidden xl:inline-flex">
                 <Link to="/for-facilities">{t("nav.postJob")}</Link>
               </Button>
             </>

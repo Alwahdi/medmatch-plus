@@ -268,7 +268,7 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.from("healthcare_professionals").insert({
+    const { error } = await supabase.from("healthcare_professionals").upsert({
       user_id: user!.id,
       full_name: form.full_name.trim(),
       headline: form.headline.trim() || null,
@@ -279,13 +279,18 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
       license_number: form.license_number.trim() || null,
       license_country: form.country || null,
       is_open_to_shifts: form.is_open_to_shifts,
-    });
+    }, { onConflict: "user_id" });
     if (error) {
       setBusy(false);
       toast.error(t("ob.error"));
       return;
     }
-    await supabase.rpc("claim_professional_role");
+    const { data: claimed, error: claimError } = await supabase.rpc("claim_professional_role");
+    if (claimError || !claimed) {
+      setBusy(false);
+      toast.error(t("ob.error"));
+      return;
+    }
     setBusy(false);
     toast.success(t("ob.done"));
     navigate({ to: "/dashboard", replace: true });
