@@ -44,18 +44,32 @@ function AuthenticatedLayout() {
 
   useEffect(() => {
     let active = true;
-    supabase.auth.getUser().then(({ data, error }) => {
-      if (!active) return;
-      if (error || !data.user) {
+    // شبكة الأمان: لا يبقى المستخدم على مؤشر التحميل إن تأخر فحص الجلسة.
+    const timer = setTimeout(() => {
+      if (active) void navigate({ to: "/auth", replace: true });
+    }, 8000);
+    supabase.auth
+      .getUser()
+      .then(({ data, error }) => {
+        if (!active) return;
+        clearTimeout(timer);
+        if (error || !data.user) {
+          void navigate({ to: "/auth", replace: true });
+          return;
+        }
+        setReady(true);
+      })
+      .catch(() => {
+        if (!active) return;
+        clearTimeout(timer);
         void navigate({ to: "/auth", replace: true });
-        return;
-      }
-      setReady(true);
-    });
+      });
     return () => {
       active = false;
+      clearTimeout(timer);
     };
   }, [navigate]);
+
 
   // حارس الأدوار: كل دور يصل إلى صفحاته فقط.
   useEffect(() => {
