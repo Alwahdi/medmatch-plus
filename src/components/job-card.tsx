@@ -129,7 +129,23 @@ export function JobCard({
                 <ShieldCheck className="size-3.5" /> {c.verified}
               </span>
             )}
+            {recommended && (
+              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                <Sparkles className="size-3.5" /> {c.recommended}
+              </span>
+            )}
+            {applied && (
+              <span className="flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
+                <CheckCircle2 className="size-3.5" /> {c.applied}
+              </span>
+            )}
+            {saved && (
+              <span className="flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-xs font-semibold">
+                <Bookmark className="size-3.5" /> {c.saved}
+              </span>
+            )}
           </div>
+
 
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
