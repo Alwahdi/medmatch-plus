@@ -218,15 +218,21 @@ export function AlertsPanel() {
           allowCustom
           customLabel={cbx.add}
         />
-        <Select value={employment} onValueChange={setEmployment}>
-          <SelectTrigger><SelectValue placeholder={c.employment} /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ANY}>{c.allTypes}</SelectItem>
-            {EMPLOYMENT_KEYS.map((k) => (
-              <SelectItem key={k} value={k}>{employmentLabel(k, lang)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Combobox
+          options={[
+            { value: ANY, label: c.allTypes },
+            ...EMPLOYMENT_KEYS.map((k) => ({
+              value: k,
+              label: employmentLabel(k, lang),
+              keywords: [employmentLabel(k, "ar"), employmentLabel(k, "en")],
+            })),
+          ]}
+          value={employment}
+          onChange={setEmployment}
+          placeholder={c.employment}
+          searchPlaceholder={cbx.search}
+          emptyText={cbx.empty}
+        />
         <Select value={channel} onValueChange={(v) => setChannel(v as "email" | "whatsapp")}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
