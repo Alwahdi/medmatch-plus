@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
@@ -52,6 +53,8 @@ const AR = {
   t3: "متاحة مرة واحدة وغير قابلة للتجديد",
   plans: "عرض التفاصيل والباقات المدفوعة",
   formTitle: "أنشئ حسابك",
+  google: "التسجيل عبر جوجل",
+  or: "أو",
   formBody: "أضف بيانات حسابك وموقعك، ثم يمكنك البدء. أضف نوع ناشر الوظائف والملف العام لاحقًا.",
   name: "الاسم",
   nameHint: "يُستخدم لحسابك ولاسم العرض الأولي لناشر الوظائف.",
@@ -99,6 +102,8 @@ const EN: typeof AR = {
   t3: "Available once, non-renewable",
   plans: "See details and paid plans",
   formTitle: "Create your account",
+  google: "Sign up with Google",
+  or: "or",
   formBody: "Add your account and location details to get started. Add employer type and public profile later.",
   name: "Name",
   nameHint: "Used for your account and the initial employer display name.",
@@ -148,6 +153,26 @@ function RegisterEmployer() {
   const [showPass, setShowPass] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+
+  async function googleSignUp() {
+    setGoogleBusy(true);
+    try {
+      localStorage.setItem("sc_signup_intent", "facility");
+    } catch {
+      /* storage unavailable */
+    }
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      toast.error(L.invalid);
+      setGoogleBusy(false);
+      return;
+    }
+    if (result.redirected) return;
+    window.location.href = "/onboarding";
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -277,6 +302,20 @@ function RegisterEmployer() {
               {sent ? (
                 <p className="mt-6 rounded-xl bg-secondary p-4 text-sm leading-relaxed">{L.sent}</p>
               ) : (
+                <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-5 w-full"
+                  onClick={googleSignUp}
+                  disabled={googleBusy}
+                >
+                  {L.google}
+                </Button>
+                <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="h-px flex-1 bg-border" /> {L.or}
+                  <span className="h-px flex-1 bg-border" />
+                </div>
                 <form onSubmit={submit} className="mt-6 space-y-5">
                   <div>
                     <Label htmlFor="re-name">{L.name} *</Label>
@@ -428,6 +467,7 @@ function RegisterEmployer() {
                     </Link>
                   </p>
                 </form>
+                </>
               )}
             </section>
           </div>

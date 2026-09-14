@@ -147,6 +147,11 @@ function RegisterSeeker() {
 
   async function googleSignUp() {
     setGoogleBusy(true);
+    try {
+      localStorage.setItem("sc_signup_intent", "professional");
+    } catch {
+      /* storage unavailable */
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });

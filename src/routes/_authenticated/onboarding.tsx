@@ -73,7 +73,16 @@ function Onboarding() {
       navigate({ to: "/dashboard", replace: true });
       return;
     }
+    let intent: Path = null;
+    try {
+      const stored = localStorage.getItem("sc_signup_intent");
+      if (stored === "facility" || stored === "professional") intent = stored;
+      localStorage.removeItem("sc_signup_intent");
+    } catch {
+      /* storage unavailable */
+    }
     if (metaRole) setPath(metaRole);
+    else if (intent) setPath(intent);
     setReady(true);
   }, [existing, isPending, metaRole, navigate]);
 
