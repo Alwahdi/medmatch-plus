@@ -9,6 +9,7 @@ import {
   specialtyName,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { WorkTypeBadge } from "@/components/work-item";
 
 export type JobRow = {
   id: string;
