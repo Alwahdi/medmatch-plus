@@ -19,7 +19,6 @@ import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
-import { countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 type CandidatesSearch = { specialty?: string; country?: string; city?: string; minExp?: string };
