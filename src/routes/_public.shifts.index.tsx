@@ -241,11 +241,14 @@ function ShiftsPage() {
               <p className="section-label">{c.label}</p>
               <h2 className="mt-2 font-display text-2xl font-extrabold">{c.count(filtered.length)}</h2>
             </div>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/pricing">
-                {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
-              </Link>
-            </Button>
+            {!signedIn && (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/pricing">
+                  {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
+                </Link>
+              </Button>
+            )}
+
           </div>
 
           {isLoading ? (
