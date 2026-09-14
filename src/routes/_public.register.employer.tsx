@@ -19,6 +19,7 @@ import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
+import { Combobox, comboText } from "@/components/ui/combobox";
 
 export const Route = createFileRoute("/_public/register/employer")({
   head: () => ({
@@ -138,6 +139,7 @@ const EN: typeof AR = {
 
 function RegisterEmployer() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const L = lang === "ar" ? AR : EN;
   const navigate = useNavigate();
   const { user } = useSession();
