@@ -61,6 +61,14 @@ const TXT = {
     nameShort: "الاسم قصير جداً",
     saved: "تم حفظ ملفك المهني",
     saveFailed: "تعذّر الحفظ",
+    editBtn: "تعديل الملف",
+    previewBtn: "معاينة",
+    asOthersSee: "هكذا يرى الآخرون ملفك",
+    noBio: "لم تُضف نبذة مهنية بعد.",
+    verified: "موثّق",
+    yearsLabel: "سنوات خبرة",
+    openBadge: "متاح للمناوبات",
+
   },
   en: {
     title: "My professional profile",
@@ -85,6 +93,14 @@ const TXT = {
     nameShort: "Name is too short",
     saved: "Your profile has been saved",
     saveFailed: "Failed to save",
+    editBtn: "Edit profile",
+    previewBtn: "Preview",
+    asOthersSee: "This is how others see your profile",
+    noBio: "No professional bio yet.",
+    verified: "Verified",
+    yearsLabel: "years of experience",
+    openBadge: "Open to shifts",
+
   },
 } as const;
 
