@@ -34,8 +34,9 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions, currencyOptions } from "@/lib/geo";
 import {
-  COUNTRIES,
   countryLabel,
   employmentLabel,
   formatDateTime,
