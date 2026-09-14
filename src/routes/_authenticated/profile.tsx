@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { BadgeCheck, Eye, Pencil } from "lucide-react";
+import { RemoteAvatar } from "@/components/remote-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -339,6 +341,7 @@ function ProfilePage() {
 
 
 
+      {mode === "edit" && (
       <div className="card-lift mt-6 space-y-5 rounded-2xl border border-border bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <LockedField label={c.fullName} locked={locked} target="professional" field="full_name"
