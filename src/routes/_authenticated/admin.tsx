@@ -784,6 +784,132 @@ function AdminPage() {
             </ul>
           )}
         </TabsContent>
+
+        <TabsContent value="changes" className="mt-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant={pendingOnly ? "default" : "outline"} onClick={() => setPendingOnly(true)}>
+              {c.pendingOnly}
+            </Button>
+            <Button size="sm" variant={pendingOnly ? "outline" : "default"} onClick={() => setPendingOnly(false)}>
+              {c.all}
+            </Button>
+          </div>
+          {shownChanges.length === 0 ? (
+            <p className="mt-4 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+              {lang === "ar" ? "لا توجد طلبات تعديل." : "No change requests."}
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {shownChanges.map((r) => (
+                <li key={r.id} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-bold">
+                        {fieldLabel(r.field, lang)}
+                        <Badge variant="secondary" className="ms-2">
+                          {r.target === "facility"
+                            ? lang === "ar" ? "منشأة" : "Facility"
+                            : lang === "ar" ? "مختص" : "Professional"}
+                        </Badge>
+                        {r.status !== "pending" && (
+                          <Badge variant={r.status === "approved" ? "default" : "destructive"} className="ms-2">
+                            {r.status === "approved"
+                              ? lang === "ar" ? "مقبول" : "Approved"
+                              : lang === "ar" ? "مرفوض" : "Rejected"}
+                          </Badge>
+                        )}
+                      </p>
+                      <p className="mt-1 text-sm">
+                        <span className="text-muted-foreground">{r.old_value || "—"}</span> → <b>{r.new_value}</b>
+                      </p>
+                      {r.reason && <p className="mt-1 text-xs text-muted-foreground">{r.reason}</p>}
+                      <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(r.created_at, lang)}</p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {r.attachment_path && (
+                        <Button size="sm" variant="outline" onClick={() => openFile(r.attachment_path)}>
+                          <FileText className="size-4" />
+                          {lang === "ar" ? "المرفق" : "Attachment"}
+                        </Button>
+                      )}
+                      {r.status === "pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            disabled={reviewChange.isPending}
+                            onClick={() => reviewChange.mutate({ id: r.id, approve: true })}
+                          >
+                            {reviewChange.isPending ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
+                            {lang === "ar" ? "قبول" : "Approve"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setChangeRejectId(changeRejectId === r.id ? null : r.id)}
+                          >
+                            <XCircle className="size-4" />
+                            {lang === "ar" ? "رفض" : "Reject"}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {changeRejectId === r.id && (
+                    <div className="mt-3 space-y-2">
+                      <Textarea
+                        rows={2}
+                        value={changeNote}
+                        maxLength={300}
+                        onChange={(e) => setChangeNote(e.target.value)}
+                        placeholder={lang === "ar" ? "سبب الرفض (يظهر لصاحب الطلب)" : "Rejection reason (shown to the requester)"}
+                      />
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={reviewChange.isPending}
+                        onClick={() => reviewChange.mutate({ id: r.id, approve: false, note: changeNote })}
+                      >
+                        {lang === "ar" ? "تأكيد الرفض" : "Confirm rejection"}
+                      </Button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
+
+        <TabsContent value="changelog" className="mt-6">
+          <div className="relative max-w-sm">
+            <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" />
+            <Input
+              className="ps-9"
+              value={logQuery}
+              onChange={(e) => setLogQuery(e.target.value)}
+              placeholder={c.search}
+            />
+          </div>
+          {shownLog.length === 0 ? (
+            <p className="mt-4 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+              {lang === "ar" ? "لا توجد تعديلات مسجّلة." : "No recorded changes."}
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-2">
+              {shownLog.map((l) => (
+                <li
+                  key={l.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm"
+                >
+                  <span>
+                    <b>{fieldLabel(l.field, lang)}</b>{" "}
+                    <span className="text-muted-foreground">{l.old_value || "—"}</span> → {l.new_value || "—"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{formatDateTime(l.created_at, lang)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
       </Tabs>
     </div>
   );
