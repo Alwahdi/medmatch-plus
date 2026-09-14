@@ -179,6 +179,12 @@ function ProfilePage() {
     if (url) setAvatar(url);
   }, [account, profile]);
 
+  useEffect(() => {
+    if (proFetched && !profile) setMode("edit");
+  }, [proFetched, profile]);
+
+
+
 
 
   useEffect(() => {
