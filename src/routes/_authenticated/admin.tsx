@@ -256,7 +256,7 @@ function AdminPage() {
       const { error } = await supabase.rpc("review_change_request", {
         _id: id,
         _approve: approve,
-        _note: note ?? null,
+        _note: note || undefined,
       });
       if (error) throw error;
     },
