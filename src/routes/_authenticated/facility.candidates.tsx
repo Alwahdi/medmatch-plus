@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { cityOptions, countryOptions } from "@/lib/geo";
+import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/facility/candidates")({
@@ -263,7 +263,7 @@ function Candidates() {
           emptyText={cbx.empty}
         />
         <Combobox
-          options={cityOptions(country === ANY ? "" : country, lang)}
+          options={filterCityOptions(country === ANY ? "" : country, lang)}
           value={city}
           onChange={setCity}
           placeholder={c.city}
