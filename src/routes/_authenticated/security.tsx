@@ -293,12 +293,40 @@ function SecurityPage() {
   const googleIdentity = identities?.find((i) => i.provider === "google");
   const emailIdentity = identities?.find((i) => i.provider === "email");
 
+  const [linking, setLinking] = useState(false);
+
   async function linkGoogle() {
-    const { error } = await supabase.auth.linkIdentity({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/security` },
-    });
-    if (error) toast.error(error.message || c.failed);
+    setLinking(true);
+    try {
+      const { error } = await supabase.auth.linkIdentity({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/security` },
+      });
+      if (!error) return;
+      // بعض المشاريع تعطّل الربط اليدوي؛ نستخدم تسجيل الدخول بجوجل بنفس البريد فيتم الربط تلقائياً.
+      const msg = (error.message || "").toLowerCase();
+      const disabled = msg.includes("manual link") || msg.includes("disabled") || msg.includes("422");
+      if (!disabled) {
+        toast.error(error.message || c.failed);
+        return;
+      }
+      toast.info(c.linkHint);
+      const extraParams: Record<string, string> = { prompt: "select_account" };
+      if (user?.email) extraParams["login_hint"] = user.email;
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/security`,
+        extraParams,
+      });
+      if (result.error) {
+        toast.error(c.failed);
+        return;
+      }
+      if (result.redirected) return;
+      toast.success(c.linkDone);
+      void refetchIdentities();
+    } finally {
+      setLinking(false);
+    }
   }
 
   async function unlinkGoogle() {
