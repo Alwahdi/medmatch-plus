@@ -322,9 +322,13 @@ function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
-  const tab = Route.useSearch().tab ?? "jobs";
+  const rawTab = Route.useSearch().tab ?? "jobs";
+  // توافق خلفي: الروابط القديمة new-job/new-shift تفتح القسم الصحيح مع نافذة الإنشاء.
+  const legacyCreate = rawTab === "new-job" ? "job" : rawTab === "new-shift" ? "shift" : null;
+  const tab = rawTab === "new-job" ? "jobs" : rawTab === "new-shift" ? "shifts" : rawTab;
   const navigate = useNavigate();
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
+  const [createMode, setCreateMode] = useState<"job" | "shift" | null>(legacyCreate);
 
   const { user } = useSession();
   const { total: unreadMessages } = useUnread(user);
