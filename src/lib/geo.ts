@@ -258,3 +258,82 @@ export const EMPLOYER_TYPES: { value: string; ar: string; en: string }[] = [
   { value: "freelance_recruiter", ar: "موظف توظيف مستقل", en: "Freelance recruiter" },
   { value: "hr_officer", ar: "مسؤول توظيف", en: "HR officer" },
 ];
+
+/* ---------------------------------------------------------------------------
+ * Searchable-select helpers.
+ * Country values are stored in the database as Arabic names (see
+ * `COUNTRIES` in lib/format). Cities are stored as Arabic names too, so the
+ * English UI shows the English label but always submits the Arabic value.
+ * ------------------------------------------------------------------------- */
+
+import { COUNTRIES as STORED_COUNTRIES, countryLabel, type Lang } from "@/lib/format";
+
+export type Option = { value: string; label: string; keywords?: string[] };
+
+/** Map a stored Arabic country name to a `COUNTRIES` entry in this file. */
+const CODE_BY_STORED: Record<string, string> = {
+  "اليمن": "YE",
+  "السعودية": "SA",
+  "المملكة العربية السعودية": "SA",
+  "الإمارات": "AE",
+  "الإمارات العربية المتحدة": "AE",
+  "مصر": "EG",
+  "الكويت": "KW",
+  "قطر": "QA",
+  "الأردن": "JO",
+  "البحرين": "BH",
+  "عُمان": "OM",
+  "عمان": "OM",
+  "المغرب": "MA",
+  "الجزائر": "DZ",
+  "تونس": "TN",
+  "العراق": "IQ",
+  "لبنان": "LB",
+  "سوريا": "SY",
+  "فلسطين": "PS",
+  "السودان": "SD",
+  "ليبيا": "LY",
+};
+
+export const DEFAULT_COUNTRY = "اليمن";
+
+export function countryOptions(lang: Lang = "ar"): Option[] {
+  return STORED_COUNTRIES.map((x) => ({
+    value: x,
+    label: countryLabel(x, lang),
+    keywords: [x, countryLabel(x, "en")],
+  }));
+}
+
+function countryData(stored: string | null | undefined) {
+  const code = CODE_BY_STORED[(stored ?? "").trim()];
+  return COUNTRIES.find((c) => c.code === code) ?? null;
+}
+
+/** Cities of the chosen country (falls back to the launch market). */
+export function cityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {
+  const data = countryData(stored) ?? countryData(DEFAULT_COUNTRY);
+  if (!data) return [];
+  const seen = new Set<string>();
+  const out: Option[] = [];
+  for (const region of data.regions) {
+    for (const city of region.cities) {
+      if (seen.has(city.ar)) continue;
+      seen.add(city.ar);
+      out.push({
+        value: city.ar,
+        label: lang === "en" ? city.en : city.ar,
+        keywords: [city.ar, city.en, region.ar, region.en],
+      });
+    }
+  }
+  return out.sort((a, b) => a.label.localeCompare(b.label, lang === "en" ? "en" : "ar"));
+}
+
+export function employerTypeOptions(lang: Lang = "ar"): Option[] {
+  return EMPLOYER_TYPES.map((t) => ({
+    value: t.value,
+    label: lang === "en" ? t.en : t.ar,
+    keywords: [t.ar, t.en],
+  }));
+}

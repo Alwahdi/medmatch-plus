@@ -20,7 +20,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
 
 import { useSession } from "@/lib/auth";
-import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
+import { countryLabel, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -97,6 +99,7 @@ const schemaAr = z.object({
 function ProfilePage() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const ct = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
 
@@ -263,12 +266,19 @@ function ProfilePage() {
           <LockedField label={c.specialty} locked={locked} target="professional" field="specialty_id"
             currentValue={specialtyName(specialties?.find((s) => s.id === form.specialty_id) ?? null, lang) ?? ""}
             pending={pendingOf("specialty_id")}>
-            <Select value={form.specialty_id} disabled={locked} onValueChange={(v) => setForm({ ...form, specialty_id: v })}>
-              <SelectTrigger><SelectValue placeholder={c.specialtyPh} /></SelectTrigger>
-              <SelectContent>
-                {specialties?.map((s) => <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={(specialties ?? []).map((s) => ({
+                value: s.id,
+                label: specialtyName(s, lang) ?? "",
+                keywords: [s.name_ar, s.name_en],
+              }))}
+              value={form.specialty_id}
+              disabled={locked}
+              onChange={(v) => setForm({ ...form, specialty_id: v })}
+              placeholder={c.specialtyPh}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+            />
           </LockedField>
           <LockedField label={c.years} locked={locked} target="professional" field="years_experience"
             currentValue={String(form.years_experience)} pending={pendingOf("years_experience")}>
@@ -277,27 +287,42 @@ function ProfilePage() {
           </LockedField>
           <LockedField label={c.country} locked={locked} target="professional" field="country"
             currentValue={form.country ? countryLabel(form.country, lang) : ""} pending={pendingOf("country")}>
-            <Select value={form.country} disabled={locked} onValueChange={(v) => setForm({ ...form, country: v })}>
-              <SelectTrigger><SelectValue placeholder={c.countryPh} /></SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={countryOptions(lang)}
+              value={form.country}
+              disabled={locked}
+              onChange={(v) => setForm({ ...form, country: v, city: "" })}
+              placeholder={c.countryPh}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+            />
           </LockedField>
           <LockedField label={c.city} locked={locked} target="professional" field="city"
             currentValue={form.city} pending={pendingOf("city")}>
-            <Input id="city" value={form.city} maxLength={60} disabled={locked}
-              onChange={(e) => setForm({ ...form, city: e.target.value })} />
+            <Combobox
+              options={cityOptions(form.country, lang)}
+              value={form.city}
+              disabled={locked}
+              onChange={(v) => setForm({ ...form, city: v })}
+              placeholder={ct.choose}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+              allowCustom
+              customLabel={ct.add}
+            />
           </LockedField>
           <LockedField label={c.licenseCountry} locked={locked} target="professional" field="license_country"
             currentValue={form.license_country ? countryLabel(form.license_country, lang) : ""}
             pending={pendingOf("license_country")}>
-            <Select value={form.license_country} disabled={locked} onValueChange={(v) => setForm({ ...form, license_country: v })}>
-              <SelectTrigger><SelectValue placeholder={c.countryPh} /></SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={countryOptions(lang)}
+              value={form.license_country}
+              disabled={locked}
+              onChange={(v) => setForm({ ...form, license_country: v })}
+              placeholder={c.countryPh}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+            />
           </LockedField>
           <LockedField label={c.licenseNumber} locked={locked} target="professional" field="license_number"
             currentValue={form.license_number} pending={pendingOf("license_number")}>
