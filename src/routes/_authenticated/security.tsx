@@ -694,7 +694,8 @@ function SecurityPage() {
                 <Unlink className="size-4" /> {c.unlink}
               </Button>
             ) : (
-              <Button variant="outline" size="sm" onClick={linkGoogle}>
+              <Button variant="outline" size="sm" onClick={linkGoogle} disabled={linking}>
+                {linking ? <Loader2 className="size-4 animate-spin" /> : <GoogleIcon />}
                 {c.link}
               </Button>
             )}
