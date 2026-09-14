@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertsPanel } from "@/components/panels/alerts";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Bell,
@@ -15,7 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
+type SettingsSearch = { tab: string };
+
 export const Route = createFileRoute("/_authenticated/settings")({
+  validateSearch: (search: Record<string, unknown>): SettingsSearch => ({
+    tab: typeof search.tab === "string" ? search.tab : "general",
+  }),
   head: () => ({
     meta: [
       { title: "الإعدادات | SyndeoCare" },

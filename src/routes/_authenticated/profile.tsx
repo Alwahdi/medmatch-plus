@@ -1,4 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccountCard } from "@/components/account-card";
+import { CvPanel } from "@/components/panels/cv";
+import { CvImportPanel } from "@/components/panels/cv-import";
+import { CredentialsPanel } from "@/components/panels/credentials";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -457,6 +462,51 @@ function ProfileOverview() {
       )}
 
       <ChangeRequestsPanel requests={(requests ?? []).filter((r) => r.target === "professional")} />
+    </div>
+  );
+}
+
+const TABS = {
+  ar: { overview: "البيانات", cv: "سيرتي الذاتية", cvImport: "استيراد سيرة", credentials: "الوثائق والتراخيص" },
+  en: { overview: "Details", cv: "My CV", cvImport: "Import CV", credentials: "Documents" },
+} as const;
+
+function ProfilePage() {
+  const { lang } = useLang();
+  const tt = TABS[lang];
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate();
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => void navigate({ to: "/profile", search: { tab: v }, replace: true })}
+      >
+        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+          <TabsList className="w-max">
+            <TabsTrigger value="overview" className="shrink-0">{tt.overview}</TabsTrigger>
+            <TabsTrigger value="cv" className="shrink-0">{tt.cv}</TabsTrigger>
+            <TabsTrigger value="cv-import" className="shrink-0">{tt.cvImport}</TabsTrigger>
+            <TabsTrigger value="credentials" className="shrink-0">{tt.credentials}</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="overview" className="mt-6">
+          <ProfileOverview />
+        </TabsContent>
+        <TabsContent value="cv" className="mt-6">
+          <CvPanel />
+        </TabsContent>
+        <TabsContent value="cv-import" className="mt-6">
+          <CvImportPanel />
+        </TabsContent>
+        <TabsContent value="credentials" className="mt-6">
+          <CredentialsPanel />
+        </TabsContent>
+      </Tabs>
+
+      <AccountCard />
     </div>
   );
 }
