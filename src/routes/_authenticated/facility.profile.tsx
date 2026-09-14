@@ -150,10 +150,9 @@ function FacilityProfile() {
   }, [facility]);
 
   const locked = !!facility?.is_verified;
-  const lockNote =
-    lang === "ar"
-      ? "مقفل بعد توثيق المنشأة — للتعديل تواصل مع الدعم."
-      : "Locked after verification — contact support to change it.";
+  const { data: requests } = useMyChangeRequests();
+  const pendingOf = (field: string) =>
+    (requests ?? []).find((r) => r.status === "pending" && r.field === field);
 
   const save = useMutation({
     mutationFn: async () => {
