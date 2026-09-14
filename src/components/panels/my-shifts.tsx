@@ -72,10 +72,9 @@ export function MyShiftsPanel() {
   });
 
   const cancel = useMutation({
-    mutationFn: async ({ id, shiftId }: { id: string; shiftId: string }) => {
-      const { error } = await supabase.from("shift_bookings").delete().eq("id", id);
+    mutationFn: async ({ id }: { id: string }) => {
+      const { error } = await supabase.rpc("cancel_my_shift_booking", { _booking_id: id });
       if (error) throw error;
-      await supabase.from("shifts").update({ status: "open", booked_by: null }).eq("id", shiftId);
     },
     onSuccess: () => {
       toast.success(c.cancelled);
@@ -136,7 +135,7 @@ export function MyShiftsPanel() {
                         cancelLabel: c.keep,
                         destructive: true,
                       });
-                      if (ok) cancel.mutate({ id: b.id, shiftId: s.id });
+                      if (ok) cancel.mutate({ id: b.id });
                     }}
                     disabled={cancel.isPending}>
                     {c.cancel}

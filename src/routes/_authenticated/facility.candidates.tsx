@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
+import { countryLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
@@ -198,12 +198,11 @@ function Candidates() {
       if (country !== ANY) args._country = country;
       if (city.trim()) args._city = city.trim();
       if (minExp) args._min_experience = Number(minExp);
-      const { data, error } = await supabase.rpc("search_candidates", args);
+      const { data, error } = await supabase.rpc("search_candidates_atomic", args);
       if (error) {
         const key = error.message.replace(/.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s, "$1") as keyof typeof c.errors;
         throw new Error(c.errors[key] ?? c.searchFailed);
       }
-      await supabase.rpc("consume_candidate_search");
       return (data ?? []) as Candidate[];
     },
     onSuccess: (rows) => {
@@ -217,18 +216,9 @@ function Candidates() {
   const startChat = useMutation({
     mutationFn: async (candidateUserId: string) => {
       if (!facility) throw new Error(c.completeFacility);
-      const { data: existing } = await supabase
-        .from("conversations")
-        .select("id")
-        .eq("facility_id", facility.id)
-        .eq("professional_user_id", candidateUserId)
-        .is("job_id", null)
-        .maybeSingle();
-      if (existing) return;
-      const { error } = await supabase.from("conversations").insert({
-        facility_id: facility.id,
-        professional_user_id: candidateUserId,
-        subject: c.initialContact,
+      const { error } = await supabase.rpc("start_candidate_conversation", {
+        _professional_user_id: candidateUserId,
+        _subject: c.initialContact,
       });
       if (error) throw error;
     },
