@@ -22,6 +22,13 @@ import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { RemoteAvatar } from "@/components/remote-avatar";
+import { PublishedWorkCard, WorkCountButton } from "@/components/work-item";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -300,6 +307,17 @@ type SubRow = {
   subscription_plans: PlanRow | null;
 };
 
+/** رسائل واضحة بدل أكواد قاعدة البيانات. */
+function shiftErrorText(raw: string, lang: "ar" | "en") {
+  if (raw.includes("SHIFT_FINAL_STATE") || raw.includes("INVALID_SHIFT_TRANSITION"))
+    return lang === "ar" ? "لا يمكن تغيير حالة هذه المناوبة بعد الآن." : "This shift's status can no longer change.";
+  if (raw.includes("SHIFT_NOT_COMPLETABLE"))
+    return lang === "ar"
+      ? "لا يمكن إنهاء المناوبة إلا بعد انتهاء وقتها وكونها محجوزة."
+      : "A shift can only be completed once it is booked and its time has passed.";
+  return raw;
+}
+
 function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
@@ -408,8 +426,22 @@ function FacilityDashboard() {
     onSuccess: () => {
       toast.success(c.shiftCancelled);
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(shiftErrorText(e.message, lang)),
+  });
+
+  const completeShift = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("complete_shift", { _shift_id: id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(lang === "ar" ? "تم إنهاء المناوبة" : "Shift completed");
+      queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+    },
+    onError: (e: Error) => toast.error(shiftErrorText(e.message, lang)),
   });
 
   if (isLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
@@ -450,14 +482,27 @@ function FacilityDashboard() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          <Button onClick={() => void navigate({ to: "/facility", search: { tab: "new-job" } })}>
-            <PlusCircle className="size-4" /> {c.tabNewJob}
-          </Button>
-          <Button variant="outline" onClick={() => void navigate({ to: "/facility", search: { tab: "new-shift" } })}>
-            <CalendarClock className="size-4" /> {c.tabNewShift}
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="w-full min-h-11 sm:w-auto">
+              <PlusCircle className="size-4" /> {lang === "ar" ? "نشر" : "Publish"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem
+              className="min-h-11 gap-2"
+              onSelect={() => void navigate({ to: "/facility", search: { tab: "new-job" } })}
+            >
+              <Briefcase className="size-4" /> {c.tabNewJob}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="min-h-11 gap-2"
+              onSelect={() => void navigate({ to: "/facility", search: { tab: "new-shift" } })}
+            >
+              <CalendarClock className="size-4" /> {c.tabNewShift}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -527,66 +572,68 @@ function FacilityDashboard() {
 
         <TabsContent value="jobs" className="mt-6 space-y-3">
           {jobs?.length ? (
-            jobs.map((j) => (
-              <div key={j.id} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <Link
-                    to="/jobs/$jobId"
-                    params={{ jobId: j.slug ?? j.id }}
-                    className="font-bold hover:text-primary"
-                  >
-                    {j.title}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">
-                    {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
-                    {employmentLabel(j.employment_type, lang)} · {c.applicantsCount(j.applications?.length ?? 0)}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-
-                  <Badge variant={j.is_active ? "default" : "secondary"}>
-                    {j.is_active ? c.published : c.closed}
-                  </Badge>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/jobs/$jobId" params={{ jobId: j.slug ?? j.id }}>
-                      <Eye className="size-4" /> {c.view}
-                    </Link>
-                  </Button>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
-                      <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setOpenApplicants((v) => (v === j.id ? null : j.id))}
-                  >
-                    <Users className="size-4" /> {c.applicantsCount(j.applications?.length ?? 0)}
-                  </Button>
-                  <Button size="sm" variant="ghost"
-                    onClick={async () => {
-                      if (j.is_active) {
-                        const ok = await confirm({
-                          title: c.confirmCloseTitle,
-                          description: c.confirmCloseDesc,
-                          confirmLabel: c.confirmCloseCta,
-                          destructive: true,
-                        });
-                        if (!ok) return;
-                      }
-                      toggleJob.mutate({ id: j.id, is_active: !j.is_active });
-                    }}>
-                    {j.is_active ? c.close : c.republish}
-                  </Button>
-                </div>
-                {openApplicants === j.id && (
-                  <div className="w-full border-t border-border pt-4">
-                    <FacilityApplicantsPanel jobId={j.id} embedded />
-                  </div>
-                )}
-              </div>
-            ))
+            jobs.map((j) => {
+              const applicants = j.applications?.length ?? 0;
+              return (
+                <PublishedWorkCard
+                  key={j.id}
+                  type="job"
+                  title={j.title}
+                  to="/jobs/$jobId"
+                  params={{ jobId: j.slug ?? j.id }}
+                  status={j.is_active ? "published" : "closed"}
+                  meta={
+                    <>
+                      {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
+                      {employmentLabel(j.employment_type, lang)} · {j.city}
+                    </>
+                  }
+                  actions={
+                    <>
+                      <WorkCountButton
+                        type="job"
+                        count={applicants}
+                        expanded={openApplicants === j.id}
+                        onToggle={() => setOpenApplicants((v) => (v === j.id ? null : j.id))}
+                      />
+                      <Button size="sm" variant="outline" asChild>
+                        <Link to="/jobs/$jobId" params={{ jobId: j.slug ?? j.id }}>
+                          <Eye className="size-4" /> {c.view}
+                        </Link>
+                      </Button>
+                      {j.is_active && (
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
+                            <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
+                          </Link>
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={toggleJob.isPending}
+                        onClick={async () => {
+                          if (j.is_active) {
+                            const ok = await confirm({
+                              title: c.confirmCloseTitle,
+                              description: c.confirmCloseDesc,
+                              confirmLabel: c.confirmCloseCta,
+                              destructive: true,
+                            });
+                            if (!ok) return;
+                          }
+                          toggleJob.mutate({ id: j.id, is_active: !j.is_active });
+                        }}
+                      >
+                        {j.is_active ? c.close : c.republish}
+                      </Button>
+                    </>
+                  }
+                >
+                  {openApplicants === j.id && <FacilityApplicantsPanel jobId={j.id} embedded />}
+                </PublishedWorkCard>
+              );
+            })
           ) : (
             <EmptyState icon={Briefcase} title={c.noJobs} />
           )}
@@ -594,52 +641,81 @@ function FacilityDashboard() {
 
         <TabsContent value="shifts" className="mt-6 space-y-3">
           {shifts?.length ? (
-            shifts.map((s) => (
-              <div key={s.id} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <Link
-                    to="/shifts/$shiftId"
-                    params={{ shiftId: s.id }}
-                    className="font-bold hover:text-primary"
-                  >
-                    {s.title}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDateTime(s.starts_at, lang)} · {formatMoney(Number(s.hourly_rate), s.currency, lang)}{c.perHour}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-
-                  <Badge variant={s.status === "open" ? "default" : "secondary"}>
-                    {s.status === "open" ? c.open : s.status === "cancelled" ? c.cancelledStatus : c.bookedStatus}
-                  </Badge>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
-                      <Eye className="size-4" /> {c.view}
-                    </Link>
-                  </Button>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
-                      <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
-                    </Link>
-                  </Button>
-                  {s.status === "open" && (
-                    <Button size="sm" variant="ghost"
-                      onClick={async () => {
-                        const ok = await confirm({
-                          title: c.confirmCancelShiftTitle,
-                          description: c.confirmCancelShiftDesc,
-                          confirmLabel: c.confirmCancelShiftCta,
-                          destructive: true,
-                        });
-                        if (ok) cancelShift.mutate(s.id);
-                      }}>
-                      {c.cancelShift}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))
+            shifts.map((s) => {
+              const ended = new Date(s.ends_at).getTime() <= Date.now();
+              return (
+                <PublishedWorkCard
+                  key={s.id}
+                  type="shift"
+                  title={s.title}
+                  to="/shifts/$shiftId"
+                  params={{ shiftId: s.id }}
+                  status={s.status as "open" | "booked" | "cancelled" | "completed"}
+                  meta={
+                    <>
+                      {formatDateTime(s.starts_at, lang)} ·{" "}
+                      {formatMoney(Number(s.hourly_rate), s.currency, lang)}
+                      {c.perHour} · {s.city}
+                    </>
+                  }
+                  actions={
+                    <>
+                      <WorkCountButton type="shift" count={s.applications_count ?? 0} />
+                      <Button size="sm" variant="outline" asChild>
+                        <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
+                          <Eye className="size-4" /> {c.view}
+                        </Link>
+                      </Button>
+                      {s.status === "open" && (
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
+                            <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
+                          </Link>
+                        </Button>
+                      )}
+                      {s.status === "booked" && ended && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={completeShift.isPending}
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: lang === "ar" ? "إنهاء المناوبة؟" : "Complete shift?",
+                              description:
+                                lang === "ar"
+                                  ? "سيتم تسجيل المناوبة كمنتهية ولا يمكن التراجع."
+                                  : "The shift will be marked completed and cannot be reverted.",
+                              confirmLabel: lang === "ar" ? "إنهاء" : "Complete",
+                            });
+                            if (ok) completeShift.mutate(s.id);
+                          }}
+                        >
+                          {lang === "ar" ? "إنهاء المناوبة" : "Complete"}
+                        </Button>
+                      )}
+                      {(s.status === "open" || s.status === "booked") && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={cancelShift.isPending}
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: c.confirmCancelShiftTitle,
+                              description: c.confirmCancelShiftDesc,
+                              confirmLabel: c.confirmCancelShiftCta,
+                              destructive: true,
+                            });
+                            if (ok) cancelShift.mutate(s.id);
+                          }}
+                        >
+                          {c.cancelShift}
+                        </Button>
+                      )}
+                    </>
+                  }
+                />
+              );
+            })
           ) : (
             <EmptyState icon={CalendarClock} title={c.noShifts} />
           )}
