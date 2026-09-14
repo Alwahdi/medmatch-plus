@@ -62,17 +62,22 @@ export function ShiftCard({
   onBook,
   busy,
   actionLabel,
+  mine,
+  recommended,
 }: {
   shift: ShiftRow;
   onBook?: () => void;
   busy?: boolean;
   actionLabel?: string;
+  mine?: boolean;
+  recommended?: boolean;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
   const hours = hoursBetween(shift.starts_at, shift.ends_at);
   const total = hours * Number(shift.hourly_rate);
   const open = shift.status === "open";
+
 
   return (
     <div className="relative pt-2">
