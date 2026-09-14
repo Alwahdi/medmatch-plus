@@ -990,23 +990,39 @@ function ShiftForm({
             onChange={(e) => setForm({ ...form, hourly_rate: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="scur">{c.currency}</Label>
-          <Input id="scur" dir="ltr" maxLength={5} value={form.currency}
-            onChange={(e) => setForm({ ...form, currency: e.target.value.toUpperCase() })} />
+          <Label>{c.currency}</Label>
+          <Combobox
+            options={currencyOptions(lang)}
+            value={form.currency}
+            onChange={(v) => setForm({ ...form, currency: v })}
+            placeholder={ct.choose}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
         <div>
           <Label>{c.country}</Label>
-          <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-            <SelectTrigger><SelectValue placeholder={c.pickCountry} /></SelectTrigger>
-            <SelectContent>
-              {COUNTRIES.map((x) => <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={countryOptions(lang)}
+            value={form.country}
+            onChange={(v) => setForm({ ...form, country: v, city: "" })}
+            placeholder={c.pickCountry}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+          />
         </div>
         <div>
-          <Label htmlFor="scity">{c.city}</Label>
-          <Input id="scity" maxLength={60} value={form.city}
-            onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          <Label>{c.city}</Label>
+          <Combobox
+            options={cityOptions(form.country, lang)}
+            value={form.city}
+            onChange={(v) => setForm({ ...form, city: v })}
+            placeholder={ct.choose}
+            searchPlaceholder={ct.search}
+            emptyText={ct.empty}
+            allowCustom
+            customLabel={ct.add}
+          />
         </div>
       </div>
       <div>
