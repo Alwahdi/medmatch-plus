@@ -581,6 +581,7 @@ function FacilityDashboard() {
 function FacilityForm() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const ct = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
@@ -707,6 +708,7 @@ function JobForm({
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
+  const ct = comboText(lang);
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
     title: "",
@@ -904,6 +906,7 @@ function ShiftForm({
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
+  const ct = comboText(lang);
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
     title: "",
