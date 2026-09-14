@@ -168,7 +168,8 @@ function Stepper({ step, total }: { step: number; total: number }) {
 function ProfessionalSteps({ defaultName }: { defaultName: string }) {
   const { user } = useSession();
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
