@@ -13,7 +13,6 @@ import {
   Eye,
   MessageSquare,
   PlusCircle,
-  Search,
   ShieldAlert,
   Sparkles,
   Users,
@@ -661,6 +660,28 @@ function FacilityDashboard() {
             expired={!!sub && !subActive} />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function DashboardMetric({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: typeof Briefcase;
+  value: number;
+  label: string;
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-3 rounded-lg border border-border bg-card p-4">
+      <span className="grid size-11 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+        <Icon className="size-5" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-2xl font-extrabold tabular-nums">{value}</p>
+        <p className="truncate text-xs text-muted-foreground">{label}</p>
+      </div>
     </div>
   );
 }
