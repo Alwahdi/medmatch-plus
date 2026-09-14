@@ -18,7 +18,9 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { COUNTRIES } from "@/lib/format";
+import { specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
