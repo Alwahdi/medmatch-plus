@@ -337,3 +337,29 @@ export function employerTypeOptions(lang: Lang = "ar"): Option[] {
     keywords: [t.ar, t.en],
   }));
 }
+
+const CURRENCIES: { code: string; ar: string; en: string }[] = [
+  { code: "YER", ar: "ريال يمني", en: "Yemeni Rial" },
+  { code: "SAR", ar: "ريال سعودي", en: "Saudi Riyal" },
+  { code: "AED", ar: "درهم إماراتي", en: "UAE Dirham" },
+  { code: "USD", ar: "دولار أمريكي", en: "US Dollar" },
+  { code: "EGP", ar: "جنيه مصري", en: "Egyptian Pound" },
+  { code: "KWD", ar: "دينار كويتي", en: "Kuwaiti Dinar" },
+  { code: "QAR", ar: "ريال قطري", en: "Qatari Riyal" },
+  { code: "BHD", ar: "دينار بحريني", en: "Bahraini Dinar" },
+  { code: "OMR", ar: "ريال عماني", en: "Omani Rial" },
+  { code: "JOD", ar: "دينار أردني", en: "Jordanian Dinar" },
+  { code: "IQD", ar: "دينار عراقي", en: "Iraqi Dinar" },
+  { code: "LBP", ar: "ليرة لبنانية", en: "Lebanese Pound" },
+  { code: "MAD", ar: "درهم مغربي", en: "Moroccan Dirham" },
+  { code: "DZD", ar: "دينار جزائري", en: "Algerian Dinar" },
+  { code: "TND", ar: "دينار تونسي", en: "Tunisian Dinar" },
+];
+
+export function currencyOptions(lang: Lang = "ar"): Option[] {
+  return CURRENCIES.map((x) => ({
+    value: x.code,
+    label: lang === "en" ? `${x.code} — ${x.en}` : `${x.code} — ${x.ar}`,
+    keywords: [x.code, x.ar, x.en],
+  }));
+}
