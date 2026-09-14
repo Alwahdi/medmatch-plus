@@ -196,6 +196,8 @@ function FacilityProfile() {
     onSuccess: () => {
       toast.success(c.saved);
       queryClient.invalidateQueries({ queryKey: ["my-facility"] });
+      queryClient.invalidateQueries({ queryKey: ["my-facility-lite"] });
+      setMode("view");
     },
     onError: (e: Error) => toast.error(e.message || c.failed),
   });
