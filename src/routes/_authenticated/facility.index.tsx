@@ -899,6 +899,7 @@ function JobForm({
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "",
     description: "",
