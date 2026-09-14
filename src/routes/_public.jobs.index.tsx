@@ -509,7 +509,6 @@ function JobsPage() {
                 </h2>
                 <FilterBar
                   className="mt-2"
-                  count={filtered.length}
                   filters={activeFilters}
                   onClearAll={reset}
                 />

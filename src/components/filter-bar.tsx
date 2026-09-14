@@ -16,7 +16,7 @@ export function FilterBar({
   onClearAll,
   className = "",
 }: {
-  count: number;
+  count?: number;
   filters: ActiveFilter[];
   onClearAll: () => void;
   className?: string;
@@ -26,7 +26,9 @@ export function FilterBar({
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className="text-sm font-semibold text-muted-foreground">{t.results(count)}</span>
+      {typeof count === "number" && (
+        <span className="text-sm font-semibold text-muted-foreground">{t.results(count)}</span>
+      )}
       {filters.map((f) => (
         <button
           key={f.key}
