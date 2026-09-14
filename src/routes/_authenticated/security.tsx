@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  Chrome,
   Eye,
   EyeOff,
   Fingerprint,
@@ -26,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { EmptyState } from "@/components/empty-state";
+import { GoogleIcon } from "@/components/google-icon";
+import { lovable } from "@/integrations/lovable/index";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -83,6 +84,8 @@ const TXT = {
     unlinkDesc: "لن تتمكن من الدخول بهذه الطريقة بعد الآن. تأكد أن لديك كلمة مرور.",
     unlinkDone: "تم فك الربط",
     linkLast: "لا يمكن فك ربط طريقة الدخول الوحيدة",
+    linkHint: "اختر نفس بريدك الحالي في جوجل ليُربط بحسابك",
+    linkDone: "تم ربط حساب جوجل",
     mfaTitle: "التحقق بخطوتين (2FA)",
     mfaBody: "أضف طبقة حماية إضافية عبر تطبيق مصادقة مثل Google Authenticator أو Authy.",
     mfaOn: "مفعّل",
@@ -150,6 +153,8 @@ const TXT = {
     unlinkDesc: "You will no longer be able to sign in this way. Make sure you have a password.",
     unlinkDone: "Account unlinked",
     linkLast: "You cannot unlink your only sign-in method",
+    linkHint: "Pick the same email in Google so it links to this account",
+    linkDone: "Google account linked",
     mfaTitle: "Two-factor authentication (2FA)",
     mfaBody: "Add an extra layer with an authenticator app such as Google Authenticator or Authy.",
     mfaOn: "Enabled",
@@ -292,12 +297,40 @@ function SecurityPage() {
   const googleIdentity = identities?.find((i) => i.provider === "google");
   const emailIdentity = identities?.find((i) => i.provider === "email");
 
+  const [linking, setLinking] = useState(false);
+
   async function linkGoogle() {
-    const { error } = await supabase.auth.linkIdentity({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/security` },
-    });
-    if (error) toast.error(error.message || c.failed);
+    setLinking(true);
+    try {
+      const { error } = await supabase.auth.linkIdentity({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/security` },
+      });
+      if (!error) return;
+      // بعض المشاريع تعطّل الربط اليدوي؛ نستخدم تسجيل الدخول بجوجل بنفس البريد فيتم الربط تلقائياً.
+      const msg = (error.message || "").toLowerCase();
+      const disabled = msg.includes("manual link") || msg.includes("disabled") || msg.includes("422");
+      if (!disabled) {
+        toast.error(error.message || c.failed);
+        return;
+      }
+      toast.info(c.linkHint);
+      const extraParams: Record<string, string> = { prompt: "select_account" };
+      if (user?.email) extraParams["login_hint"] = user.email;
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/security`,
+        extraParams,
+      });
+      if (result.error) {
+        toast.error(c.failed);
+        return;
+      }
+      if (result.redirected) return;
+      toast.success(c.linkDone);
+      void refetchIdentities();
+    } finally {
+      setLinking(false);
+    }
   }
 
   async function unlinkGoogle() {
@@ -624,7 +657,7 @@ function SecurityPage() {
       {/* linked accounts */}
       <section className="mt-4 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center gap-2">
-          <Chrome className="size-5 text-primary" />
+          <GoogleIcon className="size-5" />
           <h2 className="font-bold">{c.linkedTitle}</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">{c.linkedBody}</p>
@@ -647,7 +680,7 @@ function SecurityPage() {
 
           <div className="flex items-center gap-3 rounded-xl border border-border p-3">
             <span className="grid size-9 place-items-center rounded-lg bg-muted">
-              <Chrome className="size-4" />
+              <GoogleIcon className="size-4" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">Google</p>
@@ -661,7 +694,8 @@ function SecurityPage() {
                 <Unlink className="size-4" /> {c.unlink}
               </Button>
             ) : (
-              <Button variant="outline" size="sm" onClick={linkGoogle}>
+              <Button variant="outline" size="sm" onClick={linkGoogle} disabled={linking}>
+                {linking ? <Loader2 className="size-4 animate-spin" /> : <GoogleIcon />}
                 {c.link}
               </Button>
             )}
