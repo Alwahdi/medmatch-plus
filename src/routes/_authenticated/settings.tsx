@@ -89,6 +89,7 @@ function SettingsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isFacility = roles?.includes("facility");
+  const { tab } = Route.useSearch();
 
   async function signOut() {
     await queryClient.cancelQueries();
