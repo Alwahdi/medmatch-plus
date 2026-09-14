@@ -44,17 +44,27 @@ type Path = "professional" | "facility" | null;
 function Onboarding() {
   const { user } = useSession();
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const ar = lang !== "en";
 
   const metaRole = (user?.user_metadata?.["role"] as Path) ?? null;
   const metaName = (user?.user_metadata?.["full_name"] as string | undefined) ?? "";
 
   const [path, setPath] = useState<Path>(null);
   const [ready, setReady] = useState(false);
+  const [redirected, setRedirected] = useState(false);
 
-  const { data: existing, isPending } = useQuery({
+  const {
+    data: existing,
+    isPending,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: ["onboarding-state", user?.id],
     enabled: !!user,
+    retry: 1,
+    staleTime: 10_000,
     queryFn: async () => {
       const [pro, fac] = await Promise.all([
         supabase.from("healthcare_professionals").select("id").eq("user_id", user!.id).maybeSingle(),
@@ -64,16 +74,9 @@ function Onboarding() {
     },
   });
 
+  // اختيار المسار المحفوظ (نية التسجيل أو بيانات الحساب) — لا يعتمد على نتيجة الفحص.
   useEffect(() => {
-    if (isPending || !existing) return;
-    if (existing.fac) {
-      navigate({ to: "/facility", replace: true });
-      return;
-    }
-    if (existing.pro) {
-      navigate({ to: "/dashboard", replace: true });
-      return;
-    }
+    if (path) return;
     let intent: Path = null;
     try {
       const stored = localStorage.getItem("sc_signup_intent");
@@ -82,21 +85,50 @@ function Onboarding() {
       /* storage unavailable */
     }
     const chosen = metaRole ?? intent;
-    if (chosen) {
-      setPath(chosen);
-      // النية استُهلكت فعلاً بعد اختيار المسار.
-      try {
-        localStorage.removeItem("sc_signup_intent");
-      } catch {
-        /* storage unavailable */
-      }
+    if (!chosen) return;
+    setPath(chosen);
+    try {
+      localStorage.removeItem("sc_signup_intent");
+    } catch {
+      /* storage unavailable */
     }
-    setReady(true);
-  }, [existing, isPending, metaRole, navigate]);
+  }, [metaRole, path]);
+
+  // تحويل من لديه ملف جاهز — مرة واحدة فقط.
+  useEffect(() => {
+    if (redirected || !existing) return;
+    if (existing.fac) {
+      setRedirected(true);
+      void navigate({ to: "/facility", replace: true });
+      return;
+    }
+    if (existing.pro) {
+      setRedirected(true);
+      void navigate({ to: "/dashboard", replace: true });
+    }
+  }, [existing, redirected, navigate]);
+
+  // فتح الشاشة: عند وصول البيانات، أو خطأ، أو انقضاء مهلة قصيرة.
+  useEffect(() => {
+    if (ready) return;
+    if (!isPending || isError) {
+      setReady(true);
+      return;
+    }
+    const timer = setTimeout(() => setReady(true), 6000);
+    return () => clearTimeout(timer);
+  }, [ready, isPending, isError]);
 
   if (!ready) {
-    return <div className="mx-auto max-w-2xl px-4 py-20 text-muted-foreground">…</div>;
+    return (
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 px-4 py-20 text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <p className="text-sm">{ar ? "جارٍ تجهيز حسابك…" : "Preparing your account…"}</p>
+      </div>
+    );
   }
+
+
 
   return (
     <div className="soft-surface px-4 py-12">
