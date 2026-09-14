@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { FacilityApplicantsPanel } from "@/components/panels/facility.applicants";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -46,7 +47,12 @@ import {
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
+type FacilitySearch = { tab: string };
+
 export const Route = createFileRoute("/_authenticated/facility/")({
+  validateSearch: (search: Record<string, unknown>): FacilitySearch => ({
+    tab: typeof search.tab === "string" ? search.tab : "jobs",
+  }),
   head: () => ({
     meta: [
       { title: "لوحة المنشأة | SyndeoCare" },
@@ -275,6 +281,9 @@ function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate();
+  const [openApplicants, setOpenApplicants] = useState<string | null>(null);
 
   const { user } = useSession();
   const queryClient = useQueryClient();
@@ -396,7 +405,7 @@ function FacilityDashboard() {
           </div>
         </div>
         <Button variant="outline" className="w-full gap-2 sm:w-auto" asChild>
-          <Link to="/facility/applicants">
+          <Link to="/facility" search={{ tab: "applicants" }}>
             <Users className="size-4" />
             {c.applicants}
           </Link>
@@ -428,7 +437,11 @@ function FacilityDashboard() {
       )}
 
 
-      <Tabs defaultValue="jobs" className="mt-8">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => void navigate({ to: "/facility", search: { tab: v }, replace: true })}
+        className="mt-8"
+      >
         <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <TabsList className="w-max">
             <TabsTrigger value="jobs" className="shrink-0 gap-1.5">
@@ -438,6 +451,10 @@ function FacilityDashboard() {
             <TabsTrigger value="shifts" className="shrink-0 gap-1.5">
               <CalendarClock className="size-4" />
               {c.tabShifts(shifts?.length ?? 0)}
+            </TabsTrigger>
+            <TabsTrigger value="applicants" className="shrink-0 gap-1.5">
+              <Users className="size-4" />
+              {c.applicants}
             </TabsTrigger>
             <TabsTrigger value="new-job" className="shrink-0 gap-1.5">
               <PlusCircle className="size-4" />
@@ -483,6 +500,13 @@ function FacilityDashboard() {
                       <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
                     </Link>
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setOpenApplicants((v) => (v === j.id ? null : j.id))}
+                  >
+                    <Users className="size-4" /> {c.applicantsCount(j.applications?.length ?? 0)}
+                  </Button>
                   <Button size="sm" variant="ghost"
                     onClick={async () => {
                       if (j.is_active) {
@@ -499,6 +523,11 @@ function FacilityDashboard() {
                     {j.is_active ? c.close : c.republish}
                   </Button>
                 </div>
+                {openApplicants === j.id && (
+                  <div className="w-full border-t border-border pt-4">
+                    <FacilityApplicantsPanel jobId={j.id} embedded />
+                  </div>
+                )}
               </div>
             ))
           ) : (
@@ -559,6 +588,10 @@ function FacilityDashboard() {
           )}
         </TabsContent>
 
+
+        <TabsContent value="applicants" className="mt-6">
+          <FacilityApplicantsPanel embedded />
+        </TabsContent>
 
         <TabsContent value="new-job" className="mt-6">
           <JobForm facilityId={facility.id} specialties={specialties ?? []}
