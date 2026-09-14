@@ -11,6 +11,7 @@ import {
   specialtyName,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { WorkStatusBadge, WorkTypeBadge } from "@/components/work-item";
 
 export type ShiftRow = {
   id: string;
