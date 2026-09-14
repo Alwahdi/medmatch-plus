@@ -46,6 +46,7 @@ const TXT = {
     sub: "مناوبات معلنة بأجر واضح في مستشفيات وعيادات المنطقة العربية — احجزها مباشرة بدون وسيط.",
     pick: "اختر الدولة",
     allCountries: "كل الدول",
+    allCities: "كل المدن",
     label: "متاحة للحجز",
     count: (n: number) => `${n} مناوبة متاحة`,
     employer: "أنت ناشر شيفتات؟",
@@ -69,6 +70,7 @@ const TXT = {
     sub: "Shifts with clearly published pay in hospitals and clinics across the Arab region — book directly, no middleman.",
     pick: "Choose a country",
     allCountries: "All countries",
+    allCities: "All cities",
     label: "Open for booking",
     count: (n: number) => `${n} shifts available`,
     employer: "Posting shifts? See plans",
@@ -96,6 +98,7 @@ function ShiftsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [country, setCountry] = useState(ALL);
+  const [city, setCity] = useState(ALL);
 
   const { data: shifts, isLoading } = useQuery({
     queryKey: ["shifts"],
@@ -131,6 +134,18 @@ function ShiftsPage() {
 
 
   const countries = useMemo(() => Array.from(new Set((shifts ?? []).map((s) => s.country))), [shifts]);
+  const cities = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (shifts ?? [])
+            .filter((s) => country === ALL || s.country === country)
+            .map((s) => s.city)
+            .filter((x): x is string => Boolean(x)),
+        ),
+      ).sort((a, b) => a.localeCompare(b, lang === "en" ? "en" : "ar")),
+    [shifts, country, lang],
+  );
   const { mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
   const signedIn = useSignedIn();
   const [scope, setScope] = useState<Scope>("all");
@@ -158,6 +173,7 @@ function ShiftsPage() {
   const filtered = (shifts ?? []).filter(
     (s) =>
       (country === ALL || s.country === country) &&
+      (city === ALL || s.city === city) &&
       inScope(scope, s.specialty_id, mySpecialtyId, fieldIds),
   );
 
@@ -199,13 +215,24 @@ function ShiftsPage() {
                   ...countries.map((x) => ({ value: x, label: countryLabel(x, lang), keywords: [x] })),
                 ]}
                 value={country}
-                onChange={setCountry}
+                onChange={(v) => { setCountry(v); setCity(ALL); }}
                 placeholder={c.pick}
                 searchPlaceholder={cbx.search}
                 emptyText={cbx.empty}
                 className="pr-9"
               />
             </div>
+            <Combobox
+              options={[
+                { value: ALL, label: c.allCities },
+                ...cities.map((x) => ({ value: x, label: x, keywords: [x] })),
+              ]}
+              value={city}
+              onChange={setCity}
+              placeholder={c.allCities}
+              searchPlaceholder={cbx.search}
+              emptyText={cbx.empty}
+            />
           </div>
         </div>
       </div>
