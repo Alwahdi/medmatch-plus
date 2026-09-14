@@ -20,7 +20,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
 
 import { useSession } from "@/lib/auth";
-import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
+import { countryLabel, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
