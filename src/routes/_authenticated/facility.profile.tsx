@@ -261,8 +261,8 @@ function FacilityProfile() {
 
       <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="name_ar">{c.nameAr}</Label>
+          <LockedField label={c.nameAr} locked={locked} target="facility" field="name_ar"
+            currentValue={form.name_ar} facilityId={facility.id} pending={pendingOf("name_ar")}>
             <Input
               id="name_ar"
               maxLength={120}
@@ -270,10 +270,9 @@ function FacilityProfile() {
               value={form.name_ar}
               onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
             />
-            {locked && <p className="mt-1 text-xs text-muted-foreground">{lockNote}</p>}
-          </div>
-          <div>
-            <Label htmlFor="name_en">{c.nameEn}</Label>
+          </LockedField>
+          <LockedField label={c.nameEn} locked={locked} target="facility" field="name_en"
+            currentValue={form.name_en} facilityId={facility.id} pending={pendingOf("name_en")}>
             <Input
               id="name_en"
               dir="ltr"
@@ -282,9 +281,9 @@ function FacilityProfile() {
               value={form.name_en}
               onChange={(e) => setForm({ ...form, name_en: e.target.value })}
             />
-          </div>
-          <div>
-            <Label>{c.type}</Label>
+          </LockedField>
+          <LockedField label={c.type} locked={locked} target="facility" field="facility_type"
+            currentValue={form.facility_type} facilityId={facility.id} pending={pendingOf("facility_type")}>
             <Select
               value={form.facility_type}
               disabled={locked}
@@ -301,9 +300,10 @@ function FacilityProfile() {
                 <SelectItem value="lab">{c.lab}</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label>{c.country}</Label>
+          </LockedField>
+          <LockedField label={c.country} locked={locked} target="facility" field="country"
+            currentValue={form.country ? countryLabel(form.country, lang) : ""} facilityId={facility.id}
+            pending={pendingOf("country")}>
             <Select value={form.country} disabled={locked} onValueChange={(v) => setForm({ ...form, country: v })}>
               <SelectTrigger>
                 <SelectValue placeholder={c.pickCountry} />
@@ -316,16 +316,17 @@ function FacilityProfile() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label htmlFor="city">{c.city}</Label>
+          </LockedField>
+          <LockedField label={c.city} locked={locked} target="facility" field="city"
+            currentValue={form.city} facilityId={facility.id} pending={pendingOf("city")}>
             <Input
               id="city"
               maxLength={60}
+              disabled={locked}
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
             />
-          </div>
+          </LockedField>
           <div>
             <Label htmlFor="website">{c.website}</Label>
             <Input
