@@ -27,6 +27,8 @@ export function useNotifications(user: User | null | undefined, limit = 30) {
       const { data, error } = await supabase
         .from("notifications")
         .select("id,type,title_ar,title_en,body_ar,body_en,link,read_at,created_at")
+        // الرسائل لها عدّاد خاص في صفحة المحادثات، فلا تُعرض هنا
+        .neq("type", "message")
         .order("created_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
