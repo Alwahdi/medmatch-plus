@@ -136,6 +136,30 @@ function Onboarding() {
         <h1 className="font-display text-3xl font-extrabold">{t("ob.title")}</h1>
         <p className="mt-2 text-muted-foreground">{t("ob.subtitle")}</p>
 
+        {isError && (
+          <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
+            <AlertTriangle className="size-4 text-destructive" />
+            <span className="flex-1">
+              {ar
+                ? "تعذّر التحقق من حالة حسابك، لكن يمكنك المتابعة واختيار نوع الحساب."
+                : "We couldn't check your account status, but you can continue and pick an account type."}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl"
+              disabled={isFetching}
+              onClick={() => void refetch()}
+            >
+              <RefreshCw className={`size-4 ${isFetching ? "animate-spin" : ""}`} />
+              {ar ? "إعادة المحاولة" : "Retry"}
+            </Button>
+          </div>
+        )}
+
+
+
         {path === null ? (
           <PathPicker onPick={setPath} />
         ) : path === "professional" ? (
