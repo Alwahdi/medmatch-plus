@@ -84,6 +84,8 @@ const TXT = {
     unlinkDesc: "لن تتمكن من الدخول بهذه الطريقة بعد الآن. تأكد أن لديك كلمة مرور.",
     unlinkDone: "تم فك الربط",
     linkLast: "لا يمكن فك ربط طريقة الدخول الوحيدة",
+    linkHint: "اختر نفس بريدك الحالي في جوجل ليُربط بحسابك",
+    linkDone: "تم ربط حساب جوجل",
     mfaTitle: "التحقق بخطوتين (2FA)",
     mfaBody: "أضف طبقة حماية إضافية عبر تطبيق مصادقة مثل Google Authenticator أو Authy.",
     mfaOn: "مفعّل",
@@ -151,6 +153,8 @@ const TXT = {
     unlinkDesc: "You will no longer be able to sign in this way. Make sure you have a password.",
     unlinkDone: "Account unlinked",
     linkLast: "You cannot unlink your only sign-in method",
+    linkHint: "Pick the same email in Google so it links to this account",
+    linkDone: "Google account linked",
     mfaTitle: "Two-factor authentication (2FA)",
     mfaBody: "Add an extra layer with an authenticator app such as Google Authenticator or Authy.",
     mfaOn: "Enabled",
@@ -653,7 +657,7 @@ function SecurityPage() {
       {/* linked accounts */}
       <section className="mt-4 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center gap-2">
-          <Chrome className="size-5 text-primary" />
+          <GoogleIcon className="size-5" />
           <h2 className="font-bold">{c.linkedTitle}</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">{c.linkedBody}</p>
@@ -676,7 +680,7 @@ function SecurityPage() {
 
           <div className="flex items-center gap-3 rounded-xl border border-border p-3">
             <span className="grid size-9 place-items-center rounded-lg bg-muted">
-              <Chrome className="size-4" />
+              <GoogleIcon className="size-4" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">Google</p>
