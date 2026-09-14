@@ -41,6 +41,8 @@ const TXT = {
     total: "إجمالي المناوبة",
     book: "احجز المناوبة",
     details: "التفاصيل",
+    mine: "حجزتها",
+    recommended: "تناسبك",
   },
   en: {
     urgent: "Urgent",
@@ -53,9 +55,11 @@ const TXT = {
     total: "Shift total",
     book: "Book this shift",
     details: "Details",
-
+    mine: "Booked by you",
+    recommended: "Recommended",
   },
 } as const;
+
 
 export function ShiftCard({
   shift,
