@@ -263,12 +263,19 @@ function ProfilePage() {
           <LockedField label={c.specialty} locked={locked} target="professional" field="specialty_id"
             currentValue={specialtyName(specialties?.find((s) => s.id === form.specialty_id) ?? null, lang) ?? ""}
             pending={pendingOf("specialty_id")}>
-            <Select value={form.specialty_id} disabled={locked} onValueChange={(v) => setForm({ ...form, specialty_id: v })}>
-              <SelectTrigger><SelectValue placeholder={c.specialtyPh} /></SelectTrigger>
-              <SelectContent>
-                {specialties?.map((s) => <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={(specialties ?? []).map((s) => ({
+                value: s.id,
+                label: specialtyName(s, lang) ?? "",
+                keywords: [s.name_ar, s.name_en],
+              }))}
+              value={form.specialty_id}
+              disabled={locked}
+              onChange={(v) => setForm({ ...form, specialty_id: v })}
+              placeholder={c.specialtyPh}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+            />
           </LockedField>
           <LockedField label={c.years} locked={locked} target="professional" field="years_experience"
             currentValue={String(form.years_experience)} pending={pendingOf("years_experience")}>
