@@ -111,25 +111,25 @@ export function SiteHeader() {
                       <Link to="/profile">{t("nav.profile")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/credentials">{t("nav.credentials")}</Link>
+                      <Link to="/profile" search={{ tab: "credentials" }}>{t("nav.credentials")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/applications">{t("nav.applications")}</Link>
+                      <Link to="/activity" search={{ tab: "applications" }}>{t("nav.applications")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/invitations">{t("nav.invitations")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/cv">{t("nav.cv")}</Link>
+                      <Link to="/profile" search={{ tab: "cv" }}>{t("nav.cv")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/cv-import">{t("nav.cvImport")}</Link>
+                      <Link to="/profile" search={{ tab: "cv-import" }}>{t("nav.cvImport")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/saved">{t("nav.saved")}</Link>
+                      <Link to="/activity" search={{ tab: "saved" }}>{t("nav.saved")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/alerts">{t("nav.alerts")}</Link>
+                      <Link to="/settings" search={{ tab: "alerts" }}>{t("nav.alerts")}</Link>
                     </DropdownMenuItem>
                   </>
                 )}

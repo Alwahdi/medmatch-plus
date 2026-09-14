@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated")({
 /** مسارات الكوادر الصحية فقط. */
 const PRO_ONLY = [
   "/dashboard",
+  "/activity",
   "/applications",
   "/my-shifts",
   "/saved",

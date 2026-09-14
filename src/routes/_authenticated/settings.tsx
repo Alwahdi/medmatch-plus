@@ -164,7 +164,7 @@ function SettingsPage() {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{c.alertsBody}</p>
           <Button className="mt-4" variant="outline" asChild>
-            <Link to="/alerts">{c.alertsCta}</Link>
+            <Link to="/settings" search={{ tab: "alerts" }}>{c.alertsCta}</Link>
           </Button>
         </section>
       )}
@@ -189,7 +189,7 @@ function SettingsPage() {
                 </Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link to="/credentials">
+                <Link to="/profile" search={{ tab: "credentials" }}>
                   <ShieldCheck className="size-4" /> {c.credentials}
                 </Link>
               </Button>
