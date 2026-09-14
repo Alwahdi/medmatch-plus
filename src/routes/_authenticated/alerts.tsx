@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 
@@ -95,6 +97,7 @@ const TXT = {
 
 function AlertsPage() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
 
@@ -196,25 +199,39 @@ function AlertsPage() {
       )}
 
       <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
-        <Select value={specialty} onValueChange={setSpecialty}>
-          <SelectTrigger><SelectValue placeholder={c.specialty} /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ANY}>{c.allSpecialties}</SelectItem>
-            {specialties?.map((s) => (
-              <SelectItem key={s.id} value={s.id}>{specialtyName(s, lang)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={country} onValueChange={setCountry}>
-          <SelectTrigger><SelectValue placeholder={c.country} /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ANY}>{c.allCountries}</SelectItem>
-            {COUNTRIES.map((x) => (
-              <SelectItem key={x} value={x}>{countryLabel(x, lang)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input placeholder={c.cityPh} value={city} onChange={(e) => setCity(e.target.value)} />
+        <Combobox
+          options={[
+            { value: ANY, label: c.allSpecialties },
+            ...(specialties ?? []).map((s) => ({
+              value: s.id,
+              label: specialtyName(s, lang) ?? s.name_ar,
+              keywords: [s.name_ar, s.name_en].filter(Boolean) as string[],
+            })),
+          ]}
+          value={specialty}
+          onChange={setSpecialty}
+          placeholder={c.specialty}
+          searchPlaceholder={cbx.search}
+          emptyText={cbx.empty}
+        />
+        <Combobox
+          options={[{ value: ANY, label: c.allCountries }, ...countryOptions(lang)]}
+          value={country}
+          onChange={(v) => { setCountry(v); setCity(""); }}
+          placeholder={c.country}
+          searchPlaceholder={cbx.search}
+          emptyText={cbx.empty}
+        />
+        <Combobox
+          options={cityOptions(country === ANY ? "" : country, lang)}
+          value={city}
+          onChange={setCity}
+          placeholder={c.cityPh}
+          searchPlaceholder={cbx.search}
+          emptyText={cbx.empty}
+          allowCustom
+          customLabel={cbx.add}
+        />
         <Select value={employment} onValueChange={setEmployment}>
           <SelectTrigger><SelectValue placeholder={c.employment} /></SelectTrigger>
           <SelectContent>

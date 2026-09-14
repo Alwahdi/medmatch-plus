@@ -18,6 +18,7 @@ import { useSession } from "@/lib/auth";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
 import { useSignedIn } from "@/components/page-chrome";
 import { countryLabel, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_public/shifts/")({
@@ -89,6 +90,7 @@ const TXT = {
 
 function ShiftsPage() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
@@ -191,19 +193,18 @@ function ShiftsPage() {
           <div className="card-lift flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-lg">
             <div className="relative flex-1">
               <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger className="h-11 pr-9">
-                  <SelectValue placeholder={c.pick} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL}>{c.allCountries}</SelectItem>
-                  {countries.map((x) => (
-                    <SelectItem key={x} value={x}>
-                      {countryLabel(x, lang)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Combobox
+                options={[
+                  { value: ALL, label: c.allCountries },
+                  ...countries.map((x) => ({ value: x, label: countryLabel(x, lang), keywords: [x] })),
+                ]}
+                value={country}
+                onChange={setCountry}
+                placeholder={c.pick}
+                searchPlaceholder={cbx.search}
+                emptyText={cbx.empty}
+                className="pr-9"
+              />
             </div>
           </div>
         </div>

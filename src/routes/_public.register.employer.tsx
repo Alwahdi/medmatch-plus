@@ -19,6 +19,7 @@ import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
+import { Combobox, comboText } from "@/components/ui/combobox";
 
 export const Route = createFileRoute("/_public/register/employer")({
   head: () => ({
@@ -138,6 +139,7 @@ const EN: typeof AR = {
 
 function RegisterEmployer() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const L = lang === "ar" ? AR : EN;
   const navigate = useNavigate();
   const { user } = useSession();
@@ -353,18 +355,20 @@ function RegisterEmployer() {
                   </div>
                   <div>
                     <Label>{L.type} *</Label>
-                    <Select value={type} onValueChange={setType}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder={L.select} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {EMPLOYER_TYPES.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {lang === "ar" ? o.ar : o.en}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="mt-1">
+                      <Combobox
+                        options={EMPLOYER_TYPES.map((o) => ({
+                          value: o.value,
+                          label: lang === "ar" ? o.ar : o.en,
+                          keywords: [o.ar, o.en],
+                        }))}
+                        value={type}
+                        onChange={setType}
+                        placeholder={L.select}
+                        searchPlaceholder={cbx.search}
+                        emptyText={cbx.empty}
+                      />
+                    </div>
                   </div>
 
                   <div className="rounded-xl border border-border p-4">
@@ -372,62 +376,65 @@ function RegisterEmployer() {
                     <div className="mt-3 grid gap-4 sm:grid-cols-3">
                       <div>
                         <Label>{L.country} *</Label>
-                        <Select
-                          value={country}
-                          onValueChange={(v) => {
-                            setCountry(v);
-                            setRegion("");
-                            setCity("");
-                          }}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder={L.select} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {COUNTRIES.map((c) => (
-                              <SelectItem key={c.code} value={c.code}>
-                                {lang === "ar" ? c.ar : c.en}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="mt-1">
+                          <Combobox
+                            options={COUNTRIES.map((c) => ({
+                              value: c.code,
+                              label: lang === "ar" ? c.ar : c.en,
+                              keywords: [c.ar, c.en, c.code],
+                            }))}
+                            value={country}
+                            onChange={(v) => {
+                              setCountry(v);
+                              setRegion("");
+                              setCity("");
+                            }}
+                            placeholder={L.select}
+                            searchPlaceholder={cbx.search}
+                            emptyText={cbx.empty}
+                          />
+                        </div>
                       </div>
                       <div>
                         <Label>{L.region} *</Label>
-                        <Select
-                          value={region}
-                          onValueChange={(v) => {
-                            setRegion(v);
-                            setCity("");
-                          }}
-                          disabled={!countryObj}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder={L.select} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(countryObj?.regions ?? []).map((rg) => (
-                              <SelectItem key={rg.en} value={rg.en}>
-                                {lang === "ar" ? rg.ar : rg.en}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="mt-1">
+                          <Combobox
+                            options={(countryObj?.regions ?? []).map((rg) => ({
+                              value: rg.en,
+                              label: lang === "ar" ? rg.ar : rg.en,
+                              keywords: [rg.ar, rg.en],
+                            }))}
+                            value={region}
+                            onChange={(v) => {
+                              setRegion(v);
+                              setCity("");
+                            }}
+                            disabled={!countryObj}
+                            placeholder={L.select}
+                            searchPlaceholder={cbx.search}
+                            emptyText={cbx.empty}
+                          />
+                        </div>
                       </div>
                       <div>
                         <Label>{L.city} *</Label>
-                        <Select value={city} onValueChange={setCity} disabled={!regionObj}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder={L.select} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(regionObj?.cities ?? []).map((ct) => (
-                              <SelectItem key={ct.en} value={lang === "ar" ? ct.ar : ct.en}>
-                                {lang === "ar" ? ct.ar : ct.en}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="mt-1">
+                          <Combobox
+                            options={(regionObj?.cities ?? []).map((x) => ({
+                              value: lang === "ar" ? x.ar : x.en,
+                              label: lang === "ar" ? x.ar : x.en,
+                              keywords: [x.ar, x.en],
+                            }))}
+                            value={city}
+                            onChange={setCity}
+                            disabled={!regionObj}
+                            placeholder={L.select}
+                            searchPlaceholder={cbx.search}
+                            emptyText={cbx.empty}
+                            allowCustom
+                            customLabel={cbx.add}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

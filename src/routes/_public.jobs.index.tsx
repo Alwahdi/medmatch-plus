@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { matchScore } from "@/lib/match";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
 import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
 
@@ -115,6 +116,7 @@ const TXT = {
 
 function JobsPage() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const c = TXT[lang];
   const [q, setQ] = useState("");
   const [country, setCountry] = useState(ALL);
@@ -306,36 +308,40 @@ function JobsPage() {
 
                 <div>
                   <label className="text-sm font-medium">{c.country}</label>
-                  <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="mt-1.5 h-11">
-                      <SelectValue placeholder={c.allCountries} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ALL}>{c.allCountries}</SelectItem>
-                      {countries.map((x) => (
-                        <SelectItem key={x} value={x}>
-                          {countryLabel(x, lang)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="mt-1.5">
+                    <Combobox
+                      options={[
+                        { value: ALL, label: c.allCountries },
+                        ...countries.map((x) => ({ value: x, label: countryLabel(x, lang), keywords: [x] })),
+                      ]}
+                      value={country}
+                      onChange={setCountry}
+                      placeholder={c.allCountries}
+                      searchPlaceholder={cbx.search}
+                      emptyText={cbx.empty}
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium">{c.specialty}</label>
-                  <Select value={specialty} onValueChange={setSpecialty}>
-                    <SelectTrigger className="mt-1.5 h-11">
-                      <SelectValue placeholder={c.allSpecialties} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ALL}>{c.allSpecialties}</SelectItem>
-                      {specialties?.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {specialtyName(s, lang)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="mt-1.5">
+                    <Combobox
+                      options={[
+                        { value: ALL, label: c.allSpecialties },
+                        ...(specialties ?? []).map((s) => ({
+                          value: s.id,
+                          label: specialtyName(s, lang) ?? s.name_ar,
+                          keywords: [s.name_ar, s.name_en].filter(Boolean) as string[],
+                        })),
+                      ]}
+                      value={specialty}
+                      onChange={setSpecialty}
+                      placeholder={c.allSpecialties}
+                      searchPlaceholder={cbx.search}
+                      emptyText={cbx.empty}
+                    />
+                  </div>
                 </div>
 
                 <div>
