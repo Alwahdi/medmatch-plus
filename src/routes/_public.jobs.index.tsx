@@ -153,13 +153,39 @@ function JobsPage() {
   });
 
   const { pro: profile, mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
+  const signedIn = useSignedIn();
   const [scope, setScope] = useState<Scope>("all");
   const [scopeTouched, setScopeTouched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [sort, setSort] = useState<"match" | "new">("new");
+  const [sortTouched, setSortTouched] = useState(false);
+  const [hideApplied, setHideApplied] = useState(true);
 
   useEffect(() => {
     if (!scopeTouched && hasSpecialty) setScope("field");
   }, [hasSpecialty, scopeTouched]);
+
+  useEffect(() => {
+    if (!sortTouched && profile) setSort("match");
+  }, [profile, sortTouched]);
+
+  const { data: appliedIds } = useQuery({
+    queryKey: ["my-applied-job-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("applications").select("job_id").eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.job_id));
+    },
+  });
+
+  const { data: savedIds } = useQuery({
+    queryKey: ["my-saved-job-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("saved_jobs").select("job_id").eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.job_id));
+    },
+  });
 
   const pickScope = (next: Scope) => {
     setScopeTouched(true);
@@ -171,14 +197,28 @@ function JobsPage() {
     [jobs],
   );
 
-  const filtered = (jobs ?? []).filter((j) => {
-    if (country !== ALL && j.country !== country) return false;
-    if (specialty !== ALL && j.specialty_id !== specialty) return false;
-    if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
-    if (type !== ALL && j.employment_type !== type) return false;
-    if (q && !`${j.title} ${j.specialties?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
-    return true;
-  });
+  const scoreOf = (j: { specialty_id: string | null; min_experience: number; country: string; required_license: string | null }) =>
+    matchScore(profile ?? null, {
+      specialty_id: j.specialty_id,
+      min_experience: j.min_experience,
+      country: j.country,
+      required_license: j.required_license,
+    });
+
+  const filtered = (jobs ?? [])
+    .filter((j) => {
+      if (country !== ALL && j.country !== country) return false;
+      if (specialty !== ALL && j.specialty_id !== specialty) return false;
+      if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
+      if (type !== ALL && j.employment_type !== type) return false;
+      if (q && !`${j.title} ${j.specialties?.name_ar ?? ""} ${j.city}`.includes(q)) return false;
+      if (hideApplied && appliedIds?.has(j.id)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === "match" && profile) return (scoreOf(b) ?? 0) - (scoreOf(a) ?? 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
   const reset = () => {
     setQ("");
@@ -187,6 +227,7 @@ function JobsPage() {
     setSpecialty(ALL);
     setType(ALL);
   };
+
 
   return (
     <>
