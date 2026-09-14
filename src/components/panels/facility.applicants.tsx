@@ -132,8 +132,6 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       const { error } = await supabase.rpc("start_candidate_conversation", {
         _professional_user_id: candidateUserId,
         _job_id: jobId,
-        _shift_id: undefined,
-        _subject: undefined,
       });
       if (error) throw error;
     },
