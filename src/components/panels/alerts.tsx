@@ -21,6 +21,7 @@ import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
+import { EmptyState } from "@/components/empty-state";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 
@@ -298,7 +299,7 @@ export function AlertsPanel() {
       </ul>
 
       {!alerts?.length && (
-        <p className="mt-6 text-sm text-muted-foreground">{c.empty}</p>
+        <EmptyState className="mt-6" icon={Bell} title={c.empty} />
       )}
     </div>
   );
