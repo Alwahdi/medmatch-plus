@@ -1,26 +1,22 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
-  Bell,
-  Bookmark,
   Briefcase,
+  Building2,
   CalendarClock,
   FileText,
   LayoutDashboard,
   LogOut,
-  Menu,
   MessagesSquare,
   Search,
   Settings,
   ShieldCheck,
   ChevronLeft,
-  Sparkles,
-  Users,
+  UserRound,
 } from "lucide-react";
 
 import { NotificationBell } from "@/components/notification-bell";
-import { MobileMenuSheet } from "@/components/mobile-menu-sheet";
 import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -55,7 +51,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const { t } = useLang();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const { total: unreadTotal } = useUnread(user);
@@ -123,8 +118,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <Link
             key={item.to}
             to={item.to}
-            onClick={() => setOpen(false)}
-            className={cn(
+                className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
               active
                 ? "bg-primary text-primary-foreground shadow-sm"
@@ -153,7 +147,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     <div className="mt-3 space-y-1 border-t border-border/70 pt-3">
       <Link
         to={isFacility ? "/facility/profile" : "/profile"}
-        onClick={() => setOpen(false)}
         className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
       >
         <RemoteAvatar
@@ -172,7 +165,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </Link>
       <Link
         to="/settings"
-        onClick={() => setOpen(false)}
         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
       >
         <Settings className="size-4 shrink-0" />
@@ -217,36 +209,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <MobileMenuSheet
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t("nav.menu")}
-        closeLabel={t("nav.menu")}
-        header={
-          <Link
-            to={profileLink}
-            onClick={() => setOpen(false)}
-            className="flex min-w-0 items-center gap-3"
-          >
-            <RemoteAvatar
-              value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
-              alt={accountName}
-              fallbackText={accountName}
-              className="size-10 shrink-0 rounded-full text-sm"
-            />
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-bold">{accountName}</span>
-              <span className="block truncate text-xs text-muted-foreground">
-                {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
-              </span>
-            </span>
-          </Link>
-        }
-      >
-        {nav}
-        {account}
-      </MobileMenuSheet>
-
 
       <div className="mx-auto flex max-w-[1400px] gap-6 px-4 py-6">
         <aside className="hidden w-64 shrink-0 lg:block">
@@ -266,7 +228,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
         aria-label={t("nav.menu")}
       >
-        <div className="grid grid-cols-6">
+        <div className="grid grid-cols-5">
           {mobileTabs.map((item) => {
             const active = isActive(item.to);
             const Icon = item.icon;
@@ -275,8 +237,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                onClick={() => setOpen(false)}
-                className={cn(
+                        className={cn(
                   "relative flex flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
@@ -294,17 +255,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className={cn(
-              "relative flex flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors",
-              open ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            <Menu className="size-5" />
-            <span>{t("nav.menu")}</span>
-          </button>
         </div>
       </nav>
     </div>
