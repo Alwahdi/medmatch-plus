@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Building2, Clock3, MapPin, ShieldCheck } from "lucide-react";
+import { Bookmark, Building2, CheckCircle2, Clock3, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+
 import {
   countryLabel,
   employmentLabel,
