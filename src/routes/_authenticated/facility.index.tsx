@@ -759,20 +759,6 @@ function FacilityDashboard() {
           )}
         </TabsContent>
 
-
-        <TabsContent value="new-job" className="mt-6">
-          <JobForm facilityId={facility.id} specialties={specialties ?? []}
-            defaults={{ country: facility.country, city: facility.city }}
-            quotaReached={!!plan && activeJobs >= plan.active_jobs}
-            expired={!!sub && !subActive} />
-        </TabsContent>
-
-        <TabsContent value="new-shift" className="mt-6">
-          <ShiftForm facilityId={facility.id} specialties={specialties ?? []}
-            defaults={{ country: facility.country, city: facility.city }}
-            quotaReached={!!plan && activeShifts >= plan.active_shifts}
-            expired={!!sub && !subActive} />
-        </TabsContent>
       </Tabs>
     </div>
   );
