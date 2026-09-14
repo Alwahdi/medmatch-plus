@@ -89,19 +89,25 @@ export function ReviewDialog({
   const save = useMutation({
     mutationFn: async () => {
       if (rating < 1) throw new Error("stars");
-      const payload = {
-        direction,
-        facility_id: facilityId,
-        professional_user_id: professionalUserId,
-        author_user_id: authorUserId,
-        rating,
-        comment: comment.trim() || null,
-        job_id: jobId ?? null,
-        shift_id: shiftId ?? null,
+      if (!authorUserId) throw new Error("author");
+      const args: {
+        _direction: "pro_to_facility" | "facility_to_pro";
+        _facility_id: string;
+        _professional_user_id: string;
+        _rating: number;
+        _comment?: string;
+        _job_id?: string;
+        _shift_id?: string;
+      } = {
+        _direction: direction,
+        _facility_id: facilityId,
+        _professional_user_id: professionalUserId,
+        _rating: rating,
       };
-      const { error } = existing
-        ? await supabase.from("reviews").update(payload).eq("id", existing.id)
-        : await supabase.from("reviews").insert(payload);
+      if (comment.trim()) args._comment = comment.trim();
+      if (jobId) args._job_id = jobId;
+      if (shiftId) args._shift_id = shiftId;
+      const { error } = await supabase.rpc("save_engagement_review", args);
       if (error) throw error;
     },
     onSuccess: () => {
