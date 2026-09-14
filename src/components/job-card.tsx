@@ -38,6 +38,9 @@ const TXT = {
     closing: "يغلق قريباً",
     verified: "موثّق",
     match: "توافق",
+    applied: "قدّمت عليها",
+    saved: "محفوظة",
+    recommended: "يناسبك",
   },
   en: {
     featured: "Featured",
@@ -45,10 +48,25 @@ const TXT = {
     closing: "Closing soon",
     verified: "Verified",
     match: "Match",
+    applied: "Applied",
+    saved: "Saved",
+    recommended: "Recommended",
   },
 } as const;
 
-export function JobCard({ job, match }: { job: JobRow; match?: number | null }) {
+export function JobCard({
+  job,
+  match,
+  applied,
+  saved,
+  recommended,
+}: {
+  job: JobRow;
+  match?: number | null;
+  applied?: boolean;
+  saved?: boolean;
+  recommended?: boolean;
+}) {
   const { lang } = useLang();
   const c = TXT[lang];
   const isNew = Date.now() - new Date(job.created_at).getTime() < 2 * DAY;
@@ -62,6 +80,7 @@ export function JobCard({ job, match }: { job: JobRow; match?: number | null }) 
       : isNew
         ? { label: c.isNew, cls: "bg-success text-success-foreground" }
         : null;
+
 
   return (
     <div className="relative pt-2">
