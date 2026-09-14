@@ -56,6 +56,10 @@ const TXT = {
     scopeMine: (n: string) => `تخصصي: ${n}`,
     scopeField: "مجالي الطبي",
     scopeAll: "كل التخصصات",
+    myHeading: (n: string) => `مناوبات تناسب تخصصك: ${n}`,
+    myHeadingPlain: "مناوبات مقترحة لك",
+    mySub: "مرتّبة حسب الأقرب موعداً، مع إبراز ما يناسب تخصصك.",
+
   },
   en: {
     badge: "Instant shifts with hourly pay",
