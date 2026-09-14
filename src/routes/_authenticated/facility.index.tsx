@@ -489,25 +489,59 @@ function FacilityDashboard() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="w-full min-h-11 sm:w-auto">
-              <PlusCircle className="size-4" /> {lang === "ar" ? "نشر" : "Publish"}
+              <PlusCircle className="size-4" /> {lang === "ar" ? "نشر" : "Create"}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem
               className="min-h-11 gap-2"
-              onSelect={() => void navigate({ to: "/facility", search: { tab: "new-job" } })}
+              onSelect={() => {
+                setCreateMode("job");
+                void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
+              }}
             >
               <Briefcase className="size-4" /> {c.tabNewJob}
             </DropdownMenuItem>
             <DropdownMenuItem
               className="min-h-11 gap-2"
-              onSelect={() => void navigate({ to: "/facility", search: { tab: "new-shift" } })}
+              onSelect={() => {
+                setCreateMode("shift");
+                void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
+              }}
             >
               <CalendarClock className="size-4" /> {c.tabNewShift}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <Dialog open={createMode !== null} onOpenChange={(o) => !o && setCreateMode(null)}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{createMode === "shift" ? c.tabNewShift : c.tabNewJob}</DialogTitle>
+          </DialogHeader>
+          {createMode === "job" && (
+            <JobForm
+              facilityId={facility.id}
+              specialties={specialties ?? []}
+              defaults={{ country: facility.country, city: facility.city }}
+              quotaReached={!!plan && activeJobs >= plan.active_jobs}
+              expired={!!sub && !subActive}
+              onCreated={() => setCreateMode(null)}
+            />
+          )}
+          {createMode === "shift" && (
+            <ShiftForm
+              facilityId={facility.id}
+              specialties={specialties ?? []}
+              defaults={{ country: facility.country, city: facility.city }}
+              quotaReached={!!plan && activeShifts >= plan.active_shifts}
+              expired={!!sub && !subActive}
+              onCreated={() => setCreateMode(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <DashboardMetric icon={Users} value={newApplicants} label={c.newApplicants} />
