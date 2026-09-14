@@ -373,7 +373,7 @@ function FacilityDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shifts")
-        .select("*")
+        .select("*,shift_bookings(id,status)")
         .eq("facility_id", facility!.id)
         .order("starts_at", { ascending: true });
       if (error) throw error;
