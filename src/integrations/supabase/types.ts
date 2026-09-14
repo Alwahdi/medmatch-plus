@@ -813,6 +813,104 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_change_log: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          facility_id: string | null
+          field: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          subject_user_id: string | null
+          target: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          facility_id?: string | null
+          field: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          subject_user_id?: string | null
+          target: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          facility_id?: string | null
+          field?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          subject_user_id?: string | null
+          target?: string
+        }
+        Relationships: []
+      }
+      profile_change_requests: {
+        Row: {
+          attachment_path: string | null
+          created_at: string
+          facility_id: string | null
+          field: string
+          id: string
+          new_value: string
+          old_value: string | null
+          reason: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachment_path?: string | null
+          created_at?: string
+          facility_id?: string | null
+          field: string
+          id?: string
+          new_value: string
+          old_value?: string | null
+          reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachment_path?: string | null
+          created_at?: string
+          facility_id?: string | null
+          field?: string
+          id?: string
+          new_value?: string
+          old_value?: string | null
+          reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_change_requests_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1237,6 +1335,10 @@ export type Database = {
           _type: string
           _user_id: string
         }
+        Returns: undefined
+      }
+      review_change_request: {
+        Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
       search_candidates: {
