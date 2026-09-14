@@ -326,6 +326,8 @@ function ProfilePage() {
           {save.isPending ? c.saving : c.save}
         </Button>
       </div>
+
+      <ChangeRequestsPanel requests={(requests ?? []).filter((r) => r.target === "professional")} />
     </div>
   );
 }
