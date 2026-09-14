@@ -16,6 +16,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/facility/candidates")({
@@ -115,6 +117,7 @@ const TXT = {
 
 function Candidates() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();

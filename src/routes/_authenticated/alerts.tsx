@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
+import { Combobox, comboText } from "@/components/ui/combobox";
+import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 
@@ -95,6 +97,7 @@ const TXT = {
 
 function AlertsPage() {
   const { lang } = useLang();
+  const cbx = comboText(lang);
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
 
