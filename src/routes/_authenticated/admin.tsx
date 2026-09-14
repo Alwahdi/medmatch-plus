@@ -253,11 +253,8 @@ function AdminPage() {
 
   const reviewChange = useMutation({
     mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
-      const { error } = await supabase.rpc("review_change_request", {
-        _id: id,
-        _approve: approve,
-        _note: note || undefined,
-      });
+      const args = note ? { _id: id, _approve: approve, _note: note } : { _id: id, _approve: approve };
+      const { error } = await supabase.rpc("review_change_request", args);
       if (error) throw error;
     },
     onSuccess: () => {
