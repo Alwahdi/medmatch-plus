@@ -163,8 +163,8 @@ function ShiftsPage() {
 
 
       {/* Filter */}
-      <div className="relative px-4">
-        <div className="mx-auto max-w-xl -translate-y-1/2">
+      <div className={signedIn ? "mt-4" : "relative px-4"}>
+        <div className={signedIn ? "max-w-xl" : "mx-auto max-w-xl -translate-y-1/2"}>
           <div className="card-lift flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-lg">
             <div className="relative flex-1">
               <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -187,8 +187,9 @@ function ShiftsPage() {
       </div>
 
       {/* Results */}
-      <section className="py-16 md:py-20">
-        <div className="mx-auto max-w-6xl px-4">
+      <section className={signedIn ? "py-6" : "py-16 md:py-20"}>
+        <div className={signedIn ? "" : "mx-auto max-w-6xl px-4"}>
+
           {hasSpecialty && (
             <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
               {(
