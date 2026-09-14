@@ -77,12 +77,19 @@ function Onboarding() {
     try {
       const stored = localStorage.getItem("sc_signup_intent");
       if (stored === "facility" || stored === "professional") intent = stored;
-      localStorage.removeItem("sc_signup_intent");
     } catch {
       /* storage unavailable */
     }
-    if (metaRole) setPath(metaRole);
-    else if (intent) setPath(intent);
+    const chosen = metaRole ?? intent;
+    if (chosen) {
+      setPath(chosen);
+      // النية استُهلكت فعلاً بعد اختيار المسار.
+      try {
+        localStorage.removeItem("sc_signup_intent");
+      } catch {
+        /* storage unavailable */
+      }
+    }
     setReady(true);
   }, [existing, isPending, metaRole, navigate]);
 
@@ -220,7 +227,7 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
       toast.error(t("ob.error"));
       return;
     }
-    await supabase.from("user_roles").insert({ user_id: user!.id, role: "professional" });
+    await supabase.rpc("claim_professional_role");
     setBusy(false);
     toast.success(t("ob.done"));
     navigate({ to: "/dashboard", replace: true });
