@@ -1,19 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertsPanel } from "@/components/panels/alerts";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  Bell,
-  Building2,
-  Globe,
-  Lock,
-  LogOut,
-  Mail,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { Bell, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
@@ -86,16 +75,8 @@ function SettingsPage() {
   const { lang, setLang } = useLang();
   const c = TXT[lang];
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const isFacility = roles?.includes("facility");
   const tab = Route.useSearch().tab ?? "general";
-
-  async function signOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    void navigate({ to: "/auth", replace: true });
-  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
