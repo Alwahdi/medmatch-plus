@@ -125,3 +125,20 @@ export function Combobox({
     </Popover>
   );
 }
+
+/** Shared bilingual labels for combobox search UI. */
+export function comboText(lang: "ar" | "en") {
+  return lang === "en"
+    ? {
+        search: "Search…",
+        empty: "No results",
+        add: (q: string) => `Use "${q}"`,
+        choose: "Select",
+      }
+    : {
+        search: "ابحث…",
+        empty: "لا نتائج",
+        add: (q: string) => `استخدام «${q}»`,
+        choose: "اختر",
+      };
+}
