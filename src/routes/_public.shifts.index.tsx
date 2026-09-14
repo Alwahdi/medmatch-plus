@@ -272,7 +272,7 @@ function ShiftsPage() {
                   key={shift.id}
                   shift={shift}
                   busy={book.isPending}
-                  mine={myShiftIds?.has(shift.id)}
+                  mine={!!myShiftIds?.has(shift.id)}
                   recommended={
                     signedIn && !!mySpecialtyId && shift.specialty_id === mySpecialtyId
                   }
