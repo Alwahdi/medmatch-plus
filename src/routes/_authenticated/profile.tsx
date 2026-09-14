@@ -135,10 +135,9 @@ function ProfilePage() {
   });
 
   const locked = !!profile?.is_verified;
-  const lockNote =
-    lang === "ar"
-      ? "هذا الحقل مقفل بعد توثيق حسابك. للتعديل تواصل مع الدعم."
-      : "Locked after verification. Contact support to change it.";
+  const { data: requests } = useMyChangeRequests();
+  const pendingOf = (field: string) =>
+    (requests ?? []).find((r) => r.status === "pending" && r.field === field);
 
   const [form, setForm] = useState({
     full_name: "",
