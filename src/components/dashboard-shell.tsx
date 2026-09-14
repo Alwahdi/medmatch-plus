@@ -5,8 +5,6 @@ import {
   Bell,
   Bookmark,
   Briefcase,
-  Building2,
-
   CalendarClock,
   FileText,
   LayoutDashboard,
@@ -18,11 +16,9 @@ import {
   ShieldCheck,
   ChevronLeft,
   Sparkles,
-  Stethoscope,
-  User,
   Users,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { NotificationBell } from "@/components/notification-bell";
 import { MobileMenuSheet } from "@/components/mobile-menu-sheet";
 import { RemoteAvatar } from "@/components/remote-avatar";
