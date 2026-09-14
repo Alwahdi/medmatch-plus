@@ -306,27 +306,28 @@ function FacilityProfile() {
           <LockedField label={c.country} locked={locked} target="facility" field="country"
             currentValue={form.country ? countryLabel(form.country, lang) : ""} facilityId={facility.id}
             pending={pendingOf("country")}>
-            <Select value={form.country} disabled={locked} onValueChange={(v) => setForm({ ...form, country: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder={c.pickCountry} />
-              </SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map((x) => (
-                  <SelectItem key={x} value={x}>
-                    {countryLabel(x, lang)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={countryOptions(lang)}
+              value={form.country}
+              disabled={locked}
+              onChange={(v) => setForm({ ...form, country: v, city: "" })}
+              placeholder={c.pickCountry}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+            />
           </LockedField>
           <LockedField label={c.city} locked={locked} target="facility" field="city"
             currentValue={form.city} facilityId={facility.id} pending={pendingOf("city")}>
-            <Input
-              id="city"
-              maxLength={60}
-              disabled={locked}
+            <Combobox
+              options={cityOptions(form.country, lang)}
               value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
+              disabled={locked}
+              onChange={(v) => setForm({ ...form, city: v })}
+              placeholder={ct.choose}
+              searchPlaceholder={ct.search}
+              emptyText={ct.empty}
+              allowCustom
+              customLabel={ct.add}
             />
           </LockedField>
           <div>
