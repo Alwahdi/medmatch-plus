@@ -467,6 +467,7 @@ function RegisterEmployer() {
                     </Link>
                   </p>
                 </form>
+                </>
               )}
             </section>
           </div>
