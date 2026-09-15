@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import {
+  BarChart3,
   Bell,
   Building2,
   FileText,
@@ -40,6 +41,7 @@ const TXT = {
     plan: "الباقة والاشتراك",
     invitations: "الدعوات",
     alerts: "تنبيهات الوظائف",
+    report: "التقرير الشهري",
     notifications: "الإشعارات",
     settings: "الإعدادات",
     security: "الأمان وكلمة المرور",
@@ -59,6 +61,7 @@ const TXT = {
     plan: "Plan & subscription",
     invitations: "Invitations",
     alerts: "Job alerts",
+    report: "Monthly report",
     notifications: "Notifications",
     settings: "Settings",
     security: "Security & password",
@@ -154,8 +157,11 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
           <Link to="/invitations" className={ITEM} onClick={onNavigate}>
             <Mail className="size-4 shrink-0" /> {c.invitations}
           </Link>
-          <Link to="/settings" search={{ tab: "alerts" }} className={ITEM} onClick={onNavigate}>
+          <Link to="/preferences" search={{ tab: "alerts" }} className={ITEM} onClick={onNavigate}>
             <Bell className="size-4 shrink-0" /> {c.alerts}
+          </Link>
+          <Link to="/preferences" search={{ tab: "report" }} className={ITEM} onClick={onNavigate}>
+            <BarChart3 className="size-4 shrink-0" /> {c.report}
           </Link>
         </>
       )}
