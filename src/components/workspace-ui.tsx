@@ -51,15 +51,15 @@ export function NextStepCard({
         : "bg-primary text-primary-foreground";
 
   return (
-      className={cn("relative overflow-hidden rounded-lg border border-transparent p-5 shadow-card sm:p-6", toneClass)}>
+    <section className={cn("relative overflow-hidden rounded-lg border border-transparent p-5 shadow-card sm:p-6", toneClass)}>
       <div className="relative z-10 grid grid-cols-[auto_minmax(0,1fr)] gap-4">
         <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-background/15" aria-hidden>
           <Icon className="size-5" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold opacity-80">{label}</p>
+          <p className="text-xs font-semibold">{label}</p>
           <h2 className="mt-1 text-lg font-bold sm:text-xl">{title}</h2>
-          {description && <p className="mt-1 text-sm leading-6 opacity-85">{description}</p>}
+          {description && <p className="mt-1 text-sm leading-6">{description}</p>}
           {action && <div className="mt-4">{action}</div>}
         </div>
       </div>

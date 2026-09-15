@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import {
   Briefcase,
@@ -11,11 +10,10 @@ import {
 } from "lucide-react";
 
 import { AccountHub, AccountHubSidebarTrigger } from "@/components/account-hub";
+import { useAccountIdentity } from "@/components/account-hub";
 import { NotificationBell } from "@/components/notification-bell";
 import { RemoteAvatar } from "@/components/remote-avatar";
-
-import { supabase } from "@/integrations/supabase/client";
-import { useMyFacility, useRoles, useSession } from "@/lib/auth";
+import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 
@@ -49,21 +47,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
   if (roles?.includes("admin")) items.push({ to: "/admin", key: "nav.admin", icon: ShieldCheck });
 
-  const { data: myFacility } = useMyFacility(user);
-  const { data: myProfile } = useQuery({
-    queryKey: ["my-profile-lite", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name,avatar_url")
-        .eq("id", user!.id)
-        .maybeSingle();
-      return data;
-    },
-  });
-  const accountName =
-    (isFacility ? myFacility?.name_ar : myProfile?.full_name) || user?.email || "SyndeoCare";
+  const { name: accountName, image: accountImage } = useAccountIdentity();
 
   /** المسار النشط: مطابقة دقيقة مع تفضيل أطول مسار مطابق. */
   function isActive(to: string) {
@@ -143,7 +127,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 className="flex min-h-11 min-w-0 items-center gap-2 rounded-lg px-1 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <RemoteAvatar
-                  value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+                   value={accountImage}
                   alt={accountName}
                   fallbackText={accountName}
                   className="size-9 shrink-0 rounded-full text-sm"
