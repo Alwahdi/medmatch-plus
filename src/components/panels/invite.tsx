@@ -31,7 +31,7 @@ type Candidate = {
 export const INVITE_TXT = {
   ar: {
     title: "دعوة مختصين",
-    subtitle: "أرسل دعوة مباشرة لمختص للانضمام إلى هذا الإعلان، ويمكنه قبولها أو رفضها.",
+    subtitle: "أرسل دعوة مباشرة لمختص للانضمام إلى هذه الفرصة، ويمكنه قبولها أو رفضها.",
     back: "رجوع للوحة",
     forJob: "دعوة لوظيفة",
     forShift: "دعوة لمناوبة",
@@ -57,7 +57,7 @@ export const INVITE_TXT = {
     declined: "رفض الدعوة",
     sent: "تم إرسال الدعوة",
     failed: "تعذّر إرسال الدعوة",
-    duplicate: "سبق أن دعوت هذا المختص لهذا الإعلان",
+    duplicate: "سبق أن دعوت هذا المختص لهذه الفرصة",
     verified: "موثّق",
     experience: (n: number) => `خبرة ${n} سنة`,
     sentTitle: "الدعوات المُرسلة",
@@ -71,7 +71,7 @@ export const INVITE_TXT = {
   },
   en: {
     title: "Invite professionals",
-    subtitle: "Send a direct invitation to a professional for this posting; they can accept or decline.",
+    subtitle: "Send a direct invitation to a professional for this opportunity; they can accept or decline.",
     back: "Back to dashboard",
     forJob: "Invitation for job",
     forShift: "Invitation for shift",
@@ -97,7 +97,7 @@ export const INVITE_TXT = {
     declined: "Declined",
     sent: "Invitation sent",
     failed: "Could not send the invitation",
-    duplicate: "You already invited this professional to this posting",
+    duplicate: "You already invited this professional to this opportunity",
     verified: "Verified",
     experience: (n: number) => `${n} years experience`,
     sentTitle: "Sent invitations",

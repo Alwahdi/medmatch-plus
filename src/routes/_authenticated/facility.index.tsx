@@ -233,10 +233,10 @@ const TXT = {
     overdueBody: "سجّل انتهاء المناوبة لفتح التقييم وإكمال سجلها للطرفين.",
     reviewShifts: "مراجعة المناوبات",
     applicantsTitle: (n: number) => `${n} طلب جديد بانتظار المراجعة`,
-    applicantsBody: "ابدأ من الإعلان المرتبط لمراجعة المتقدمين واتخاذ الخطوة التالية.",
+    applicantsBody: "ابدأ من الفرصة المرتبطة لمراجعة المتقدمين واتخاذ الخطوة التالية.",
     reviewWork: "فتح الأعمال المنشورة",
     trialUsage: "حدود الاستخدام التجريبي",
-    viewPublished: "عرض الإعلان",
+    viewPublished: "عرض الفرصة",
   },
   en: {
     loading: "Loading...",
