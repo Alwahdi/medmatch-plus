@@ -144,14 +144,14 @@ function FacilityProfilePage() {
   if (isLoading)
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
-        <Skeleton className="h-80 rounded-2xl" />
+        <Skeleton className="h-80 rounded-lg" />
       </div>
     );
 
   if (!facility)
     return (
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-surface text-muted-foreground">
+        <span className="mx-auto grid size-14 place-items-center rounded-lg bg-surface text-muted-foreground">
           <Lock className="size-7" />
         </span>
         <h1 className="mt-5 font-display text-2xl font-bold">{c.hiddenTitle}</h1>
@@ -229,7 +229,7 @@ function FacilityProfilePage() {
       </section>
 
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-10">
-        <div className="card-lift rounded-2xl border border-border bg-card p-6">
+        <div className="card-lift rounded-lg border border-border bg-card p-6">
           <h2 className="text-lg font-bold">{c.about}</h2>
           <p className="mt-2 leading-relaxed whitespace-pre-line text-muted-foreground">
             {facility.description || c.noAbout}
@@ -256,7 +256,7 @@ function FacilityProfilePage() {
           )}
         </div>
 
-        <div className="card-lift rounded-2xl border border-border bg-card p-6">
+        <div className="card-lift rounded-lg border border-border bg-card p-6">
           <h2 className="text-lg font-bold">{c.jobs}</h2>
           {jobs?.length ? (
             <ul className="mt-4 space-y-3">
@@ -265,7 +265,7 @@ function FacilityProfilePage() {
                   <Link
                     to="/jobs/$jobId"
                     params={{ jobId: j.slug ?? j.id }}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4 hover:border-accent/50"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-4 hover:border-accent/50"
                   >
                     <div>
                       <p className="font-bold">{j.title}</p>
@@ -285,7 +285,7 @@ function FacilityProfilePage() {
           )}
         </div>
 
-        <div className="card-lift rounded-2xl border border-border bg-card p-6">
+        <div className="card-lift rounded-lg border border-border bg-card p-6">
           <h2 className="text-lg font-bold">{c.shifts}</h2>
           {shifts?.length ? (
             <ul className="mt-4 space-y-3">
@@ -294,7 +294,7 @@ function FacilityProfilePage() {
                   <Link
                     to="/shifts/$shiftId"
                     params={{ shiftId: s.id }}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4 hover:border-accent/50"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-4 hover:border-accent/50"
                   >
                     <div>
                       <p className="font-bold">{s.title}</p>

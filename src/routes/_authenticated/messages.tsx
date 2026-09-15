@@ -632,7 +632,7 @@ function MessagesPage() {
   const headerBlock = activeInfo && (
     <>
       <span className="relative">
-        <RemoteAvatar value={activeInfo.image} icon={activeInfo.icon} className="size-10 rounded-xl" />
+        <RemoteAvatar value={activeInfo.image} icon={activeInfo.icon} className="size-10 rounded-lg" />
         <span
           className={cn(
             "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
@@ -794,7 +794,7 @@ function MessagesPage() {
                     <Link
                       to="/facilities/$facilityId"
                       params={{ facilityId: activeInfo.linkId }}
-                      className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1 py-1 transition hover:bg-secondary"
                       title={c.viewProfile}
                     >
                       {headerBlock}
@@ -803,7 +803,7 @@ function MessagesPage() {
                     <Link
                       to="/facility/candidates/$userId"
                       params={{ userId: activeInfo.linkId }}
-                      className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-secondary"
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1 py-1 transition hover:bg-secondary"
                       title={c.viewProfile}
                     >
                       {headerBlock}
@@ -985,15 +985,15 @@ function MessagesPage() {
                         <img
                           src={filePreview}
                           alt=""
-                          className="size-16 shrink-0 rounded-xl object-cover"
+                          className="size-16 shrink-0 rounded-lg object-cover"
                         />
                       ) : filePreview && file.type.startsWith("video/") ? (
                         <video
                           src={filePreview}
-                          className="size-16 shrink-0 rounded-xl bg-black object-cover"
+                          className="size-16 shrink-0 rounded-lg bg-black object-cover"
                         />
                       ) : (
-                        <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <span className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                           <FileText className="size-6" />
                         </span>
                       )}
@@ -1228,7 +1228,7 @@ function MessagesPage() {
           </DialogHeader>
           {info && (
             <div className="space-y-4">
-              <div className="rounded-xl bg-surface p-3 text-sm whitespace-pre-line">
+              <div className="rounded-lg bg-surface p-3 text-sm whitespace-pre-line">
                 {info.body || (info.attachment_type?.startsWith("audio/") ? c.voiceNote : info.attachment_name)}
               </div>
               <dl className="space-y-2 text-sm">

@@ -67,10 +67,10 @@ function BlogIndex() {
               key={post.slug}
               to="/blog/$slug"
               params={{ slug: post.slug }}
-              className="card-lift flex h-full flex-col rounded-2xl border border-border bg-card p-5 hover:border-accent/30"
+              className="card-lift flex h-full flex-col rounded-lg border border-border bg-card p-5 hover:border-accent/30"
             >
               <div className="flex items-center gap-2">
-                <span className="flex size-9 items-center justify-center rounded-xl bg-secondary text-primary">
+                <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-primary">
                   <Newspaper className="size-4" />
                 </span>
                 <Badge variant="outline">{post.category[lang]}</Badge>

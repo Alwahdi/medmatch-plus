@@ -129,7 +129,7 @@ function CookiesPage() {
           </section>
         ))}
 
-        <div className="card-lift mt-12 rounded-2xl border border-border bg-card p-6">
+        <div className="card-lift mt-12 rounded-lg border border-border bg-card p-6">
           <h2 className="font-display text-xl font-bold">{c.contactTitle}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{c.contactSub}</p>
           <div className="mt-4 flex flex-wrap gap-3">

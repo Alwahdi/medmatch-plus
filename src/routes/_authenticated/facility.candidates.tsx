@@ -268,7 +268,7 @@ function Candidates() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 sm:p-5 md:grid-cols-4">
+      <div className="mt-6 grid gap-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-2 sm:p-5 md:grid-cols-4">
         <Combobox
           options={[
             { value: ANY, label: c.allSpecialties },
@@ -323,7 +323,7 @@ function Candidates() {
       )}
 
       {results && results.length === 0 && (
-        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center">
+        <div className="mt-6 rounded-lg border border-border bg-card p-8 text-center">
           <p className="font-semibold">{c.noResults}</p>
           <p className="mt-2 text-sm text-muted-foreground">{c.widenHint}</p>
         </div>
@@ -332,7 +332,7 @@ function Candidates() {
       {results && results.length > 0 && (
         <ul className="mt-6 space-y-4">
           {results.map((cand) => (
-            <li key={cand.id} className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <li key={cand.id} className="card-lift rounded-lg border border-border bg-card p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 font-bold">

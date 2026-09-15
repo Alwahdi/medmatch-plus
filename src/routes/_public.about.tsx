@@ -105,12 +105,12 @@ function About() {
               </div>
             </div>
 
-            <div className="card-lift rounded-3xl border border-border bg-card p-8">
+            <div className="card-lift rounded-lg border border-border bg-card p-8">
               <p className="section-label">{c.valuesLabel}</p>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 {VALUES.map((v) => (
                   <div key={v.title}>
-                    <span className="flex size-11 items-center justify-center rounded-xl bg-accent/12 text-accent">
+                    <span className="flex size-11 items-center justify-center rounded-lg bg-accent/12 text-accent">
                       <v.icon className="size-5" />
                     </span>
                     <h3 className="mt-4 font-bold">{v.title}</h3>
@@ -121,7 +121,7 @@ function About() {
             </div>
           </div>
 
-          <div className="mt-12 rounded-2xl border border-border bg-surface p-8 text-center">
+          <div className="mt-12 rounded-lg border border-border bg-surface p-8 text-center">
             <h2 className="font-display text-2xl font-extrabold">{c.readyTitle}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               {c.readyText}

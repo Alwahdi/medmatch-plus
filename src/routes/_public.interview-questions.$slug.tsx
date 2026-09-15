@@ -238,7 +238,7 @@ function BankPage() {
               <h2 className="font-display text-xl font-bold">{g.heading}</h2>
               <div className="mt-4 space-y-4">
                 {g.questions.map((q) => (
-                  <div key={q.q} className="rounded-2xl border border-border bg-card p-5">
+                  <div key={q.q} className="rounded-lg border border-border bg-card p-5">
                     <h3 className="font-bold">{q.q}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                       <span className="font-semibold text-foreground">{c.howToAnswer}</span>
@@ -251,7 +251,7 @@ function BankPage() {
           ))}
         </div>
 
-        <div className="mt-12 rounded-2xl border border-border bg-surface p-6 text-center">
+        <div className="mt-12 rounded-lg border border-border bg-surface p-6 text-center">
           <h2 className="font-display text-xl font-extrabold">{c.ctaTitle}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{c.ctaSub}</p>
           <Button className="mt-5" asChild>

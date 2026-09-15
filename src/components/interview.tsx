@@ -358,7 +358,7 @@ export function FacilityInterviewBlock({
   });
 
   return (
-    <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+    <div className="mt-4 rounded-lg border border-border bg-surface p-4">
       {confirmDialog}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="flex items-center gap-2 text-sm font-bold">
@@ -580,7 +580,7 @@ export function CandidateInterviewBlock({
   const pending = row.status === "scheduled";
 
   return (
-    <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+    <div className="mt-4 rounded-lg border border-border bg-surface p-4">
       {confirmDialog}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="flex items-center gap-2 text-sm font-bold">

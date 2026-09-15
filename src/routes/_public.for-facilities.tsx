@@ -124,8 +124,8 @@ function ForFacilities() {
             {c.steps.map((s, idx) => {
               const Icon = stepIcons[idx]!;
               return (
-                <div key={s.title} className="card-lift rounded-2xl border border-border bg-card p-6">
-                  <span className="flex size-11 items-center justify-center rounded-xl bg-accent/12 text-accent">
+                <div key={s.title} className="card-lift rounded-lg border border-border bg-card p-6">
+                  <span className="flex size-11 items-center justify-center rounded-lg bg-accent/12 text-accent">
                     <Icon className="size-5" />
                   </span>
                   <h3 className="mt-4 font-bold">{s.title}</h3>
@@ -145,7 +145,7 @@ function ForFacilities() {
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {c.benefits.map(([t, d]) => (
-              <div key={t} className="card-lift rounded-2xl border border-border bg-card p-6">
+              <div key={t} className="card-lift rounded-lg border border-border bg-card p-6">
                 <h3 className="font-bold">{t}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{d}</p>
               </div>

@@ -43,7 +43,7 @@ export function OwnerListingPanel({
   const c = TXT[lang];
   const isJob = kind === "job";
   return (
-    <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:p-6">
+    <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-6">
       <h2 className="flex items-center gap-2 text-lg font-bold">
         <Building2 className="size-5 text-primary" />
         {isJob ? c.jobTitle : c.shiftTitle}

@@ -203,7 +203,7 @@ export function CredentialsPanel() {
       </p>
 
       <div
-        className={`mt-6 flex flex-wrap items-center gap-3 rounded-2xl border p-5 ${
+        className={`mt-6 flex flex-wrap items-center gap-3 rounded-lg border p-5 ${
           isVerified ? "border-accent/40 bg-accent/5" : "border-border bg-card"
         }`}
       >
@@ -218,7 +218,7 @@ export function CredentialsPanel() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+      <div className="mt-6 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
           <span className="text-xs text-muted-foreground">
@@ -245,7 +245,7 @@ export function CredentialsPanel() {
                   ? "text-destructive"
                   : "text-muted-foreground";
             return (
-              <li key={type} className="flex items-center gap-3 rounded-xl border border-border/60 p-3">
+              <li key={type} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
                 <Icon className={`size-5 ${tone}`} />
                 <span className="min-w-0 flex-1 truncate text-sm">{docTypeLabel(type, lang)}</span>
                 <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
@@ -260,7 +260,7 @@ export function CredentialsPanel() {
         </ul>
       </div>
 
-      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
+      <div className="card-lift mt-6 space-y-4 rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-bold">{c.addTitle}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -304,7 +304,7 @@ export function CredentialsPanel() {
       ) : items?.length ? (
         <ul className="mt-4 space-y-3">
           {items.map((cred) => (
-            <li key={cred.id} className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4">
+            <li key={cred.id} className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4">
               <div className="flex items-center gap-3">
                 <FileCheck2 className="size-5 text-primary" />
                 <div>

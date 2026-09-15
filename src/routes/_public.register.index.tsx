@@ -227,23 +227,23 @@ function RegisterSeeker() {
               </li>
             ))}
           </ul>
-          <p className="mt-8 flex items-start gap-2 rounded-xl bg-secondary p-4 text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-8 flex items-start gap-2 rounded-lg bg-secondary p-4 text-xs leading-relaxed text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
             {L.secure}
           </p>
         </aside>
 
-        <div className="card-lift w-full rounded-2xl border border-border bg-card p-6 sm:p-8">
+        <div className="card-lift w-full rounded-lg border border-border bg-card p-6 sm:p-8">
           <p className="text-sm font-bold">{L.joinAs}</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-primary bg-primary/8 p-4 text-start">
+            <div className="rounded-lg border border-primary bg-primary/8 p-4 text-start">
               <Briefcase className="size-5 text-primary" />
               <p className="mt-2 font-bold">{L.seeker}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">{L.seekerHint}</p>
             </div>
             <Link
               to="/register/employer"
-              className="rounded-xl border border-border p-4 text-start transition-colors hover:border-primary/40"
+              className="rounded-lg border border-border p-4 text-start transition-colors hover:border-primary/40"
             >
               <Building2 className="size-5 text-primary" />
               <p className="mt-2 font-bold">{L.employer}</p>
@@ -254,7 +254,7 @@ function RegisterSeeker() {
           <h2 className="mt-8 font-display text-xl font-extrabold">{L.formTitle}</h2>
 
           {sent ? (
-            <p className="mt-6 rounded-xl bg-secondary p-4 text-sm leading-relaxed">{L.sent}</p>
+            <p className="mt-6 rounded-lg bg-secondary p-4 text-sm leading-relaxed">{L.sent}</p>
           ) : (
             <>
               <Button

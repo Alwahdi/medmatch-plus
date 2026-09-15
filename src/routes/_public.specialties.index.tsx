@@ -106,9 +106,9 @@ function SpecialtiesIndex() {
                     key={s.id}
                     to="/specialties/$slug"
                     params={{ slug: s.slug }}
-                    className="card-lift flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-accent/30"
+                    className="card-lift flex items-center gap-3 rounded-lg border border-border bg-card p-4 hover:border-accent/30"
                   >
-                    <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Stethoscope className="size-4" />
                     </span>
                     <span>

@@ -251,14 +251,14 @@ function Lightbox({
           controls
           autoPlay
           onClick={(e) => e.stopPropagation()}
-          className="max-h-[85vh] max-w-full rounded-xl"
+          className="max-h-[85vh] max-w-full rounded-lg"
         />
       ) : (
         <img
           src={url}
           alt={name ?? ""}
           onClick={(e) => e.stopPropagation()}
-          className="max-h-[85vh] max-w-full rounded-xl object-contain"
+          className="max-h-[85vh] max-w-full rounded-lg object-contain"
         />
       )}
     </div>
@@ -320,12 +320,12 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="relative block w-64 max-w-full overflow-hidden rounded-xl"
+          className="relative block w-64 max-w-full overflow-hidden rounded-lg"
         >
           <video
             preload="metadata"
             src={`${url}#t=0.1`}
-            className="max-h-72 w-full rounded-xl bg-black object-cover"
+            className="max-h-72 w-full rounded-lg bg-black object-cover"
           />
           <span className="absolute inset-0 flex items-center justify-center">
             <span className="flex size-12 items-center justify-center rounded-full bg-black/55 text-white">
@@ -351,7 +351,7 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
             src={url}
             alt={name ?? ""}
             loading="lazy"
-            className="max-h-72 w-full rounded-xl border border-border/30 object-cover transition hover:opacity-95"
+            className="max-h-72 w-full rounded-lg border border-border/30 object-cover transition hover:opacity-95"
           />
           {size ? (
             <span className="absolute bottom-2 start-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] text-white">
@@ -372,7 +372,7 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
       target="_blank"
       rel="noreferrer"
       className={cn(
-        "flex w-60 max-w-full items-center gap-3 rounded-xl border p-2.5 transition",
+        "flex w-60 max-w-full items-center gap-3 rounded-lg border p-2.5 transition",
         mine ? "border-white/25 hover:bg-white/10" : "border-border bg-card hover:bg-secondary",
       )}
     >

@@ -352,7 +352,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
           <Search className="size-5 text-primary" /> {c.searchTitle}
         </h2>
-        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-card p-5 md:grid-cols-4">
+        <div className="mt-4 grid gap-3 rounded-lg border border-border bg-card p-5 md:grid-cols-4">
           <Combobox
             options={[
               { value: ANY, label: c.allSpecialties },
@@ -403,9 +403,9 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             {results.map((cand) => (
               <li
                 key={cand.user_id}
-                className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4"
+                className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4"
               >
-                <RemoteAvatar value={null} icon={UserRound} className="size-10 rounded-xl" />
+                <RemoteAvatar value={null} icon={UserRound} className="size-10 rounded-lg" />
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 font-bold">
                     {specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang)}
@@ -437,7 +437,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             {sentInvites.map((i) => (
               <li
                 key={i.id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm"
+                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
               >
                 <Link
                   to="/facility/candidates/$userId"

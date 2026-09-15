@@ -108,7 +108,7 @@ function BlogPost() {
           </section>
         ))}
 
-        <div className="card-lift mt-12 rounded-2xl border border-border bg-card p-6">
+        <div className="card-lift mt-12 rounded-lg border border-border bg-card p-6">
           <h2 className="font-display text-xl font-bold">{c.ctaTitle}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{c.ctaSub}</p>
           <div className="mt-4 flex flex-wrap gap-3">
@@ -128,7 +128,7 @@ function BlogPost() {
               key={p.slug}
               to="/blog/$slug"
               params={{ slug: p.slug }}
-              className="card-lift rounded-2xl border border-border bg-card p-4 text-sm font-bold hover:border-accent/30"
+              className="card-lift rounded-lg border border-border bg-card p-4 text-sm font-bold hover:border-accent/30"
             >
               {p.title[lang]}
             </Link>

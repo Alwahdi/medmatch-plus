@@ -261,7 +261,7 @@ function JobDetail() {
   if (isLoading)
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
-        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-96 rounded-lg" />
       </div>
     );
   if (!job) return null;
@@ -313,7 +313,7 @@ function JobDetail() {
       <div className="mx-auto max-w-4xl px-4 py-10 pb-28 lg:pb-10">
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           {/* Main */}
-          <div className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-6">
+          <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
             <div className="flex flex-wrap gap-2 text-xs">
               <Badge variant="outline" className="gap-1">
                 <MapPin className="size-3" /> {job.city}، {job.country}
@@ -346,14 +346,14 @@ function JobDetail() {
               <li>{c.teamworkReq}</li>
             </ul>
 
-            <div className="mt-6 rounded-xl bg-surface p-4 text-sm text-muted-foreground">
+            <div className="mt-6 rounded-lg bg-surface p-4 text-sm text-muted-foreground">
               {c.privacyNote}
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <div className="card-lift rounded-2xl border border-border bg-card p-6">
+            <div className="card-lift rounded-lg border border-border bg-card p-6">
               <div className="text-sm text-muted-foreground">{c.salaryLabel}</div>
               <div className="mt-1 font-display text-3xl font-extrabold text-primary">
                 {formatSalary(Number(job.salary_min), Number(job.salary_max), job.currency, lang)}
@@ -399,7 +399,7 @@ function JobDetail() {
             {isOwner ? (
               <OwnerListingPanel kind="job" listingId={job.id} facilityId={job.facility_id} />
             ) : (
-            <div id="apply" className="card-lift scroll-mt-24 rounded-2xl border border-border bg-card p-4 sm:p-6">
+            <div id="apply" className="card-lift scroll-mt-24 rounded-lg border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.applyTitle}</h2>
               {!user ? (
                 <>

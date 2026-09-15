@@ -217,7 +217,7 @@ function ShiftDetail() {
   if (isLoading)
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
-        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-96 rounded-lg" />
       </div>
     );
   if (!shift) return null;
@@ -311,7 +311,7 @@ function ShiftDetail() {
 
       <div className="mx-auto max-w-4xl px-4 py-10 pb-28 lg:pb-10">
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-          <div className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-6">
+          <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
             <div className="flex flex-wrap gap-2 text-xs">
               <Badge variant="outline" className="gap-1">
                 <MapPin className="size-3" /> {shift.city}، {countryLabel(shift.country, lang)}
@@ -356,7 +356,7 @@ function ShiftDetail() {
           </div>
 
           <div className="space-y-6">
-            <div className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-6">
+            <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
               <div className="text-sm text-muted-foreground">{c.totalLabel}</div>
               <div className="mt-1 font-display text-3xl font-extrabold text-accent">
                 {formatMoney(total, shift.currency, lang)}
@@ -383,7 +383,7 @@ function ShiftDetail() {
                 completed={shift.status === "completed"}
               />
             ) : (
-            <div id="book" className="card-lift scroll-mt-24 rounded-2xl border border-border bg-card p-4 sm:p-6">
+            <div id="book" className="card-lift scroll-mt-24 rounded-lg border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.bookTitle}</h2>
               {!user ? (
                 <>

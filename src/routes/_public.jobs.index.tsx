@@ -461,7 +461,7 @@ function JobsPage() {
             >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="font-display text-lg font-bold">{c.filters}</h2>
-                <span className="grid size-9 place-items-center rounded-xl bg-surface text-muted-foreground">
+                <span className="grid size-9 place-items-center rounded-lg bg-surface text-muted-foreground">
                   <SlidersHorizontal className="size-4" />
                 </span>
               </div>
@@ -566,7 +566,7 @@ function JobsPage() {
 
           {/* Results */}
           <div className="lg:order-2">
-            <div className="mb-4 flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
+            <div className="mb-4 flex items-center gap-1 rounded-lg bg-surface p-1" role="tablist">
               {(
                 [
                   [ALL, c.kindAll],
@@ -603,7 +603,7 @@ function JobsPage() {
                     key={key}
                     type="button"
                     onClick={() => pickScope(key)}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                    className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                       scope === key
                         ? "bg-primary text-primary-foreground"
                         : "bg-surface text-muted-foreground hover:text-foreground"
@@ -638,7 +638,7 @@ function JobsPage() {
             {signedIn && (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {profile && (
-                  <div className="flex items-center gap-1 rounded-xl bg-surface p-1">
+                  <div className="flex items-center gap-1 rounded-lg bg-surface p-1">
                     {(
                       [
                         ["match", c.sortMatch],
@@ -668,7 +668,7 @@ function JobsPage() {
                   <button
                     type="button"
                     onClick={() => setHideApplied((v) => !v)}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                    className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                       hideApplied
                         ? "bg-primary text-primary-foreground"
                         : "bg-surface text-muted-foreground hover:text-foreground"
@@ -683,7 +683,7 @@ function JobsPage() {
             {isLoading || shiftsLoading ? (
               <div className="mt-6 space-y-3">
                 {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-28 rounded-2xl" />
+                  <Skeleton key={i} className="h-28 rounded-lg" />
                 ))}
               </div>
             ) : items.length === 0 ? (

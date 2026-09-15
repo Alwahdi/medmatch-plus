@@ -111,7 +111,7 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
 
   if (preview) {
     return (
-      <div className="flex flex-1 items-center gap-2 rounded-2xl border border-border bg-surface px-2 py-1.5">
+      <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
         <button
           type="button"
           onClick={clearPreview}
@@ -216,5 +216,5 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
 function cnClass(compact?: boolean) {
   return compact
     ? "flex flex-1 items-center gap-2 rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1.5"
-    : "flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/5 px-3 py-1.5";
+    : "flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-1.5";
 }

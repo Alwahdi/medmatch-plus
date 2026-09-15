@@ -253,7 +253,7 @@ function GuidePage() {
           ))}
         </div>
 
-        <div className="mt-12 rounded-2xl border border-border bg-surface p-6 text-center">
+        <div className="mt-12 rounded-lg border border-border bg-surface p-6 text-center">
           <h2 className="font-display text-xl font-extrabold">{c.ctaTitle}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {c.ctaSub}
@@ -280,7 +280,7 @@ function GuidePage() {
                     key={g.slug}
                     to="/guides/$slug"
                     params={{ slug: g.slug }}
-                    className="card-lift rounded-xl border border-border bg-card p-4 text-sm font-bold"
+                    className="card-lift rounded-lg border border-border bg-card p-4 text-sm font-bold"
                   >
                     {title}
                   </Link>

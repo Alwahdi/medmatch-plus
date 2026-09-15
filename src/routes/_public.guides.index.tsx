@@ -115,7 +115,7 @@ function GuidesIndex() {
                   key={g.slug}
                   to="/guides/$slug"
                   params={{ slug: g.slug }}
-                  className="card-lift rounded-2xl border border-border bg-card p-6 hover:border-accent/30"
+                  className="card-lift rounded-lg border border-border bg-card p-6 hover:border-accent/30"
                 >
                   <Badge variant="secondary">{category}</Badge>
                   <h2 className="mt-3 font-display text-xl font-bold">{title}</h2>

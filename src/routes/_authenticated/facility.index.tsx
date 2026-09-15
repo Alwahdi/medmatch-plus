@@ -751,7 +751,7 @@ function FacilityDashboard() {
         <p className="mt-1 text-sm leading-6 text-muted-foreground">{c.overview}</p>
       </div>
       <div className="mt-4 -mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="inline-flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
+        <div className="inline-flex items-center gap-1 rounded-lg bg-surface p-1" role="tablist">
           {(
             [
               ["all", c.tabAll((jobs?.length ?? 0) + (shifts?.length ?? 0)), Layers],
@@ -1363,7 +1363,7 @@ function JobForm({
           onChange={(e) => setForm({ ...form, description: e.target.value })} />
       </div>
       {(expired || quotaReached) && (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+        <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
           {expired ? c.subExpiredJob : c.quotaReachedJob}
         </p>
       )}
@@ -1590,7 +1590,7 @@ function ShiftForm({
           onChange={(e) => setForm({ ...form, notes: e.target.value })} />
       </div>
       {(expired || quotaReached) && (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+        <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
           {expired ? c.subExpiredShift : c.quotaReachedShift}
         </p>
       )}

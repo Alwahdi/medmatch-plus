@@ -274,7 +274,7 @@ function RegisterEmployer() {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
           <div className="space-y-6">
-            <section className="card-lift rounded-2xl border border-border bg-card p-6">
+            <section className="card-lift rounded-lg border border-border bg-card p-6">
               <p className="text-xs font-bold text-muted-foreground">{L.included}</p>
               <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
                 <p className="font-display text-lg font-extrabold">{L.trialTitle}</p>
@@ -302,12 +302,12 @@ function RegisterEmployer() {
               </Link>
             </section>
 
-            <section className="card-lift rounded-2xl border border-border bg-card p-6 sm:p-8">
+            <section className="card-lift rounded-lg border border-border bg-card p-6 sm:p-8">
               <h2 className="font-display text-xl font-extrabold">{L.formTitle}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{L.formBody}</p>
 
               {sent ? (
-                <p className="mt-6 rounded-xl bg-secondary p-4 text-sm leading-relaxed">{L.sent}</p>
+                <p className="mt-6 rounded-lg bg-secondary p-4 text-sm leading-relaxed">{L.sent}</p>
               ) : (
                 <>
                 <Button
@@ -376,7 +376,7 @@ function RegisterEmployer() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-border p-4">
+                  <div className="rounded-lg border border-border p-4">
                     <p className="font-bold">{L.location}</p>
                     <div className="mt-3 grid gap-4 sm:grid-cols-3">
                       <div>
@@ -485,10 +485,10 @@ function RegisterEmployer() {
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-24">
-            <div className="card-lift rounded-2xl border border-border bg-card p-6">
+            <div className="card-lift rounded-lg border border-border bg-card p-6">
               <p className="text-xs font-bold text-muted-foreground">{L.sideTitle}</p>
               <div className="mt-4 flex items-center gap-3">
-                <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <span className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Building2 className="size-6" />
                 </span>
                 <div>
@@ -505,7 +505,7 @@ function RegisterEmployer() {
                 ))}
               </ul>
             </div>
-            <div className="rounded-2xl bg-secondary p-6 text-sm">
+            <div className="rounded-lg bg-secondary p-6 text-sm">
               <ul className="space-y-2">
                 {[L.f1, L.f2, L.f3].map((i) => (
                   <li key={i} className="flex items-start gap-2">

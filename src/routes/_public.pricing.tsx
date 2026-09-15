@@ -143,10 +143,10 @@ function PricingPage() {
       <section className="pb-16 md:pb-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex justify-center">
-            <div className="inline-flex -translate-y-1/2 rounded-2xl border border-border bg-card p-1.5 shadow-lg">
+            <div className="inline-flex -translate-y-1/2 rounded-lg border border-border bg-card p-1.5 shadow-lg">
               <button
                 onClick={() => setYearly(false)}
-                className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors ${
+                className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors ${
                   !yearly
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground"
@@ -156,7 +156,7 @@ function PricingPage() {
               </button>
               <button
                 onClick={() => setYearly(true)}
-                className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors ${
+                className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors ${
                   yearly
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground"
@@ -175,7 +175,7 @@ function PricingPage() {
               return (
                 <div
                   key={p.code}
-                  className={`card-lift flex flex-col rounded-2xl border bg-card p-6 ${
+                  className={`card-lift flex flex-col rounded-lg border bg-card p-6 ${
                     highlight ? "border-primary shadow-lg" : "border-border"
                   }`}
                 >
@@ -228,8 +228,8 @@ function PricingPage() {
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <div className="card-lift rounded-2xl border border-border bg-card p-6">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-accent/12 text-accent">
+            <div className="card-lift rounded-lg border border-border bg-card p-6">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-accent/12 text-accent">
                 <ShieldCheck className="size-5" />
               </div>
               <h2 className="mt-4 font-display text-lg font-bold">{c.whyHideTitle}</h2>
@@ -237,8 +237,8 @@ function PricingPage() {
                 {c.whyHideText}
               </p>
             </div>
-            <div className="card-lift rounded-2xl border border-border bg-card p-6">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <div className="card-lift rounded-lg border border-border bg-card p-6">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <ArrowLeft className="size-5" />
               </div>
               <h2 className="mt-4 font-display text-lg font-bold">{c.proTitle}</h2>

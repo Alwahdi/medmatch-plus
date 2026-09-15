@@ -133,7 +133,7 @@ const TXT = {
 
 function StatCard({ label, value, icon: Icon }: { label: string; value: number; icon: typeof FileText }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <Icon className="size-4 text-primary" /> {label}
       </div>
@@ -481,13 +481,13 @@ function AdminPage() {
               <Loader2 className="size-4 animate-spin" /> {c.loading}
             </p>
           ) : shownDocs.length === 0 ? (
-            <p className="mt-6 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            <p className="mt-6 rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
               {c.noDocs}
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
               {shownDocs.map((cr) => (
-                <li key={cr.id} className="rounded-2xl border border-border bg-card p-4">
+                <li key={cr.id} className="rounded-lg border border-border bg-card p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-bold">{cr.title}</p>
@@ -533,7 +533,7 @@ function AdminPage() {
                   </div>
 
                   {rejectId === cr.id && (
-                    <div className="mt-3 rounded-xl border border-border bg-muted/40 p-3">
+                    <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3">
                       <label className="text-xs font-medium" htmlFor={`note-${cr.id}`}>
                         {c.noteLabel}
                       </label>
@@ -578,13 +578,13 @@ function AdminPage() {
               <Loader2 className="size-4 animate-spin" /> {c.loading}
             </p>
           ) : shownFacDocs.length === 0 ? (
-            <p className="mt-6 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            <p className="mt-6 rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
               {c.noFacDocs}
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
               {shownFacDocs.map((fd) => (
-                <li key={fd.id} className="rounded-2xl border border-border bg-card p-4">
+                <li key={fd.id} className="rounded-lg border border-border bg-card p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-bold">{fd.title}</p>
@@ -670,7 +670,7 @@ function AdminPage() {
             {shownFacilities.map((f) => (
               <li
                 key={f.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4"
               >
                 <div>
                   <p className="flex items-center gap-2 font-bold">
@@ -705,7 +705,7 @@ function AdminPage() {
             />
           </div>
           {shownPros.length === 0 ? (
-            <p className="mt-6 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            <p className="mt-6 rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
               {c.noPros}
             </p>
           ) : (
@@ -713,7 +713,7 @@ function AdminPage() {
               {shownPros.map((p) => (
                 <li
                   key={p.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4"
                 >
                   <div>
                     <p className="flex items-center gap-2 font-bold">
@@ -742,13 +742,13 @@ function AdminPage() {
 
         <TabsContent value="inbox" className="mt-6">
           {(inbox ?? []).length === 0 ? (
-            <p className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
               {c.noMsgs}
             </p>
           ) : (
             <ul className="space-y-3">
               {(inbox ?? []).map((m) => (
-                <li key={m.id} className="rounded-2xl border border-border bg-card p-4">
+                <li key={m.id} className="rounded-lg border border-border bg-card p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-bold">
@@ -793,13 +793,13 @@ function AdminPage() {
             </Button>
           </div>
           {shownChanges.length === 0 ? (
-            <p className="mt-4 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            <p className="mt-4 rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
               {lang === "ar" ? "لا توجد طلبات تعديل." : "No change requests."}
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
               {shownChanges.map((r) => (
-                <li key={r.id} className="rounded-2xl border border-border bg-card p-4">
+                <li key={r.id} className="rounded-lg border border-border bg-card p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-bold">
@@ -888,7 +888,7 @@ function AdminPage() {
             />
           </div>
           {shownLog.length === 0 ? (
-            <p className="mt-4 rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            <p className="mt-4 rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
               {lang === "ar" ? "لا توجد تعديلات مسجّلة." : "No recorded changes."}
             </p>
           ) : (
@@ -896,7 +896,7 @@ function AdminPage() {
               {shownLog.map((l) => (
                 <li
                   key={l.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-4 py-3 text-sm"
                 >
                   <span>
                     <b>{fieldLabel(l.field, lang)}</b>{" "}
