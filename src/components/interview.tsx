@@ -206,13 +206,14 @@ function toLocalInput(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function useInterview(target: { applicationId?: string; shiftBookingId?: string }) {
-  const key = target.applicationId
-    ? ["interview", "application", target.applicationId]
-    : ["interview", "booking", target.shiftBookingId];
+function useInterview(applicationId?: string, shiftBookingId?: string) {
+  const target = { applicationId, shiftBookingId };
+  const key = applicationId
+    ? ["interview", "application", applicationId]
+    : ["interview", "booking", shiftBookingId];
   return useQuery({
     queryKey: key,
-    enabled: !!(target.applicationId || target.shiftBookingId),
+    enabled: !!(applicationId || shiftBookingId),
     queryFn: async (): Promise<InterviewRow | null> => {
       let q = supabase.from("interviews").select(SELECT).order("created_at", { ascending: false }).limit(1);
       q = target.applicationId
@@ -270,7 +271,7 @@ export function FacilityInterviewBlock({
   const c = TXT[lang];
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
-  const { data: row } = useInterview({ applicationId, shiftBookingId });
+  const { data: row } = useInterview(applicationId, shiftBookingId);
 
   const [open, setOpen] = useState(false);
   const [completeOpen, setCompleteOpen] = useState(false);
@@ -300,20 +301,20 @@ export function FacilityInterviewBlock({
         const { error } = await supabase.rpc("reschedule_interview", {
           _interview_id: row.id,
           _scheduled_at: iso,
-          _notes: notes || undefined,
+          ...(notes ? { _notes: notes } : {}),
         });
         if (error) throw error;
         return;
       }
       const { error } = await supabase.rpc("schedule_interview", {
-        _application_id: applicationId ?? undefined,
-        _shift_booking_id: shiftBookingId ?? undefined,
+        ...(applicationId ? { _application_id: applicationId } : {}),
+        ...(shiftBookingId ? { _shift_booking_id: shiftBookingId } : {}),
         _scheduled_at: iso,
         _duration_minutes: Math.min(Math.max(Number(duration) || 30, 10), 240),
         _mode: mode,
-        _location: mode === "onsite" ? place : undefined,
-        _meeting_url: mode === "onsite" ? undefined : link,
-        _notes: notes || undefined,
+        ...(mode === "onsite" && place ? { _location: place } : {}),
+        ...(mode !== "onsite" && link ? { _meeting_url: link } : {}),
+        ...(notes ? { _notes: notes } : {}),
       });
       if (error) throw error;
     },
@@ -342,7 +343,7 @@ export function FacilityInterviewBlock({
       const { error } = await supabase.rpc("complete_interview", {
         _interview_id: row!.id,
         _rating: rating,
-        _note: outcomeNote || undefined,
+        ...(outcomeNote ? { _note: outcomeNote } : {}),
         _reject: reject,
       });
       if (error) throw error;
@@ -505,7 +506,7 @@ export function FacilityInterviewBlock({
           <div className="space-y-4">
             <div>
               <Label>{c.rating}</Label>
-              <div className="mt-2"><RatingInput value={rating} onChange={setRating} /></div>
+              <div className="mt-2"><RatingInput value={rating} onChange={setRating} label={c.rating} /></div>
             </div>
             <div>
               <Label htmlFor="iv-out">{c.outcomeNote}</Label>
@@ -555,7 +556,7 @@ export function CandidateInterviewBlock({
   const c = TXT[lang];
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
-  const { data: row } = useInterview({ applicationId, shiftBookingId });
+  const { data: row } = useInterview(applicationId, shiftBookingId);
 
   const respond = useMutation({
     mutationFn: async (accept: boolean) => {
