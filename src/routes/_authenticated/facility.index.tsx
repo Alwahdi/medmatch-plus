@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { FacilityApplicantsPanel } from "@/components/panels/facility.applicants";
 import { FacilityBookingsPanel } from "@/components/panels/facility.bookings";
+import { InvitePanel } from "@/components/panels/invite";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
+  ArrowRight,
   ArrowUpCircle,
   BadgeCheck,
   Briefcase,
@@ -195,6 +197,23 @@ const TXT = {
     startInPast: "وقت البداية يجب أن يكون في المستقبل",
     tooLong: "مدة المناوبة الواحدة لا تتجاوز 24 ساعة — تحقق من التاريخ",
     hourlyRateRequired: "أدخل الأجر بالساعة",
+    // Review step
+    reviewCta: "مراجعة قبل النشر",
+    reviewTitle: "راجع التفاصيل قبل النشر",
+    reviewSub: "تأكد من صحة البيانات. يمكنك الرجوع والتعديل قبل النشر.",
+    backToEdit: "رجوع وتعديل",
+    confirmPublish: "تأكيد النشر",
+    notSet: "غير محدد",
+    none: "بدون",
+    salaryRange: "نطاق الراتب",
+    duration: (h: string) => `المدة: ${h} ساعة`,
+    // Post-publish
+    publishedTitle: "تم النشر بنجاح",
+    publishedSubJob: "وظيفتك أصبحت مرئية للكوادر. تستطيع الآن دعوة مختصين مباشرة لها.",
+    publishedSubShift: "مناوبتك أصبحت مرئية للكوادر. تستطيع الآن دعوة مختصين مباشرة لها.",
+    inviteNow: "دعوة مختصين الآن",
+    doneLater: "لاحقاً",
+    inviteDialogTitle: "دعوة مختصين",
   },
   en: {
     loading: "Loading...",
@@ -310,6 +329,23 @@ const TXT = {
     startInPast: "Start time must be in the future",
     tooLong: "A single shift can't exceed 24 hours — check the date",
     hourlyRateRequired: "Enter the hourly rate",
+    // Review step
+    reviewCta: "Review before publishing",
+    reviewTitle: "Review the details before publishing",
+    reviewSub: "Check everything is correct. You can go back and edit before publishing.",
+    backToEdit: "Back to edit",
+    confirmPublish: "Confirm and publish",
+    notSet: "Not set",
+    none: "None",
+    salaryRange: "Salary range",
+    duration: (h: string) => `Duration: ${h} hours`,
+    // Post-publish
+    publishedTitle: "Published successfully",
+    publishedSubJob: "Your job is now visible to professionals. You can invite specialists directly.",
+    publishedSubShift: "Your shift is now visible to professionals. You can invite specialists directly.",
+    inviteNow: "Invite professionals now",
+    doneLater: "Later",
+    inviteDialogTitle: "Invite professionals",
   },
 } as const;
 
@@ -353,6 +389,9 @@ function FacilityDashboard() {
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
   const [openBookings, setOpenBookings] = useState<string | null>(null);
   const [createMode, setCreateMode] = useState<"job" | "shift" | null>(legacyCreate);
+  type WorkRef = { kind: "job" | "shift"; id: string };
+  const [justPublished, setJustPublished] = useState<WorkRef | null>(null);
+  const [inviteTarget, setInviteTarget] = useState<WorkRef | null>(null);
 
   const { user } = useSession();
   const { total: unreadMessages } = useUnread(user);
@@ -539,29 +578,84 @@ function FacilityDashboard() {
         </DropdownMenu>
       </div>
 
-      <Dialog open={createMode !== null} onOpenChange={(o) => !o && setCreateMode(null)}>
+      <Dialog
+        open={createMode !== null}
+        onOpenChange={(o) => {
+          if (!o) {
+            setCreateMode(null);
+            setJustPublished(null);
+          }
+        }}
+      >
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{createMode === "shift" ? c.tabNewShift : c.tabNewJob}</DialogTitle>
+            <DialogTitle>
+              {justPublished ? c.publishedTitle : createMode === "shift" ? c.tabNewShift : c.tabNewJob}
+            </DialogTitle>
           </DialogHeader>
-          {createMode === "job" && (
-            <JobForm
-              facilityId={facility.id}
-              specialties={specialties ?? []}
-              defaults={{ country: facility.country, city: facility.city }}
-              quotaReached={!!plan && activeJobs >= plan.active_jobs}
-              expired={!!sub && !subActive}
-              onCreated={() => setCreateMode(null)}
-            />
+          {justPublished ? (
+            <div className="space-y-4 py-2 text-center">
+              <CheckCircle2 className="mx-auto size-12 text-emerald-600" />
+              <p className="text-sm text-muted-foreground">
+                {justPublished.kind === "shift" ? c.publishedSubShift : c.publishedSubJob}
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+                <Button
+                  onClick={() => {
+                    setInviteTarget(justPublished);
+                    setJustPublished(null);
+                    setCreateMode(null);
+                  }}
+                >
+                  <UserPlus className="size-4" /> {c.inviteNow}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setJustPublished(null);
+                    setCreateMode(null);
+                  }}
+                >
+                  {c.doneLater}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {createMode === "job" && (
+                <JobForm
+                  facilityId={facility.id}
+                  specialties={specialties ?? []}
+                  defaults={{ country: facility.country, city: facility.city }}
+                  quotaReached={!!plan && activeJobs >= plan.active_jobs}
+                  expired={!!sub && !subActive}
+                  onCreated={(id) => setJustPublished({ kind: "job", id })}
+                />
+              )}
+              {createMode === "shift" && (
+                <ShiftForm
+                  facilityId={facility.id}
+                  specialties={specialties ?? []}
+                  defaults={{ country: facility.country, city: facility.city }}
+                  quotaReached={!!plan && activeShifts >= plan.active_shifts}
+                  expired={!!sub && !subActive}
+                  onCreated={(id) => setJustPublished({ kind: "shift", id })}
+                />
+              )}
+            </>
           )}
-          {createMode === "shift" && (
-            <ShiftForm
-              facilityId={facility.id}
-              specialties={specialties ?? []}
-              defaults={{ country: facility.country, city: facility.city }}
-              quotaReached={!!plan && activeShifts >= plan.active_shifts}
-              expired={!!sub && !subActive}
-              onCreated={() => setCreateMode(null)}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={inviteTarget !== null} onOpenChange={(o) => !o && setInviteTarget(null)}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{c.inviteDialogTitle}</DialogTitle>
+          </DialogHeader>
+          {inviteTarget && (
+            <InvitePanel
+              jobId={inviteTarget.kind === "job" ? inviteTarget.id : undefined}
+              shiftId={inviteTarget.kind === "shift" ? inviteTarget.id : undefined}
             />
           )}
         </DialogContent>
@@ -678,10 +772,11 @@ function FacilityDashboard() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-52">
                           {j.is_active && (
-                            <DropdownMenuItem asChild className="min-h-11 gap-2">
-                              <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
-                                <UserPlus className="size-4" /> {c.invite}
-                              </Link>
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              onSelect={() => setInviteTarget({ kind: "job", id: j.id })}
+                            >
+                              <UserPlus className="size-4" /> {c.invite}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
@@ -763,10 +858,11 @@ function FacilityDashboard() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-52">
                             {s.status === "open" && (
-                              <DropdownMenuItem asChild className="min-h-11 gap-2">
-                                <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
-                                  <UserPlus className="size-4" /> {c.invite}
-                                </Link>
+                              <DropdownMenuItem
+                                className="min-h-11 gap-2"
+                                onSelect={() => setInviteTarget({ kind: "shift", id: s.id })}
+                              >
+                                <UserPlus className="size-4" /> {c.invite}
                               </DropdownMenuItem>
                             )}
                             {s.status === "booked" && ended && (
@@ -981,13 +1077,14 @@ function JobForm({
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
-  onCreated?: () => void;
+  onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [step, setStep] = useState<"form" | "review">("form");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -1006,53 +1103,105 @@ function JobForm({
     setForm((f) => ({ ...f, country: defaults.country, city: defaults.city }));
   }, [defaults.country, defaults.city]);
 
+  /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
+  function validate() {
+    if (expired) throw new Error(c.subExpiredJob);
+    if (quotaReached) throw new Error(c.quotaReachedJob);
+    const parsed = z
+      .object({
+        title: z.string().trim().min(3, c.titleMin).max(120),
+        description: z.string().trim().min(20, c.descMin).max(5000),
+        salary_min: z.number().min(0),
+        salary_max: z.number().min(0),
+      })
+      .safeParse({
+        title: form.title,
+        description: form.description,
+        salary_min: Number(form.salary_min),
+        salary_max: Number(form.salary_max),
+      });
+    if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+    if (parsed.data.salary_max < parsed.data.salary_min) throw new Error(c.salaryMaxGt);
+    if (!form.country) throw new Error(c.countryRequired);
+    if (!form.city.trim()) throw new Error(c.cityRequired);
+    return parsed.data;
+  }
+
+  function goReview() {
+    try {
+      validate();
+      setStep("review");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
   const create = useMutation({
     mutationFn: async () => {
-      if (expired) throw new Error(c.subExpiredJob);
-      if (quotaReached) throw new Error(c.quotaReachedJob);
-      const parsed = z
-        .object({
-          title: z.string().trim().min(3, c.titleMin).max(120),
-          description: z.string().trim().min(20, c.descMin).max(5000),
-          salary_min: z.number().min(0),
-          salary_max: z.number().min(0),
+      const parsed = validate();
+      const { data, error } = await supabase
+        .from("jobs")
+        .insert({
+          facility_id: facilityId,
+          title: form.title.trim(),
+          description: form.description.trim(),
+          specialty_id: form.specialty_id || null,
+          employment_type: form.employment_type as "full_time",
+          country: form.country,
+          city: form.city.trim(),
+          salary_min: parsed.salary_min,
+          salary_max: parsed.salary_max,
+          currency: form.currency,
+          min_experience: Number(form.min_experience) || 0,
+          required_license: form.required_license || null,
         })
-        .safeParse({
-          title: form.title,
-          description: form.description,
-          salary_min: Number(form.salary_min),
-          salary_max: Number(form.salary_max),
-        });
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
-      if (parsed.data.salary_max < parsed.data.salary_min)
-        throw new Error(c.salaryMaxGt);
-
-      const { error } = await supabase.from("jobs").insert({
-        facility_id: facilityId,
-        title: form.title.trim(),
-        description: form.description.trim(),
-        specialty_id: form.specialty_id || null,
-        employment_type: form.employment_type as "full_time",
-        country: form.country,
-        city: form.city.trim(),
-        salary_min: parsed.data.salary_min,
-        salary_max: parsed.data.salary_max,
-        currency: form.currency,
-        min_experience: Number(form.min_experience) || 0,
-        required_license: form.required_license || null,
-      });
+        .select("id")
+        .single();
       if (error) throw error;
+      return data.id as string;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
       toast.success(c.jobPublished);
       setForm({ ...form, title: "", description: "", salary_min: "", salary_max: "" });
+      setStep("form");
       queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
-      onCreated?.();
+      onCreated?.(id);
       void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
+
+  if (step === "review") {
+    const specName = specialtyName(specialties.find((s) => s.id === form.specialty_id), lang);
+    return (
+      <ReviewStep
+        title={c.reviewTitle}
+        subtitle={c.reviewSub}
+        rows={[
+          { label: c.jobTitle, value: form.title.trim() },
+          { label: c.specialty, value: specName ?? c.notSet },
+          { label: c.employmentType, value: employmentLabel(form.employment_type, lang) },
+          { label: c.minExperience, value: String(Number(form.min_experience) || 0) },
+          {
+            label: c.country + " / " + c.city,
+            value: [countryLabel(form.country, lang), form.city.trim()].filter(Boolean).join(" — "),
+          },
+          {
+            label: c.salaryRange,
+            value: `${Number(form.salary_min).toLocaleString()} – ${Number(form.salary_max).toLocaleString()} ${form.currency}`,
+          },
+          { label: c.requiredLicense, value: form.required_license ? countryLabel(form.required_license, lang) : c.none },
+          { label: c.jobDesc, value: form.description.trim() },
+        ]}
+        backLabel={c.backToEdit}
+        confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
+        onBack={() => setStep("form")}
+        onConfirm={() => create.mutate()}
+        pending={create.isPending}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
@@ -1166,8 +1315,8 @@ function JobForm({
           {expired ? c.subExpiredJob : c.quotaReachedJob}
         </p>
       )}
-      <Button className="w-full sm:w-auto" onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
-        {create.isPending ? c.publishing : c.publishJob}
+      <Button className="w-full sm:w-auto" onClick={goReview} disabled={create.isPending || expired || quotaReached}>
+        {c.reviewCta}
       </Button>
     </div>
   );
@@ -1186,13 +1335,14 @@ function ShiftForm({
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
-  onCreated?: () => void;
+  onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [step, setStep] = useState<"form" | "review">("form");
   const [form, setForm] = useState({
     title: "",
     specialty_id: "",
@@ -1205,43 +1355,96 @@ function ShiftForm({
     notes: "",
   });
 
+  /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
+  function validate() {
+    if (expired) throw new Error(c.subExpiredShift);
+    if (quotaReached) throw new Error(c.quotaReachedShift);
+    if (form.title.trim().length < 3) throw new Error(c.shiftTitleMin);
+    if (!form.starts_at || !form.ends_at) throw new Error(c.setTimes);
+    const startMs = new Date(form.starts_at).getTime();
+    const endMs = new Date(form.ends_at).getTime();
+    if (endMs <= startMs) throw new Error(c.endAfterStart);
+    if (startMs <= Date.now()) throw new Error(c.startInPast);
+    if (endMs - startMs > 24 * 60 * 60 * 1000) throw new Error(c.tooLong);
+    if (!Number(form.hourly_rate)) throw new Error(c.hourlyRateRequired);
+    if (!form.country) throw new Error(c.countryRequired);
+    if (!form.city.trim()) throw new Error(c.cityRequired);
+    return { startMs, endMs };
+  }
+
+  function goReview() {
+    try {
+      validate();
+      setStep("review");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
   const create = useMutation({
     mutationFn: async () => {
-      if (expired) throw new Error(c.subExpiredShift);
-      if (quotaReached) throw new Error(c.quotaReachedShift);
-      if (form.title.trim().length < 3) throw new Error(c.shiftTitleMin);
-      if (!form.starts_at || !form.ends_at) throw new Error(c.setTimes);
-      const startMs = new Date(form.starts_at).getTime();
-      const endMs = new Date(form.ends_at).getTime();
-      if (endMs <= startMs) throw new Error(c.endAfterStart);
-      if (startMs <= Date.now()) throw new Error(c.startInPast);
-      if (endMs - startMs > 24 * 60 * 60 * 1000) throw new Error(c.tooLong);
-      if (!Number(form.hourly_rate)) throw new Error(c.hourlyRateRequired);
-
-      const { error } = await supabase.from("shifts").insert({
-        facility_id: facilityId,
-        title: form.title.trim(),
-        specialty_id: form.specialty_id || null,
-        starts_at: new Date(form.starts_at).toISOString(),
-        ends_at: new Date(form.ends_at).toISOString(),
-        hourly_rate: Number(form.hourly_rate),
-        currency: form.currency,
-        country: form.country,
-        city: form.city.trim(),
-        notes: form.notes.trim() || null,
-      });
+      validate();
+      const { data, error } = await supabase
+        .from("shifts")
+        .insert({
+          facility_id: facilityId,
+          title: form.title.trim(),
+          specialty_id: form.specialty_id || null,
+          starts_at: new Date(form.starts_at).toISOString(),
+          ends_at: new Date(form.ends_at).toISOString(),
+          hourly_rate: Number(form.hourly_rate),
+          currency: form.currency,
+          country: form.country,
+          city: form.city.trim(),
+          notes: form.notes.trim() || null,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      return data.id as string;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
       toast.success(c.shiftPublished);
       setForm({ ...form, title: "", starts_at: "", ends_at: "", hourly_rate: "", notes: "" });
+      setStep("form");
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
-      onCreated?.();
+      onCreated?.(id);
       void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
+
+  if (step === "review") {
+    const hours = form.starts_at && form.ends_at
+      ? ((new Date(form.ends_at).getTime() - new Date(form.starts_at).getTime()) / 3600_000).toFixed(1)
+      : "0";
+    const specName = specialtyName(specialties.find((s) => s.id === form.specialty_id), lang);
+    return (
+      <ReviewStep
+        title={c.reviewTitle}
+        subtitle={c.reviewSub}
+        rows={[
+          { label: c.shiftTitle, value: form.title.trim() },
+          { label: c.specialty, value: specName ?? c.notSet },
+          { label: c.shiftStartsAt, value: formatDateTime(new Date(form.starts_at).toISOString(), lang) },
+          { label: c.shiftEndsAt, value: formatDateTime(new Date(form.ends_at).toISOString(), lang) },
+          { label: c.duration(hours), value: "" },
+          { label: c.hourlyRate, value: `${Number(form.hourly_rate).toLocaleString()} ${form.currency}` },
+          {
+            label: c.country + " / " + c.city,
+            value: [countryLabel(form.country, lang), form.city.trim()].filter(Boolean).join(" — "),
+          },
+          { label: c.notes, value: form.notes.trim() || c.none },
+        ]}
+        backLabel={c.backToEdit}
+        confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
+        onBack={() => setStep("form")}
+        onConfirm={() => create.mutate()}
+        pending={create.isPending}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
@@ -1339,9 +1542,55 @@ function ShiftForm({
           {expired ? c.subExpiredShift : c.quotaReachedShift}
         </p>
       )}
-      <Button className="w-full sm:w-auto" onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
-        {create.isPending ? c.publishing : c.publishShift}
+      <Button className="w-full sm:w-auto" onClick={goReview} disabled={create.isPending || expired || quotaReached}>
+        {c.reviewCta}
       </Button>
+    </div>
+  );
+}
+
+/** شاشة مراجعة موحّدة قبل نشر أي عمل (وظيفة أو مناوبة). */
+function ReviewStep({
+  title,
+  subtitle,
+  rows,
+  backLabel,
+  confirmLabel,
+  onBack,
+  onConfirm,
+  pending,
+}: {
+  title: string;
+  subtitle: string;
+  rows: { label: string; value: string }[];
+  backLabel: string;
+  confirmLabel: string;
+  onBack: () => void;
+  onConfirm: () => void;
+  pending: boolean;
+}) {
+  return (
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div>
+        <h3 className="font-display text-lg font-extrabold">{title}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+      <dl className="divide-y divide-border rounded-xl border border-border">
+        {rows.map((r) => (
+          <div key={r.label} className="grid gap-1 p-3 sm:grid-cols-3 sm:gap-3">
+            <dt className="text-sm font-semibold text-muted-foreground">{r.label}</dt>
+            <dd className="whitespace-pre-wrap break-words text-sm sm:col-span-2">{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button variant="outline" className="min-h-11" onClick={onBack} disabled={pending}>
+          <ArrowRight className="size-4 rtl:rotate-180" /> {backLabel}
+        </Button>
+        <Button className="min-h-11" onClick={onConfirm} disabled={pending}>
+          <CheckCircle2 className="size-4" /> {confirmLabel}
+        </Button>
+      </div>
     </div>
   );
 }
