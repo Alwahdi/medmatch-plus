@@ -256,6 +256,8 @@ function ProfileOverview() {
       } else {
         const { error } = await supabase.from("healthcare_professionals").insert(payload);
         if (error) throw error;
+        // أول إنشاء للملف = تفعيل دور الكادر حتى لا يعود إلى شاشة الإعداد.
+        await supabase.rpc("claim_professional_role");
       }
 
       const { error: accErr } = await supabase
@@ -268,6 +270,7 @@ function ProfileOverview() {
       toast.success(c.saved);
       queryClient.invalidateQueries({ queryKey: ["my-pro"] });
       queryClient.invalidateQueries({ queryKey: ["my-account"] });
+      queryClient.invalidateQueries({ queryKey: ["roles", user?.id] });
       setMode("view");
     },
 

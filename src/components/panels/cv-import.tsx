@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
@@ -74,6 +74,7 @@ export function CvImportPanel() {
   const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const runParse = useServerFn(parseCv);
   const [text, setText] = useState("");
   const [result, setResult] = useState<ParsedCv | null>(null);
@@ -127,9 +128,13 @@ export function CvImportPanel() {
         { onConflict: "user_id" },
       );
       if (error) throw error;
+      // تفعيل دور الكادر بعد إنشاء الملف — حتى لا يعود المستخدم لشاشة الإعداد.
+      await supabase.rpc("claim_professional_role");
     },
     onSuccess: () => {
       toast.success(c.saved);
+      void queryClient.invalidateQueries({ queryKey: ["roles", user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ["my-pro", user?.id] });
       navigate({ to: "/profile" });
     },
     onError: () => toast.error(c.saveFailed),

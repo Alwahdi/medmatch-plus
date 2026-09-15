@@ -80,6 +80,9 @@ function AuthenticatedLayout() {
     const isFacility = roles.includes("facility");
     const isAdmin = roles.includes("admin");
     const isPro = roles.includes("professional");
+    // حساب جديد بلا نوع بعد: يُسمح له بصفحات الكادر (الملف/استيراد السيرة)
+    // لأن إنشاء الملف نفسه هو ما يمنحه الدور — بدل إعادته إلى شاشة الإعداد.
+    const roleless = roles.length === 0;
     const home = roleHome(roles);
     if (matches(pathname, ADMIN_ONLY) && !isAdmin) {
       void navigate({ to: home, replace: true });
@@ -89,7 +92,7 @@ function AuthenticatedLayout() {
       void navigate({ to: home, replace: true });
       return;
     }
-    if (matches(pathname, PRO_ONLY) && !isPro && !isAdmin) {
+    if (matches(pathname, PRO_ONLY) && !isPro && !isAdmin && !roleless) {
       void navigate({ to: home, replace: true });
     }
   }, [ready, roles, pathname, navigate]);
