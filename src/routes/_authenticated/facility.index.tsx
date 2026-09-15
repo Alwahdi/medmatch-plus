@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
+  ArrowRight,
   ArrowUpCircle,
   BadgeCheck,
   Briefcase,
