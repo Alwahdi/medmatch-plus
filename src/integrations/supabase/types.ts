@@ -545,6 +545,114 @@ export type Database = {
           },
         ]
       }
+      interviews: {
+        Row: {
+          application_id: string | null
+          candidate_note: string | null
+          completed_at: string | null
+          created_at: string
+          duration_minutes: number
+          facility_id: string
+          id: string
+          job_id: string | null
+          location: string | null
+          meeting_url: string | null
+          mode: string
+          notes: string | null
+          outcome_note: string | null
+          outcome_rating: number | null
+          professional_user_id: string
+          responded_at: string | null
+          scheduled_at: string
+          shift_booking_id: string | null
+          shift_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          candidate_note?: string | null
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number
+          facility_id: string
+          id?: string
+          job_id?: string | null
+          location?: string | null
+          meeting_url?: string | null
+          mode?: string
+          notes?: string | null
+          outcome_note?: string | null
+          outcome_rating?: number | null
+          professional_user_id: string
+          responded_at?: string | null
+          scheduled_at: string
+          shift_booking_id?: string | null
+          shift_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          candidate_note?: string | null
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number
+          facility_id?: string
+          id?: string
+          job_id?: string | null
+          location?: string | null
+          meeting_url?: string | null
+          mode?: string
+          notes?: string | null
+          outcome_note?: string | null
+          outcome_rating?: number | null
+          professional_user_id?: string
+          responded_at?: string | null
+          scheduled_at?: string
+          shift_booking_id?: string | null
+          shift_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_shift_booking_id_fkey"
+            columns: ["shift_booking_id"]
+            isOneToOne: false
+            referencedRelation: "shift_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           created_at: string
@@ -1368,12 +1476,25 @@ export type Database = {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean
       }
+      cancel_interview: {
+        Args: { _interview_id: string; _reason?: string }
+        Returns: undefined
+      }
       cancel_my_shift_booking: {
         Args: { _booking_id: string }
         Returns: string
       }
       claim_facility_role: { Args: never; Returns: boolean }
       claim_professional_role: { Args: never; Returns: boolean }
+      complete_interview: {
+        Args: {
+          _interview_id: string
+          _note?: string
+          _rating: number
+          _reject?: boolean
+        }
+        Returns: undefined
+      }
       complete_shift: { Args: { _shift_id: string }; Returns: string }
       consume_candidate_search: { Args: never; Returns: number }
       has_engagement: {
@@ -1419,6 +1540,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      reschedule_interview: {
+        Args: { _interview_id: string; _notes?: string; _scheduled_at: string }
+        Returns: undefined
+      }
+      respond_to_interview: {
+        Args: { _accept: boolean; _interview_id: string; _note?: string }
+        Returns: string
+      }
       review_change_request: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
@@ -1432,6 +1561,19 @@ export type Database = {
           _professional_user_id: string
           _rating: number
           _shift_id?: string
+        }
+        Returns: string
+      }
+      schedule_interview: {
+        Args: {
+          _application_id: string
+          _duration_minutes?: number
+          _location?: string
+          _meeting_url?: string
+          _mode?: string
+          _notes?: string
+          _scheduled_at: string
+          _shift_booking_id: string
         }
         Returns: string
       }
