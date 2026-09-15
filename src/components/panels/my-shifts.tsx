@@ -5,6 +5,7 @@ import { AlertCircle, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
+import { CandidateInterviewBlock } from "@/components/interview";
 import { useConfirm } from "@/components/confirm-dialog";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -108,7 +109,8 @@ export function MyShiftsPanel() {
             const s = b.shifts!;
             const hours = hoursBetween(s.starts_at, s.ends_at);
             return (
-              <li key={b.id} className="card-lift flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-card p-5">
+              <li key={b.id} className="card-lift rounded-2xl border border-border bg-card p-5">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <CalendarClock className="mt-1 size-5 text-accent" />
                   <div>
@@ -155,6 +157,8 @@ export function MyShiftsPanel() {
                   )}
 
                 </div>
+                </div>
+                {b.status !== "cancelled" && <CandidateInterviewBlock shiftBookingId={b.id} />}
               </li>
             );
           })}
