@@ -153,8 +153,18 @@ export function AlertsPanel() {
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase.from("job_alerts").update({ is_active }).eq("id", id);
       if (error) throw error;
+      return { id, is_active };
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["job-alerts"] }),
+    onSuccess: ({ id, is_active }) => {
+      queryClient.invalidateQueries({ queryKey: ["job-alerts"] });
+      toastUndo(
+        is_active
+          ? lang === "ar" ? "تم تفعيل التنبيه" : "Alert turned on"
+          : lang === "ar" ? "تم إيقاف التنبيه" : "Alert turned off",
+        () => toggle.mutate({ id, is_active: !is_active }),
+        lang,
+      );
+    },
   });
 
   const remove = useMutation({
