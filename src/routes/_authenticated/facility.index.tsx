@@ -1076,13 +1076,14 @@ function JobForm({
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
-  onCreated?: () => void;
+  onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [step, setStep] = useState<"form" | "review">("form");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -1101,53 +1102,105 @@ function JobForm({
     setForm((f) => ({ ...f, country: defaults.country, city: defaults.city }));
   }, [defaults.country, defaults.city]);
 
+  /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
+  function validate() {
+    if (expired) throw new Error(c.subExpiredJob);
+    if (quotaReached) throw new Error(c.quotaReachedJob);
+    const parsed = z
+      .object({
+        title: z.string().trim().min(3, c.titleMin).max(120),
+        description: z.string().trim().min(20, c.descMin).max(5000),
+        salary_min: z.number().min(0),
+        salary_max: z.number().min(0),
+      })
+      .safeParse({
+        title: form.title,
+        description: form.description,
+        salary_min: Number(form.salary_min),
+        salary_max: Number(form.salary_max),
+      });
+    if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+    if (parsed.data.salary_max < parsed.data.salary_min) throw new Error(c.salaryMaxGt);
+    if (!form.country) throw new Error(c.countryRequired);
+    if (!form.city.trim()) throw new Error(c.cityRequired);
+    return parsed.data;
+  }
+
+  function goReview() {
+    try {
+      validate();
+      setStep("review");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
   const create = useMutation({
     mutationFn: async () => {
-      if (expired) throw new Error(c.subExpiredJob);
-      if (quotaReached) throw new Error(c.quotaReachedJob);
-      const parsed = z
-        .object({
-          title: z.string().trim().min(3, c.titleMin).max(120),
-          description: z.string().trim().min(20, c.descMin).max(5000),
-          salary_min: z.number().min(0),
-          salary_max: z.number().min(0),
+      const parsed = validate();
+      const { data, error } = await supabase
+        .from("jobs")
+        .insert({
+          facility_id: facilityId,
+          title: form.title.trim(),
+          description: form.description.trim(),
+          specialty_id: form.specialty_id || null,
+          employment_type: form.employment_type as "full_time",
+          country: form.country,
+          city: form.city.trim(),
+          salary_min: parsed.salary_min,
+          salary_max: parsed.salary_max,
+          currency: form.currency,
+          min_experience: Number(form.min_experience) || 0,
+          required_license: form.required_license || null,
         })
-        .safeParse({
-          title: form.title,
-          description: form.description,
-          salary_min: Number(form.salary_min),
-          salary_max: Number(form.salary_max),
-        });
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
-      if (parsed.data.salary_max < parsed.data.salary_min)
-        throw new Error(c.salaryMaxGt);
-
-      const { error } = await supabase.from("jobs").insert({
-        facility_id: facilityId,
-        title: form.title.trim(),
-        description: form.description.trim(),
-        specialty_id: form.specialty_id || null,
-        employment_type: form.employment_type as "full_time",
-        country: form.country,
-        city: form.city.trim(),
-        salary_min: parsed.data.salary_min,
-        salary_max: parsed.data.salary_max,
-        currency: form.currency,
-        min_experience: Number(form.min_experience) || 0,
-        required_license: form.required_license || null,
-      });
+        .select("id")
+        .single();
       if (error) throw error;
+      return data.id as string;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
       toast.success(c.jobPublished);
       setForm({ ...form, title: "", description: "", salary_min: "", salary_max: "" });
+      setStep("form");
       queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
-      onCreated?.();
+      onCreated?.(id);
       void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
+
+  if (step === "review") {
+    const specName = specialtyName(specialties.find((s) => s.id === form.specialty_id), lang);
+    return (
+      <ReviewStep
+        title={c.reviewTitle}
+        subtitle={c.reviewSub}
+        rows={[
+          { label: c.jobTitle, value: form.title.trim() },
+          { label: c.specialty, value: specName ?? c.notSet },
+          { label: c.employmentType, value: employmentLabel(form.employment_type, lang) },
+          { label: c.minExperience, value: String(Number(form.min_experience) || 0) },
+          {
+            label: c.country + " / " + c.city,
+            value: [countryLabel(form.country, lang), form.city.trim()].filter(Boolean).join(" — "),
+          },
+          {
+            label: c.salaryRange,
+            value: `${Number(form.salary_min).toLocaleString()} – ${Number(form.salary_max).toLocaleString()} ${form.currency}`,
+          },
+          { label: c.requiredLicense, value: form.required_license ? countryLabel(form.required_license, lang) : c.none },
+          { label: c.jobDesc, value: form.description.trim() },
+        ]}
+        backLabel={c.backToEdit}
+        confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
+        onBack={() => setStep("form")}
+        onConfirm={() => create.mutate()}
+        pending={create.isPending}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
