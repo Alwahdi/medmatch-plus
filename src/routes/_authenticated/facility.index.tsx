@@ -327,6 +327,23 @@ const TXT = {
     startInPast: "Start time must be in the future",
     tooLong: "A single shift can't exceed 24 hours — check the date",
     hourlyRateRequired: "Enter the hourly rate",
+    // Review step
+    reviewCta: "Review before publishing",
+    reviewTitle: "Review the details before publishing",
+    reviewSub: "Check everything is correct. You can go back and edit before publishing.",
+    backToEdit: "Back to edit",
+    confirmPublish: "Confirm and publish",
+    notSet: "Not set",
+    none: "None",
+    salaryRange: "Salary range",
+    duration: (h: string) => `Duration: ${h} hours`,
+    // Post-publish
+    publishedTitle: "Published successfully",
+    publishedSubJob: "Your job is now visible to professionals. You can invite specialists directly.",
+    publishedSubShift: "Your shift is now visible to professionals. You can invite specialists directly.",
+    inviteNow: "Invite professionals now",
+    doneLater: "Later",
+    inviteDialogTitle: "Invite professionals",
   },
 } as const;
 
