@@ -58,6 +58,7 @@ const TXT = {
     noDeadline: "غير محدد",
     open: "مفتوحة",
     closed: "مغلقة",
+    notAccepting: "لم تعد تستقبل طلبات",
     publishedBy: "نُشرت بواسطة",
     saved: "محفوظة",
     saveJob: "حفظ الوظيفة",
