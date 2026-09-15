@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
-import { AlertTriangle, Building2, Loader2, RefreshCw, Sparkles, Stethoscope } from "lucide-react";
+import { AlertTriangle, ArrowRight, Building2, Loader2, RefreshCw, Sparkles, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/lib/auth";
+import { useRoles, useSession } from "@/lib/auth";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
@@ -41,9 +41,25 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 
 type Path = "professional" | "facility" | null;
 
+/** تفعيل الدور ثم تحديث ذاكرة الصلاحيات قبل الانتقال — يمنع الارتداد إلى الإعداد. */
+async function activateRole(
+  rpc: "claim_professional_role" | "claim_facility_role",
+  queryClient: ReturnType<typeof useQueryClient>,
+  userId: string,
+) {
+  const { error } = await supabase.rpc(rpc);
+  if (error) throw new Error(error.message);
+  await queryClient.invalidateQueries({ queryKey: ["roles", userId] });
+  await queryClient.refetchQueries({ queryKey: ["roles", userId] });
+  await queryClient.invalidateQueries({ queryKey: ["my-facility-lite", userId] });
+  await queryClient.invalidateQueries({ queryKey: ["onboarding-state", userId] });
+}
+
 function Onboarding() {
   const { user } = useSession();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { data: roles } = useRoles(user);
   const { t, lang } = useLang();
   const ar = lang !== "en";
 
@@ -94,19 +110,33 @@ function Onboarding() {
     }
   }, [metaRole, path]);
 
-  // تحويل من لديه ملف جاهز — مرة واحدة فقط.
+  // تحويل من لديه ملف جاهز — مع تفعيل الدور أولاً حتى لا يرتد إلى الإعداد.
   useEffect(() => {
-    if (redirected || !existing) return;
-    if (existing.fac) {
+    if (redirected || !existing || !user || !roles) return;
+    const go = async (
+      rpc: "claim_professional_role" | "claim_facility_role",
+      to: "/facility" | "/dashboard",
+      role: "facility" | "professional",
+    ) => {
       setRedirected(true);
-      void navigate({ to: "/facility", replace: true });
+      if (!roles.includes(role)) {
+        try {
+          await activateRole(rpc, queryClient, user.id);
+        } catch {
+          setRedirected(false);
+          return;
+        }
+      }
+      void navigate({ to, replace: true });
+    };
+    if (existing.fac) {
+      void go("claim_facility_role", "/facility", "facility");
       return;
     }
     if (existing.pro) {
-      setRedirected(true);
-      void navigate({ to: "/dashboard", replace: true });
+      void go("claim_professional_role", "/dashboard", "professional");
     }
-  }, [existing, redirected, navigate]);
+  }, [existing, redirected, navigate, roles, user, queryClient]);
 
   // فتح الشاشة: عند وصول البيانات، أو خطأ، أو انقضاء مهلة قصيرة.
   useEffect(() => {
@@ -163,9 +193,9 @@ function Onboarding() {
         {path === null ? (
           <PathPicker onPick={setPath} />
         ) : path === "professional" ? (
-          <ProfessionalSteps defaultName={metaName} />
+          <ProfessionalSteps defaultName={metaName} onChangePath={() => setPath(null)} />
         ) : (
-          <FacilitySteps />
+          <FacilitySteps onChangePath={() => setPath(null)} />
         )}
       </div>
     </div>
@@ -201,6 +231,21 @@ function PathPicker({ onPick }: { onPick: (p: Path) => void }) {
   );
 }
 
+/** تغيير نوع الحساب إن اختير تلقائياً بشكل خاطئ (مثل الدخول عبر جوجل). */
+function ChangePathLink({ onChangePath }: { onChangePath: () => void }) {
+  const { lang } = useLang();
+  return (
+    <button
+      type="button"
+      onClick={onChangePath}
+      className="mt-6 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
+    >
+      <ArrowRight className="size-4 rtl:rotate-180" />
+      {lang === "en" ? "Change account type" : "تغيير نوع الحساب"}
+    </button>
+  );
+}
+
 function Stepper({ step, total }: { step: number; total: number }) {
   const { t } = useLang();
   return (
@@ -220,9 +265,10 @@ function Stepper({ step, total }: { step: number; total: number }) {
   );
 }
 
-function ProfessionalSteps({ defaultName }: { defaultName: string }) {
+function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string; onChangePath: () => void }) {
   const { user } = useSession();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { t, lang } = useLang();
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
@@ -282,13 +328,14 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
     }, { onConflict: "user_id" });
     if (error) {
       setBusy(false);
-      toast.error(t("ob.error"));
+      toast.error(t("ob.error"), { description: error.message });
       return;
     }
-    const { data: claimed, error: claimError } = await supabase.rpc("claim_professional_role");
-    if (claimError || !claimed) {
+    try {
+      await activateRole("claim_professional_role", queryClient, user!.id);
+    } catch (e) {
       setBusy(false);
-      toast.error(t("ob.error"));
+      toast.error(t("ob.error"), { description: (e as Error).message });
       return;
     }
     setBusy(false);
@@ -298,6 +345,7 @@ function ProfessionalSteps({ defaultName }: { defaultName: string }) {
 
   return (
     <>
+      <ChangePathLink onChangePath={onChangePath} />
       <Stepper step={step} total={3} />
       <div className="card-lift mt-4 space-y-4 rounded-2xl border border-border bg-card p-6">
         {step === 1 && (
@@ -450,9 +498,10 @@ const FACILITY_TYPES = [
   { value: "center", ar: "مركز طبي", en: "Medical center" },
 ];
 
-function FacilitySteps() {
+function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
   const { user } = useSession();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { t, lang } = useLang();
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
@@ -467,6 +516,7 @@ function FacilitySteps() {
   });
 
   const canNext = form.name_ar.trim().length >= 2;
+  const canFinish = canNext && !!form.country && form.city.trim().length >= 2;
 
   async function finish() {
     const parsed = z
@@ -481,7 +531,7 @@ function FacilitySteps() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.from("facilities").insert({
+    const { error } = await supabase.from("facilities").upsert({
       user_id: user!.id,
       name_ar: form.name_ar.trim(),
       facility_type: form.facility_type,
@@ -489,13 +539,19 @@ function FacilitySteps() {
       city: form.city.trim(),
       website: form.website.trim() || null,
       description: form.description.trim() || null,
-    });
+    }, { onConflict: "user_id" });
     if (error) {
       setBusy(false);
-      toast.error(t("ob.error"));
+      toast.error(t("ob.error"), { description: error.message });
       return;
     }
-    await supabase.rpc("claim_facility_role");
+    try {
+      await activateRole("claim_facility_role", queryClient, user!.id);
+    } catch (e) {
+      setBusy(false);
+      toast.error(t("ob.error"), { description: (e as Error).message });
+      return;
+    }
     setBusy(false);
     toast.success(t("ob.done"));
     navigate({ to: "/facility", replace: true });
@@ -503,6 +559,7 @@ function FacilitySteps() {
 
   return (
     <>
+      <ChangePathLink onChangePath={onChangePath} />
       <Stepper step={step} total={2} />
       <div className="card-lift mt-4 space-y-4 rounded-2xl border border-border bg-card p-6">
         {step === 1 ? (
@@ -601,7 +658,7 @@ function FacilitySteps() {
               {t("ob.next")}
             </Button>
           ) : (
-            <Button type="button" disabled={busy} onClick={finish}>
+            <Button type="button" disabled={busy || !canFinish} onClick={finish}>
               {busy ? t("ob.saving") : t("ob.finish")}
             </Button>
           )}
