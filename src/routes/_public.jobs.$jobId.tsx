@@ -242,7 +242,11 @@ function JobDetail() {
       return true;
     },
     onSuccess: (added) => {
-      toast.success(added ? c.savedToast : c.removedToast);
+      toastUndo(
+        added ? c.savedToast : c.removedToast,
+        () => toggleSave.mutate(),
+        lang,
+      );
       queryClient.invalidateQueries({ queryKey: ["saved-job", realJobId] });
       queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
     },
