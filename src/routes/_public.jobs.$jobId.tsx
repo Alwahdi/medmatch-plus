@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
@@ -249,7 +250,10 @@ function JobDetail() {
       toast.success(c.appliedToast);
       queryClient.invalidateQueries({ queryKey: ["application", realJobId] });
     },
-    onError: (e: Error) => toast.error(e.message || c.applyFailed),
+    onError: (e: Error) =>
+      toast.error(
+        e.message.startsWith("SC_") ? e.message.slice(3) : engagementErrorText(e.message, lang),
+      ),
   });
 
   if (isLoading)
