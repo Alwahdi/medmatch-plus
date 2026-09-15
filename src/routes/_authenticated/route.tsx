@@ -92,7 +92,7 @@ function AuthenticatedLayout() {
       void navigate({ to: home, replace: true });
       return;
     }
-    if (matches(pathname, PRO_ONLY) && !isPro && !isAdmin) {
+    if (matches(pathname, PRO_ONLY) && !isPro && !isAdmin && !roleless) {
       void navigate({ to: home, replace: true });
     }
   }, [ready, roles, pathname, navigate]);
