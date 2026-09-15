@@ -151,16 +151,16 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
           <Link to="/invitations" className={ITEM} onClick={onNavigate}>
             <Mail className="size-4 shrink-0" /> {c.invitations}
           </Link>
-          <Link to="/preferences" search={{ tab: "alerts" }} className={ITEM} onClick={onNavigate}>
+          <Link to="/settings" search={{ tab: "alerts" }} className={ITEM} onClick={onNavigate}>
             <Bell className="size-4 shrink-0" /> {c.alerts}
           </Link>
-          <Link to="/preferences" search={{ tab: "report" }} className={ITEM} onClick={onNavigate}>
+          <Link to="/activity" search={{ tab: "report" }} className={ITEM} onClick={onNavigate}>
             <BarChart3 className="size-4 shrink-0" /> {c.report}
           </Link>
         </>
       )}
 
-      <Link to="/notifications" className={ITEM} onClick={onNavigate}>
+      <Link to="/settings" search={{ tab: "notifications" }} className={ITEM} onClick={onNavigate}>
         <Bell className="size-4 shrink-0" /> {c.notifications}
       </Link>
       <Link to="/settings" search={{ tab: "general" }} className={ITEM} onClick={onNavigate}>

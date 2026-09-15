@@ -4,16 +4,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApplicationsPanel } from "@/components/panels/applications";
 import { MyShiftsPanel } from "@/components/panels/my-shifts";
 import { SavedPanel } from "@/components/panels/saved";
+import { ApplicantReportPanel } from "@/components/panels/applicant-report";
 import { useLang } from "@/lib/i18n";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
-type ActivityTab = "applications" | "shifts" | "saved";
+type ActivityTab = "applications" | "shifts" | "saved" | "report";
 type ActivitySearch = { tab?: ActivityTab };
 
 export const Route = createFileRoute("/_authenticated/activity")({
   validateSearch: (search: Record<string, unknown>): ActivitySearch => {
     const tab = search["tab"];
-    return tab === "applications" || tab === "shifts" || tab === "saved" ? { tab } : {};
+    return tab === "applications" || tab === "shifts" || tab === "saved" || tab === "report"
+      ? { tab }
+      : {};
   },
   head: () => ({
     meta: [
@@ -27,8 +30,8 @@ export const Route = createFileRoute("/_authenticated/activity")({
 });
 
 const TXT = {
-  ar: { title: "نشاطي", sub: "تابع طلباتك وحجوزاتك والأعمال التي حفظتها.", applications: "طلباتي", shifts: "مناوباتي", saved: "المحفوظات" },
-  en: { title: "My activity", sub: "Track applications, shift bookings and saved work.", applications: "Applications", shifts: "My shifts", saved: "Saved" },
+  ar: { title: "نشاطي", sub: "تابع طلباتك وحجوزاتك والأعمال التي حفظتها.", applications: "طلباتي", shifts: "مناوباتي", saved: "المحفوظات", report: "التقرير الشهري" },
+  en: { title: "My activity", sub: "Track applications, shift bookings and saved work.", applications: "Applications", shifts: "My shifts", saved: "Saved", report: "Monthly report" },
 } as const;
 
 function ActivityPage() {
@@ -49,6 +52,7 @@ function ActivityPage() {
             <TabsTrigger value="applications" className="shrink-0">{c.applications}</TabsTrigger>
             <TabsTrigger value="shifts" className="shrink-0">{c.shifts}</TabsTrigger>
             <TabsTrigger value="saved" className="shrink-0">{c.saved}</TabsTrigger>
+            <TabsTrigger value="report" className="shrink-0">{c.report}</TabsTrigger>
           </TabsList>
         </div>
 
@@ -60,6 +64,9 @@ function ActivityPage() {
         </TabsContent>
         <TabsContent value="saved" className="mt-5">
           <SavedPanel />
+        </TabsContent>
+        <TabsContent value="report" className="mt-5">
+          <ApplicantReportPanel />
         </TabsContent>
       </Tabs>
     </div>
