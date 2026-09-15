@@ -472,7 +472,8 @@ const PTABS = {
 function FacilityProfilePage() {
   const { lang } = useLang();
   const tt = PTABS[lang];
-  const tab = Route.useSearch().tab ?? "profile";
+  const requestedTab = Route.useSearch().tab;
+  const tab = requestedTab === "verification" ? "verification" : "profile";
   const navigate = useNavigate();
 
   return (

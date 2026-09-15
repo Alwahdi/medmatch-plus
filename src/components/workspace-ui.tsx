@@ -20,10 +20,10 @@ export function WorkspaceHeading({
     <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border pb-5">
       <div className="min-w-0">
         {eyebrow && <p className="text-xs font-semibold text-primary">{eyebrow}</p>}
-        <h1 className="mt-1 truncate text-2xl font-bold text-foreground sm:text-3xl">{title}</h1>
+        <h1 className="mt-1 text-2xl font-bold leading-tight text-foreground sm:text-3xl">{title}</h1>
         {description && <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && <div className="min-w-0 shrink-0">{action}</div>}
     </header>
   );
 }

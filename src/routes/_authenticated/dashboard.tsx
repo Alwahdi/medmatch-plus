@@ -57,6 +57,9 @@ const TXT = {
     quickActions: "وصول سريع",
     viewAll: "عرض الكل",
     browseNow: "تصفح الفرص",
+    continueTitle: "لديك طلب قيد المتابعة",
+    continueText: "راجع مرحلته الحالية وأي مقابلة أو تحديث جديد من المنشأة.",
+    continueCta: "متابعة الطلبات",
   },
   en: {
     hello: (name: string) => `Hello ${name}`,
@@ -91,6 +94,9 @@ const TXT = {
     quickActions: "Quick access",
     viewAll: "View all",
     browseNow: "Browse opportunities",
+    continueTitle: "You have an application in progress",
+    continueText: "Review its current stage and any interview or employer update.",
+    continueCta: "Track applications",
   },
 } as const;
 
@@ -147,8 +153,9 @@ function Dashboard() {
     queryFn: async () => {
       const { data } = await supabase
         .from("shift_bookings")
-        .select("id,shifts(id,title,starts_at)")
+        .select("id,status,shifts(id,title,starts_at)")
         .eq("user_id", user!.id)
+        .neq("status", "cancelled")
         .order("created_at", { ascending: false })
       return data ?? [];
     },
@@ -183,6 +190,12 @@ function Dashboard() {
   });
 
   const approved = (creds ?? []).filter((c) => c.status === "approved").length;
+  const upcomingBookings = (bookings ?? []).filter(
+    (booking) => booking.shifts && new Date(booking.shifts.starts_at).getTime() > Date.now(),
+  );
+  const activeApplications = (apps ?? []).filter(
+    (application) => !["hired", "rejected", "withdrawn"].includes(application.status),
+  );
   const ranked = (jobs ?? [])
     .map((job) => ({ job }))
     .sort((a, b) => {
@@ -217,6 +230,15 @@ function Dashboard() {
             description={c.invitationsText}
             action={<Button variant="secondary" asChild><Link to="/invitations">{c.viewInvitations}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
           />
+        ) : activeApplications.length > 0 ? (
+          <NextStepCard
+            icon={FileText}
+            label={c.nextStep}
+            title={c.continueTitle}
+            description={c.continueText}
+            tone="accent"
+            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.continueCta}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+          />
         ) : (
           <NextStepCard
             icon={Briefcase}
@@ -242,7 +264,7 @@ function Dashboard() {
       <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard icon={FileText} value={apps?.length ?? 0} label={c.statApps} to="/activity" />
         <StatCard icon={ShieldCheck} value={approved} label={c.statCreds} to="/profile" />
-        <StatCard icon={CalendarClock} value={bookings?.length ?? 0} label={c.statShifts} to="/activity" />
+        <StatCard icon={CalendarClock} value={upcomingBookings.length} label={c.statShifts} to="/activity" />
         <StatCard icon={Sparkles} value={profile?.years_experience ?? 0} label={c.statYears} to="/profile" />
       </div>
 
@@ -253,10 +275,11 @@ function Dashboard() {
             <ul className="mt-4 space-y-3">
               {apps.slice(0, 4).map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0">
-                  <div>
-                    <p className="font-medium">{a.jobs?.title}</p>
-                    
-                  </div>
+                  {a.jobs ? (
+                    <Link to="/jobs/$jobId" params={{ jobId: a.jobs.id }} className="min-w-0 font-medium hover:text-primary">
+                      {a.jobs.title}
+                    </Link>
+                  ) : <span className="text-sm text-muted-foreground">—</span>}
                   <Badge variant="secondary">{applicationLabel(a.status, lang)}</Badge>
                 </li>
               ))}
@@ -268,9 +291,9 @@ function Dashboard() {
 
         <section className="rounded-lg border border-border bg-card p-5 shadow-card">
           <SectionHeading title={c.upcomingShifts} action={<Button variant="link" size="sm" asChild><Link to="/activity" search={{ tab: "shifts" }}>{c.viewAll}</Link></Button>} />
-          {bookings?.length ? (
+          {upcomingBookings.length ? (
             <ul className="mt-4 space-y-3">
-              {bookings.slice(0, 4).map((b) => (
+              {upcomingBookings.slice(0, 4).map((b) => (
                 <li key={b.id} className="border-b border-border pb-3 last:border-0">
                   <p className="font-medium">{b.shifts?.title}</p>
                   <p className="text-xs text-muted-foreground">
@@ -281,7 +304,7 @@ function Dashboard() {
             </ul>
           ) : (
             <p className="mt-4 text-sm text-muted-foreground">
-               {c.noShifts} <Link to="/jobs" search={{ type: "shifts" }} className="text-primary underline">{c.browseMarket}</Link>
+               {c.noShifts} <Link to="/jobs" search={{ kind: "shift" }} className="text-primary underline">{c.browseMarket}</Link>
             </p>
           )}
         </section>

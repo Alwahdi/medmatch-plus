@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLang } from "@/lib/i18n";
 import { InvitePanel, INVITE_TXT } from "@/components/panels/invite";
 
@@ -9,6 +9,9 @@ export const Route = createFileRoute("/_authenticated/facility/invite")({
     job: typeof search["job"] === "string" ? (search["job"] as string) : undefined,
     shift: typeof search["shift"] === "string" ? (search["shift"] as string) : undefined,
   }),
+  beforeLoad: ({ search }) => {
+    if (!search.job && !search.shift) throw redirect({ to: "/facility", replace: true });
+  },
   head: () => ({
     meta: [
       { title: "دعوة مختصين | SyndeoCare" },
