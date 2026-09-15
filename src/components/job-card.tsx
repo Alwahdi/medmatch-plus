@@ -80,10 +80,10 @@ export function JobCard({
 
 
   return (
-    <div className="relative pt-2">
+    <article className="relative pt-2">
       {ribbon && (
         <span
-          className={`absolute top-0 z-10 rounded-full px-3 py-1 text-[11px] font-bold shadow-sm ${ribbon.cls} start-4`}
+          className={`absolute top-0 z-10 rounded-md px-2.5 py-1 text-[11px] font-bold shadow-sm ${ribbon.cls} start-4`}
         >
           {ribbon.label}
         </span>
@@ -110,7 +110,7 @@ export function JobCard({
               {employmentLabel(job.employment_type, lang)}
             </span>
             {job.specialties && (
-              <span className="rounded-full bg-surface px-2.5 py-0.5 text-xs">
+              <span className="rounded-md bg-surface px-2.5 py-0.5 text-xs">
                 {specialtyName(job.specialties, lang)}
               </span>
             )}
@@ -123,17 +123,17 @@ export function JobCard({
               </span>
             )}
             {recommended && (
-              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+              <span className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                 <Sparkles className="size-3.5" /> {c.recommended}
               </span>
             )}
             {applied && (
-              <span className="flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
+              <span className="flex items-center gap-1 rounded-md bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
                 <CheckCircle2 className="size-3.5" /> {c.applied}
               </span>
             )}
             {saved && (
-              <span className="flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-xs font-semibold">
+              <span className="flex items-center gap-1 rounded-md bg-surface px-2 py-0.5 text-xs font-semibold">
                 <Bookmark className="size-3.5" /> {c.saved}
               </span>
             )}
@@ -150,6 +150,6 @@ export function JobCard({
           </div>
         </div>
       </Link>
-    </div>
+    </article>
   );
 }

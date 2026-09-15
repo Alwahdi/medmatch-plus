@@ -4,6 +4,7 @@ import { Bell, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 type SettingsSearch = { tab?: string };
 
@@ -83,8 +84,7 @@ function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-muted-foreground">{c.sub}</p>
+      <WorkspaceHeading title={c.title} description={c.sub} />
 
       <Tabs
         value={tab}
@@ -102,7 +102,7 @@ function SettingsPage() {
         <TabsContent value="general" className="mt-0">
 
 
-      <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+      <section className="mt-6 rounded-lg border border-border bg-card p-5 shadow-card">
         <div className="flex items-center gap-2">
           <Globe className="size-5 text-primary" />
           <h2 className="font-bold">{c.langTitle}</h2>
@@ -118,7 +118,7 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <section className="mt-4 rounded-lg border border-border bg-card p-5 shadow-card">
         <div className="flex items-center gap-2">
           <Bell className="size-5 text-primary" />
           <h2 className="font-bold">{c.notifTitle}</h2>
@@ -130,7 +130,7 @@ function SettingsPage() {
       </section>
 
       {!isFacility && (
-        <section className="mt-4 rounded-2xl border border-border bg-card p-5">
+        <section className="mt-4 rounded-lg border border-border bg-card p-5 shadow-card">
           <div className="flex items-center gap-2">
             <Bell className="size-5 text-primary" />
             <h2 className="font-bold">{c.alertsTitle}</h2>

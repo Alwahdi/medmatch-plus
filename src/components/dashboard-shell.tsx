@@ -76,7 +76,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
 
 
-  // شريط الجوال السفلي: 4 وجهات عمل + مركز الحساب
+  // شريط الجوال السفلي: وجهات العمل فقط؛ الحساب والإشعارات في الرأس.
   const mobileTabs: Item[] = isFacility
     ? [
         { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
@@ -164,9 +164,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </header>
 
 
-      <div className="mx-auto flex max-w-[1400px] gap-6 px-0 py-0 lg:px-4 lg:py-6">
+       <div className="mx-auto flex max-w-[1400px] gap-6 px-0 py-0 lg:px-5 lg:py-6">
         <aside className="hidden w-64 shrink-0 lg:block">
-          <div className="sticky top-24 rounded-lg border border-border bg-card p-3 shadow-card">
+           <div className="sticky top-24 rounded-lg border border-border bg-card p-3 shadow-card">
             <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
             </p>
@@ -179,7 +179,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom tab bar */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+         className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_color-mix(in_oklab,var(--color-foreground)_7%,transparent)] backdrop-blur lg:hidden"
         aria-label={t("nav.menu")}
       >
         <div className={cn("grid", mobileTabs.length === 3 ? "grid-cols-3" : "grid-cols-4")}>
