@@ -1547,3 +1547,49 @@ function ShiftForm({
     </div>
   );
 }
+
+/** شاشة مراجعة موحّدة قبل نشر أي عمل (وظيفة أو مناوبة). */
+function ReviewStep({
+  title,
+  subtitle,
+  rows,
+  backLabel,
+  confirmLabel,
+  onBack,
+  onConfirm,
+  pending,
+}: {
+  title: string;
+  subtitle: string;
+  rows: { label: string; value: string }[];
+  backLabel: string;
+  confirmLabel: string;
+  onBack: () => void;
+  onConfirm: () => void;
+  pending: boolean;
+}) {
+  return (
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div>
+        <h3 className="font-display text-lg font-extrabold">{title}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+      <dl className="divide-y divide-border rounded-xl border border-border">
+        {rows.map((r) => (
+          <div key={r.label} className="grid gap-1 p-3 sm:grid-cols-3 sm:gap-3">
+            <dt className="text-sm font-semibold text-muted-foreground">{r.label}</dt>
+            <dd className="whitespace-pre-wrap break-words text-sm sm:col-span-2">{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button variant="outline" className="min-h-11" onClick={onBack} disabled={pending}>
+          <ArrowRight className="size-4 rtl:rotate-180" /> {backLabel}
+        </Button>
+        <Button className="min-h-11" onClick={onConfirm} disabled={pending}>
+          <CheckCircle2 className="size-4" /> {confirmLabel}
+        </Button>
+      </div>
+    </div>
+  );
+}
