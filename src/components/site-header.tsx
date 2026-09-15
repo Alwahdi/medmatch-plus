@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Globe, Menu, Stethoscope } from "lucide-react";
+import { Globe, Menu } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { AccountHub } from "@/components/account-hub";
 import { NotificationBell } from "@/components/notification-bell";
 import { MobileMenuSheet } from "@/components/mobile-menu-sheet";
@@ -16,7 +17,6 @@ const NAV = [
   { to: "/specialties", key: "nav.specialties" },
   { to: "/interview-questions", key: "nav.questions" },
   { to: "/guides", key: "nav.guides" },
-  { to: "/pricing", key: "nav.pricing" },
   { to: "/about", key: "nav.about" },
   { to: "/contact", key: "nav.contact" },
 ] as const;
@@ -43,12 +43,7 @@ export function SiteHeader() {
     <>
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Stethoscope className="size-5" />
-          </span>
-          <span className="hidden text-lg font-extrabold sm:inline">SyndeoCare</span>
-        </Link>
+        <BrandLogo className="shrink-0" labelClassName="hidden sm:inline" />
 
         <nav className="mx-2 hidden items-center gap-0.5 lg:flex">
           {NAV.map((item) => (
@@ -76,17 +71,17 @@ export function SiteHeader() {
               onClick={() => setLang(lang === "ar" ? "en" : "ar")}
             >
               <Globe className="size-4" />
-              <span className="hidden xl:inline">{t("lang.switch")}</span>
+              <span className="hidden sm:inline">{t("lang.switch")}</span>
             </Button>
           )}
           {!loading && user ? (
             <AccountHub />
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild className="hidden xl:inline-flex">
+              <Button variant="ghost" size="sm" asChild className="hidden lg:inline-flex">
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
-              <Button variant="outline" size="sm" asChild className="hidden xl:inline-flex">
+              <Button variant="outline" size="sm" asChild className="hidden lg:inline-flex">
                 <Link to="/register">
                   {t("nav.signUp")}
                 </Link>

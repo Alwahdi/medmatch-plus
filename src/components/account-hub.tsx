@@ -11,7 +11,6 @@ import {
   Mail,
   ShieldCheck,
   Settings,
-  Sparkles,
   UserRound,
 } from "lucide-react";
 
@@ -38,7 +37,6 @@ const TXT = {
     facilityProfile: "ملف المنشأة",
     credentials: "المستندات والشهادات",
     verification: "التوثيق والمستندات",
-    plan: "الباقة والاشتراك",
     invitations: "الدعوات",
     alerts: "تنبيهات الوظائف",
     report: "التقرير الشهري",
@@ -58,7 +56,6 @@ const TXT = {
     facilityProfile: "Facility profile",
     credentials: "Documents & credentials",
     verification: "Verification & documents",
-    plan: "Plan & subscription",
     invitations: "Invitations",
     alerts: "Job alerts",
     report: "Monthly report",
@@ -141,9 +138,6 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
           </Link>
           <Link to="/facility/profile" search={{ tab: "verification" }} className={ITEM} onClick={onNavigate}>
             <ShieldCheck className="size-4 shrink-0" /> {c.verification}
-          </Link>
-          <Link to="/facility/profile" search={{ tab: "plan" }} className={ITEM} onClick={onNavigate}>
-            <Sparkles className="size-4 shrink-0" /> {c.plan}
           </Link>
         </>
       ) : (

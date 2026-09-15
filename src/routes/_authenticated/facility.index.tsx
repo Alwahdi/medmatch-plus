@@ -740,9 +740,6 @@ function FacilityDashboard() {
                {searchesRemaining !== null ? ` · ${c.searchesRemaining(searchesRemaining)}` : ""}
             </p>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/pricing">{c.upgrade}</Link>
-          </Button>
         </div>
       )}
 

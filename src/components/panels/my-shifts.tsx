@@ -162,7 +162,7 @@ export function MyShiftsPanel() {
         </ul>
       ) : (
         <p className="mt-6 text-sm text-muted-foreground">
-          {c.empty} <Link to="/shifts" className="text-primary underline">{c.browse}</Link>
+          {c.empty} <Link to="/jobs" search={{ kind: "shift" }} className="text-primary underline">{c.browse}</Link>
         </p>
       )}
     </div>

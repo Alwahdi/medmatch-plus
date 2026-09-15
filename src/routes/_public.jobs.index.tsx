@@ -48,13 +48,15 @@ export const Route = createFileRoute("/_public/jobs/")({
       {
         name: "description",
         content:
-           "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في اليمن والخليج ومصر، مع نطاق راتب معلن وفلاتر دقيقة.",
+          "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في اليمن والخليج ومصر، مع نطاق راتب معلن وفلاتر دقيقة.",
       },
       { property: "og:title", content: "الفرص الطبية: وظائف ومناوبات | SyndeoCare" },
       {
         property: "og:description",
-         content: "وظائف طبية في المنطقة العربية بنطاق راتب معلن وفلاتر حسب التخصص والموقع.",
+          content: "وظائف طبية في المنطقة العربية بنطاق راتب معلن وفلاتر حسب التخصص والموقع.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: JobsPage,
@@ -82,7 +84,7 @@ const TXT = {
     jobType: "نوع الوظيفة",
     results: "نتائج البحث",
     count: (n: number) => `${n} فرصة متاحة`,
-    employer: "أنت ناشر وظائف؟",
+    employer: "هل تمثل منشأة؟",
     empty: "لا توجد فرص مطابقة لبحثك.",
     reset: "إعادة ضبط الفلاتر",
     scopeMine: (n: string) => `تخصصي: ${n}`,
@@ -122,7 +124,7 @@ const TXT = {
     jobType: "Job type",
     results: "Search results",
     count: (n: number) => `${n} opportunities available`,
-    employer: "Hiring? See plans",
+    employer: "Hiring healthcare talent?",
     empty: "No opportunities match your search.",
     reset: "Reset filters",
     scopeMine: (n: string) => `My specialty: ${n}`,
@@ -630,7 +632,7 @@ function JobsPage() {
               </div>
               {!signedIn && (
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/pricing">
+                  <Link to="/for-facilities">
                     {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
                   </Link>
                 </Button>
