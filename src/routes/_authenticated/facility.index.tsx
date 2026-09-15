@@ -871,7 +871,7 @@ function FacilityDashboard() {
                           )}
                           <DropdownMenuItem
                             className="min-h-11 gap-2"
-                            disabled={toggleJob.isPending}
+                            loading={toggleJob.isPending}
                             onSelect={async () => {
                               if (j.is_active) {
                                 const ok = await confirm({
@@ -958,7 +958,7 @@ function FacilityDashboard() {
                             {s.status === "booked" && ended && (
                               <DropdownMenuItem
                                 className="min-h-11 gap-2"
-                                disabled={completeShift.isPending}
+                                loading={completeShift.isPending}
                                 onSelect={async () => {
                                   const ok = await confirm({
                                     title: c.confirmCompleteTitle,
@@ -973,7 +973,7 @@ function FacilityDashboard() {
                             )}
                             <DropdownMenuItem
                               className="min-h-11 gap-2"
-                              disabled={cancelShift.isPending}
+                              loading={cancelShift.isPending}
                               onSelect={async () => {
                                 const ok = await confirm({
                                   title: c.confirmCancelShiftTitle,
@@ -1144,7 +1144,7 @@ function FacilityForm() {
           <Textarea id="fdesc" rows={4} maxLength={1000} value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
-        <Button className="w-full sm:w-auto" onClick={() => save.mutate()} disabled={save.isPending}>
+        <Button className="w-full sm:w-auto" onClick={() => save.mutate()} loading={save.isPending}>
           {save.isPending ? c.saving : c.createFacility}
         </Button>
       </div>

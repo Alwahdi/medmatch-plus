@@ -333,7 +333,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                         });
                         if (ok) startChat.mutate({ candidateUserId: a.user_id, jobId: a.job_id });
                       }}
-                      disabled={startChat.isPending}
+                      loading={startChat.isPending}
                     >
                       <MessageSquare className="size-4" /> {c.message}
                     </Button>

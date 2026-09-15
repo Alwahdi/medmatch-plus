@@ -248,7 +248,7 @@ export function AlertsPanel() {
             onChange={(e) => setPhone(e.target.value)}
           />
         )}
-        <Button className="md:col-span-2" onClick={() => create.mutate()} disabled={create.isPending}>
+        <Button className="md:col-span-2" onClick={() => create.mutate()} loading={create.isPending}>
           <BellRing className="size-4" /> {create.isPending ? c.saving : c.add}
         </Button>
       </div>

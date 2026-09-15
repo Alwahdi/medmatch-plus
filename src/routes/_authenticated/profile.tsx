@@ -465,7 +465,7 @@ function ProfileOverview() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          <Button onClick={() => save.mutate()} loading={save.isPending}>
             {save.isPending ? c.saving : c.save}
           </Button>
           {profile && (

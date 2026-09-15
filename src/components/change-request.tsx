@@ -260,7 +260,7 @@ export function LockedField({
             <Button variant="outline" onClick={() => setOpen(false)}>
               {c.cancel}
             </Button>
-            <Button onClick={() => submit.mutate()} disabled={submit.isPending}>
+            <Button onClick={() => submit.mutate()} loading={submit.isPending}>
               {submit.isPending ? c.sending : c.send}
             </Button>
           </DialogFooter>

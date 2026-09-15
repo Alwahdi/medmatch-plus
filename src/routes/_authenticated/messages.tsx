@@ -1072,7 +1072,7 @@ function MessagesPage() {
                             title={c.confirmSend}
                             aria-label={c.confirmSend}
                             className="size-9 rounded-full"
-                            disabled={send.isPending}
+                            loading={send.isPending}
                             onClick={() => send.mutate(undefined)}
                           >
                             <Send className="size-4" />
@@ -1123,7 +1123,7 @@ function MessagesPage() {
                         variant="ghost"
                         title={c.attach}
                         aria-label={c.attach}
-                        disabled={send.isPending}
+                        loading={send.isPending}
                         className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
                       >
                         <Paperclip className="size-5" />
@@ -1164,7 +1164,7 @@ function MessagesPage() {
                       title={c.send}
                       aria-label={c.send}
                       onClick={() => send.mutate(undefined)}
-                      disabled={send.isPending}
+                      loading={send.isPending}
                       className="size-10 shrink-0 rounded-full"
                     >
                       {send.isPending ? (
@@ -1176,7 +1176,7 @@ function MessagesPage() {
                   ) : (
                     <VoiceRecorder
                       compact
-                      disabled={send.isPending}
+                      loading={send.isPending}
                       labels={{
                         record: c.record,
                         stop: c.stop,

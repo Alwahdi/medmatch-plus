@@ -766,7 +766,7 @@ function SecurityPage() {
             className="mt-4"
             variant="outline"
             onClick={() => startEnroll.mutate()}
-            disabled={startEnroll.isPending}
+            loading={startEnroll.isPending}
           >
             {startEnroll.isPending ? (
               <Loader2 className="size-4 animate-spin" />
@@ -833,7 +833,7 @@ function SecurityPage() {
             {c.bioAdd}
           </Button>
           {!!devices?.length && (
-            <Button variant="ghost" onClick={() => testDevice.mutate()} disabled={testDevice.isPending}>
+            <Button variant="ghost" onClick={() => testDevice.mutate()} loading={testDevice.isPending}>
               {c.bioTest}
             </Button>
           )}

@@ -145,7 +145,7 @@ export function MyShiftsPanel() {
                         });
                         if (ok) cancel.mutate({ id: b.id });
                       }}
-                      disabled={cancel.isPending}>
+                      loading={cancel.isPending}>
                       {c.cancel}
                     </Button>
                   ) : (

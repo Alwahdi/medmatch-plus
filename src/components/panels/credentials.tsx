@@ -294,7 +294,7 @@ export function CredentialsPanel() {
           <Input id="file" type="file" accept=".pdf,image/*"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         </div>
-        <Button onClick={() => add.mutate()} disabled={add.isPending}>
+        <Button onClick={() => add.mutate()} loading={add.isPending}>
           <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
         </Button>
       </div>

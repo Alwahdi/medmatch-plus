@@ -470,7 +470,7 @@ function JobDetail() {
                 variant="outline"
                 className="w-full"
                 onClick={() => toggleSave.mutate()}
-                disabled={toggleSave.isPending}
+                loading={toggleSave.isPending}
               >
                 {saved ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
                 {saved ? c.saved : c.saveJob}

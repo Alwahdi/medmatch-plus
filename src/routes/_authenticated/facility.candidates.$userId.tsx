@@ -229,7 +229,7 @@ function CandidateProfile() {
             </div>
 
             <div className="flex flex-wrap gap-2 pb-1">
-              <Button size="sm" onClick={() => startChat.mutate()} disabled={startChat.isPending}>
+              <Button size="sm" onClick={() => startChat.mutate()} loading={startChat.isPending}>
                 <MessageSquare className="size-4" /> {c.message}
               </Button>
               {(hired || confirmed) && user && data.facility && (
