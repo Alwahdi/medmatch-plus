@@ -1154,6 +1154,7 @@ function JobForm({
           salary_max: parsed.salary_max,
           currency: form.currency,
           min_experience: Number(form.min_experience) || 0,
+          vacancies: Math.min(Math.max(Number(form.vacancies) || 1, 1), 50),
           required_license: form.required_license || null,
         })
         .select("id")
