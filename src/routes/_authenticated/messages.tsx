@@ -137,6 +137,8 @@ const TXT = {
     title: "الرسائل",
     sub: "قناة التواصل الرسمية داخل المنصة. تبدأ المنشأة المحادثة، ويظهر اسمها لك فور بدئها.",
     loading: "جارٍ التحميل...",
+    loadFailed: "تعذّر تحميل المحادثات",
+    retry: "إعادة المحاولة",
     emptyTitle: "لا توجد محادثات بعد",
     emptyBody: "ستظهر هنا المحادثات فور تواصل المنشأة معك أو بعد ترقية طلبك في مراحل الفرز.",
     facility: "منشأة صحية",
@@ -201,6 +203,8 @@ const TXT = {
     title: "Messages",
     sub: "The official in-platform channel. The employer starts the conversation, and their name is revealed to you as soon as they do.",
     loading: "Loading...",
+    loadFailed: "Could not load conversations",
+    retry: "Try again",
     emptyTitle: "No conversations yet",
     emptyBody: "Conversations appear here once an employer contacts you or your application moves forward in screening.",
     facility: "Healthcare facility",
@@ -304,7 +308,7 @@ function MessagesPage() {
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineUsers = useOnlineUsers(user);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["conversations", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -673,6 +677,11 @@ function MessagesPage() {
 
       {isLoading ? (
         <p className="mt-8 px-4 text-sm text-muted-foreground">{c.loading}</p>
+      ) : isError ? (
+        <div className="mx-4 mt-8 rounded-lg border border-destructive/35 bg-destructive/5 p-6 text-center sm:mx-0">
+          <p className="font-bold">{c.loadFailed}</p>
+          <Button className="mt-4" variant="outline" onClick={() => void refetch()}>{c.retry}</Button>
+        </div>
       ) : conversations.length === 0 ? (
         <div className="mt-8 mx-4 rounded-lg border border-border bg-card p-8 text-center shadow-card sm:mx-0">
           <p className="font-bold">{c.emptyTitle}</p>
