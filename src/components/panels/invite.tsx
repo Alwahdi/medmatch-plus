@@ -46,7 +46,7 @@ export const INVITE_TXT = {
     allCountries: "كل الدول",
     city: "المدينة",
     minExp: "أقل خبرة (سنوات)",
-    searchBtn: "ابحث (يخصم من حصة الباقة)",
+    searchBtn: "ابحث (يُحتسب من حد الاستخدام)",
     searching: "جارٍ البحث...",
     noResults: "لا توجد نتائج مطابقة",
     msgLabel: "رسالة الدعوة (اختياري)",
@@ -64,7 +64,7 @@ export const INVITE_TXT = {
     statuses: { pending: "بانتظار الرد", accepted: "مقبولة", declined: "مرفوضة", cancelled: "ملغاة" },
     errors: {
       NOT_A_FACILITY: "هذه الميزة متاحة لحسابات المنشآت فقط.",
-      NO_ACTIVE_SUBSCRIPTION: "اشتراكك منتهٍ — جدّد الباقة لاستخدام البحث.",
+      NO_ACTIVE_SUBSCRIPTION: "البحث متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة.",
       SEARCH_QUOTA_EXCEEDED: "استهلكت حصة البحث في باقتك.",
     },
     searchFailed: "تعذّر تنفيذ البحث",
@@ -104,8 +104,8 @@ export const INVITE_TXT = {
     statuses: { pending: "Pending", accepted: "Accepted", declined: "Declined", cancelled: "Cancelled" },
     errors: {
       NOT_A_FACILITY: "This feature is available for facility accounts only.",
-      NO_ACTIVE_SUBSCRIPTION: "Your subscription has expired — renew your plan to search.",
-      SEARCH_QUOTA_EXCEEDED: "You've used up your plan's search quota.",
+      NO_ACTIVE_SUBSCRIPTION: "Search is temporarily paused for this account — contact support for help.",
+      SEARCH_QUOTA_EXCEEDED: "You've used the trial search allowance.",
     },
     searchFailed: "Failed to run the search",
   },

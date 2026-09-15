@@ -296,6 +296,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
   const [form, setForm] = useState({
     full_name: defaultName,
     headline: "",
@@ -312,19 +313,22 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
     if (!draftKey) return;
     try {
       const saved = localStorage.getItem(draftKey);
-      if (!saved) return;
-      const parsed = JSON.parse(saved) as Partial<typeof form> & { step?: number };
-      setForm((current) => ({ ...current, ...parsed }));
-      if (parsed.step && parsed.step >= 1 && parsed.step <= 3) setStep(parsed.step);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<typeof form> & { step?: number };
+        setForm((current) => ({ ...current, ...parsed }));
+        if (parsed.step && parsed.step >= 1 && parsed.step <= 3) setStep(parsed.step);
+      }
     } catch {
       localStorage.removeItem(draftKey);
+    } finally {
+      setDraftReady(true);
     }
   }, [draftKey]);
 
   useEffect(() => {
-    if (!draftKey) return;
+    if (!draftKey || !draftReady) return;
     localStorage.setItem(draftKey, JSON.stringify({ ...form, step }));
-  }, [draftKey, form, step]);
+  }, [draftKey, draftReady, form, step]);
 
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
@@ -549,6 +553,7 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
   const [form, setForm] = useState({
     name_ar: "",
     facility_type: "hospital",
@@ -563,19 +568,22 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
     if (!draftKey) return;
     try {
       const saved = localStorage.getItem(draftKey);
-      if (!saved) return;
-      const parsed = JSON.parse(saved) as Partial<typeof form> & { step?: number };
-      setForm((current) => ({ ...current, ...parsed }));
-      if (parsed.step === 1 || parsed.step === 2) setStep(parsed.step);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<typeof form> & { step?: number };
+        setForm((current) => ({ ...current, ...parsed }));
+        if (parsed.step === 1 || parsed.step === 2) setStep(parsed.step);
+      }
     } catch {
       localStorage.removeItem(draftKey);
+    } finally {
+      setDraftReady(true);
     }
   }, [draftKey]);
 
   useEffect(() => {
-    if (!draftKey) return;
+    if (!draftKey || !draftReady) return;
     localStorage.setItem(draftKey, JSON.stringify({ ...form, step }));
-  }, [draftKey, form, step]);
+  }, [draftKey, draftReady, form, step]);
 
   const canNext = form.name_ar.trim().length >= 2;
   const canFinish = canNext && !!form.country && form.city.trim().length >= 2;

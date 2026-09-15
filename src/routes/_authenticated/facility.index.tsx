@@ -179,8 +179,8 @@ const TXT = {
     publishJob: "نشر الوظيفة",
     jobPublished: "تم نشر الوظيفة",
     publishFailed: "تعذّر النشر",
-    subExpiredJob: "انتهت باقتك — جدّد الاشتراك للنشر من جديد",
-    quotaReachedJob: "وصلت حد الوظائف النشطة في باقتك — أغلق وظيفة أو رقّ الباقة",
+    subExpiredJob: "النشر متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة",
+    quotaReachedJob: "وصلت حد الوظائف النشطة في النسخة التجريبية — أغلق وظيفة نشطة للنشر من جديد",
     titleMin: "أدخل المسمى الوظيفي",
     descMin: "اكتب وصفاً لا يقل عن ٢٠ حرفاً",
     salaryMaxGt: "الحد الأعلى للراتب يجب أن يكون أكبر",
@@ -193,8 +193,8 @@ const TXT = {
     notes: "ملاحظات",
     publishShift: "نشر المناوبة",
     shiftPublished: "تم نشر المناوبة",
-    subExpiredShift: "انتهت باقتك — جدّد الاشتراك للنشر من جديد",
-    quotaReachedShift: "وصلت حد المناوبات النشطة في باقتك — رقّ الباقة للمزيد",
+    subExpiredShift: "النشر متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة",
+    quotaReachedShift: "وصلت حد المناوبات النشطة في النسخة التجريبية — أنهِ مناوبة قائمة للنشر من جديد",
     shiftTitleMin: "أدخل عنوان المناوبة",
     setTimes: "حدّد وقت البداية والنهاية",
     endAfterStart: "وقت النهاية يجب أن يكون بعد البداية",
@@ -333,8 +333,8 @@ const TXT = {
     publishJob: "Post job",
     jobPublished: "Job posted",
     publishFailed: "Failed to publish",
-    subExpiredJob: "Your plan has expired — renew your subscription to post again",
-    quotaReachedJob: "You've reached your plan's active job limit — close a job or upgrade",
+    subExpiredJob: "Publishing is temporarily paused for this account — contact support for help",
+    quotaReachedJob: "You've reached the trial's active job limit — close an active job to post again",
     titleMin: "Enter a job title",
     descMin: "Write a description of at least 20 characters",
     salaryMaxGt: "The maximum salary must be higher",
@@ -347,8 +347,8 @@ const TXT = {
     notes: "Notes",
     publishShift: "Post shift",
     shiftPublished: "Shift posted",
-    subExpiredShift: "Your plan has expired — renew your subscription to post again",
-    quotaReachedShift: "You've reached your plan's active shift limit — upgrade for more",
+    subExpiredShift: "Publishing is temporarily paused for this account — contact support for help",
+    quotaReachedShift: "You've reached the trial's active shift limit — complete an existing shift to post again",
     shiftTitleMin: "Enter a shift title",
     setTimes: "Set the start and end time",
     endAfterStart: "End time must be after start time",
@@ -1171,6 +1171,7 @@ function JobForm({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState<"form" | "review">("form");
+  const [draftReady, setDraftReady] = useState(false);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -1193,15 +1194,18 @@ function JobForm({
       if (saved) setForm((current) => ({ ...current, ...(JSON.parse(saved) as Partial<typeof form>) }));
     } catch {
       localStorage.removeItem(draftKey);
+    } finally {
+      setDraftReady(true);
     }
   }, [draftKey]);
 
   useEffect(() => {
+    if (!draftReady) return;
     localStorage.setItem(draftKey, JSON.stringify(form));
-  }, [draftKey, form]);
+  }, [draftKey, draftReady, form]);
 
   useEffect(() => {
-    setForm((f) => ({ ...f, country: defaults.country, city: defaults.city }));
+    setForm((f) => ({ ...f, country: f.country || defaults.country, city: f.city || defaults.city }));
   }, [defaults.country, defaults.city]);
 
   /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
@@ -1454,6 +1458,7 @@ function ShiftForm({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState<"form" | "review">("form");
+  const [draftReady, setDraftReady] = useState(false);
   const [form, setForm] = useState({
     title: "",
     specialty_id: "",
@@ -1473,12 +1478,15 @@ function ShiftForm({
       if (saved) setForm((current) => ({ ...current, ...(JSON.parse(saved) as Partial<typeof form>) }));
     } catch {
       localStorage.removeItem(draftKey);
+    } finally {
+      setDraftReady(true);
     }
   }, [draftKey]);
 
   useEffect(() => {
+    if (!draftReady) return;
     localStorage.setItem(draftKey, JSON.stringify(form));
-  }, [draftKey, form]);
+  }, [draftKey, draftReady, form]);
 
   /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
   function validate() {
