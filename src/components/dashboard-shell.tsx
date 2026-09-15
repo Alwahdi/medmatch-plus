@@ -13,6 +13,7 @@ import { AccountHub, AccountHubSidebarTrigger } from "@/components/account-hub";
 import { useAccountIdentity } from "@/components/account-hub";
 import { NotificationBell } from "@/components/notification-bell";
 import { RemoteAvatar } from "@/components/remote-avatar";
+import { Button } from "@/components/ui/button";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
@@ -97,7 +98,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <span
                 className={cn(
                   "ms-auto rounded-full px-2 py-0.5 text-[11px] font-bold",
-                  active ? "bg-white/20 text-white" : "bg-destructive text-destructive-foreground",
+                   active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-destructive text-destructive-foreground",
                 )}
               >
                 {badge > 99 ? "99+" : badge}
@@ -121,8 +122,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4">
           <AccountHub
             trigger={
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 aria-label={t("nav.account")}
                 className="flex min-h-11 min-w-0 items-center gap-2 rounded-lg px-1 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
@@ -138,7 +140,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
                   </span>
                 </span>
-              </button>
+              </Button>
             }
           />
           <div className="flex shrink-0 items-center gap-2">

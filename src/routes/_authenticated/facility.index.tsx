@@ -1037,7 +1037,7 @@ function FacilityForm() {
       <h1 className="font-display text-3xl font-extrabold">{c.registerTitle}</h1>
       <p className="mt-2 text-muted-foreground">{c.registerSub}</p>
 
-      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div className="card-lift mt-6 space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6">
         <div>
           <Label htmlFor="fname">{c.facilityName}</Label>
           <Input id="fname" maxLength={120} value={form.name_ar}
@@ -1250,7 +1250,7 @@ function JobForm({
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
 
         <div>
@@ -1499,7 +1499,7 @@ function ShiftForm({
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
 
         <div>
@@ -1622,12 +1622,12 @@ function ReviewStep({
   pending: boolean;
 }) {
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
       <div>
         <h3 className="font-display text-lg font-extrabold">{title}</h3>
         <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
       </div>
-      <dl className="divide-y divide-border rounded-xl border border-border">
+      <dl className="divide-y divide-border rounded-lg border border-border">
         {rows.map((r) => (
           <div key={r.label} className="grid gap-1 p-3 sm:grid-cols-3 sm:gap-3">
             <dt className="text-sm font-semibold text-muted-foreground">{r.label}</dt>

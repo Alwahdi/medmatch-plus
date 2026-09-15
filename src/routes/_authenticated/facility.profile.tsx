@@ -504,7 +504,7 @@ function FacilityProfilePage() {
           <FacilityVerificationPanel />
         </TabsContent>
         <TabsContent value="plan" className="mt-6">
-          <div className="rounded-2xl border border-border bg-card p-6">
+           <div className="rounded-lg border border-border bg-card p-6 shadow-card">
             <h2 className="font-display text-xl font-extrabold">
               {lang === "ar" ? "باقة الاشتراك" : "Subscription plan"}
             </h2>

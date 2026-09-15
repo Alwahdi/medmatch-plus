@@ -35,7 +35,7 @@ const TXT = {
     markAll: "تعليم الكل كمقروء",
     clear: "حذف الكل",
     empty: "لا توجد إشعارات",
-    emptyBody: "ستصلك هنا إشعارات الرسائل والدعوات والطلبات والتوثيق.",
+     emptyBody: "ستصلك هنا إشعارات الدعوات والطلبات والتوثيق. الرسائل لها عداد مستقل.",
     settings: "الإعدادات",
   },
   en: {
@@ -44,7 +44,7 @@ const TXT = {
     markAll: "Mark all as read",
     clear: "Clear all",
     empty: "No notifications",
-    emptyBody: "Messages, invitations, applications and verification updates appear here.",
+     emptyBody: "Invitation, application and verification updates appear here. Messages have their own counter.",
     settings: "Settings",
   },
 } as const;
