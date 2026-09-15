@@ -1314,8 +1314,8 @@ function JobForm({
           {expired ? c.subExpiredJob : c.quotaReachedJob}
         </p>
       )}
-      <Button className="w-full sm:w-auto" onClick={() => create.mutate()} disabled={create.isPending || expired || quotaReached}>
-        {create.isPending ? c.publishing : c.publishJob}
+      <Button className="w-full sm:w-auto" onClick={goReview} disabled={create.isPending || expired || quotaReached}>
+        {c.reviewCta}
       </Button>
     </div>
   );
