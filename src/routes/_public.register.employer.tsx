@@ -34,6 +34,11 @@ export const Route = createFileRoute("/_public/register/employer")({
 
 const AR = {
   back: "رجوع",
+  joinAs: "سأنضم بصفتي",
+  seeker: "باحث عن عمل",
+  seekerHint: "طبيب - صيدلي - ممرض - فني",
+  employer: "ناشر وظائف",
+  employerHint: "وظّف الباحثين عن عمل",
   badge: "مجاني للبدء",
   title: "أنشئ حساب ناشر وظائف",
   subtitle: "ابدأ التوظيف في أقل من دقيقة، وأكمل بيانات ناشر الوظائف لاحقًا عندما تكون جاهزًا.",
@@ -83,6 +88,11 @@ const AR = {
 
 const EN: typeof AR = {
   back: "Back",
+  joinAs: "I'm joining as",
+  seeker: "Job seeker",
+  seekerHint: "Doctor - pharmacist - nurse - technician",
+  employer: "Employer",
+  employerHint: "Hire job seekers",
   badge: "Free to start",
   title: "Create an employer account",
   subtitle: "Start hiring in under a minute and complete your employer details later.",
@@ -295,7 +305,24 @@ function RegisterEmployer() {
             </section>
 
             <section className="card-lift rounded-lg border border-border bg-card p-6 sm:p-8">
-              <h2 className="font-display text-xl font-extrabold">{L.formTitle}</h2>
+              <p className="text-sm font-bold">{L.joinAs}</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <Link
+                  to="/register"
+                  className="rounded-lg border border-border p-4 text-start transition-colors hover:border-primary/40"
+                >
+                  <Briefcase className="size-5 text-primary" />
+                  <p className="mt-2 font-bold">{L.seeker}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{L.seekerHint}</p>
+                </Link>
+                <div className="rounded-lg border border-primary bg-primary/8 p-4 text-start">
+                  <Building2 className="size-5 text-primary" />
+                  <p className="mt-2 font-bold">{L.employer}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{L.employerHint}</p>
+                </div>
+              </div>
+
+              <h2 className="mt-8 font-display text-xl font-extrabold">{L.formTitle}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{L.formBody}</p>
 
               {sent ? (
