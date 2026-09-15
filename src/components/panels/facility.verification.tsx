@@ -39,6 +39,7 @@ import {
   formatDate,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 
 const TXT = {
@@ -425,7 +426,7 @@ export function FacilityVerificationPanel() {
 
       <h2 className="mt-10 text-lg font-bold">{c.myDocs}</h2>
       {isLoading ? (
-        <p className="mt-4 text-sm text-muted-foreground">{c.loading}</p>
+        <div className="mt-4"><ListSkeleton rows={2} /></div>
       ) : list.length === 0 ? (
         <div className="mt-4">
           <EmptyState icon={FileText} title={c.emptyTitle} description={c.emptyDesc} />

@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 const TXT = {
   ar: {
@@ -131,7 +132,7 @@ export function ApplicantReportPanel() {
     },
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">{c.loading}</p>;
+  if (isLoading) return <ListSkeleton rows={2} />;
   if (isError)
     return (
       <div className="rounded-lg border border-border bg-card p-5 shadow-card">
