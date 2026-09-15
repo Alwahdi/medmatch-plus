@@ -105,7 +105,10 @@ function Home() {
 
   function search(e: React.FormEvent) {
     e.preventDefault();
-    navigate({ to: "/jobs", search: { q: q.trim() || undefined, city: loc.trim() || undefined } });
+    const searchParams: { q?: string; city?: string } = {};
+    if (q.trim()) searchParams.q = q.trim();
+    if (loc.trim()) searchParams.city = loc.trim();
+    navigate({ to: "/jobs", search: searchParams });
   }
 
   const stepKeys = tab === "employers" ? EMPLOYER_STEP_KEYS : SEEKER_STEP_KEYS;

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export function WorkspaceHeading({
   eyebrow,
@@ -95,15 +96,15 @@ export function QuickAction({
 
   if (to) {
     return (
-      <Link to={to} className={classes}>
+      <Link to={to} className={cn(buttonVariants({ variant: "outline" }), classes)}>
         {content}
       </Link>
     );
   }
   return (
-    <button type="button" className={classes} onClick={onClick}>
+    <Button type="button" variant="outline" className={classes} onClick={onClick}>
       {content}
-    </button>
+    </Button>
   );
 }
 
