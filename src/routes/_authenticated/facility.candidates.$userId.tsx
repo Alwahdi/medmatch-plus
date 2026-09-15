@@ -22,6 +22,7 @@ import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 export const Route = createFileRoute("/_authenticated/facility/candidates/$userId")({
   head: () => ({
@@ -173,7 +174,7 @@ function CandidateProfile() {
     onError: (e: Error) => toast.error(e.message === "no-facility" ? c.noFacility : c.chatFailed),
   });
 
-  if (isLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
+  if (isLoading) return <div className="mx-auto max-w-4xl px-4 py-10"><ListSkeleton rows={3} /></div>;
 
   if (!data?.pro)
     return (

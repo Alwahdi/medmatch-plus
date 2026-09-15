@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 
 const TXT = {
@@ -300,7 +301,7 @@ export function CredentialsPanel() {
 
       <h2 className="mt-10 text-lg font-bold">{c.myDocs}</h2>
       {isLoading ? (
-        <p className="mt-4 text-sm text-muted-foreground">{c.loading}</p>
+        <div className="mt-4"><ListSkeleton rows={2} /></div>
       ) : items?.length ? (
         <ul className="mt-4 space-y-3">
           {items.map((cred) => (

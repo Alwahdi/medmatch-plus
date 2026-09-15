@@ -58,6 +58,7 @@ import { useLang } from "@/lib/i18n";
 import { useOnlineUsers } from "@/lib/presence";
 import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({
@@ -676,7 +677,7 @@ function MessagesPage() {
       </div>
 
       {isLoading ? (
-        <p className="mt-8 px-4 text-sm text-muted-foreground">{c.loading}</p>
+        <div className="mt-8 px-4 sm:px-0"><ListSkeleton rows={4} /></div>
       ) : isError ? (
         <div className="mx-4 mt-8 rounded-lg border border-destructive/35 bg-destructive/5 p-6 text-center sm:mx-0">
           <p className="font-bold">{c.loadFailed}</p>

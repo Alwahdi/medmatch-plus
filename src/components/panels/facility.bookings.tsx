@@ -12,10 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { useConfirm } from "@/components/confirm-dialog";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 const TXT = {
   ar: {
-    loading: "جارٍ التحميل...",
     healthcarePro: "كادر صحي",
     verified: "موثّق",
     experience: (n: number) => `خبرة ${n} سنة`,
@@ -28,9 +29,11 @@ const TXT = {
     chatOpened: "تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح",
     chatFailed: "تعذّر بدء المحادثة",
     cancelled: "ملغي",
+    revealTitle: "بدء المحادثة مع صاحب الحجز؟",
+    revealDesc: "عند بدء المحادثة سيظهر اسم منشأتك لهذا المختص حتى تكون المحادثة واضحة للطرفين.",
+    revealCta: "ابدأ المحادثة",
   },
   en: {
-    loading: "Loading...",
     healthcarePro: "Healthcare professional",
     verified: "Verified",
     experience: (n: number) => `${n} years experience`,
@@ -43,6 +46,9 @@ const TXT = {
     chatOpened: "Conversation opened — your facility name is now visible to the candidate",
     chatFailed: "Failed to start conversation",
     cancelled: "Cancelled",
+    revealTitle: "Start a conversation with this professional?",
+    revealDesc: "Starting the conversation reveals your facility name to this professional so both sides know who they are speaking with.",
+    revealCta: "Start conversation",
   },
 } as const;
 
@@ -59,6 +65,7 @@ export function FacilityBookingsPanel({
   const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
+  const { confirm, confirmDialog } = useConfirm();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["facility-shift-bookings", shiftId],
@@ -98,7 +105,7 @@ export function FacilityBookingsPanel({
     onError: () => toast.error(c.chatFailed),
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">{c.loading}</p>;
+  if (isLoading) return <ListSkeleton rows={1} />;
   if (isError)
     return (
       <EmptyState
@@ -114,6 +121,8 @@ export function FacilityBookingsPanel({
   if (!data?.length) return <EmptyState icon={CalendarCheck2} title={c.empty} />;
 
   return (
+    <>
+    {confirmDialog}
     <ul className="space-y-3">
       {data.map((b) => (
         <li key={b.id} className="rounded-lg border border-border bg-surface p-4">
@@ -139,7 +148,14 @@ export function FacilityBookingsPanel({
               <p className="mt-1 text-xs text-muted-foreground">{c.bookedAt(relativeTime(b.created_at, lang))}</p>
             </div>
             <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
-              <Button size="sm" variant="outline" disabled={startChat.isPending} onClick={() => startChat.mutate(b.user_id)}>
+              <Button size="sm" variant="outline" disabled={startChat.isPending} onClick={async () => {
+                const ok = await confirm({
+                  title: c.revealTitle,
+                  description: c.revealDesc,
+                  confirmLabel: c.revealCta,
+                });
+                if (ok) startChat.mutate(b.user_id);
+              }}>
                 <MessageSquare className="size-4" /> {c.message}
               </Button>
               <Button size="sm" variant="outline" asChild>
@@ -168,5 +184,6 @@ export function FacilityBookingsPanel({
         </li>
       ))}
     </ul>
+    </>
   );
 }
