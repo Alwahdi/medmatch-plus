@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
+import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -25,6 +27,7 @@ type JobsSearch = {
   specialty?: string;
   type?: string;
   sort?: string;
+  kind?: string;
 };
 
 const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
@@ -32,7 +35,7 @@ const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
 export const Route = createFileRoute("/_public/jobs/")({
   validateSearch: (search: Record<string, unknown>): JobsSearch => {
     const out: JobsSearch = {};
-    for (const k of ["q", "country", "city", "specialty", "type", "sort"] as const) {
+    for (const k of ["q", "country", "city", "specialty", "type", "sort", "kind"] as const) {
       const v = str(search[k]);
       if (v) out[k] = v;
     }
@@ -40,13 +43,13 @@ export const Route = createFileRoute("/_public/jobs/")({
   },
   head: () => ({
     meta: [
-      { title: "الوظائف الطبية | SyndeoCare" },
+      { title: "الفرص الطبية: وظائف ومناوبات | SyndeoCare" },
       {
         name: "description",
         content:
            "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في اليمن والخليج ومصر، مع نطاق راتب معلن وفلاتر دقيقة.",
       },
-      { property: "og:title", content: "الوظائف الطبية | SyndeoCare" },
+      { property: "og:title", content: "الفرص الطبية: وظائف ومناوبات | SyndeoCare" },
       {
         property: "og:description",
          content: "وظائف طبية في المنطقة العربية بنطاق راتب معلن وفلاتر حسب التخصص والموقع.",
@@ -60,8 +63,8 @@ const ALL = "all";
 
 const TXT = {
   ar: {
-    badge: "وظائف دائمة من منشآت موثّقة",
-    title: "الوظائف الطبية المفتوحة",
+    badge: "وظائف دائمة ومناوبات فورية من منشآت موثّقة",
+    title: "الفرص الطبية المتاحة",
     sub: "فرص دائمة لأطباء، تمريض، صيادلة، وفنيين في اليمن والمنطقة العربية — بنطاق راتب معلن وفلاتر دقيقة.",
     search: "ابحث بالمسمى أو التخصص أو المدينة",
     country: "الدولة",
@@ -77,9 +80,9 @@ const TXT = {
     keyword: "كلمة البحث",
     jobType: "نوع الوظيفة",
     results: "نتائج البحث",
-    count: (n: number) => `${n} وظيفة متاحة`,
+    count: (n: number) => `${n} فرصة متاحة`,
     employer: "أنت ناشر وظائف؟",
-    empty: "لا توجد وظائف مطابقة لبحثك.",
+    empty: "لا توجد فرص مطابقة لبحثك.",
     reset: "إعادة ضبط الفلاتر",
     scopeMine: (n: string) => `تخصصي: ${n}`,
     scopeField: "مجالي الطبي",
@@ -90,13 +93,18 @@ const TXT = {
     sortMatch: "الأنسب لي",
     sortNew: "الأحدث",
     hideApplied: "إخفاء ما قدّمت عليه",
-    myHeading: (n: string) => `وظائف تناسب تخصصك: ${n}`,
-    myHeadingPlain: "وظائف مقترحة لك",
+    myHeading: (n: string) => `فرص تناسب تخصصك: ${n}`,
+    myHeadingPlain: "فرص مقترحة لك",
+    kindAll: "الكل",
+    kindJob: "وظائف",
+    kindShift: "مناوبات",
+    booked: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
+    bookFailed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
     mySub: "مرتّبة حسب التخصص والموقع المسجلين في ملفك.",
   },
   en: {
-    badge: "Permanent roles from verified employers",
-    title: "Open medical jobs",
+    badge: "Permanent roles and instant shifts from verified employers",
+    title: "Open medical opportunities",
     sub: "Permanent roles for physicians, nurses, pharmacists and technicians across Yemen and the Arab region — with published salary ranges and precise filters.",
     search: "Search by title, specialty or city",
     country: "Country",
@@ -112,9 +120,9 @@ const TXT = {
     keyword: "Keyword",
     jobType: "Job type",
     results: "Search results",
-    count: (n: number) => `${n} jobs available`,
+    count: (n: number) => `${n} opportunities available`,
     employer: "Hiring? See plans",
-    empty: "No jobs match your search.",
+    empty: "No opportunities match your search.",
     reset: "Reset filters",
     scopeMine: (n: string) => `My specialty: ${n}`,
     scopeField: "My medical field",
@@ -125,8 +133,13 @@ const TXT = {
     sortMatch: "Best match",
     sortNew: "Newest",
     hideApplied: "Hide jobs I applied to",
-    myHeading: (n: string) => `Jobs matching your specialty: ${n}`,
-    myHeadingPlain: "Jobs picked for you",
+    myHeading: (n: string) => `Opportunities matching your specialty: ${n}`,
+    myHeadingPlain: "Opportunities picked for you",
+    kindAll: "All",
+    kindJob: "Jobs",
+    kindShift: "Shifts",
+    booked: "Shift booked — you'll find it under My shifts",
+    bookFailed: "Booking failed, the shift may have just been taken",
     mySub: "Ordered using the specialty and location saved in your profile.",
   },
 } as const;
@@ -150,6 +163,8 @@ function JobsPage() {
   const city = sp.city ?? ALL;
   const specialty = sp.specialty ?? ALL;
   const type = sp.type ?? ALL;
+  const kind = sp.kind === "job" || sp.kind === "shift" ? sp.kind : ALL;
+  const setKind = (v: string) => setParams({ kind: v, type: v === "shift" ? "" : (sp.type ?? "") });
   const setQ = (v: string) => setParams({ q: v });
   const setCity = (v: string) => setParams({ city: v });
   const setSpecialty = (v: string) => setParams({ specialty: v });
@@ -183,6 +198,46 @@ function JobsPage() {
         specialty_id: string | null;
         required_license: string | null;
       })[];
+    },
+  });
+
+  const { data: shifts, isLoading: shiftsLoading } = useQuery({
+    queryKey: ["shifts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shifts")
+        .select(
+          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialty_id,specialties(name_ar,name_en)",
+        )
+        .order("starts_at", { ascending: true });
+      if (error) throw error;
+      return data as unknown as (ShiftRow & { specialty_id: string | null })[];
+    },
+  });
+
+  const queryClient = useQueryClient();
+  const book = useMutation({
+    mutationFn: async (shiftId: string) => {
+      const { error } = await supabase.rpc("book_open_shift", { _shift_id: shiftId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.booked);
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
+    },
+    onError: () => {
+      toast.error(c.bookFailed);
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+    },
+  });
+
+  const { data: bookedShiftIds } = useQuery({
+    queryKey: ["my-booked-shift-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("shift_bookings").select("shift_id").eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.shift_id));
     },
   });
 
@@ -228,15 +283,15 @@ function JobsPage() {
   };
 
   const countries = useMemo(
-    () => Array.from(new Set((jobs ?? []).map((j) => j.country))),
-    [jobs],
+    () => Array.from(new Set([...(jobs ?? []), ...(shifts ?? [])].map((j) => j.country))),
+    [jobs, shifts],
   );
 
   const cities = useMemo(
     () =>
       Array.from(
         new Set(
-          (jobs ?? [])
+          [...(jobs ?? []), ...(shifts ?? [])]
             .filter((j) => country === ALL || j.country === country)
             .map((j) => j.city)
             .filter((x): x is string => Boolean(x)),
@@ -248,7 +303,7 @@ function JobsPage() {
           label: country === ALL ? labelCityWithCountry(x, lang) : x,
           keywords: [x, labelCityWithCountry(x, lang)],
         })),
-    [jobs, country, lang],
+    [jobs, shifts, country, lang],
   );
 
   const relevanceOf = (j: { specialty_id: string | null; country: string }) =>
@@ -285,6 +340,44 @@ function JobsPage() {
       if (sort === "match" && profile) return relevanceOf(b) - relevanceOf(a);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
+
+  const filteredShifts = (kind === "job" ? [] : shifts ?? []).filter((sh) => {
+    if (country !== ALL && sh.country !== country) return false;
+    if (city !== ALL && sh.city !== city) return false;
+    if (specialty !== ALL && sh.specialty_id !== specialty) return false;
+    if (specialty === ALL && !inScope(scope, sh.specialty_id, mySpecialtyId, fieldIds)) return false;
+    if (
+      q &&
+      !matchesQuery(
+        [sh.title, sh.notes, sh.city, sh.country, countryLabel(sh.country, lang), sh.specialties?.name_ar, sh.specialties?.name_en],
+        q,
+      )
+    )
+      return false;
+    return true;
+  });
+
+  type Item =
+    | { kind: "job"; id: string; sortAt: number; job: (typeof filtered)[number] }
+    | { kind: "shift"; id: string; sortAt: number; shift: (typeof filteredShifts)[number] };
+
+  const items: Item[] = [
+    ...(kind === "shift" ? [] : filtered).map<Item>((j) => ({
+      kind: "job",
+      id: j.id,
+      sortAt: new Date(j.created_at).getTime(),
+      job: j,
+    })),
+    ...filteredShifts.map<Item>((sh) => ({
+      kind: "shift",
+      id: sh.id,
+      sortAt: new Date(sh.starts_at).getTime(),
+      shift: sh,
+    })),
+  ].sort((a, b) => {
+    if (kind === ALL && a.kind !== b.kind) return a.kind === "shift" ? -1 : 1;
+    return a.kind === "shift" ? a.sortAt - b.sortAt : b.sortAt - a.sortAt;
+  });
 
   const reset = () => {
     pickScope("all");
@@ -442,7 +535,7 @@ function JobsPage() {
                   </div>
                 </div>
 
-                <div>
+                <div className={kind === "shift" ? "hidden" : undefined}>
                   <label className="text-sm font-medium">{c.jobType}</label>
                   <div className="mt-1.5">
                     <Combobox
@@ -472,6 +565,30 @@ function JobsPage() {
 
           {/* Results */}
           <div className="lg:order-2">
+            <div className="mb-4 flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
+              {(
+                [
+                  [ALL, c.kindAll],
+                  ["job", c.kindJob],
+                  ["shift", c.kindShift],
+                ] as [string, string][]
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={kind === key}
+                  onClick={() => setKind(key)}
+                  className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                    kind === key
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             {hasSpecialty && (
               <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
                 {(
@@ -500,7 +617,7 @@ function JobsPage() {
               <div>
                 <p className="section-label">{c.results}</p>
                 <h2 className="mt-1 font-display text-xl font-extrabold">
-                  {c.count(filtered.length)}
+                  {c.count(items.length)}
                 </h2>
                 <FilterBar
                   className="mt-2"
@@ -562,13 +679,13 @@ function JobsPage() {
               </div>
             )}
 
-            {isLoading ? (
+            {isLoading || shiftsLoading ? (
               <div className="mt-6 space-y-3">
                 {[...Array(6)].map((_, i) => (
                   <Skeleton key={i} className="h-28 rounded-2xl" />
                 ))}
               </div>
-            ) : filtered.length === 0 ? (
+            ) : items.length === 0 ? (
               <div className="mt-10 rounded-2xl border border-border bg-card p-10 text-center">
                 <p className="text-muted-foreground">{c.empty}</p>
                 <Button className="mt-4" variant="outline" onClick={reset}>
@@ -577,18 +694,32 @@ function JobsPage() {
               </div>
             ) : (
               <div className="mt-6 space-y-3">
-                {filtered.map((job) => {
-                  const relevant = relevanceOf(job) > 0;
-                  return (
+                {items.map((item) =>
+                  item.kind === "job" ? (
                     <JobCard
-                      key={job.id}
-                      job={job}
-                      applied={!!appliedIds?.has(job.id)}
-                      saved={!!savedIds?.has(job.id)}
-                      recommended={signedIn && relevant}
+                      key={`job-${item.id}`}
+                      job={item.job}
+                      applied={!!appliedIds?.has(item.id)}
+                      saved={!!savedIds?.has(item.id)}
+                      recommended={signedIn && relevanceOf(item.job) > 0}
                     />
-                  );
-                })}
+                  ) : (
+                    <ShiftCard
+                      key={`shift-${item.id}`}
+                      shift={item.shift}
+                      busy={book.isPending}
+                      mine={!!bookedShiftIds?.has(item.id)}
+                      recommended={signedIn && !!mySpecialtyId && item.shift.specialty_id === mySpecialtyId}
+                      onBook={() => {
+                        if (!user) {
+                          void navigate({ to: "/auth" });
+                          return;
+                        }
+                        book.mutate(item.id);
+                      }}
+                    />
+                  ),
+                )}
               </div>
             )}
 
