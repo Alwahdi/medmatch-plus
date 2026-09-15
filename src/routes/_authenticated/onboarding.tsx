@@ -110,6 +110,25 @@ function Onboarding() {
     }
   }, [metaRole, path]);
 
+  // من يملك دوراً فعلياً لا يرى شاشة الإعداد مطلقاً.
+  useEffect(() => {
+    if (redirected || !roles || roles.length === 0) return;
+    if (roles.includes("facility")) {
+      setRedirected(true);
+      void navigate({ to: "/facility", replace: true });
+      return;
+    }
+    if (roles.includes("admin")) {
+      setRedirected(true);
+      void navigate({ to: "/admin", replace: true });
+      return;
+    }
+    if (roles.includes("professional")) {
+      setRedirected(true);
+      void navigate({ to: "/dashboard", replace: true });
+    }
+  }, [roles, redirected, navigate]);
+
   // تحويل من لديه ملف جاهز — مع تفعيل الدور أولاً حتى لا يرتد إلى الإعداد.
   useEffect(() => {
     if (redirected || !existing || !user || !roles) return;
