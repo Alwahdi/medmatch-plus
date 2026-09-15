@@ -66,7 +66,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
-import { QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
+import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
 
 type FacilitySearch = { tab?: string };
 
@@ -230,6 +230,14 @@ const TXT = {
     facilityProfile: "ملف المنشأة",
     facilityProfileText: "راجع البيانات والتوثيق",
     publishedWork: "أعمالك المنشورة",
+    attention: "يحتاج انتباهك",
+    overdueTitle: (n: number) => `${n} مناوبة انتهت وتحتاج إنهاء`,
+    overdueBody: "سجّل انتهاء المناوبة لفتح التقييم وإكمال سجلها للطرفين.",
+    reviewShifts: "مراجعة المناوبات",
+    applicantsTitle: (n: number) => `${n} طلب جديد بانتظار المراجعة`,
+    applicantsBody: "ابدأ من الإعلان المرتبط لمراجعة المتقدمين واتخاذ الخطوة التالية.",
+    reviewWork: "فتح الأعمال المنشورة",
+    trialUsage: "حدود الاستخدام التجريبي",
   },
   en: {
     loading: "Loading...",
@@ -376,6 +384,14 @@ const TXT = {
     facilityProfile: "Facility profile",
     facilityProfileText: "Review details and verification",
     publishedWork: "Published work",
+    attention: "Needs your attention",
+    overdueTitle: (n: number) => `${n} ended shift(s) need completion`,
+    overdueBody: "Complete each shift to unlock reviews and close its record for both sides.",
+    reviewShifts: "Review shifts",
+    applicantsTitle: (n: number) => `${n} new application(s) await review`,
+    applicantsBody: "Open the related listing to review candidates and take the next step.",
+    reviewWork: "Open published work",
+    trialUsage: "Trial usage limits",
   },
 } as const;
 
@@ -503,6 +519,9 @@ function FacilityDashboard() {
     (count, job) => count + (job.applications ?? []).filter((application) => application.status === "submitted").length,
     0,
   );
+  const overdueShifts = (shifts ?? []).filter(
+    (shift) => shift.status === "booked" && new Date(shift.ends_at).getTime() <= Date.now(),
+  ).length;
   const searchesRemaining = plan
     ? Math.max(plan.candidate_searches - (sub?.searches_used ?? 0), 0)
     : null;
@@ -696,6 +715,30 @@ function FacilityDashboard() {
         </DialogContent>
       </Dialog>
 
+      {(overdueShifts > 0 || newApplicants > 0) && (
+        <div className="mt-6">
+          {overdueShifts > 0 ? (
+            <NextStepCard
+              icon={CalendarClock}
+              label={c.attention}
+              title={c.overdueTitle(overdueShifts)}
+              description={c.overdueBody}
+              tone="warning"
+              action={<Button variant="secondary" onClick={() => void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true })}>{c.reviewShifts}</Button>}
+            />
+          ) : (
+            <NextStepCard
+              icon={Users}
+              label={c.attention}
+              title={c.applicantsTitle(newApplicants)}
+              description={c.applicantsBody}
+              tone="accent"
+              action={<Button variant="secondary" onClick={() => void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true })}>{c.reviewWork}</Button>}
+            />
+          )}
+        </div>
+      )}
+
       <section className="mt-8">
         <SectionHeading title={c.quickActions} />
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -731,7 +774,7 @@ function FacilityDashboard() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 font-bold">
               <Sparkles className="size-5 shrink-0 text-primary" />
-              {c.plan(plan.name_ar)}
+              {c.trialUsage}
               {plan.is_trial && <Badge variant="secondary">{c.trial}</Badge>}
               {!subActive && <Badge variant="destructive">{c.expired}</Badge>}
             </div>
@@ -758,9 +801,10 @@ function FacilityDashboard() {
               ["shifts", c.tabShifts(shifts?.length ?? 0), CalendarClock],
             ] as [string, string, typeof Briefcase][]
           ).map(([key, label, Icon]) => (
-            <button
+            <Button
               key={key}
               type="button"
+              variant="ghost"
               role="tab"
               aria-selected={tab === key}
               onClick={() => void navigate({ to: "/facility", search: { tab: key }, replace: true })}
@@ -770,7 +814,7 @@ function FacilityDashboard() {
             >
               <Icon className="size-4" />
               {label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_public/contact")({
       {
         name: "description",
         content:
-          "راسل فريق SyndeoCare لأي استفسار عن الوظائف، المناوبات، توثيق التراخيص، أو اشتراكات المنشآت.",
+          "راسل فريق SyndeoCare لأي استفسار عن الوظائف، المناوبات، توثيق التراخيص، أو حساب المنشأة.",
       },
       { property: "og:title", content: "تواصل معنا | SyndeoCare" },
       { property: "og:description", content: "فريق SyndeoCare جاهز للرد على استفساراتك." },
@@ -37,7 +37,7 @@ const TXT = {
     topicsTitle: "كيف نقدر نساعدك؟",
     topics: [
       { t: "توثيق التراخيص", d: "استفسارات رفع الوثائق وحالة المراجعة." },
-      { t: "المنشآت والاشتراكات", d: "الباقات، الحدود، وطلبات الترقية." },
+      { t: "دعم المنشآت", d: "النشر، حدود الاستخدام، وإدارة حساب المنشأة." },
       { t: "الدعم العام", d: "مشاكل الدخول، الحساب، أو الإبلاغ عن إعلان." },
     ],
     browseJobs: "تصفح الوظائف",
@@ -60,7 +60,7 @@ const TXT = {
     topicsTitle: "How can we help?",
     topics: [
       { t: "License verification", d: "Questions about uploading documents and review status." },
-      { t: "Facilities & subscriptions", d: "Plans, limits, and upgrade requests." },
+      { t: "Facility support", d: "Publishing, usage limits, and facility account help." },
       { t: "General support", d: "Login issues, account problems, or reporting a listing." },
     ],
     browseJobs: "Browse jobs",
