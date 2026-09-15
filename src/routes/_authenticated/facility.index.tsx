@@ -856,10 +856,11 @@ function FacilityDashboard() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-52">
                             {s.status === "open" && (
-                              <DropdownMenuItem asChild className="min-h-11 gap-2">
-                                <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
-                                  <UserPlus className="size-4" /> {c.invite}
-                                </Link>
+                              <DropdownMenuItem
+                                className="min-h-11 gap-2"
+                                onSelect={() => setInviteTarget({ kind: "shift", id: s.id })}
+                              >
+                                <UserPlus className="size-4" /> {c.invite}
                               </DropdownMenuItem>
                             )}
                             {s.status === "booked" && ended && (
