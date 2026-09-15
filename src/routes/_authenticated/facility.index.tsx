@@ -299,6 +299,8 @@ const TXT = {
     pickSpecialty: "Choose a specialty",
     employmentType: "Employment type",
     minExperience: "Minimum experience required (years)",
+    vacancies: "Open positions",
+    vacanciesHint: "How many candidates do you want to hire? The job closes automatically once filled.",
     salaryFrom: "Salary from",
     salaryTo: "Salary to",
     currency: "Currency",
