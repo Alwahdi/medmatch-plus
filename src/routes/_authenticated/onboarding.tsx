@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/lib/auth";
+import { useRoles, useSession } from "@/lib/auth";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
@@ -58,6 +58,8 @@ async function activateRole(
 function Onboarding() {
   const { user } = useSession();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { data: roles } = useRoles(user);
   const { t, lang } = useLang();
   const ar = lang !== "en";
 
@@ -108,19 +110,33 @@ function Onboarding() {
     }
   }, [metaRole, path]);
 
-  // تحويل من لديه ملف جاهز — مرة واحدة فقط.
+  // تحويل من لديه ملف جاهز — مع تفعيل الدور أولاً حتى لا يرتد إلى الإعداد.
   useEffect(() => {
-    if (redirected || !existing) return;
-    if (existing.fac) {
+    if (redirected || !existing || !user || !roles) return;
+    const go = async (
+      rpc: "claim_professional_role" | "claim_facility_role",
+      to: "/facility" | "/dashboard",
+      role: "facility" | "professional",
+    ) => {
       setRedirected(true);
-      void navigate({ to: "/facility", replace: true });
+      if (!roles.includes(role)) {
+        try {
+          await activateRole(rpc, queryClient, user.id);
+        } catch {
+          setRedirected(false);
+          return;
+        }
+      }
+      void navigate({ to, replace: true });
+    };
+    if (existing.fac) {
+      void go("claim_facility_role", "/facility", "facility");
       return;
     }
     if (existing.pro) {
-      setRedirected(true);
-      void navigate({ to: "/dashboard", replace: true });
+      void go("claim_professional_role", "/dashboard", "professional");
     }
-  }, [existing, redirected, navigate]);
+  }, [existing, redirected, navigate, roles, user, queryClient]);
 
   // فتح الشاشة: عند وصول البيانات، أو خطأ، أو انقضاء مهلة قصيرة.
   useEffect(() => {
