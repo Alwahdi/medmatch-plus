@@ -1176,7 +1176,7 @@ function MessagesPage() {
                   ) : (
                     <VoiceRecorder
                       compact
-                      loading={send.isPending}
+                      disabled={send.isPending}
                       labels={{
                         record: c.record,
                         stop: c.stop,
