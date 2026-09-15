@@ -163,6 +163,8 @@ function JobsPage() {
   const city = sp.city ?? ALL;
   const specialty = sp.specialty ?? ALL;
   const type = sp.type ?? ALL;
+  const kind = sp.kind === "job" || sp.kind === "shift" ? sp.kind : ALL;
+  const setKind = (v: string) => setParams({ kind: v, type: v === "shift" ? "" : sp.type });
   const setQ = (v: string) => setParams({ q: v });
   const setCity = (v: string) => setParams({ city: v });
   const setSpecialty = (v: string) => setParams({ specialty: v });
@@ -196,6 +198,46 @@ function JobsPage() {
         specialty_id: string | null;
         required_license: string | null;
       })[];
+    },
+  });
+
+  const { data: shifts, isLoading: shiftsLoading } = useQuery({
+    queryKey: ["shifts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shifts")
+        .select(
+          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialty_id,specialties(name_ar,name_en)",
+        )
+        .order("starts_at", { ascending: true });
+      if (error) throw error;
+      return data as unknown as (ShiftRow & { specialty_id: string | null })[];
+    },
+  });
+
+  const queryClient = useQueryClient();
+  const book = useMutation({
+    mutationFn: async (shiftId: string) => {
+      const { error } = await supabase.rpc("book_open_shift", { _shift_id: shiftId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.booked);
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
+    },
+    onError: () => {
+      toast.error(c.bookFailed);
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+    },
+  });
+
+  const { data: bookedShiftIds } = useQuery({
+    queryKey: ["my-booked-shift-ids", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("shift_bookings").select("shift_id").eq("user_id", user!.id);
+      return new Set((data ?? []).map((r) => r.shift_id));
     },
   });
 
@@ -241,15 +283,15 @@ function JobsPage() {
   };
 
   const countries = useMemo(
-    () => Array.from(new Set((jobs ?? []).map((j) => j.country))),
-    [jobs],
+    () => Array.from(new Set([...(jobs ?? []), ...(shifts ?? [])].map((j) => j.country))),
+    [jobs, shifts],
   );
 
   const cities = useMemo(
     () =>
       Array.from(
         new Set(
-          (jobs ?? [])
+          [...(jobs ?? []), ...(shifts ?? [])]
             .filter((j) => country === ALL || j.country === country)
             .map((j) => j.city)
             .filter((x): x is string => Boolean(x)),
@@ -261,7 +303,7 @@ function JobsPage() {
           label: country === ALL ? labelCityWithCountry(x, lang) : x,
           keywords: [x, labelCityWithCountry(x, lang)],
         })),
-    [jobs, country, lang],
+    [jobs, shifts, country, lang],
   );
 
   const relevanceOf = (j: { specialty_id: string | null; country: string }) =>
@@ -298,6 +340,44 @@ function JobsPage() {
       if (sort === "match" && profile) return relevanceOf(b) - relevanceOf(a);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
+
+  const filteredShifts = (kind === "job" ? [] : shifts ?? []).filter((sh) => {
+    if (country !== ALL && sh.country !== country) return false;
+    if (city !== ALL && sh.city !== city) return false;
+    if (specialty !== ALL && sh.specialty_id !== specialty) return false;
+    if (specialty === ALL && !inScope(scope, sh.specialty_id, mySpecialtyId, fieldIds)) return false;
+    if (
+      q &&
+      !matchesQuery(
+        [sh.title, sh.notes, sh.city, sh.country, countryLabel(sh.country, lang), sh.specialties?.name_ar, sh.specialties?.name_en],
+        q,
+      )
+    )
+      return false;
+    return true;
+  });
+
+  type Item =
+    | { kind: "job"; id: string; sortAt: number; job: (typeof filtered)[number] }
+    | { kind: "shift"; id: string; sortAt: number; shift: (typeof filteredShifts)[number] };
+
+  const items: Item[] = [
+    ...(kind === "shift" ? [] : filtered).map<Item>((j) => ({
+      kind: "job",
+      id: j.id,
+      sortAt: new Date(j.created_at).getTime(),
+      job: j,
+    })),
+    ...filteredShifts.map<Item>((sh) => ({
+      kind: "shift",
+      id: sh.id,
+      sortAt: new Date(sh.starts_at).getTime(),
+      shift: sh,
+    })),
+  ].sort((a, b) => {
+    if (kind === ALL && a.kind !== b.kind) return a.kind === "shift" ? -1 : 1;
+    return a.kind === "shift" ? a.sortAt - b.sortAt : b.sortAt - a.sortAt;
+  });
 
   const reset = () => {
     pickScope("all");
