@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS facilities_user_id_key ON public.facilities (user_id) WHERE user_id IS NOT NULL;
