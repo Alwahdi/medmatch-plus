@@ -397,13 +397,18 @@ function ShiftDetail() {
                   </Button>
                 </>
               ) : booking ? (
-                <p className="mt-2 text-sm text-success">
-                  {c.alreadyBooked}{" "}
-                  <Link to="/activity" search={{ tab: "shifts" }} className="underline">
-                    {c.myShifts}
-                  </Link>
-                  .
-                </p>
+                <div className="mt-4 rounded-lg border border-success/30 bg-success/10 p-4">
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="mt-0.5 size-5 shrink-0 text-success" />
+                    <div>
+                      <p className="font-bold text-success">{book.isSuccess ? c.bookedNext : c.alreadyBooked}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{c.hint}</p>
+                    </div>
+                  </div>
+                  <Button className="mt-4 w-full" variant="outline" asChild>
+                    <Link to="/activity" search={{ tab: "shifts" }}>{c.trackBooking}</Link>
+                  </Button>
+                </div>
               ) : (
                 <>
                   <Button
@@ -433,13 +438,19 @@ function ShiftDetail() {
       {/* Sticky mobile book bar */}
       {!isOwner && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-          <Button
-            className="w-full"
-            disabled={!isOpen}
-            onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-          >
-            {isOpen ? (booking ? c.alreadyBooked : c.bookTitle) : c.unavailable}
-          </Button>
+           {booking ? (
+             <Button className="w-full" asChild>
+               <Link to="/activity" search={{ tab: "shifts" }}>{c.trackBooking}</Link>
+             </Button>
+           ) : (
+             <Button
+               className="w-full"
+               disabled={!isOpen}
+               onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+             >
+               {isOpen ? c.bookTitle : c.unavailable}
+             </Button>
+           )}
         </div>
       )}
     </>

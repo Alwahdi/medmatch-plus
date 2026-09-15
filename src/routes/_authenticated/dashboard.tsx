@@ -63,6 +63,9 @@ const TXT = {
     continueTitle: "لديك طلب قيد المتابعة",
     continueText: "راجع مرحلته الحالية وأي مقابلة أو تحديث جديد من المنشأة.",
     continueCta: "متابعة الطلبات",
+    shiftTitle: "لديك مناوبة قادمة",
+    shiftText: "راجع الموعد والموقع والتفاصيل قبل بدء المناوبة.",
+    shiftCta: "عرض مناوباتي",
   },
   en: {
     hello: (name: string) => `Hello ${name}`,
@@ -103,6 +106,9 @@ const TXT = {
     continueTitle: "You have an application in progress",
     continueText: "Review its current stage and any interview or employer update.",
     continueCta: "Track applications",
+    shiftTitle: "You have an upcoming shift",
+    shiftText: "Review the time, location and details before the shift starts.",
+    shiftCta: "View my shifts",
   },
 } as const;
 
@@ -243,6 +249,14 @@ function Dashboard() {
             tone="warning"
             action={<Button variant="secondary" asChild><Link to="/profile">{c.completeCta}</Link></Button>}
           />
+        ) : pendingInvites ? (
+          <NextStepCard
+            icon={Mail}
+            label={c.nextStep}
+            title={c.invitationsTitle(pendingInvites)}
+            description={c.invitationsText}
+            action={<Button variant="secondary" asChild><Link to="/invitations">{c.viewInvitations}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+          />
         ) : pendingInterviews ? (
           <NextStepCard
             icon={Video}
@@ -252,14 +266,6 @@ function Dashboard() {
             tone="warning"
             action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.viewInterviews}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
           />
-        ) : pendingInvites ? (
-          <NextStepCard
-            icon={Mail}
-            label={c.nextStep}
-            title={c.invitationsTitle(pendingInvites)}
-            description={c.invitationsText}
-            action={<Button variant="secondary" asChild><Link to="/invitations">{c.viewInvitations}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
-          />
         ) : activeApplications.length > 0 ? (
           <NextStepCard
             icon={FileText}
@@ -268,6 +274,15 @@ function Dashboard() {
             description={c.continueText}
             tone="accent"
             action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.continueCta}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+          />
+        ) : upcomingBookings.length > 0 ? (
+          <NextStepCard
+            icon={CalendarClock}
+            label={c.nextStep}
+            title={c.shiftTitle}
+            description={c.shiftText}
+            tone="accent"
+            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "shifts" }}>{c.shiftCta}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
           />
         ) : (
           <NextStepCard
