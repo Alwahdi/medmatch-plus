@@ -94,8 +94,8 @@ export function ShiftCard({
           {c.urgent}
         </span>
       )}
-      <div className="card-lift flex items-start gap-4 rounded-2xl border border-border border-s-4 border-s-accent/70 bg-card p-4 hover:border-accent/40 sm:p-5">
-        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent sm:size-14">
+      <div className="card-lift flex items-start gap-3 rounded-lg border border-border border-s-4 border-s-accent/70 bg-card p-4 hover:border-accent/40 sm:gap-4 sm:p-5">
+        <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground sm:size-12">
           <CalendarClock className="size-6" />
         </div>
 

@@ -5,6 +5,7 @@ import { ApplicationsPanel } from "@/components/panels/applications";
 import { MyShiftsPanel } from "@/components/panels/my-shifts";
 import { SavedPanel } from "@/components/panels/saved";
 import { useLang } from "@/lib/i18n";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 type ActivitySearch = { tab?: string };
 
@@ -23,8 +24,8 @@ export const Route = createFileRoute("/_authenticated/activity")({
 });
 
 const TXT = {
-  ar: { applications: "طلباتي", shifts: "مناوباتي", saved: "المحفوظات" },
-  en: { applications: "Applications", shifts: "My shifts", saved: "Saved" },
+  ar: { title: "نشاطي", sub: "تابع طلباتك وحجوزاتك والأعمال التي حفظتها.", applications: "طلباتي", shifts: "مناوباتي", saved: "المحفوظات" },
+  en: { title: "My activity", sub: "Track applications, shift bookings and saved work.", applications: "Applications", shifts: "My shifts", saved: "Saved" },
 } as const;
 
 function ActivityPage() {
@@ -34,12 +35,13 @@ function ActivityPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
+      <WorkspaceHeading title={c.title} description={c.sub} />
       <Tabs
         value={tab}
         onValueChange={(v) => void navigate({ to: "/activity", search: { tab: v }, replace: true })}
       >
-        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+        <div className="-mx-4 mt-6 overflow-x-auto px-4 pb-1">
           <TabsList className="w-max">
             <TabsTrigger value="applications" className="shrink-0">{c.applications}</TabsTrigger>
             <TabsTrigger value="shifts" className="shrink-0">{c.shifts}</TabsTrigger>
@@ -47,13 +49,13 @@ function ActivityPage() {
           </TabsList>
         </div>
 
-        <TabsContent value="applications" className="mt-6">
+        <TabsContent value="applications" className="mt-5">
           <ApplicationsPanel />
         </TabsContent>
-        <TabsContent value="shifts" className="mt-6">
+        <TabsContent value="shifts" className="mt-5">
           <MyShiftsPanel />
         </TabsContent>
-        <TabsContent value="saved" className="mt-6">
+        <TabsContent value="saved" className="mt-5">
           <SavedPanel />
         </TabsContent>
       </Tabs>

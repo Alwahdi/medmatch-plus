@@ -13,6 +13,7 @@ import {
 
 import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export type WorkType = "job" | "shift";
 
@@ -122,26 +123,25 @@ export function WorkCountButton({
       <span>{label}</span>
     </>
   );
-  const base =
-    "inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-semibold";
+  const base = "min-h-11 gap-1.5 px-2.5 text-xs";
 
   if (!onToggle) {
-    return <span className={cn(base, "text-muted-foreground")}>{content}</span>;
+    return <span className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-semibold text-muted-foreground">{content}</span>;
   }
   return (
-    <button
-      type="button"
+    <Button
+      variant="outline"
+      size="sm"
       onClick={onToggle}
       aria-expanded={expanded}
       disabled={count === 0}
       className={cn(
         base,
-        "transition-colors disabled:opacity-60",
-        count > 0 ? "bg-primary/10 text-primary hover:bg-primary/15" : "text-muted-foreground",
+        count > 0 ? "border-primary/25 bg-primary/5 text-primary hover:bg-primary/10" : "text-muted-foreground",
       )}
     >
       {content}
-    </button>
+    </Button>
   );
 }
 
@@ -171,7 +171,7 @@ export function PublishedWorkCard({
   return (
     <article
       className={cn(
-        "rounded-xl border bg-card p-4",
+        "rounded-lg border bg-card p-4 shadow-card",
         isJob ? "border-border border-s-4 border-s-primary/70" : "border-border border-s-4 border-s-accent/70",
       )}
     >
@@ -201,7 +201,7 @@ export function PublishedWorkCard({
             <div className="mt-1 text-xs text-muted-foreground">{meta}</div>
           </div>
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2 sm:justify-end">{actions}</div>}
+        {actions && <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 sm:flex sm:flex-wrap sm:justify-end">{actions}</div>}
       </div>
       {children && <div className="mt-4 border-t border-border pt-4">{children}</div>}
     </article>

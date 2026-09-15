@@ -93,35 +93,32 @@ export function MyShiftsPanel() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div>
       {confirmDialog}
-
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-muted-foreground">{c.sub}</p>
 
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
-        <ul className="mt-6 space-y-4">
+        <ul className="space-y-3">
           {data.map((b) => {
             const s = b.shifts!;
             const hours = hoursBetween(s.starts_at, s.ends_at);
             return (
-              <li key={b.id} className="card-lift rounded-2xl border border-border bg-card p-5">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <CalendarClock className="mt-1 size-5 text-accent" />
-                  <div>
-                    <p className="font-bold">{s.title}</p>
+              <li key={b.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+                <div className="flex min-w-0 items-start gap-3">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><CalendarClock className="size-5" /></span>
+                  <div className="min-w-0">
+                    <p className="truncate font-bold">{s.title}</p>
                     <p className="text-xs text-muted-foreground">
                       {s.city}، {countryLabel(s.country, lang)}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(s.starts_at, lang)} · {c.hours(hours)}</p>
                   </div>
                 </div>
-                <div className="text-left">
+                <div className="shrink-0 text-end">
                   <p className="font-display text-lg font-extrabold text-accent">
                     {formatMoney(s.hourly_rate * hours, s.currency, lang)}
                   </p>

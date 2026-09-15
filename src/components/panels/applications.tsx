@@ -65,28 +65,25 @@ export function ApplicationsPanel() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-muted-foreground">{c.sub}</p>
-
+    <div>
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
-        <ul className="mt-6 space-y-4">
+        <ul className="space-y-3">
           {data.map((a) => {
             const idx = STAGES.indexOf(applicationStage(a.status) as (typeof STAGES)[number]);
             const rejected = a.status === "rejected";
             return (
-              <li key={a.id} className="card-lift rounded-2xl border border-border bg-card p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
                       <Briefcase className="size-5" />
                     </span>
-                    <div>
-                      <Link to="/jobs/$jobId" params={{ jobId: a.jobs!.id }} className="font-bold hover:text-primary">
+                    <div className="min-w-0">
+                      <Link to="/jobs/$jobId" params={{ jobId: a.jobs!.id }} className="block truncate font-bold hover:text-primary">
                         {a.jobs?.title}
                       </Link>
                       <p className="text-xs text-muted-foreground">
@@ -94,7 +91,7 @@ export function ApplicationsPanel() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
                     {a.status === "hired" && user && a.jobs?.facility_id && (
                       <ReviewDialog
                         direction="pro_to_facility"
