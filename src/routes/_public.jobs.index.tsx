@@ -171,7 +171,7 @@ function JobsPage() {
   const setQ = (v: string) => setParams({ q: v });
   const setCity = (v: string) => setParams({ city: v });
   const setSpecialty = (v: string) => setParams({ specialty: v });
-  const setType = (v: string) => setParams({ type: v });
+  const setType = (v: string) => setParams({ type: v, kind: v === ALL ? sp.kind : "job" });
   const { user } = useSession();
 
   const { data: specialties } = useQuery({
@@ -384,6 +384,9 @@ function JobsPage() {
 
   const reset = () => {
     pickScope("all");
+    setSortTouched(true);
+    setSort("new");
+    setHideApplied(false);
     void navigate({ to: "/jobs", search: {}, replace: true });
   };
 

@@ -395,7 +395,7 @@ function ShiftDetail() {
               ) : booking ? (
                 <p className="mt-2 text-sm text-success">
                   {c.alreadyBooked}{" "}
-                  <Link to="/my-shifts" className="underline">
+                  <Link to="/activity" search={{ tab: "shifts" }} className="underline">
                     {c.myShifts}
                   </Link>
                   .
