@@ -465,8 +465,8 @@ function FacilityProfile() {
 }
 
 const PTABS = {
-  ar: { profile: "الملف", verification: "التوثيق", plan: "الباقة" },
-  en: { profile: "Profile", verification: "Verification", plan: "Plan" },
+  ar: { profile: "الملف", verification: "التوثيق" },
+  en: { profile: "Profile", verification: "Verification" },
 } as const;
 
 function FacilityProfilePage() {
@@ -487,7 +487,6 @@ function FacilityProfilePage() {
           <TabsList className="w-max">
             <TabsTrigger value="profile" className="shrink-0">{tt.profile}</TabsTrigger>
             <TabsTrigger value="verification" className="shrink-0">{tt.verification}</TabsTrigger>
-            <TabsTrigger value="plan" className="shrink-0">{tt.plan}</TabsTrigger>
           </TabsList>
         </div>
 
@@ -496,21 +495,6 @@ function FacilityProfilePage() {
         </TabsContent>
         <TabsContent value="verification" className="mt-2">
           <FacilityVerificationPanel />
-        </TabsContent>
-        <TabsContent value="plan" className="mt-6">
-           <div className="rounded-lg border border-border bg-card p-6 shadow-card">
-            <h2 className="font-display text-xl font-extrabold">
-              {lang === "ar" ? "باقة الاشتراك" : "Subscription plan"}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {lang === "ar"
-                ? "اطّلع على حدود باقتك الحالية وقارن بين الباقات المتاحة."
-                : "Review your current plan limits and compare available plans."}
-            </p>
-            <Button className="mt-4" asChild>
-              <Link to="/pricing">{lang === "ar" ? "عرض الباقات" : "View plans"}</Link>
-            </Button>
-          </div>
         </TabsContent>
       </Tabs>
 

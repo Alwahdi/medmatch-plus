@@ -45,7 +45,6 @@ const AR = {
   t1: "تبدأ تلقائيًا بعد تأكيد البريد الإلكتروني",
   t2: "لا تحتاج إلى بطاقة دفع أو إتمام شراء",
   t3: "متاحة مرة واحدة وغير قابلة للتجديد",
-  plans: "عرض التفاصيل والباقات المدفوعة",
   formTitle: "أنشئ حسابك",
   google: "التسجيل عبر جوجل",
   or: "أو",
@@ -95,7 +94,6 @@ const EN: typeof AR = {
   t1: "Starts automatically after email confirmation",
   t2: "No payment card or checkout required",
   t3: "Available once, non-renewable",
-  plans: "See details and paid plans",
   formTitle: "Create your account",
   google: "Sign up with Google",
   or: "or",
@@ -294,12 +292,6 @@ function RegisterEmployer() {
                   </li>
                 ))}
               </ul>
-              <Link
-                to="/pricing"
-                className="mt-4 inline-block text-sm font-bold text-primary hover:underline"
-              >
-                {L.plans}
-              </Link>
             </section>
 
             <section className="card-lift rounded-lg border border-border bg-card p-6 sm:p-8">

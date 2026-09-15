@@ -84,7 +84,7 @@ const TXT = {
     jobType: "نوع الوظيفة",
     results: "نتائج البحث",
     count: (n: number) => `${n} فرصة متاحة`,
-    employer: "أنت ناشر وظائف؟",
+    employer: "هل تمثل منشأة؟",
     empty: "لا توجد فرص مطابقة لبحثك.",
     reset: "إعادة ضبط الفلاتر",
     scopeMine: (n: string) => `تخصصي: ${n}`,
@@ -124,7 +124,7 @@ const TXT = {
     jobType: "Job type",
     results: "Search results",
     count: (n: number) => `${n} opportunities available`,
-    employer: "Hiring? See plans",
+    employer: "Hiring healthcare talent?",
     empty: "No opportunities match your search.",
     reset: "Reset filters",
     scopeMine: (n: string) => `My specialty: ${n}`,
@@ -632,7 +632,7 @@ function JobsPage() {
               </div>
               {!signedIn && (
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/pricing">
+                  <Link to="/for-facilities">
                     {c.employer} <ArrowLeft className="size-4 ltr:rotate-180" />
                   </Link>
                 </Button>

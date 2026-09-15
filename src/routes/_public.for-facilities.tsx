@@ -47,7 +47,7 @@ const TXT = {
       ["بيانات ومطابقة ذكية", "قارن المرشحين بناءً على التخصص والخبرة والترخيص."],
     ],
     registerNow: "سجّل منشأتك الآن",
-    seePricing: "اطّلع على الأسعار",
+    learnMore: "تعرّف على طريقة العمل",
   },
   en: {
     badge: "For hospitals, clinics, and medical complexes",
@@ -73,7 +73,7 @@ const TXT = {
       ["Smart data & matching", "Compare candidates by specialty, experience, and license."],
     ],
     registerNow: "Register your facility now",
-    seePricing: "See pricing",
+    learnMore: "See how it works",
   },
 } as const;
 
@@ -90,14 +90,14 @@ function ForFacilities() {
       <div className="pb-24 md:pb-0">
       <section className="page-hero py-14 md:py-20">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/12 px-4 py-1.5 text-sm font-medium ring-1 ring-primary-foreground/20">
             <Sparkles className="size-4" />
             {c.badge}
           </span>
           <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">
             {c.title}
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-white/85">
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-primary-foreground/85">
             {c.sub}
           </p>
           <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
@@ -107,10 +107,10 @@ function ForFacilities() {
             <Button
               size="lg"
               variant="outline"
-              className="w-full border-white/40 bg-transparent text-white hover:bg-white/10 sm:w-auto"
+               className="w-full border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 sm:w-auto"
               asChild
             >
-              <Link to="/pricing">{c.seePricing}</Link>
+              <Link to="/contact">{c.learnMore}</Link>
             </Button>
           </div>
         </div>
@@ -158,7 +158,7 @@ function ForFacilities() {
               <Link to={employerHref}>{c.registerNow}</Link>
             </Button>
             <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-              <Link to="/pricing">{c.seePricing}</Link>
+              <Link to="/contact">{c.learnMore}</Link>
             </Button>
           </div>
         </div>
