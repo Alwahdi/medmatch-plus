@@ -740,11 +740,15 @@ function FacilityDashboard() {
                {searchesRemaining !== null ? ` · ${c.searchesRemaining(searchesRemaining)}` : ""}
             </p>
           </div>
+          <Button variant="outline" asChild>
+            <Link to="/pricing">{c.upgrade}</Link>
+          </Button>
         </div>
       )}
 
       <div className="mt-10">
-        <WorkspaceHeading title={c.publishedWork} description={c.overview} />
+        <SectionHeading title={c.publishedWork} />
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">{c.overview}</p>
       </div>
       <div className="mt-4 -mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="inline-flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
