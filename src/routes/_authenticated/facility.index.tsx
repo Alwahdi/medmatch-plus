@@ -191,6 +191,8 @@ const TXT = {
     shiftTitleMin: "أدخل عنوان المناوبة",
     setTimes: "حدّد وقت البداية والنهاية",
     endAfterStart: "وقت النهاية يجب أن يكون بعد البداية",
+    startInPast: "وقت البداية يجب أن يكون في المستقبل",
+    tooLong: "مدة المناوبة الواحدة لا تتجاوز 24 ساعة — تحقق من التاريخ",
     hourlyRateRequired: "أدخل الأجر بالساعة",
   },
   en: {
@@ -304,6 +306,8 @@ const TXT = {
     shiftTitleMin: "Enter a shift title",
     setTimes: "Set the start and end time",
     endAfterStart: "End time must be after start time",
+    startInPast: "Start time must be in the future",
+    tooLong: "A single shift can't exceed 24 hours — check the date",
     hourlyRateRequired: "Enter the hourly rate",
   },
 } as const;
@@ -1189,8 +1193,11 @@ function ShiftForm({
       if (quotaReached) throw new Error(c.quotaReachedShift);
       if (form.title.trim().length < 3) throw new Error(c.shiftTitleMin);
       if (!form.starts_at || !form.ends_at) throw new Error(c.setTimes);
-      if (new Date(form.ends_at) <= new Date(form.starts_at))
-        throw new Error(c.endAfterStart);
+      const startMs = new Date(form.starts_at).getTime();
+      const endMs = new Date(form.ends_at).getTime();
+      if (endMs <= startMs) throw new Error(c.endAfterStart);
+      if (startMs <= Date.now()) throw new Error(c.startInPast);
+      if (endMs - startMs > 24 * 60 * 60 * 1000) throw new Error(c.tooLong);
       if (!Number(form.hourly_rate)) throw new Error(c.hourlyRateRequired);
 
       const { error } = await supabase.from("shifts").insert({
@@ -1245,7 +1252,17 @@ function ShiftForm({
         <div>
           <Label htmlFor="ss">{c.shiftStartsAt}</Label>
           <Input id="ss" type="datetime-local" value={form.starts_at}
-            onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
+            onChange={(e) => {
+              const v = e.target.value;
+              let end = form.ends_at;
+              const startMs = new Date(v).getTime();
+              if (v && (!end || new Date(end).getTime() <= startMs || new Date(end).getTime() - startMs > 24 * 3600_000)) {
+                const d = new Date(startMs + 8 * 3600_000);
+                const pad = (n: number) => String(n).padStart(2, "0");
+                end = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+              }
+              setForm({ ...form, starts_at: v, ends_at: end });
+            }} />
         </div>
         <div>
           <Label htmlFor="se">{c.shiftEndsAt}</Label>
