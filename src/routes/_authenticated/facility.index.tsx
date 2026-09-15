@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { FacilityApplicantsPanel } from "@/components/panels/facility.applicants";
 import { FacilityBookingsPanel } from "@/components/panels/facility.bookings";
+import { InvitePanel } from "@/components/panels/invite";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
