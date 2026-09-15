@@ -107,7 +107,13 @@ function SpecialtyPage() {
     },
   });
 
-  if (isLoading) return <div className="mx-auto max-w-5xl px-4 py-12 text-muted-foreground">{c.loading}</div>;
+  if (isLoading)
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-12">
+        <span className="sr-only">{c.loading}</span>
+        <ListSkeleton rows={3} />
+      </div>
+    );
   if (!data) return null;
 
   const specialty = specialtyName(data.specialty, lang);

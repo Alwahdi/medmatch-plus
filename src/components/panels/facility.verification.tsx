@@ -258,7 +258,12 @@ export function FacilityVerificationPanel() {
   }
 
   if (facLoading) {
-    return <p className="mx-auto max-w-4xl px-4 py-10 text-sm text-muted-foreground">{c.loading}</p>;
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <span className="sr-only">{c.loading}</span>
+        <ListSkeleton rows={2} />
+      </div>
+    );
   }
 
   if (!facility) {
