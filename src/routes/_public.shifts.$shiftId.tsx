@@ -224,7 +224,7 @@ function ShiftDetail() {
 
   const hours = hoursBetween(shift.starts_at, shift.ends_at);
   const total = hours * Number(shift.hourly_rate);
-  const isOpen = shift.status === "open";
+  const isOpen = shift.status === "open" && new Date(shift.starts_at).getTime() > Date.now();
   const statusLabel =
     shift.status === "open"
       ? c.open
