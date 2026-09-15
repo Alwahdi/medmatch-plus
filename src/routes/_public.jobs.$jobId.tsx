@@ -110,6 +110,7 @@ const TXT = {
     noDeadline: "Not set",
     open: "Open",
     closed: "Closed",
+    notAccepting: "No longer accepting applications",
     publishedBy: "Published by",
     saved: "Saved",
     saveJob: "Save job",
