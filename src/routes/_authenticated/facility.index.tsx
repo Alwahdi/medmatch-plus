@@ -21,6 +21,7 @@ import {
   PauseCircle,
   CheckCircle2,
   CircleSlash,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -39,7 +40,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -59,6 +59,7 @@ import {
   formatSalary,
   specialtyName,
 } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 
@@ -127,6 +128,7 @@ const TXT = {
     confirmCancelShiftDesc: "سيتم إلغاء المناوبة وإخفاؤها عن الباحثين، ولا يمكن التراجع.",
     confirmCancelShiftCta: "نعم، ألغِها",
     moreActions: "إجراءات أخرى",
+    tabAll: (n: number) => `الكل (${n})`,
     invite: "دعوة مختصين",
     confirmCompleteTitle: "إنهاء المناوبة؟",
     confirmCompleteDesc: "سيتم تسجيل المناوبة كمنتهية ولا يمكن التراجع.",
@@ -239,6 +241,7 @@ const TXT = {
     confirmCancelShiftDesc: "The shift will be cancelled and hidden from seekers. This cannot be undone.",
     confirmCancelShiftCta: "Yes, cancel it",
     moreActions: "More actions",
+    tabAll: (n: number) => `All (${n})`,
     invite: "Invite professionals",
     confirmCompleteTitle: "Complete shift?",
     confirmCompleteDesc: "The shift will be marked completed and cannot be reverted.",
