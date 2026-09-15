@@ -160,7 +160,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             {account}
           </div>
         </aside>
-        <main className="min-w-0 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-6">{children}</main>
+        <main id="main-content" className="min-w-0 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-6">{children}</main>
       </div>
 
       {/* Mobile bottom tab bar */}

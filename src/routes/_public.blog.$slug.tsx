@@ -116,7 +116,7 @@ function BlogPost() {
               <Link to="/jobs">{c.jobs}</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/shifts">{c.shifts}</Link>
+              <Link to="/jobs" search={{ kind: "shift" }}>{c.shifts}</Link>
             </Button>
           </div>
         </div>
