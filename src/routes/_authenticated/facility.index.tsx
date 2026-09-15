@@ -1334,13 +1334,14 @@ function ShiftForm({
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
-  onCreated?: () => void;
+  onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [step, setStep] = useState<"form" | "review">("form");
   const [form, setForm] = useState({
     title: "",
     specialty_id: "",
@@ -1353,43 +1354,96 @@ function ShiftForm({
     notes: "",
   });
 
+  /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
+  function validate() {
+    if (expired) throw new Error(c.subExpiredShift);
+    if (quotaReached) throw new Error(c.quotaReachedShift);
+    if (form.title.trim().length < 3) throw new Error(c.shiftTitleMin);
+    if (!form.starts_at || !form.ends_at) throw new Error(c.setTimes);
+    const startMs = new Date(form.starts_at).getTime();
+    const endMs = new Date(form.ends_at).getTime();
+    if (endMs <= startMs) throw new Error(c.endAfterStart);
+    if (startMs <= Date.now()) throw new Error(c.startInPast);
+    if (endMs - startMs > 24 * 60 * 60 * 1000) throw new Error(c.tooLong);
+    if (!Number(form.hourly_rate)) throw new Error(c.hourlyRateRequired);
+    if (!form.country) throw new Error(c.countryRequired);
+    if (!form.city.trim()) throw new Error(c.cityRequired);
+    return { startMs, endMs };
+  }
+
+  function goReview() {
+    try {
+      validate();
+      setStep("review");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
   const create = useMutation({
     mutationFn: async () => {
-      if (expired) throw new Error(c.subExpiredShift);
-      if (quotaReached) throw new Error(c.quotaReachedShift);
-      if (form.title.trim().length < 3) throw new Error(c.shiftTitleMin);
-      if (!form.starts_at || !form.ends_at) throw new Error(c.setTimes);
-      const startMs = new Date(form.starts_at).getTime();
-      const endMs = new Date(form.ends_at).getTime();
-      if (endMs <= startMs) throw new Error(c.endAfterStart);
-      if (startMs <= Date.now()) throw new Error(c.startInPast);
-      if (endMs - startMs > 24 * 60 * 60 * 1000) throw new Error(c.tooLong);
-      if (!Number(form.hourly_rate)) throw new Error(c.hourlyRateRequired);
-
-      const { error } = await supabase.from("shifts").insert({
-        facility_id: facilityId,
-        title: form.title.trim(),
-        specialty_id: form.specialty_id || null,
-        starts_at: new Date(form.starts_at).toISOString(),
-        ends_at: new Date(form.ends_at).toISOString(),
-        hourly_rate: Number(form.hourly_rate),
-        currency: form.currency,
-        country: form.country,
-        city: form.city.trim(),
-        notes: form.notes.trim() || null,
-      });
+      validate();
+      const { data, error } = await supabase
+        .from("shifts")
+        .insert({
+          facility_id: facilityId,
+          title: form.title.trim(),
+          specialty_id: form.specialty_id || null,
+          starts_at: new Date(form.starts_at).toISOString(),
+          ends_at: new Date(form.ends_at).toISOString(),
+          hourly_rate: Number(form.hourly_rate),
+          currency: form.currency,
+          country: form.country,
+          city: form.city.trim(),
+          notes: form.notes.trim() || null,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      return data.id as string;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
       toast.success(c.shiftPublished);
       setForm({ ...form, title: "", starts_at: "", ends_at: "", hourly_rate: "", notes: "" });
+      setStep("form");
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
-      onCreated?.();
+      onCreated?.(id);
       void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
+
+  if (step === "review") {
+    const hours = form.starts_at && form.ends_at
+      ? ((new Date(form.ends_at).getTime() - new Date(form.starts_at).getTime()) / 3600_000).toFixed(1)
+      : "0";
+    const specName = specialtyName(specialties.find((s) => s.id === form.specialty_id), lang);
+    return (
+      <ReviewStep
+        title={c.reviewTitle}
+        subtitle={c.reviewSub}
+        rows={[
+          { label: c.shiftTitle, value: form.title.trim() },
+          { label: c.specialty, value: specName ?? c.notSet },
+          { label: c.shiftStartsAt, value: formatDateTime(new Date(form.starts_at).toISOString(), lang) },
+          { label: c.shiftEndsAt, value: formatDateTime(new Date(form.ends_at).toISOString(), lang) },
+          { label: c.duration(hours), value: "" },
+          { label: c.hourlyRate, value: `${Number(form.hourly_rate).toLocaleString()} ${form.currency}` },
+          {
+            label: c.country + " / " + c.city,
+            value: [countryLabel(form.country, lang), form.city.trim()].filter(Boolean).join(" — "),
+          },
+          { label: c.notes, value: form.notes.trim() || c.none },
+        ]}
+        backLabel={c.backToEdit}
+        confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
+        onBack={() => setStep("form")}
+        onConfirm={() => create.mutate()}
+        pending={create.isPending}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
