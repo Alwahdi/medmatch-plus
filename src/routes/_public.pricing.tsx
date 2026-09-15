@@ -14,16 +14,16 @@ export const Route = createFileRoute("/_public/pricing")({
   },
   head: () => ({
     meta: [
-      { title: "أسعار المنشآت — باقات التوظيف الطبي | SyndeoCare" },
+      { title: "حلول المنشآت الصحية | SyndeoCare" },
       {
         name: "description",
         content:
-          "باقات SyndeoCare للمنشآت الصحية: تجربة مجانية 30 يوماً، نشر وظائف ومناوبات، بحث المرشحين وأرصدة الذكاء الاصطناعي. الكادر الطبي يستخدم المنصة مجاناً.",
+          "حلول SyndeoCare للمنشآت الصحية لنشر الوظائف والمناوبات والوصول إلى الكوادر الطبية خلال النسخة التجريبية المجانية.",
       },
-      { property: "og:title", content: "أسعار المنشآت | SyndeoCare" },
+      { property: "og:title", content: "حلول المنشآت الصحية | SyndeoCare" },
       {
         property: "og:description",
-        content: "تجربة مجانية 30 يوماً ثم باقات مرنة لنشر الوظائف والمناوبات الطبية.",
+        content: "نشر الوظائف والمناوبات والوصول إلى الكوادر الطبية خلال النسخة التجريبية المجانية.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
