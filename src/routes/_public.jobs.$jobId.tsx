@@ -413,7 +413,7 @@ function JobDetail() {
               ) : existing ? (
                 <p className="mt-2 text-sm text-success">
                   {c.alreadyApplied}{" "}
-                  <Link to="/applications" className="underline">
+                  <Link to="/activity" search={{ tab: "applications" }} className="underline">
                     {c.myApplicationsPage}
                   </Link>
                   .
