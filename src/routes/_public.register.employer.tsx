@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ArrowRight, Briefcase, Building2, Check, Eye, EyeOff } from "lucide-react";
+import { Briefcase, Building2, Check, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -268,15 +268,7 @@ function RegisterEmployer() {
   return (
     <div className="soft-surface px-4 py-10">
       <div className="mx-auto max-w-6xl">
-        <Link
-          to="/register"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowRight className="size-4 rtl:rotate-0 ltr:rotate-180" />
-          {L.back}
-        </Link>
-
-        <span className="section-label mt-6 inline-block">{L.badge}</span>
+        <span className="section-label inline-block">{L.badge}</span>
         <h1 className="mt-3 font-display text-3xl font-extrabold sm:text-4xl">{L.title}</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">{L.subtitle}</p>
 
