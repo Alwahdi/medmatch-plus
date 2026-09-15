@@ -249,7 +249,7 @@ const TXT = {
     activeSub: "Trial access available",
     activeJobsCount: (a: number, b: number) => `Active jobs ${a}/${b}`,
     activeShiftsCount: (a: number, b: number) => `Open shifts ${a}/${b}`,
-    publish: "Create listing",
+    publish: "Publish opportunity",
     verifyNow: "Complete facility verification",
     verifyBody: "Upload the required documents so professionals can trust your verified facility badge.",
     newApplicants: "New applications",
@@ -386,10 +386,10 @@ const TXT = {
     overdueBody: "Complete each shift to unlock reviews and close its record for both sides.",
     reviewShifts: "Review shifts",
     applicantsTitle: (n: number) => `${n} new application(s) await review`,
-    applicantsBody: "Open the related listing to review candidates and take the next step.",
+    applicantsBody: "Open the related opportunity to review candidates and take the next step.",
     reviewWork: "Open published work",
     trialUsage: "Trial usage limits",
-    viewPublished: "View listing",
+    viewPublished: "View opportunity",
   },
 } as const;
 
