@@ -46,7 +46,7 @@ const TXT = {
     noAlerts: "أنشئ تنبيهاً أولاً لنعرض لك الوظائف الجديدة المطابقة.",
     open: "عرض الوظائف",
     facilityTitle: "هذه الصفحة للكوادر الصحية",
-    facilityBody: "حسابك حساب منشأة — إدارة إعلاناتك والمرشحين تتم من لوحة المنشأة.",
+    facilityBody: "حسابك حساب منشأة — إدارة فرصك المنشورة والمرشحين تتم من لوحة المنشأة.",
     facilityCta: "فتح لوحة المنشأة",
   },
   en: {
@@ -62,7 +62,7 @@ const TXT = {
     noAlerts: "Create an alert first so we can show matching new jobs.",
     open: "View jobs",
     facilityTitle: "This page is for healthcare professionals",
-    facilityBody: "Your account is a facility — manage listings and candidates from the facility dashboard.",
+    facilityBody: "Your account is a facility — manage opportunities and candidates from the facility dashboard.",
     facilityCta: "Open facility dashboard",
   },
 } as const;

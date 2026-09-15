@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
+import { StepIndicator } from "@/components/step-indicator";
 import { EmptyState } from "@/components/empty-state";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { PublishedWorkCard, WorkCountButton } from "@/components/work-item";
@@ -200,6 +201,7 @@ const TXT = {
     tooLong: "مدة المناوبة الواحدة لا تتجاوز 24 ساعة — تحقق من التاريخ",
     hourlyRateRequired: "أدخل الأجر بالساعة",
     // Review step
+    publishSteps: ["التفاصيل", "المراجعة", "النشر"],
     reviewCta: "مراجعة قبل النشر",
     reviewTitle: "راجع التفاصيل قبل النشر",
     reviewSub: "تأكد من صحة البيانات. يمكنك الرجوع والتعديل قبل النشر.",
@@ -233,10 +235,10 @@ const TXT = {
     overdueBody: "سجّل انتهاء المناوبة لفتح التقييم وإكمال سجلها للطرفين.",
     reviewShifts: "مراجعة المناوبات",
     applicantsTitle: (n: number) => `${n} طلب جديد بانتظار المراجعة`,
-    applicantsBody: "ابدأ من الإعلان المرتبط لمراجعة المتقدمين واتخاذ الخطوة التالية.",
+    applicantsBody: "ابدأ من الفرصة المرتبطة لمراجعة المتقدمين واتخاذ الخطوة التالية.",
     reviewWork: "فتح الأعمال المنشورة",
     trialUsage: "حدود الاستخدام التجريبي",
-    viewPublished: "عرض الإعلان",
+    viewPublished: "عرض الفرصة",
   },
   en: {
     loading: "Loading...",
@@ -249,7 +251,7 @@ const TXT = {
     activeSub: "Trial access available",
     activeJobsCount: (a: number, b: number) => `Active jobs ${a}/${b}`,
     activeShiftsCount: (a: number, b: number) => `Open shifts ${a}/${b}`,
-    publish: "Create listing",
+    publish: "Publish opportunity",
     verifyNow: "Complete facility verification",
     verifyBody: "Upload the required documents so professionals can trust your verified facility badge.",
     newApplicants: "New applications",
@@ -353,6 +355,7 @@ const TXT = {
     tooLong: "A single shift can't exceed 24 hours — check the date",
     hourlyRateRequired: "Enter the hourly rate",
     // Review step
+    publishSteps: ["Details", "Review", "Publish"],
     reviewCta: "Review before publishing",
     reviewTitle: "Review the details before publishing",
     reviewSub: "Check everything is correct. You can go back and edit before publishing.",
@@ -386,10 +389,10 @@ const TXT = {
     overdueBody: "Complete each shift to unlock reviews and close its record for both sides.",
     reviewShifts: "Review shifts",
     applicantsTitle: (n: number) => `${n} new application(s) await review`,
-    applicantsBody: "Open the related listing to review candidates and take the next step.",
+    applicantsBody: "Open the related opportunity to review candidates and take the next step.",
     reviewWork: "Open published work",
     trialUsage: "Trial usage limits",
-    viewPublished: "View listing",
+    viewPublished: "View opportunity",
   },
 } as const;
 
@@ -1287,6 +1290,7 @@ function JobForm({
     const specName = specialtyName(specialties.find((s) => s.id === form.specialty_id), lang);
     return (
       <ReviewStep
+        steps={c.publishSteps}
         title={c.reviewTitle}
         subtitle={c.reviewSub}
         rows={[
@@ -1317,6 +1321,7 @@ function JobForm({
 
   return (
     <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
+      <StepIndicator steps={c.publishSteps} current={0} />
       <div className="grid gap-4 sm:grid-cols-2">
 
         <div>
@@ -1560,6 +1565,7 @@ function ShiftForm({
     const specName = specialtyName(specialties.find((s) => s.id === form.specialty_id), lang);
     return (
       <ReviewStep
+        steps={c.publishSteps}
         title={c.reviewTitle}
         subtitle={c.reviewSub}
         rows={[
@@ -1586,6 +1592,7 @@ function ShiftForm({
 
   return (
     <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
+      <StepIndicator steps={c.publishSteps} current={0} />
       <div className="grid gap-4 sm:grid-cols-2">
 
         <div>
@@ -1690,6 +1697,7 @@ function ShiftForm({
 
 /** شاشة مراجعة موحّدة قبل نشر أي عمل (وظيفة أو مناوبة). */
 function ReviewStep({
+  steps,
   title,
   subtitle,
   rows,
@@ -1699,6 +1707,7 @@ function ReviewStep({
   onConfirm,
   pending,
 }: {
+  steps?: readonly string[];
   title: string;
   subtitle: string;
   rows: { label: string; value: string }[];
@@ -1710,6 +1719,7 @@ function ReviewStep({
 }) {
   return (
     <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
+      {steps && <StepIndicator steps={steps} current={1} />}
       <div>
         <h3 className="font-display text-lg font-extrabold">{title}</h3>
         <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>

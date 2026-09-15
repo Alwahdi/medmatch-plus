@@ -17,6 +17,7 @@ import {
   FileText,
   Image as ImageIcon,
   Loader2,
+  MessagesSquare,
   Paperclip,
   Search,
   Send,
@@ -25,6 +26,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -148,7 +150,7 @@ const TXT = {
     verified: "موثّق",
     aboutJob: "بخصوص وظيفة",
     aboutShift: "بخصوص مناوبة",
-    viewPosting: "عرض الإعلان",
+    viewPosting: "عرض الفرصة",
     viewProfile: "عرض الملف العام",
     startChat: "ابدأ المحادثة برسالة تعريفية.",
     placeholder: "اكتب رسالتك...",
@@ -214,7 +216,7 @@ const TXT = {
     verified: "Verified",
     aboutJob: "Regarding job",
     aboutShift: "Regarding shift",
-    viewPosting: "View posting",
+    viewPosting: "View opportunity",
     viewProfile: "View public profile",
     startChat: "Start the conversation with a short introduction.",
     placeholder: "Write your message...",
@@ -684,9 +686,8 @@ function MessagesPage() {
           <Button className="mt-4" variant="outline" onClick={() => void refetch()}>{c.retry}</Button>
         </div>
       ) : conversations.length === 0 ? (
-        <div className="mt-8 mx-4 rounded-lg border border-border bg-card p-8 text-center shadow-card sm:mx-0">
-          <p className="font-bold">{c.emptyTitle}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{c.emptyBody}</p>
+        <div className="mt-8 px-4 sm:px-0">
+          <EmptyState icon={MessagesSquare} title={c.emptyTitle} description={c.emptyBody} />
         </div>
       ) : (
         <div className="mt-0 grid min-h-0 flex-1 gap-4 sm:mt-6 md:grid-cols-[320px_1fr]">

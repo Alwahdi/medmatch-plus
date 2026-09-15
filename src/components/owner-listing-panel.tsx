@@ -10,7 +10,7 @@ const TXT = {
   ar: {
     jobTitle: "هذه وظيفة نشرتها منشأتك",
     shiftTitle: "هذه مناوبة نشرتها منشأتك",
-    sub: "أنت تشاهد الإعلان كما يراه الباحثون، ومعه قائمة من تقدّم أو حجز.",
+    sub: "أنت تشاهد الفرصة كما يراها الباحثون، ومعه قائمة من تقدّم أو حجز.",
     manageJob: "إدارة هذه الوظيفة",
     manageShift: "إدارة هذه المناوبة",
     applicants: "المتقدمون لهذه الوظيفة",
@@ -19,7 +19,7 @@ const TXT = {
   en: {
     jobTitle: "This job was published by your facility",
     shiftTitle: "This shift was published by your facility",
-    sub: "You are viewing the listing as candidates see it, together with who applied or booked.",
+    sub: "You are viewing the opportunity as candidates see it, together with who applied or booked.",
     manageJob: "Manage this job",
     manageShift: "Manage this shift",
     applicants: "Applicants for this job",
@@ -27,7 +27,7 @@ const TXT = {
   },
 } as const;
 
-/** لوحة المالك على صفحة الإعلان: الإدارة + من تقدّم/حجز لهذا الإعلان تحديداً. */
+/** لوحة المالك على صفحة الإعلان: الإدارة + من تقدّم/حجز لهذه الفرصة تحديداً. */
 export function OwnerListingPanel({
   kind,
   listingId,
