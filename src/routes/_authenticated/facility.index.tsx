@@ -17,6 +17,10 @@ import {
   Sparkles,
   Users,
   UserPlus,
+  MoreHorizontal,
+  PauseCircle,
+  CheckCircle2,
+  CircleSlash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -122,6 +126,11 @@ const TXT = {
     confirmCancelShiftTitle: "إلغاء هذه المناوبة؟",
     confirmCancelShiftDesc: "سيتم إلغاء المناوبة وإخفاؤها عن الباحثين، ولا يمكن التراجع.",
     confirmCancelShiftCta: "نعم، ألغِها",
+    moreActions: "إجراءات أخرى",
+    invite: "دعوة مختصين",
+    confirmCompleteTitle: "إنهاء المناوبة؟",
+    confirmCompleteDesc: "سيتم تسجيل المناوبة كمنتهية ولا يمكن التراجع.",
+    confirmCompleteCta: "إنهاء المناوبة",
 
     // Facility form
     registerTitle: "سجّل منشأتك",
@@ -229,6 +238,11 @@ const TXT = {
     confirmCancelShiftTitle: "Cancel this shift?",
     confirmCancelShiftDesc: "The shift will be cancelled and hidden from seekers. This cannot be undone.",
     confirmCancelShiftCta: "Yes, cancel it",
+    moreActions: "More actions",
+    invite: "Invite professionals",
+    confirmCompleteTitle: "Complete shift?",
+    confirmCompleteDesc: "The shift will be marked completed and cannot be reverted.",
+    confirmCompleteCta: "Complete shift",
 
     // Facility form
     registerTitle: "Register your facility",
