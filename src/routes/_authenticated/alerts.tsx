@@ -2,6 +2,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/alerts")({
   beforeLoad: () => {
-    throw redirect({ to: "/preferences", search: { tab: "alerts" } });
+    throw redirect({ to: "/settings", search: { tab: "alerts" } });
   },
 });
