@@ -237,7 +237,7 @@ export function AccountHub({ trigger }: { trigger?: ReactNode }) {
       <div className="lg:hidden">
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>{trigger ?? defaultTrigger}</SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-2xl p-4">
+          <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto p-4">
             <SheetTitle className="sr-only">{c.account}</SheetTitle>
             <AccountLinks onNavigate={() => setSheetOpen(false)} />
           </SheetContent>

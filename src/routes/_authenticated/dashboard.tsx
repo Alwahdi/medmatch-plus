@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { CalendarClock, FileText, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, Briefcase, CalendarClock, FileText, Mail, MessageSquare, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { JobCard, type JobRow } from "@/components/job-card";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { applicationLabel, formatDateTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -40,6 +41,22 @@ const TXT = {
     noShifts: "لا مناوبات محجوزة.",
     browseMarket: "تصفح السوق",
     recommended: "وظائف مرشّحة لك",
+    workspace: "مساحة الكادر الصحي",
+    nextStep: "خطوتك التالية",
+    invitationsTitle: (n: number) => `لديك ${n} دعوة بانتظار ردك`,
+    invitationsText: "راجع تفاصيل العمل ورد على المنشأة من مكان واحد.",
+    viewInvitations: "عرض الدعوات",
+    discover: "استكشف الفرص",
+    discoverText: "وظائف ومناوبات في مكان واحد",
+    activity: "تابع نشاطك",
+    activityText: "طلباتك وحجوزاتك والمحفوظات",
+    messages: "الرسائل",
+    messagesText: "تابع محادثاتك مع المنشآت",
+    profile: "ملفك المهني",
+    profileText: "راجع ما تراه المنشآت عنك",
+    quickActions: "وصول سريع",
+    viewAll: "عرض الكل",
+    browseNow: "تصفح الفرص",
   },
   en: {
     hello: (name: string) => `Hello ${name}`,
@@ -58,6 +75,22 @@ const TXT = {
     noShifts: "No shifts booked.",
     browseMarket: "Browse marketplace",
     recommended: "Jobs recommended for you",
+    workspace: "Healthcare professional workspace",
+    nextStep: "Your next step",
+    invitationsTitle: (n: number) => `${n} invitation(s) await your response`,
+    invitationsText: "Review the work details and reply to the employer in one place.",
+    viewInvitations: "View invitations",
+    discover: "Explore opportunities",
+    discoverText: "Jobs and shifts in one place",
+    activity: "Track activity",
+    activityText: "Applications, bookings and saved work",
+    messages: "Messages",
+    messagesText: "Continue conversations with employers",
+    profile: "Professional profile",
+    profileText: "Review what employers see about you",
+    quickActions: "Quick access",
+    viewAll: "View all",
+    browseNow: "Browse opportunities",
   },
 } as const;
 
@@ -94,7 +127,6 @@ function Dashboard() {
         .select("id,status,created_at,jobs(id,title)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
-        .limit(5);
       if (error) throw error;
       return data;
     },
@@ -118,7 +150,6 @@ function Dashboard() {
         .select("id,shifts(id,title,starts_at)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
-        .limit(3);
       return data ?? [];
     },
   });
@@ -165,36 +196,50 @@ function Dashboard() {
     .slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">
-        {c.hello(profile?.full_name || c.you)}
-      </h1>
-      <p className="mt-2 text-muted-foreground">{c.sub}</p>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+      <WorkspaceHeading eyebrow={c.workspace} title={c.hello(profile?.full_name || c.you)} description={c.sub} />
 
-      {!profile && (
-        <div className="mt-6 rounded-2xl border border-warning/40 bg-warning/10 p-5">
-          <h2 className="font-bold">{c.completeTitle}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {c.completeText}
-          </p>
-          <Button className="mt-4" asChild><Link to="/profile">{c.completeCta}</Link></Button>
+      <div className="mt-6">
+        {!profile ? (
+          <NextStepCard
+            icon={UserRound}
+            label={c.nextStep}
+            title={c.completeTitle}
+            description={c.completeText}
+            tone="warning"
+            action={<Button variant="secondary" asChild><Link to="/profile">{c.completeCta}</Link></Button>}
+          />
+        ) : pendingInvites ? (
+          <NextStepCard
+            icon={Mail}
+            label={c.nextStep}
+            title={c.invitationsTitle(pendingInvites)}
+            description={c.invitationsText}
+            action={<Button variant="secondary" asChild><Link to="/invitations">{c.viewInvitations}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+          />
+        ) : (
+          <NextStepCard
+            icon={Briefcase}
+            label={c.nextStep}
+            title={c.discover}
+            description={c.discoverText}
+            tone="accent"
+            action={<Button variant="secondary" asChild><Link to="/jobs">{c.browseNow}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+          />
+        )}
+      </div>
+
+      <section className="mt-8">
+        <SectionHeading title={c.quickActions} />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <QuickAction icon={Briefcase} label={c.discover} description={c.discoverText} to="/jobs" />
+          <QuickAction icon={FileText} label={c.activity} description={c.activityText} to="/activity" />
+          <QuickAction icon={MessageSquare} label={c.messages} description={c.messagesText} to="/messages" />
+          <QuickAction icon={UserRound} label={c.profile} description={c.profileText} to="/profile" />
         </div>
-      )}
+      </section>
 
-      {!!pendingInvites && (
-        <div className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-5">
-          <p className="font-bold">
-            {lang === "ar"
-              ? `لديك ${pendingInvites} دعوة بانتظار ردك`
-              : `You have ${pendingInvites} invitation(s) awaiting your reply`}
-          </p>
-          <Button className="ms-auto" asChild>
-            <Link to="/invitations">{lang === "ar" ? "عرض الدعوات" : "View invitations"}</Link>
-          </Button>
-        </div>
-      )}
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard icon={FileText} value={apps?.length ?? 0} label={c.statApps} to="/activity" />
         <StatCard icon={ShieldCheck} value={approved} label={c.statCreds} to="/profile" />
         <StatCard icon={CalendarClock} value={bookings?.length ?? 0} label={c.statShifts} to="/activity" />
@@ -202,11 +247,11 @@ function Dashboard() {
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <section className="card-lift rounded-2xl border border-border bg-card p-6">
-          <h2 className="text-lg font-bold">{c.latestApps}</h2>
+        <section className="rounded-lg border border-border bg-card p-5 shadow-card">
+          <SectionHeading title={c.latestApps} action={<Button variant="link" size="sm" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.viewAll}</Link></Button>} />
           {apps?.length ? (
             <ul className="mt-4 space-y-3">
-              {apps.map((a) => (
+              {apps.slice(0, 4).map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0">
                   <div>
                     <p className="font-medium">{a.jobs?.title}</p>
@@ -221,11 +266,11 @@ function Dashboard() {
           )}
         </section>
 
-        <section className="card-lift rounded-2xl border border-border bg-card p-6">
-          <h2 className="text-lg font-bold">{c.upcomingShifts}</h2>
+        <section className="rounded-lg border border-border bg-card p-5 shadow-card">
+          <SectionHeading title={c.upcomingShifts} action={<Button variant="link" size="sm" asChild><Link to="/activity" search={{ tab: "shifts" }}>{c.viewAll}</Link></Button>} />
           {bookings?.length ? (
             <ul className="mt-4 space-y-3">
-              {bookings.map((b) => (
+              {bookings.slice(0, 4).map((b) => (
                 <li key={b.id} className="border-b border-border pb-3 last:border-0">
                   <p className="font-medium">{b.shifts?.title}</p>
                   <p className="text-xs text-muted-foreground">
@@ -244,7 +289,7 @@ function Dashboard() {
 
       {ranked.length > 0 && (
         <section className="mt-10">
-          <h2 className="font-display text-2xl font-extrabold">{c.recommended}</h2>
+          <SectionHeading title={c.recommended} action={<Button variant="link" size="sm" asChild><Link to="/jobs">{c.viewAll}</Link></Button>} />
           <div className="mt-6 space-y-3">
             {ranked.map(({ job }) => (
               <JobCard key={job.id} job={job} recommended={!!profile} />
@@ -268,10 +313,12 @@ function StatCard({
   to: "/activity" | "/profile";
 }) {
   return (
-    <Link to={to} className="card-lift rounded-2xl border border-border bg-card p-5">
-      <Icon className="size-5 text-primary" />
-      <div className="mt-3 font-display text-3xl font-extrabold">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+    <Link to={to} className="grid min-h-28 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-colors hover:border-primary/35">
+      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><Icon className="size-5" /></span>
+      <span className="min-w-0">
+        <span className="block text-2xl font-extrabold tabular-nums">{value}</span>
+        <span className="block text-xs leading-5 text-muted-foreground">{label}</span>
+      </span>
     </Link>
   );
 }

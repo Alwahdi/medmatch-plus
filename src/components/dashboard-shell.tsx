@@ -132,15 +132,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
+        <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4">
           <AccountHub
             trigger={
               <button
                 type="button"
                 aria-label={t("nav.account")}
-                className="flex min-h-11 min-w-0 items-center gap-2 rounded-full px-1 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex min-h-11 min-w-0 items-center gap-2 rounded-lg px-1 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <RemoteAvatar
                   value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
@@ -157,16 +157,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </button>
             }
           />
-          <div className="ms-auto flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <NotificationBell />
           </div>
         </div>
       </header>
 
 
-      <div className="mx-auto flex max-w-[1400px] gap-6 px-4 py-6">
+      <div className="mx-auto flex max-w-[1400px] gap-6 px-0 py-0 lg:px-4 lg:py-6">
         <aside className="hidden w-64 shrink-0 lg:block">
-          <div className="sticky top-24 rounded-2xl border border-border bg-card p-3">
+          <div className="sticky top-24 rounded-lg border border-border bg-card p-3 shadow-card">
             <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
             </p>
