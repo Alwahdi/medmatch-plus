@@ -16,7 +16,7 @@ type Dict = Record<string, { ar: string; en: string }>;
 
 export const DICT: Dict = {
   "nav.home": { ar: "الرئيسية", en: "Home" },
-  "nav.jobs": { ar: "الوظائف", en: "Jobs" },
+  "nav.jobs": { ar: "الفرص", en: "Opportunities" },
   "nav.shifts": { ar: "المناوبات", en: "Shifts" },
   "nav.guides": { ar: "الأدلة", en: "Guides" },
   "nav.questions": { ar: "بنوك الأسئلة", en: "Question banks" },

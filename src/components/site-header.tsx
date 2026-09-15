@@ -13,7 +13,6 @@ import { useLang } from "@/lib/i18n";
 const NAV = [
   { to: "/", key: "nav.home" },
   { to: "/jobs", key: "nav.jobs" },
-  { to: "/shifts", key: "nav.shifts" },
   { to: "/specialties", key: "nav.specialties" },
   { to: "/interview-questions", key: "nav.questions" },
   { to: "/guides", key: "nav.guides" },
