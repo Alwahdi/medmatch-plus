@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ArrowRight, Building2, Check, Eye, EyeOff } from "lucide-react";
+import { Briefcase, Building2, Check, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +34,11 @@ export const Route = createFileRoute("/_public/register/employer")({
 
 const AR = {
   back: "رجوع",
+  joinAs: "سأنضم بصفتي",
+  seeker: "باحث عن عمل",
+  seekerHint: "طبيب - صيدلي - ممرض - فني",
+  employer: "ناشر وظائف",
+  employerHint: "وظّف الباحثين عن عمل",
   badge: "مجاني للبدء",
   title: "أنشئ حساب ناشر وظائف",
   subtitle: "ابدأ التوظيف في أقل من دقيقة، وأكمل بيانات ناشر الوظائف لاحقًا عندما تكون جاهزًا.",
@@ -83,6 +88,11 @@ const AR = {
 
 const EN: typeof AR = {
   back: "Back",
+  joinAs: "I'm joining as",
+  seeker: "Job seeker",
+  seekerHint: "Doctor - pharmacist - nurse - technician",
+  employer: "Employer",
+  employerHint: "Hire job seekers",
   badge: "Free to start",
   title: "Create an employer account",
   subtitle: "Start hiring in under a minute and complete your employer details later.",
@@ -258,15 +268,7 @@ function RegisterEmployer() {
   return (
     <div className="soft-surface px-4 py-10">
       <div className="mx-auto max-w-6xl">
-        <Link
-          to="/register"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowRight className="size-4 rtl:rotate-0 ltr:rotate-180" />
-          {L.back}
-        </Link>
-
-        <span className="section-label mt-6 inline-block">{L.badge}</span>
+        <span className="section-label inline-block">{L.badge}</span>
         <h1 className="mt-3 font-display text-3xl font-extrabold sm:text-4xl">{L.title}</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">{L.subtitle}</p>
 
@@ -295,7 +297,24 @@ function RegisterEmployer() {
             </section>
 
             <section className="card-lift rounded-lg border border-border bg-card p-6 sm:p-8">
-              <h2 className="font-display text-xl font-extrabold">{L.formTitle}</h2>
+              <p className="text-sm font-bold">{L.joinAs}</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <Link
+                  to="/register"
+                  className="rounded-lg border border-border p-4 text-start transition-colors hover:border-primary/40"
+                >
+                  <Briefcase className="size-5 text-primary" />
+                  <p className="mt-2 font-bold">{L.seeker}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{L.seekerHint}</p>
+                </Link>
+                <div className="rounded-lg border border-primary bg-primary/8 p-4 text-start">
+                  <Building2 className="size-5 text-primary" />
+                  <p className="mt-2 font-bold">{L.employer}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{L.employerHint}</p>
+                </div>
+              </div>
+
+              <h2 className="mt-8 font-display text-xl font-extrabold">{L.formTitle}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{L.formBody}</p>
 
               {sent ? (
