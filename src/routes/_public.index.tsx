@@ -447,7 +447,7 @@ function Home() {
               <p className="mt-2 text-muted-foreground">{t("home.shifts.subtitle")}</p>
             </div>
             <Button variant="ghost" asChild>
-               <Link to="/jobs" search={{ type: "shifts" }}>
+               <Link to="/jobs" search={{ kind: "shift" }}>
                 {t("home.shifts.cta")} <ArrowLeft className="size-4" />
               </Link>
             </Button>
