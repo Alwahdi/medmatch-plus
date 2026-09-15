@@ -14,6 +14,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -382,7 +383,13 @@ function AdminPage() {
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   }
 
-  if (rolesLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
+  if (rolesLoading)
+    return (
+      <div className="mx-auto max-w-4xl p-6">
+        <span className="sr-only">{c.loading}</span>
+        <ListSkeleton rows={3} />
+      </div>
+    );
   if (!isAdmin)
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">

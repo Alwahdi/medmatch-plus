@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { BadgeCheck, CheckCircle2, Clock, FileCheck2, FileText, ShieldAlert, ShieldCheck, Trash2, Upload, XCircle } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -349,7 +350,16 @@ export function CredentialsPanel() {
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-sm text-muted-foreground">{c.empty}</p>
+        <EmptyState
+          className="mt-4"
+          icon={FileCheck2}
+          title={c.empty}
+          description={
+            lang === "ar"
+              ? "ارفع ترخيص المزاولة والشهادة والهوية لتظهر عليك شارة التوثيق أمام المنشآت."
+              : "Upload your practice licence, degree and ID so facilities see your verified badge."
+          }
+        />
       )}
     </div>
   );
