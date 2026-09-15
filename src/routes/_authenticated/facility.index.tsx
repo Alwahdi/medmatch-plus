@@ -337,7 +337,7 @@ function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
-  const rawTab = Route.useSearch().tab ?? "jobs";
+  const rawTab = Route.useSearch().tab ?? "all";
   // توافق خلفي: الروابط القديمة new-job/new-shift تفتح القسم الصحيح مع نافذة الإنشاء.
   const legacyCreate = rawTab === "new-job" ? "job" : rawTab === "new-shift" ? "shift" : null;
   const tab = rawTab === "new-job" ? "jobs" : rawTab === "new-shift" ? "shifts" : rawTab;
@@ -604,26 +604,33 @@ function FacilityDashboard() {
       )}
 
 
-      <Tabs
-        value={tab}
-        onValueChange={(v) => void navigate({ to: "/facility", search: { tab: v }, replace: true })}
-        className="mt-8"
-      >
-        <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <TabsList className="w-max">
-            <TabsTrigger value="jobs" className="shrink-0 gap-1.5">
-              <Briefcase className="size-4" />
-              {c.tabJobs(jobs?.length ?? 0)}
-            </TabsTrigger>
-            <TabsTrigger value="shifts" className="shrink-0 gap-1.5">
-              <CalendarClock className="size-4" />
-              {c.tabShifts(shifts?.length ?? 0)}
-            </TabsTrigger>
-          </TabsList>
+      <div className="mt-8 -mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="inline-flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
+          {(
+            [
+              ["all", c.tabAll((jobs?.length ?? 0) + (shifts?.length ?? 0)), Layers],
+              ["jobs", c.tabJobs(jobs?.length ?? 0), Briefcase],
+              ["shifts", c.tabShifts(shifts?.length ?? 0), CalendarClock],
+            ] as [string, string, typeof Briefcase][]
+          ).map(([key, label, Icon]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={tab === key}
+              onClick={() => void navigate({ to: "/facility", search: { tab: key }, replace: true })}
+              className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition-colors ${
+                tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon className="size-4" />
+              {label}
+            </button>
+          ))}
         </div>
+      </div>
 
-
-        <TabsContent value="jobs" className="mt-6 space-y-3">
+        <div className={cn("mt-6 space-y-3", tab === "shifts" && "hidden")}>
           {jobs?.length ? (
             jobs.map((j) => {
               const applicants = j.applications?.length ?? 0;
@@ -699,9 +706,9 @@ function FacilityDashboard() {
           ) : (
             <EmptyState icon={Briefcase} title={c.noJobs} />
           )}
-        </TabsContent>
+        </div>
 
-        <TabsContent value="shifts" className="mt-6 space-y-3">
+        <div className={cn("mt-6 space-y-3", tab === "jobs" && "hidden")}>
           {shifts?.length ? (
             shifts.map((s) => {
               const ended = new Date(s.ends_at).getTime() <= Date.now();
@@ -787,9 +794,9 @@ function FacilityDashboard() {
           ) : (
             <EmptyState icon={CalendarClock} title={c.noShifts} />
           )}
-        </TabsContent>
+        </div>
 
-      </Tabs>
+
     </div>
   );
 }
