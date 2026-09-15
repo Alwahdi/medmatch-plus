@@ -5,6 +5,7 @@ import { AlertCircle, CalendarCheck2, MessageSquare, UserRound } from "lucide-re
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FacilityInterviewBlock } from "@/components/interview";
 import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -158,6 +159,12 @@ export function FacilityBookingsPanel({
               )}
             </div>
           </div>
+          {b.status !== "cancelled" && (
+            <FacilityInterviewBlock
+              shiftBookingId={b.id}
+              candidateName={b.pro?.full_name ?? c.healthcarePro}
+            />
+          )}
         </li>
       ))}
     </ul>

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
+import { CandidateInterviewBlock } from "@/components/interview";
 import { AlertCircle, Briefcase, CheckCircle2, Clock, FileText, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -110,6 +111,7 @@ export function ApplicationsPanel() {
                     </Badge>
                   </div>
                 </div>
+                <CandidateInterviewBlock applicationId={a.id} />
                 {!rejected && (
                   <div className="mt-4 flex gap-1">
                     {STAGES.map((s, i) => (
