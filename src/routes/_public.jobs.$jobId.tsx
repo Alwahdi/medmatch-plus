@@ -14,6 +14,7 @@ import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { toastUndo } from "@/lib/undo";
 
 const TXT = {
   ar: {
