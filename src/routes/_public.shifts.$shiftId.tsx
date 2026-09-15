@@ -252,8 +252,8 @@ function ShiftDetail() {
       {confirmDialog}
       <section className="page-hero py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-4">
-          <nav className="flex flex-wrap items-center gap-2 text-xs text-white/70">
-            <Link to="/" className="hover:text-white">
+          <nav className="flex flex-wrap items-center gap-2 text-xs text-primary-foreground/70">
+            <Link to="/" className="hover:text-primary-foreground">
               {c.home}
             </Link>
             <span>/</span>
@@ -261,21 +261,21 @@ function ShiftDetail() {
               {c.crumb}
             </Link>
             <span>/</span>
-            <span className="text-white">{shift.title}</span>
+            <span className="text-primary-foreground">{shift.title}</span>
           </nav>
           <Button
             variant="ghost"
             size="sm"
             asChild
-            className="mt-3 text-white/80 hover:bg-white/10 hover:text-white"
+            className="mt-3 text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
           >
             <Link to="/jobs" search={{ kind: "shift" }}>
               <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{shift.title}</h1>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-white/85">
-            <Badge className={isOpen ? "bg-success text-white" : "bg-muted text-foreground"}>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-primary-foreground/85">
+            <Badge className={isOpen ? "bg-success text-success-foreground" : "bg-muted text-foreground"}>
               {statusLabel}
             </Badge>
             {shift.is_urgent && isOpen && (
@@ -301,7 +301,7 @@ function ShiftDetail() {
               </Badge>
             )}
             {!!shift.applications_count && (
-              <Badge variant="outline" className="border-white/30 text-white">
+              <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground">
                 {c.applied(shift.applications_count)}
               </Badge>
             )}

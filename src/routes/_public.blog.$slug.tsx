@@ -79,14 +79,14 @@ function BlogPost() {
     <>
       <section className="page-hero py-14">
         <div className="mx-auto max-w-3xl px-4">
-          <Button variant="ghost" size="sm" asChild className="text-white/80 hover:bg-white/10 hover:text-white">
+          <Button variant="ghost" size="sm" asChild className="text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground">
             <Link to="/blog">
               <ArrowRight className="size-4 rtl:rotate-180" /> {c.all}
             </Link>
           </Button>
           <Badge variant="secondary" className="mt-4">{post.category[lang]}</Badge>
           <h1 className="mt-3 font-display text-3xl font-extrabold md:text-4xl">{post.title[lang]}</h1>
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-white/80">
+          <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-primary-foreground/80">
             <span className="flex items-center gap-1">
               <Clock className="size-4" /> {c.read(post.readMinutes)}
             </span>
