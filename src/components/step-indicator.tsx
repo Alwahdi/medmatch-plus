@@ -11,7 +11,7 @@ export function StepIndicator({
   current,
   className,
 }: {
-  steps: string[];
+  steps: readonly string[];
   current: number;
   className?: string;
 }) {

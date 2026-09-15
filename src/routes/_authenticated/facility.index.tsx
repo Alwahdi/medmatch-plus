@@ -1707,7 +1707,7 @@ function ReviewStep({
   onConfirm,
   pending,
 }: {
-  steps?: string[];
+  steps?: readonly string[];
   title: string;
   subtitle: string;
   rows: { label: string; value: string }[];
