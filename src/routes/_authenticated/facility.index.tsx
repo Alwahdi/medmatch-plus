@@ -1096,6 +1096,7 @@ function JobForm({
     salary_max: "",
     currency: "YER",
     min_experience: "0",
+    vacancies: "1",
     required_license: "",
   });
 
