@@ -165,6 +165,8 @@ const TXT = {
     pickSpecialty: "اختر التخصص",
     employmentType: "نوع التوظيف",
     minExperience: "أقل خبرة مطلوبة (سنوات)",
+    vacancies: "عدد الشواغر",
+    vacanciesHint: "كم مرشحاً تريد توظيفه لهذه الوظيفة؟ تُقفل الوظيفة تلقائياً عند اكتمال العدد.",
     salaryFrom: "الراتب من",
     salaryTo: "الراتب إلى",
     currency: "العملة",
@@ -297,6 +299,8 @@ const TXT = {
     pickSpecialty: "Choose a specialty",
     employmentType: "Employment type",
     minExperience: "Minimum experience required (years)",
+    vacancies: "Open positions",
+    vacanciesHint: "How many candidates do you want to hire? The job closes automatically once filled.",
     salaryFrom: "Salary from",
     salaryTo: "Salary to",
     currency: "Currency",
@@ -1096,6 +1100,7 @@ function JobForm({
     salary_max: "",
     currency: "YER",
     min_experience: "0",
+    vacancies: "1",
     required_license: "",
   });
 
@@ -1153,6 +1158,7 @@ function JobForm({
           salary_max: parsed.salary_max,
           currency: form.currency,
           min_experience: Number(form.min_experience) || 0,
+          vacancies: Math.min(Math.max(Number(form.vacancies) || 1, 1), 50),
           required_license: form.required_license || null,
         })
         .select("id")
@@ -1183,6 +1189,7 @@ function JobForm({
           { label: c.specialty, value: specName ?? c.notSet },
           { label: c.employmentType, value: employmentLabel(form.employment_type, lang) },
           { label: c.minExperience, value: String(Number(form.min_experience) || 0) },
+          { label: c.vacancies, value: String(Math.max(Number(form.vacancies) || 1, 1)) },
           {
             label: c.country + " / " + c.city,
             value: [countryLabel(form.country, lang), form.city.trim()].filter(Boolean).join(" — "),
@@ -1246,6 +1253,12 @@ function JobForm({
           <Label htmlFor="jexp">{c.minExperience}</Label>
           <Input id="jexp" type="number" min={0} max={40} value={form.min_experience}
             onChange={(e) => setForm({ ...form, min_experience: e.target.value })} />
+        </div>
+        <div>
+          <Label htmlFor="jvac">{c.vacancies}</Label>
+          <Input id="jvac" type="number" min={1} max={50} value={form.vacancies}
+            onChange={(e) => setForm({ ...form, vacancies: e.target.value })} />
+          <p className="mt-1 text-xs text-muted-foreground">{c.vacanciesHint}</p>
         </div>
         <div>
           <Label>{c.country}</Label>
