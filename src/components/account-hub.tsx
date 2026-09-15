@@ -166,7 +166,7 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
       <Link to="/settings" search={{ tab: "general" }} className={ITEM} onClick={onNavigate}>
         <Settings className="size-4 shrink-0" /> {c.settings}
       </Link>
-      <Link to="/security" className={ITEM} onClick={onNavigate}>
+      <Link to="/settings" search={{ tab: "security" }} className={ITEM} onClick={onNavigate}>
         <ShieldCheck className="size-4 shrink-0" /> {c.security}
       </Link>
       {roles?.includes("admin") && (
