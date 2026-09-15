@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { ArrowLeft, Briefcase, CalendarClock, FileText, Mail, MessageSquare, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { ArrowLeft, Briefcase, CalendarClock, FileText, Mail, MessageSquare, ShieldCheck, Sparkles, UserRound, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { JobCard, type JobRow } from "@/components/job-card";
@@ -46,6 +46,9 @@ const TXT = {
     invitationsTitle: (n: number) => `لديك ${n} دعوة بانتظار ردك`,
     invitationsText: "راجع تفاصيل العمل ورد على المنشأة من مكان واحد.",
     viewInvitations: "عرض الدعوات",
+    interviewsTitle: (n: number) => `لديك ${n} مقابلة تحتاج ردك`,
+    interviewsText: "راجع الموعد المقترح وأكّد حضورك أو اعتذر للمنشأة.",
+    viewInterviews: "مراجعة المقابلات",
     discover: "استكشف الفرص",
     discoverText: "وظائف ومناوبات في مكان واحد",
     activity: "تابع نشاطك",
@@ -83,6 +86,9 @@ const TXT = {
     invitationsTitle: (n: number) => `${n} invitation(s) await your response`,
     invitationsText: "Review the work details and reply to the employer in one place.",
     viewInvitations: "View invitations",
+    interviewsTitle: (n: number) => `${n} interview(s) need your reply`,
+    interviewsText: "Review the proposed time and confirm attendance or decline.",
+    viewInterviews: "Review interviews",
     discover: "Explore opportunities",
     discoverText: "Jobs and shifts in one place",
     activity: "Track activity",
@@ -174,6 +180,21 @@ function Dashboard() {
     },
   });
 
+  const { data: pendingInterviews } = useQuery({
+    queryKey: ["pending-interviews", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      if (!user) return 0;
+      const { count, error } = await supabase
+        .from("interviews")
+        .select("id", { count: "exact", head: true })
+        .eq("professional_user_id", user.id)
+        .eq("status", "scheduled");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
   const { data: jobs } = useQuery({
     queryKey: ["recommended-jobs"],
     queryFn: async () => {
@@ -221,6 +242,15 @@ function Dashboard() {
             description={c.completeText}
             tone="warning"
             action={<Button variant="secondary" asChild><Link to="/profile">{c.completeCta}</Link></Button>}
+          />
+        ) : pendingInterviews ? (
+          <NextStepCard
+            icon={Video}
+            label={c.nextStep}
+            title={c.interviewsTitle(pendingInterviews)}
+            description={c.interviewsText}
+            tone="warning"
+            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.viewInterviews}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
           />
         ) : pendingInvites ? (
           <NextStepCard

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_public/terms")({
       {
         name: "description",
         content:
-          "شروط استخدام منصة SyndeoCare للكوادر الصحية والمنشآت: الحساب، الإعلانات، الاشتراكات، والسلوك المقبول.",
+          "شروط استخدام منصة SyndeoCare للكوادر الصحية والمنشآت: الحساب، الإعلانات، والالتزام المهني.",
       },
       { property: "og:title", content: "شروط الاستخدام | SyndeoCare" },
       { property: "og:description", content: "الشروط المنظّمة لاستخدام منصة SyndeoCare." },
@@ -57,11 +57,11 @@ const TXT = {
         ],
       },
       {
-        h: "٥. الاشتراكات",
+        h: "٥. النسخة التجريبية",
         p: [
-          "تحصل المنشأة على تجربة مجانية ٣٠ يوماً تبدأ عند إنشاء ملف المنشأة.",
-          "بعد انتهاء التجربة أو بلوغ حدود الباقة تتوقف إمكانية نشر إعلانات جديدة حتى الترقية.",
-          "حدود كل باقة (الوظائف، المناوبات، الإعلانات المميزة، عمليات البحث عن المرشحين) موضّحة في صفحة الأسعار.",
+          "تعمل المنصة حالياً كنسخة إطلاق تجريبية مجانية دون بوابة دفع.",
+          "قد تطبق حدود استخدام عادلة على النشر والبحث لحماية جودة الخدمة، وتظهر هذه الحدود داخل حساب المنشأة.",
+          "سيتم توضيح أي تغيير مستقبلي قبل تطبيقه، ولن تُطلب بيانات دفع خلال النسخة التجريبية الحالية.",
         ],
       },
       {
@@ -119,11 +119,11 @@ const TXT = {
         ],
       },
       {
-        h: "5. Subscriptions",
+        h: "5. Trial release",
         p: [
-          "Facilities get a 30-day free trial starting when the facility profile is created.",
-          "Once the trial ends or plan limits are reached, posting new listings stops until you upgrade.",
-          "Each plan's limits (jobs, shifts, featured listings, candidate searches) are described on the pricing page.",
+          "The platform currently operates as a free trial release with no payment gateway.",
+          "Fair-use limits may apply to posting and talent search to protect service quality, and appear inside the facility account.",
+          "Any future change will be explained before it takes effect, and no payment details are requested during the current trial.",
         ],
       },
       {

@@ -66,7 +66,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
-import { QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
+import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
 
 type FacilitySearch = { tab?: string };
 
@@ -179,8 +179,8 @@ const TXT = {
     publishJob: "نشر الوظيفة",
     jobPublished: "تم نشر الوظيفة",
     publishFailed: "تعذّر النشر",
-    subExpiredJob: "انتهت باقتك — جدّد الاشتراك للنشر من جديد",
-    quotaReachedJob: "وصلت حد الوظائف النشطة في باقتك — أغلق وظيفة أو رقّ الباقة",
+    subExpiredJob: "النشر متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة",
+    quotaReachedJob: "وصلت حد الوظائف النشطة في النسخة التجريبية — أغلق وظيفة نشطة للنشر من جديد",
     titleMin: "أدخل المسمى الوظيفي",
     descMin: "اكتب وصفاً لا يقل عن ٢٠ حرفاً",
     salaryMaxGt: "الحد الأعلى للراتب يجب أن يكون أكبر",
@@ -193,8 +193,8 @@ const TXT = {
     notes: "ملاحظات",
     publishShift: "نشر المناوبة",
     shiftPublished: "تم نشر المناوبة",
-    subExpiredShift: "انتهت باقتك — جدّد الاشتراك للنشر من جديد",
-    quotaReachedShift: "وصلت حد المناوبات النشطة في باقتك — رقّ الباقة للمزيد",
+    subExpiredShift: "النشر متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة",
+    quotaReachedShift: "وصلت حد المناوبات النشطة في النسخة التجريبية — أنهِ مناوبة قائمة للنشر من جديد",
     shiftTitleMin: "أدخل عنوان المناوبة",
     setTimes: "حدّد وقت البداية والنهاية",
     endAfterStart: "وقت النهاية يجب أن يكون بعد البداية",
@@ -230,6 +230,14 @@ const TXT = {
     facilityProfile: "ملف المنشأة",
     facilityProfileText: "راجع البيانات والتوثيق",
     publishedWork: "أعمالك المنشورة",
+    attention: "يحتاج انتباهك",
+    overdueTitle: (n: number) => `${n} مناوبة انتهت وتحتاج إنهاء`,
+    overdueBody: "سجّل انتهاء المناوبة لفتح التقييم وإكمال سجلها للطرفين.",
+    reviewShifts: "مراجعة المناوبات",
+    applicantsTitle: (n: number) => `${n} طلب جديد بانتظار المراجعة`,
+    applicantsBody: "ابدأ من الإعلان المرتبط لمراجعة المتقدمين واتخاذ الخطوة التالية.",
+    reviewWork: "فتح الأعمال المنشورة",
+    trialUsage: "حدود الاستخدام التجريبي",
   },
   en: {
     loading: "Loading...",
@@ -325,8 +333,8 @@ const TXT = {
     publishJob: "Post job",
     jobPublished: "Job posted",
     publishFailed: "Failed to publish",
-    subExpiredJob: "Your plan has expired — renew your subscription to post again",
-    quotaReachedJob: "You've reached your plan's active job limit — close a job or upgrade",
+    subExpiredJob: "Publishing is temporarily paused for this account — contact support for help",
+    quotaReachedJob: "You've reached the trial's active job limit — close an active job to post again",
     titleMin: "Enter a job title",
     descMin: "Write a description of at least 20 characters",
     salaryMaxGt: "The maximum salary must be higher",
@@ -339,8 +347,8 @@ const TXT = {
     notes: "Notes",
     publishShift: "Post shift",
     shiftPublished: "Shift posted",
-    subExpiredShift: "Your plan has expired — renew your subscription to post again",
-    quotaReachedShift: "You've reached your plan's active shift limit — upgrade for more",
+    subExpiredShift: "Publishing is temporarily paused for this account — contact support for help",
+    quotaReachedShift: "You've reached the trial's active shift limit — complete an existing shift to post again",
     shiftTitleMin: "Enter a shift title",
     setTimes: "Set the start and end time",
     endAfterStart: "End time must be after start time",
@@ -376,6 +384,14 @@ const TXT = {
     facilityProfile: "Facility profile",
     facilityProfileText: "Review details and verification",
     publishedWork: "Published work",
+    attention: "Needs your attention",
+    overdueTitle: (n: number) => `${n} ended shift(s) need completion`,
+    overdueBody: "Complete each shift to unlock reviews and close its record for both sides.",
+    reviewShifts: "Review shifts",
+    applicantsTitle: (n: number) => `${n} new application(s) await review`,
+    applicantsBody: "Open the related listing to review candidates and take the next step.",
+    reviewWork: "Open published work",
+    trialUsage: "Trial usage limits",
   },
 } as const;
 
@@ -503,6 +519,9 @@ function FacilityDashboard() {
     (count, job) => count + (job.applications ?? []).filter((application) => application.status === "submitted").length,
     0,
   );
+  const overdueShifts = (shifts ?? []).filter(
+    (shift) => shift.status === "booked" && new Date(shift.ends_at).getTime() <= Date.now(),
+  ).length;
   const searchesRemaining = plan
     ? Math.max(plan.candidate_searches - (sub?.searches_used ?? 0), 0)
     : null;
@@ -696,6 +715,30 @@ function FacilityDashboard() {
         </DialogContent>
       </Dialog>
 
+      {(overdueShifts > 0 || newApplicants > 0) && (
+        <div className="mt-6">
+          {overdueShifts > 0 ? (
+            <NextStepCard
+              icon={CalendarClock}
+              label={c.attention}
+              title={c.overdueTitle(overdueShifts)}
+              description={c.overdueBody}
+              tone="warning"
+              action={<Button variant="secondary" onClick={() => void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true })}>{c.reviewShifts}</Button>}
+            />
+          ) : (
+            <NextStepCard
+              icon={Users}
+              label={c.attention}
+              title={c.applicantsTitle(newApplicants)}
+              description={c.applicantsBody}
+              tone="accent"
+              action={<Button variant="secondary" onClick={() => void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true })}>{c.reviewWork}</Button>}
+            />
+          )}
+        </div>
+      )}
+
       <section className="mt-8">
         <SectionHeading title={c.quickActions} />
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -731,7 +774,7 @@ function FacilityDashboard() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 font-bold">
               <Sparkles className="size-5 shrink-0 text-primary" />
-              {c.plan(plan.name_ar)}
+              {c.trialUsage}
               {plan.is_trial && <Badge variant="secondary">{c.trial}</Badge>}
               {!subActive && <Badge variant="destructive">{c.expired}</Badge>}
             </div>
@@ -758,9 +801,10 @@ function FacilityDashboard() {
               ["shifts", c.tabShifts(shifts?.length ?? 0), CalendarClock],
             ] as [string, string, typeof Briefcase][]
           ).map(([key, label, Icon]) => (
-            <button
+            <Button
               key={key}
               type="button"
+              variant="ghost"
               role="tab"
               aria-selected={tab === key}
               onClick={() => void navigate({ to: "/facility", search: { tab: key }, replace: true })}
@@ -770,7 +814,7 @@ function FacilityDashboard() {
             >
               <Icon className="size-4" />
               {label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -1127,6 +1171,7 @@ function JobForm({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState<"form" | "review">("form");
+  const [draftReady, setDraftReady] = useState(false);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -1149,15 +1194,18 @@ function JobForm({
       if (saved) setForm((current) => ({ ...current, ...(JSON.parse(saved) as Partial<typeof form>) }));
     } catch {
       localStorage.removeItem(draftKey);
+    } finally {
+      setDraftReady(true);
     }
   }, [draftKey]);
 
   useEffect(() => {
+    if (!draftReady) return;
     localStorage.setItem(draftKey, JSON.stringify(form));
-  }, [draftKey, form]);
+  }, [draftKey, draftReady, form]);
 
   useEffect(() => {
-    setForm((f) => ({ ...f, country: defaults.country, city: defaults.city }));
+    setForm((f) => ({ ...f, country: f.country || defaults.country, city: f.city || defaults.city }));
   }, [defaults.country, defaults.city]);
 
   /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
@@ -1410,6 +1458,7 @@ function ShiftForm({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState<"form" | "review">("form");
+  const [draftReady, setDraftReady] = useState(false);
   const [form, setForm] = useState({
     title: "",
     specialty_id: "",
@@ -1429,12 +1478,15 @@ function ShiftForm({
       if (saved) setForm((current) => ({ ...current, ...(JSON.parse(saved) as Partial<typeof form>) }));
     } catch {
       localStorage.removeItem(draftKey);
+    } finally {
+      setDraftReady(true);
     }
   }, [draftKey]);
 
   useEffect(() => {
+    if (!draftReady) return;
     localStorage.setItem(draftKey, JSON.stringify(form));
-  }, [draftKey, form]);
+  }, [draftKey, draftReady, form]);
 
   /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
   function validate() {

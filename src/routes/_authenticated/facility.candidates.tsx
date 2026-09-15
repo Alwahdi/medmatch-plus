@@ -66,8 +66,8 @@ const TXT = {
   ar: {
     errors: {
       NOT_A_FACILITY: "هذه الميزة متاحة لحسابات المنشآت فقط.",
-      NO_ACTIVE_SUBSCRIPTION: "اشتراكك منتهٍ — جدّد الباقة لاستخدام بحث المرشحين.",
-      SEARCH_QUOTA_EXCEEDED: "استهلكت حصة عمليات البحث في باقتك. رقِّ الباقة للمتابعة.",
+      NO_ACTIVE_SUBSCRIPTION: "البحث متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة.",
+      SEARCH_QUOTA_EXCEEDED: "استهلكت حصة البحث التجريبية. تواصل مع الدعم إذا كنت تحتاج متابعة البحث.",
     },
     searchFailed: "تعذّر تنفيذ البحث",
     title: "بحث المرشحين",
@@ -81,7 +81,7 @@ const TXT = {
     city: "المدينة",
     minExpPlaceholder: "أقل خبرة (سنوات)",
     searching: "جارٍ البحث...",
-    searchBtn: "ابحث (يخصم من حصة الباقة)",
+    searchBtn: "ابحث (يُحتسب من حد الاستخدام)",
     noResults: "لا توجد نتائج مطابقة",
     widenHint: "جرّب إزالة فلتر المدينة أو التخصص، أو قلّل سنوات الخبرة.",
     candidateIn: (spec: string) => `مرشح في ${spec}`,
@@ -98,8 +98,8 @@ const TXT = {
   en: {
     errors: {
       NOT_A_FACILITY: "This feature is available for facility accounts only.",
-      NO_ACTIVE_SUBSCRIPTION: "Your subscription has expired — renew your plan to use candidate search.",
-      SEARCH_QUOTA_EXCEEDED: "You've used up your plan's search quota. Upgrade your plan to continue.",
+      NO_ACTIVE_SUBSCRIPTION: "Search is temporarily paused for this account — contact support for help.",
+      SEARCH_QUOTA_EXCEEDED: "You've used the trial search allowance. Contact support if you need to continue.",
     },
     searchFailed: "Failed to run the search",
     title: "Candidate search",
