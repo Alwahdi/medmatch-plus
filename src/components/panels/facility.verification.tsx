@@ -469,6 +469,7 @@ export function FacilityVerificationPanel() {
                   <Button
                     size="icon"
                     variant="ghost"
+                    aria-label={lang === "ar" ? "حذف المستند" : "Delete document"}
                     onClick={async () => {
                       const ok = await confirm({
                         title: c.deleteQ,

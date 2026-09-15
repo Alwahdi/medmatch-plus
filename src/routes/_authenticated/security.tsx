@@ -804,7 +804,12 @@ function SecurityPage() {
                   {d.last_used_at ? `${c.lastUsed} · ${relativeTime(d.last_used_at, lang)}` : c.never}
                 </p>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => removeDevice(d.id)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={lang === "ar" ? "إزالة الجهاز" : "Remove device"}
+                onClick={() => removeDevice(d.id)}
+              >
                 <Trash2 className="size-4" />
               </Button>
             </div>

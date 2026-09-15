@@ -21,6 +21,9 @@ const NAV = [
   { to: "/contact", key: "nav.contact" },
 ] as const;
 
+/** Desktop keeps five destinations at most; the rest stay in the footer and the mobile menu. */
+const PRIMARY_NAV = NAV.slice(0, 5);
+
 export function SiteHeader() {
   const { user, loading } = useSession();
   const { data: roles } = useRoles(user);
@@ -45,8 +48,8 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
         <BrandLogo className="shrink-0" labelClassName="hidden sm:inline" />
 
-        <nav className="mx-2 hidden items-center gap-0.5 lg:flex">
-          {NAV.map((item) => (
+        <nav className="mx-2 hidden items-center gap-0.5 lg:flex" aria-label={t("nav.menu")}>
+          {PRIMARY_NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}

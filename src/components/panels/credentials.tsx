@@ -327,6 +327,7 @@ export function CredentialsPanel() {
                 <Button
                   size="icon"
                   variant="ghost"
+                  aria-label={lang === "ar" ? "حذف الوثيقة" : "Delete document"}
                   onClick={async () => {
                     const ok = await confirm({
                       title: lang === "ar" ? "حذف هذه الوثيقة؟" : "Delete this document?",
