@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
+import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
@@ -207,8 +208,8 @@ function ShiftDetail() {
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
       queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
     },
-    onError: () => {
-      toast.error(c.failed);
+    onError: (e: Error) => {
+      toast.error(engagementErrorText(e.message, lang));
       queryClient.invalidateQueries({ queryKey: ["shift", shiftId] });
     },
   });
@@ -223,7 +224,7 @@ function ShiftDetail() {
 
   const hours = hoursBetween(shift.starts_at, shift.ends_at);
   const total = hours * Number(shift.hourly_rate);
-  const isOpen = shift.status === "open";
+  const isOpen = shift.status === "open" && new Date(shift.starts_at).getTime() > Date.now();
   const statusLabel =
     shift.status === "open"
       ? c.open

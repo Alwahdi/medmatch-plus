@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { useSignedIn } from "@/components/page-chrome";
+import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
@@ -226,8 +227,8 @@ function JobsPage() {
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
       queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
     },
-    onError: () => {
-      toast.error(c.bookFailed);
+    onError: (e: Error) => {
+      toast.error(engagementErrorText(e.message, lang));
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
     },
   });

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
@@ -239,7 +240,7 @@ function JobDetail() {
   const apply = useMutation({
     mutationFn: async () => {
       const parsed = coverSchema.safeParse(cover);
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+      if (!parsed.success) throw new Error("SC_" + parsed.error.issues[0]!.message);
       const args: { _job_id: string; _cover_letter?: string } = { _job_id: realJobId! };
       if (parsed.data) args._cover_letter = parsed.data;
       const { error } = await supabase.rpc("submit_job_application", args);
@@ -249,7 +250,10 @@ function JobDetail() {
       toast.success(c.appliedToast);
       queryClient.invalidateQueries({ queryKey: ["application", realJobId] });
     },
-    onError: (e: Error) => toast.error(e.message || c.applyFailed),
+    onError: (e: Error) =>
+      toast.error(
+        e.message.startsWith("SC_") ? e.message.slice(3) : engagementErrorText(e.message, lang),
+      ),
   });
 
   if (isLoading)
