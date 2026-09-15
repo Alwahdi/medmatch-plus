@@ -240,7 +240,7 @@ function JobDetail() {
   const apply = useMutation({
     mutationFn: async () => {
       const parsed = coverSchema.safeParse(cover);
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+      if (!parsed.success) throw new Error("SC_" + parsed.error.issues[0]!.message);
       const args: { _job_id: string; _cover_letter?: string } = { _job_id: realJobId! };
       if (parsed.data) args._cover_letter = parsed.data;
       const { error } = await supabase.rpc("submit_job_application", args);
