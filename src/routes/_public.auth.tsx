@@ -182,12 +182,12 @@ function AuthPage() {
 
         <aside className="order-1 flex flex-col justify-between gap-10 bg-accent p-8 text-accent-foreground sm:p-10 lg:order-2">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-accent">
-              <span className="size-1.5 rounded-full bg-accent" />
+            <span className="inline-flex items-center gap-2 rounded-md bg-background/10 px-3 py-1 text-xs font-bold text-accent-foreground">
+              <span className="size-1.5 rounded-full bg-success" />
               {tx("badge")}
             </span>
             <h2 className="mt-5 text-2xl leading-snug font-bold">{tx("panelTitle")}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-primary-foreground/80">{tx("panelSub")}</p>
+            <p className="mt-3 text-sm leading-relaxed text-accent-foreground/80">{tx("panelSub")}</p>
 
             <ul className="mt-8 space-y-3">
               {perks.map((perk) => (
@@ -195,7 +195,7 @@ function AuthPage() {
                   key={perk.text}
                   className="flex items-center gap-3 rounded-lg bg-background/10 px-4 py-3 text-sm font-medium"
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-accent">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-background/10 text-accent-foreground">
                     {perk.icon}
                   </span>
                   {perk.text}
@@ -204,8 +204,8 @@ function AuthPage() {
             </ul>
           </div>
 
-          <div className="flex items-center gap-3 border-t border-white/15 pt-6 text-xs text-primary-foreground/75">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-accent">
+          <div className="flex items-center gap-3 border-t border-background/15 pt-6 text-xs text-accent-foreground/75">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-background/10 text-accent-foreground">
               <ShieldCheck className="size-4" />
             </span>
             {tx("secure")}
