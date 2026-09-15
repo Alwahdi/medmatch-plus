@@ -674,7 +674,7 @@ function MessagesPage() {
       {isLoading ? (
         <p className="mt-8 px-4 text-sm text-muted-foreground">{c.loading}</p>
       ) : conversations.length === 0 ? (
-        <div className="mt-8 mx-4 rounded-2xl border border-border bg-card p-8 text-center sm:mx-0">
+        <div className="mt-8 mx-4 rounded-lg border border-border bg-card p-8 text-center shadow-card sm:mx-0">
           <p className="font-bold">{c.emptyTitle}</p>
           <p className="mt-2 text-sm text-muted-foreground">{c.emptyBody}</p>
         </div>
@@ -682,7 +682,7 @@ function MessagesPage() {
         <div className="mt-0 grid min-h-0 flex-1 gap-4 sm:mt-6 md:grid-cols-[320px_1fr]">
           <div
             className={cn(
-              "min-h-0 flex-col overflow-hidden border-border bg-card sm:rounded-2xl sm:border",
+              "min-h-0 flex-col overflow-hidden border-border bg-card sm:rounded-lg sm:border sm:shadow-card",
               mobileOpen ? "hidden md:flex" : "flex",
             )}
           >
@@ -693,7 +693,7 @@ function MessagesPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={c.searchPh}
-                  className="h-10 rounded-full ps-9"
+                  className="h-11 ps-9"
                 />
               </div>
             </div>
@@ -773,7 +773,7 @@ function MessagesPage() {
           {active && activeInfo && (
             <div
               className={cn(
-                "min-h-0 flex-col overflow-hidden border-border bg-card sm:rounded-2xl sm:border",
+                "min-h-0 flex-col overflow-hidden border-border bg-card sm:rounded-lg sm:border sm:shadow-card",
                 mobileOpen ? "flex" : "hidden md:flex",
               )}
             >
@@ -889,7 +889,7 @@ function MessagesPage() {
                               setInfo(m);
                             }}
                             className={cn(
-                              "select-none space-y-2 rounded-2xl px-3 py-2 text-sm leading-relaxed break-words hyphens-auto whitespace-pre-line shadow-sm sm:px-4 sm:py-3",
+                              "select-none space-y-2 rounded-lg px-3 py-2 text-sm leading-relaxed break-words hyphens-auto whitespace-pre-line shadow-sm sm:px-4 sm:py-3",
                               mine
                                 ? "bg-primary text-primary-foreground rounded-ss-sm"
                                 : "bg-surface rounded-se-sm",
@@ -979,7 +979,7 @@ function MessagesPage() {
 
               <div className="shrink-0 border-t border-border bg-card p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3">
                 {file && (
-                  <div className="mb-2 rounded-2xl border border-border bg-surface p-2">
+                  <div className="mb-2 rounded-lg border border-border bg-surface p-2">
                     <div className="flex items-center gap-3">
                       {filePreview && file.type.startsWith("image/") ? (
                         <img
@@ -1144,7 +1144,7 @@ function MessagesPage() {
                       }
                     }}
                     placeholder={c.placeholder}
-                    className="max-h-36 min-h-10 flex-1 resize-none rounded-2xl py-2.5"
+                    className="max-h-36 min-h-11 flex-1 resize-none py-2.5"
                   />
 
                   {draft.trim() || file ? (

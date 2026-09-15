@@ -131,11 +131,11 @@ function AuthPage() {
   ];
 
   return (
-    <div className="soft-surface px-4 py-12">
-      <div className="card-lift mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-border bg-card lg:grid-cols-2">
+    <div className="bg-background px-4 py-8 sm:py-12">
+      <div className="card-lift mx-auto grid max-w-5xl overflow-hidden rounded-lg border border-border bg-card lg:grid-cols-2">
         <div className="order-2 p-6 sm:p-10 lg:order-1">
           <div className="mx-auto w-full max-w-sm">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-secondary text-primary">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
               <LogIn className="size-5" />
             </div>
             <h1 className="mt-4 text-center font-display text-2xl font-extrabold">{tx("welcome")}</h1>
@@ -153,12 +153,12 @@ function AuthPage() {
 
             <SignInForm tx={tx} />
 
-            <div className="mt-6 rounded-2xl bg-secondary/60 p-3">
+            <div className="mt-6 rounded-lg bg-secondary/60 p-3">
               <p className="text-center text-xs font-semibold">{tx("newHere")}</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <Link
                   to="/register"
-                  className="rounded-xl border border-border bg-card p-3 text-start transition-colors hover:border-primary/50"
+                  className="rounded-lg border border-border bg-card p-3 text-start transition-colors hover:border-primary/50"
                 >
                   <UserRound className="size-5 text-primary" />
                   <p className="mt-2 text-sm font-bold">{tx("seekerCta")}</p>
@@ -166,7 +166,7 @@ function AuthPage() {
                 </Link>
                 <Link
                   to="/register/employer"
-                  className="rounded-xl border border-border bg-card p-3 text-start transition-colors hover:border-primary/50"
+                  className="rounded-lg border border-border bg-card p-3 text-start transition-colors hover:border-primary/50"
                 >
                   <Building2 className="size-5 text-primary" />
                   <p className="mt-2 text-sm font-bold">{tx("employerCta")}</p>
@@ -180,20 +180,20 @@ function AuthPage() {
           </div>
         </div>
 
-        <aside className="order-1 flex flex-col justify-between gap-10 bg-primary p-8 text-primary-foreground sm:p-10 lg:order-2">
+        <aside className="order-1 flex flex-col justify-between gap-10 bg-accent p-8 text-accent-foreground sm:p-10 lg:order-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-accent">
               <span className="size-1.5 rounded-full bg-accent" />
               {tx("badge")}
             </span>
-            <h2 className="mt-5 font-display text-2xl leading-snug font-extrabold">{tx("panelTitle")}</h2>
+            <h2 className="mt-5 text-2xl leading-snug font-bold">{tx("panelTitle")}</h2>
             <p className="mt-3 text-sm leading-relaxed text-primary-foreground/80">{tx("panelSub")}</p>
 
             <ul className="mt-8 space-y-3">
               {perks.map((perk) => (
                 <li
                   key={perk.text}
-                  className="flex items-center gap-3 rounded-2xl bg-white/8 px-4 py-3 text-sm font-medium"
+                  className="flex items-center gap-3 rounded-lg bg-background/10 px-4 py-3 text-sm font-medium"
                 >
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-accent">
                     {perk.icon}
@@ -232,7 +232,7 @@ function GoogleButton({ label, errorText }: { label: string; errorText: string }
     window.location.href = "/onboarding";
   }
   return (
-    <Button variant="outline" className="h-11 w-full rounded-xl" onClick={signIn} disabled={busy}>
+    <Button variant="outline" className="h-11 w-full" onClick={signIn} disabled={busy}>
       <GoogleIcon />
       {label}
     </Button>

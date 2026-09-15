@@ -409,7 +409,7 @@ function JobsPage() {
   return (
     <>
       {signedIn ? (
-        <section className="rounded-2xl border border-border bg-card p-5">
+        <section className="rounded-lg border border-border bg-card p-5 shadow-card">
           <p className="section-label">{c.results}</p>
           <h1 className="mt-1 font-display text-2xl font-extrabold">
             {mySpecialty ? c.myHeading(specialtyName(mySpecialty, lang)) : c.myHeadingPlain}
@@ -457,7 +457,7 @@ function JobsPage() {
               {showFilters ? c.hideFilters : c.showFilters}
             </Button>
             <div
-              className={`${showFilters ? "" : "hidden lg:block"} sticky top-24 rounded-2xl border border-border bg-card p-5`}
+              className={`${showFilters ? "" : "hidden lg:block"} sticky top-24 rounded-lg border border-border bg-card p-5 shadow-card`}
             >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="font-display text-lg font-bold">{c.filters}</h2>
@@ -591,7 +591,7 @@ function JobsPage() {
               ))}
             </div>
             {hasSpecialty && (
-              <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
+              <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-2">
                 {(
                   [
                     ["mine", c.scopeMine(specialtyName(mySpecialty!, lang))],
@@ -687,7 +687,7 @@ function JobsPage() {
                 ))}
               </div>
             ) : items.length === 0 ? (
-              <div className="mt-10 rounded-2xl border border-border bg-card p-10 text-center">
+              <div className="mt-10 rounded-lg border border-border bg-card p-10 text-center shadow-card">
                 <p className="text-muted-foreground">{c.empty}</p>
                 <Button className="mt-4" variant="outline" onClick={reset}>
                   {c.reset}
