@@ -871,7 +871,7 @@ function FacilityDashboard() {
                           )}
                           <DropdownMenuItem
                             className="min-h-11 gap-2"
-                            loading={toggleJob.isPending}
+                            disabled={toggleJob.isPending}
                             onSelect={async () => {
                               if (j.is_active) {
                                 const ok = await confirm({
@@ -958,7 +958,7 @@ function FacilityDashboard() {
                             {s.status === "booked" && ended && (
                               <DropdownMenuItem
                                 className="min-h-11 gap-2"
-                                loading={completeShift.isPending}
+                                disabled={completeShift.isPending}
                                 onSelect={async () => {
                                   const ok = await confirm({
                                     title: c.confirmCompleteTitle,
@@ -973,7 +973,7 @@ function FacilityDashboard() {
                             )}
                             <DropdownMenuItem
                               className="min-h-11 gap-2"
-                              loading={cancelShift.isPending}
+                              disabled={cancelShift.isPending}
                               onSelect={async () => {
                                 const ok = await confirm({
                                   title: c.confirmCancelShiftTitle,
