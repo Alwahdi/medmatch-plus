@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Check, Sparkles, ArrowLeft, ShieldCheck } from "lucide-react";
@@ -9,6 +9,9 @@ import { formatMoney } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_public/pricing")({
+  beforeLoad: () => {
+    throw redirect({ to: "/for-facilities", replace: true });
+  },
   head: () => ({
     meta: [
       { title: "أسعار المنشآت — باقات التوظيف الطبي | SyndeoCare" },
