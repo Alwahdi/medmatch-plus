@@ -67,6 +67,10 @@ const TXT = {
     saveFailed: "تعذّر تحديث المحفوظات",
     appliedToast: "تم إرسال طلبك بنجاح",
     applyFailed: "تعذّر إرسال الطلب",
+    coverCount: (n: number) => `${n} من 2000 حرف`,
+    appliedNext: "تم إرسال طلبك. تابع مرحلته وأي مقابلة جديدة من نشاطك.",
+    trackApplication: "متابعة الطلب",
+    revealedPrivacy: "أصبحت هوية المنشأة ظاهرة لك لأن التواصل أو الطلب بينكما بدأ بالفعل.",
   },
   en: {
     tooLong: "Message is too long",
@@ -119,6 +123,10 @@ const TXT = {
     saveFailed: "Could not update saved jobs",
     appliedToast: "Your application was sent successfully",
     applyFailed: "Could not send the application",
+    coverCount: (n: number) => `${n} of 2,000 characters`,
+    appliedNext: "Your application was sent. Track its stage and any interview updates from your activity.",
+    trackApplication: "Track application",
+    revealedPrivacy: "The employer identity is visible because contact or an application relationship has already started.",
   },
 } as const;
 
@@ -349,7 +357,7 @@ function JobDetail() {
             </ul>
 
             <div className="mt-6 rounded-lg bg-surface p-4 text-sm text-muted-foreground">
-              {c.privacyNote}
+              {revealedFacility ? c.revealedPrivacy : c.privacyNote}
             </div>
           </div>
 

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { APPLICATION_STAGES, applicationLabel, applicationStage, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 
 const STAGES = [...APPLICATION_STAGES];
@@ -18,7 +19,6 @@ const TXT = {
   ar: {
     title: "طلباتي",
     sub: "كل طلب ومرحلته الحالية لدى المنشأة.",
-    loading: "جارٍ التحميل...",
     appliedAt: (t: string) => `قُدّم ${t}`,
     empty: "لا طلبات بعد.",
     browseJobs: "تصفح الوظائف",
@@ -29,7 +29,6 @@ const TXT = {
   en: {
     title: "My applications",
     sub: "Every application and its current stage with the employer.",
-    loading: "Loading...",
     appliedAt: (t: string) => `Applied ${t}`,
     empty: "No applications yet.",
     browseJobs: "Browse jobs",
@@ -67,7 +66,7 @@ export function ApplicationsPanel() {
   return (
     <div>
       {isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+        <ListSkeleton />
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (

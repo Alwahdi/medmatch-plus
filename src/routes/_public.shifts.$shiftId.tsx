@@ -70,6 +70,8 @@ const TXT = {
     bookedToast: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
     failed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
     hint: "الحجز مجاني للكوادر الصحية، وسيتواصل معك الناشر لتأكيد التفاصيل.",
+    bookedNext: "تم الحجز. راجع الموعد وأي مقابلة أو تحديث من نشاطك.",
+    trackBooking: "متابعة الحجز",
   },
   en: {
     notFoundTitle: "This shift is no longer available",
@@ -111,6 +113,8 @@ const TXT = {
     bookedToast: "Shift booked — you'll find it under My shifts",
     failed: "Booking failed, the shift may have just been taken",
     hint: "Booking is free for healthcare professionals; the employer will contact you to confirm details.",
+    bookedNext: "Booked successfully. Review the schedule and any updates from your activity.",
+    trackBooking: "Track booking",
   },
 } as const;
 

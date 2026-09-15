@@ -12,13 +12,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 
 const TXT = {
   ar: {
     title: "مناوباتي",
     sub: "جدولك القادم وتفاصيل الأجر.",
-    loading: "جارٍ التحميل...",
     hours: (n: number) => `${n} ساعات`,
     cancel: "إلغاء الحجز",
     cancelled: "تم إلغاء الحجز",
@@ -36,7 +36,6 @@ const TXT = {
   en: {
     title: "My shifts",
     sub: "Your upcoming schedule and pay details.",
-    loading: "Loading...",
     hours: (n: number) => `${n} hours`,
     cancel: "Cancel booking",
     cancelled: "Booking cancelled",
@@ -97,7 +96,7 @@ export function MyShiftsPanel() {
       {confirmDialog}
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+        <ListSkeleton />
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.filter((booking) => booking.status !== "cancelled").length ? (

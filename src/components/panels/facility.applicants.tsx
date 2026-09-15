@@ -28,6 +28,7 @@ import {
   relativeTime,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 /** Stages a facility can set manually. "hired" goes through the select-candidate button. */
 const MANUAL_STAGES = ["submitted", "reviewing", "interview", "rejected"] as const;
@@ -36,7 +37,6 @@ const TXT = {
   ar: {
     title: "المتقدمون",
     back: "رجوع للوحة",
-    loading: "جارٍ التحميل...",
     healthcarePro: "كادر صحي",
     verified: "موثّق",
     experience: (n: number) => `خبرة ${n} سنة`,
@@ -71,11 +71,13 @@ const TXT = {
     counts: (t: number) => `${t} متقدم`,
     filterAll: "كل المراحل",
     stageFilter: "المرحلة",
+    revealTitle: "بدء المحادثة مع المرشح؟",
+    revealDesc: "عند بدء المحادثة سيظهر اسم منشأتك لهذا المرشح حتى تكون المحادثة واضحة للطرفين.",
+    revealCta: "ابدأ المحادثة",
   },
   en: {
     title: "Applicants",
     back: "Back to dashboard",
-    loading: "Loading...",
     healthcarePro: "Healthcare professional",
     verified: "Verified",
     experience: (n: number) => `${n} years experience`,
@@ -110,6 +112,9 @@ const TXT = {
     counts: (t: number) => `${t} applicant(s)`,
     filterAll: "All stages",
     stageFilter: "Stage",
+    revealTitle: "Start a conversation with this candidate?",
+    revealDesc: "Starting the conversation reveals your facility name to this candidate so both sides know who they are speaking with.",
+    revealCta: "Start conversation",
   },
 } as const;
 
@@ -285,7 +290,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       )}
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+        <ListSkeleton />
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.loadFailed} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : visible.length ? (
@@ -320,7 +325,14 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => startChat.mutate({ candidateUserId: a.user_id, jobId: a.job_id })}
+                      onClick={async () => {
+                        const ok = await confirm({
+                          title: c.revealTitle,
+                          description: c.revealDesc,
+                          confirmLabel: c.revealCta,
+                        });
+                        if (ok) startChat.mutate({ candidateUserId: a.user_id, jobId: a.job_id });
+                      }}
                       disabled={startChat.isPending}
                     >
                       <MessageSquare className="size-4" /> {c.message}

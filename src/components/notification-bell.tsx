@@ -67,7 +67,7 @@ export function NotificationBell() {
           <Bell className="size-5" />
           {unreadCount > 0 && (
             <span className="absolute -end-0.5 -top-0.5 flex min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
-              {unreadCount > 9 ? "9+" : unreadCount}
+              {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </Button>
@@ -79,7 +79,7 @@ export function NotificationBell() {
             <Button
               variant="ghost"
               size="icon"
-              className="size-7"
+              className="size-11"
               aria-label={c.markAll}
               title={c.markAll}
               disabled={!unreadCount}
@@ -93,7 +93,7 @@ export function NotificationBell() {
             <Button
               variant="ghost"
               size="icon"
-              className="size-7"
+              className="size-11"
               aria-label={c.clear}
               title={c.clear}
               disabled={!items.length}

@@ -7,11 +7,14 @@ import { SavedPanel } from "@/components/panels/saved";
 import { useLang } from "@/lib/i18n";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
-type ActivitySearch = { tab?: string };
+type ActivityTab = "applications" | "shifts" | "saved";
+type ActivitySearch = { tab?: ActivityTab };
 
 export const Route = createFileRoute("/_authenticated/activity")({
-  validateSearch: (search: Record<string, unknown>): ActivitySearch =>
-    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
+  validateSearch: (search: Record<string, unknown>): ActivitySearch => {
+    const tab = search["tab"];
+    return tab === "applications" || tab === "shifts" || tab === "saved" ? { tab } : {};
+  },
   head: () => ({
     meta: [
       { title: "نشاطي | SyndeoCare" },
@@ -39,7 +42,7 @@ function ActivityPage() {
       <WorkspaceHeading title={c.title} description={c.sub} />
       <Tabs
         value={tab}
-        onValueChange={(v) => void navigate({ to: "/activity", search: { tab: v }, replace: true })}
+        onValueChange={(v) => void navigate({ to: "/activity", search: { tab: v as ActivityTab }, replace: true })}
       >
         <div className="-mx-4 mt-6 overflow-x-auto px-4 pb-1">
           <TabsList className="w-max">
