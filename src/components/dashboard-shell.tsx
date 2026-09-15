@@ -178,7 +178,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 key={item.to}
                 to={item.to}
                         className={cn(
-                  "relative flex min-h-16 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors",
+                  "relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-xs font-medium transition-colors",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
@@ -190,7 +190,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     </span>
                   )}
                 </span>
-                <span className="max-w-full truncate">{t(item.key)}</span>
+                <span className="max-w-full truncate leading-4">{t(item.key)}</span>
                 {active && <span className="absolute top-0 h-0.5 w-8 rounded-full bg-primary" />}
               </Link>
             );

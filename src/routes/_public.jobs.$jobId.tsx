@@ -132,6 +132,8 @@ export const Route = createFileRoute("/_public/jobs/$jobId")({
       },
       { property: "og:title", content: "تفاصيل الوظيفة | SyndeoCare" },
       { property: "og:description", content: "تعرّف على تفاصيل الوظيفة وقدّم عليها مباشرة." },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: JobDetail,

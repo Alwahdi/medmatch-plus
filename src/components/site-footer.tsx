@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Stethoscope } from "lucide-react";
 import { useLang } from "@/lib/i18n";
+import { BrandLogo } from "@/components/brand-logo";
 
 export function SiteFooter() {
   const { t } = useLang();
@@ -8,12 +8,7 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         <div className="sm:col-span-2">
-          <div className="flex items-center gap-2">
-            <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Stethoscope className="size-5" />
-            </span>
-            <span className="text-lg font-extrabold">SyndeoCare</span>
-          </div>
+          <BrandLogo />
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
             {t("footer.tagline")}
           </p>
@@ -22,7 +17,6 @@ export function SiteFooter() {
           <h3 className="text-sm font-bold">{t("footer.forPros")}</h3>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/jobs" className="hover:text-foreground">{t("footer.browseJobs")}</Link></li>
-            <li><Link to="/shifts" className="hover:text-foreground">{t("footer.shiftMarket")}</Link></li>
             <li><Link to="/register" className="hover:text-foreground">{t("footer.createProfile")}</Link></li>
           </ul>
         </div>

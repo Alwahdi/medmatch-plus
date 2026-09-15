@@ -136,7 +136,7 @@ export const Route = createFileRoute("/_public/shifts/$shiftId")({
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="font-display text-2xl font-bold">{c.notFoundTitle}</h1>
         <Button className="mt-6" asChild>
-          <Link to="/shifts">{c.browseOther}</Link>
+          <Link to="/jobs" search={{ kind: "shift" }}>{c.browseOther}</Link>
         </Button>
       </div>
     );
@@ -257,7 +257,7 @@ function ShiftDetail() {
               {c.home}
             </Link>
             <span>/</span>
-            <Link to="/shifts" className="hover:text-white">
+            <Link to="/jobs" search={{ kind: "shift" }} className="hover:text-primary-foreground">
               {c.crumb}
             </Link>
             <span>/</span>
@@ -269,7 +269,7 @@ function ShiftDetail() {
             asChild
             className="mt-3 text-white/80 hover:bg-white/10 hover:text-white"
           >
-            <Link to="/shifts">
+            <Link to="/jobs" search={{ kind: "shift" }}>
               <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>

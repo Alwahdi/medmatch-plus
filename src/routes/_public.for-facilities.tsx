@@ -15,6 +15,8 @@ export const Route = createFileRoute("/_public/for-facilities")({
       },
       { property: "og:title", content: "للمنشآت الصحية | SyndeoCare" },
       { property: "og:description", content: "وظّف كوادر صحية موثّقة وغطِّ مناوباتك خلال ساعات." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ForFacilities,
