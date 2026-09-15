@@ -73,6 +73,8 @@ const TXT = {
   emailPh: { ar: "أدخل بريدك الإلكتروني", en: "Enter your email" },
   password: { ar: "كلمة المرور", en: "Password" },
   passwordPh: { ar: "أدخل كلمة المرور", en: "Enter your password" },
+  showPassword: { ar: "إظهار كلمة المرور", en: "Show password" },
+  hidePassword: { ar: "إخفاء كلمة المرور", en: "Hide password" },
   signIn: { ar: "تسجيل الدخول", en: "Sign in" },
   signingIn: { ar: "جارٍ تسجيل الدخول...", en: "Signing in..." },
   forgot: { ar: "نسيت كلمة المرور؟", en: "Forgot your password?" },
@@ -310,7 +312,7 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             maxLength={255}
-            className="h-11 rounded-xl ps-9 text-start"
+            className="h-11 rounded-lg ps-9 text-start"
           />
         </div>
       </div>
@@ -326,28 +328,31 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             maxLength={72}
-            className="h-11 rounded-xl px-9 text-start"
+            className="h-11 rounded-lg px-9 text-start"
           />
-          <button
+           <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setShow((v) => !v)}
-            className="absolute top-1/2 end-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={tx("password")}
+            className="absolute top-1/2 end-0 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            aria-label={show ? tx("hidePassword") : tx("showPassword")}
           >
             {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </button>
+           </Button>
         </div>
       </div>
-      <Button type="submit" className="h-11 w-full rounded-xl" disabled={busy}>
+      <Button type="submit" className="h-11 w-full rounded-lg" disabled={busy}>
         {busy ? tx("signingIn") : tx("signIn")}
       </Button>
-      <button
+      <Button
         type="button"
+        variant="link"
         onClick={reset}
-        className="block w-full text-center text-sm font-medium text-primary hover:underline"
+        className="w-full text-center"
       >
         {tx("forgot")}
-      </button>
+      </Button>
     </form>
   );
 }

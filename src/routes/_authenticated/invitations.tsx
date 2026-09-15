@@ -133,12 +133,12 @@ function InvitationsPage() {
             const f = inv.facilities;
             const isJob = !!inv.job_id;
             return (
-              <li key={inv.id} className="rounded-2xl border border-border bg-card p-5">
+              <li key={inv.id} className="rounded-lg border border-border bg-card p-5">
                 <div className="flex flex-wrap items-start gap-3">
                   <RemoteAvatar
                     value={f?.logo_url ?? null}
                     icon={Building2}
-                    className="size-12 rounded-xl"
+                    className="size-12 rounded-lg"
                   />
                   <div className="min-w-0">
                     <p className="flex items-center gap-2 font-bold">
@@ -172,7 +172,7 @@ function InvitationsPage() {
                 </div>
 
                 {inv.message && (
-                  <p className="mt-3 rounded-xl bg-surface p-3 text-sm leading-relaxed">
+                  <p className="mt-3 rounded-lg bg-surface p-3 text-sm leading-relaxed">
                     {inv.message}
                   </p>
                 )}

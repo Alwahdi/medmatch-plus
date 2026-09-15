@@ -88,9 +88,9 @@ export function ShiftCard({
 
 
   return (
-    <div className="relative pt-2">
+    <article className="relative pt-2">
       {shift.is_urgent && open && (
-        <span className="absolute top-0 z-10 rounded-full bg-warning px-3 py-1 text-[11px] font-bold text-warning-foreground shadow-sm start-4">
+        <span className="absolute top-0 z-10 rounded-md bg-warning px-2.5 py-1 text-[11px] font-bold text-warning-foreground shadow-sm start-4">
           {c.urgent}
         </span>
       )}
@@ -125,7 +125,7 @@ export function ShiftCard({
               {formatDateTime(shift.starts_at, lang)}
             </span>
             {shift.specialties && (
-              <span className="rounded-full bg-surface px-2.5 py-0.5 text-xs">
+              <span className="rounded-md bg-surface px-2.5 py-0.5 text-xs">
                 {specialtyName(shift.specialties, lang)}
               </span>
             )}
@@ -142,12 +142,12 @@ export function ShiftCard({
               </span>
             )}
             {recommended && (
-              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+              <span className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                 <Sparkles className="size-3.5" /> {c.recommended}
               </span>
             )}
             {mine && (
-              <span className="flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
+              <span className="flex items-center gap-1 rounded-md bg-success/12 px-2 py-0.5 text-xs font-semibold text-success">
                 <CheckCircle2 className="size-3.5" /> {c.mine}
               </span>
             )}
@@ -177,6 +177,6 @@ export function ShiftCard({
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

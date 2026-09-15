@@ -112,7 +112,7 @@ export function CvPanel() {
         </Button>
       </div>
 
-      <article className="mt-6 rounded-2xl border border-border bg-card p-8 leading-relaxed print:border-0 print:p-0">
+      <article className="mt-6 rounded-lg border border-border bg-card p-8 leading-relaxed print:border-0 print:p-0">
         <h2 className="font-display text-2xl font-extrabold">{profile.full_name}</h2>
         {profile.headline && <p className="text-muted-foreground">{profile.headline}</p>}
         <p className="mt-1 text-sm text-muted-foreground">

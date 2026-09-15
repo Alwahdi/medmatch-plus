@@ -9,6 +9,7 @@ import { ApplicantReportPanel } from "@/components/panels/applicant-report";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 type PrefSearch = { tab?: string };
 
@@ -77,7 +78,7 @@ function PreferencesPage() {
   if (roles?.includes("facility")) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
-        <div className="rounded-2xl border border-border bg-card p-6 text-center">
+        <div className="rounded-lg border border-border bg-card p-6 text-center shadow-card">
           <Building2 className="mx-auto size-8 text-primary" />
           <h1 className="mt-3 font-display text-xl font-extrabold">{c.facilityTitle}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{c.facilityBody}</p>
@@ -91,8 +92,7 @@ function PreferencesPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-muted-foreground">{c.sub}</p>
+      <WorkspaceHeading title={c.title} description={c.sub} />
 
       <NewMatchesCard />
 
@@ -161,7 +161,7 @@ function NewMatchesCard() {
   if (!data) return null;
 
   return (
-    <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+    <section className="mt-6 rounded-lg border border-border bg-card p-5 shadow-card">
       <div className="flex items-center gap-2">
         <BellRing className="size-5 text-primary" />
         <h2 className="font-bold">{c.newTitle}</h2>

@@ -24,7 +24,7 @@ export function RemoteAvatar({
   return (
     <span
       className={cn(
-        "grid place-items-center overflow-hidden rounded-2xl bg-primary/10 font-display font-extrabold text-primary",
+        "grid place-items-center overflow-hidden rounded-lg bg-primary/10 font-display font-extrabold text-primary",
         className,
       )}
     >

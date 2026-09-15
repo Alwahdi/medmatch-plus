@@ -432,12 +432,12 @@ function JobsPage() {
           {/* Compact hero */}
           <section className="page-hero py-10 md:py-12">
             <div className="mx-auto max-w-3xl px-4 text-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-xs font-medium ring-1 ring-white/20">
+               <span className="inline-flex items-center gap-2 rounded-md bg-primary-foreground/12 px-4 py-1.5 text-xs font-medium ring-1 ring-primary-foreground/20">
                 <Briefcase className="size-4" />
                 {c.badge}
               </span>
               <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
-              <p className="mx-auto mt-3 max-w-xl text-white/85">{c.sub}</p>
+               <p className="mx-auto mt-3 max-w-xl text-primary-foreground/85">{c.sub}</p>
             </div>
           </section>
         </>
@@ -461,7 +461,7 @@ function JobsPage() {
             >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="font-display text-lg font-bold">{c.filters}</h2>
-                <span className="grid size-9 place-items-center rounded-xl bg-surface text-muted-foreground">
+                <span className="grid size-9 place-items-center rounded-lg bg-surface text-muted-foreground">
                   <SlidersHorizontal className="size-4" />
                 </span>
               </div>
@@ -566,7 +566,7 @@ function JobsPage() {
 
           {/* Results */}
           <div className="lg:order-2">
-            <div className="mb-4 flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
+            <div className="mb-4 flex items-center gap-1 rounded-lg bg-surface p-1" role="tablist">
               {(
                 [
                   [ALL, c.kindAll],
@@ -574,9 +574,10 @@ function JobsPage() {
                   ["shift", c.kindShift],
                 ] as [string, string][]
               ).map(([key, label]) => (
-                <button
+                 <Button
                   key={key}
                   type="button"
+                   variant="ghost"
                   role="tab"
                   aria-selected={kind === key}
                   onClick={() => setKind(key)}
@@ -587,7 +588,7 @@ function JobsPage() {
                   }`}
                 >
                   {label}
-                </button>
+                 </Button>
               ))}
             </div>
             {hasSpecialty && (
@@ -599,18 +600,19 @@ function JobsPage() {
                     ["all", c.scopeAll],
                   ] as [Scope, string][]
                 ).map(([key, label]) => (
-                  <button
+                   <Button
                     key={key}
                     type="button"
+                     variant="ghost"
                     onClick={() => pickScope(key)}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                    className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                       scope === key
                         ? "bg-primary text-primary-foreground"
                         : "bg-surface text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {label}
-                  </button>
+                   </Button>
                 ))}
               </div>
             )}
@@ -638,16 +640,17 @@ function JobsPage() {
             {signedIn && (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {profile && (
-                  <div className="flex items-center gap-1 rounded-xl bg-surface p-1">
+                  <div className="flex items-center gap-1 rounded-lg bg-surface p-1">
                     {(
                       [
                         ["match", c.sortMatch],
                         ["new", c.sortNew],
                       ] as ["match" | "new", string][]
                     ).map(([key, label]) => (
-                      <button
+                       <Button
                         key={key}
                         type="button"
+                         variant="ghost"
                         onClick={() => {
                           setSortTouched(true);
                           setSort(key);
@@ -660,22 +663,23 @@ function JobsPage() {
                         }`}
                       >
                         {label}
-                      </button>
+                       </Button>
                     ))}
                   </div>
                 )}
                 {!!appliedIds?.size && (
-                  <button
+                   <Button
                     type="button"
+                     variant="ghost"
                     onClick={() => setHideApplied((v) => !v)}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                    className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                       hideApplied
                         ? "bg-primary text-primary-foreground"
                         : "bg-surface text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {c.hideApplied}
-                  </button>
+                   </Button>
                 )}
               </div>
             )}
@@ -683,7 +687,7 @@ function JobsPage() {
             {isLoading || shiftsLoading ? (
               <div className="mt-6 space-y-3">
                 {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-28 rounded-2xl" />
+                  <Skeleton key={i} className="h-28 rounded-lg" />
                 ))}
               </div>
             ) : items.length === 0 ? (

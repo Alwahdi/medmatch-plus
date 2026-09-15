@@ -127,7 +127,7 @@ function Contact() {
 
       <section className="py-16 md:py-20">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 lg:grid-cols-[1fr_1.4fr]">
-          <div className="card-lift h-fit rounded-2xl border border-border bg-card p-6">
+          <div className="card-lift h-fit rounded-lg border border-border bg-card p-6">
             <p className="section-label">{c.topicsLabel}</p>
             <h2 className="mt-3 font-display text-2xl font-extrabold">{c.topicsTitle}</h2>
             <div className="mt-6 space-y-5">
@@ -135,7 +135,7 @@ function Contact() {
                 const Icon = icons[idx]!;
                 return (
                   <div key={i.t} className="flex gap-3">
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent/12 text-accent">
                       <Icon className="size-5" />
                     </span>
                     <div>
@@ -154,7 +154,7 @@ function Contact() {
           </div>
 
           <form
-            className="card-lift rounded-2xl border border-border bg-card p-6"
+            className="card-lift rounded-lg border border-border bg-card p-6"
             onSubmit={(e) => {
               e.preventDefault();
               if (valid) send.mutate();

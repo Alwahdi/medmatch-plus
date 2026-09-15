@@ -165,7 +165,7 @@ export function CvImportPanel() {
       </div>
 
       {result && (
-        <div className="mt-8 rounded-2xl border border-border bg-card p-6">
+        <div className="mt-8 rounded-lg border border-border bg-card p-6">
           <h2 className="font-bold">{c.resultTitle}</h2>
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
             <Field label={c.name} value={result.full_name} />
@@ -178,7 +178,7 @@ export function CvImportPanel() {
             <Field label={c.licenseNumber} value={result.license_number} />
           </dl>
           {result.bio && (
-            <p className="mt-4 rounded-xl bg-surface p-4 text-sm leading-relaxed">{result.bio}</p>
+            <p className="mt-4 rounded-lg bg-surface p-4 text-sm leading-relaxed">{result.bio}</p>
           )}
           <Button className="mt-5" onClick={() => save.mutate()} disabled={save.isPending}>
             {save.isPending ? c.saving : c.save}

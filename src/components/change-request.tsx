@@ -220,7 +220,7 @@ export function LockedField({
           <div className="space-y-4">
             <div>
               <Label className="text-xs text-muted-foreground">{c.current}</Label>
-              <p className="mt-1 rounded-xl bg-surface px-3 py-2 text-sm">{currentValue || "—"}</p>
+              <p className="mt-1 rounded-lg bg-surface px-3 py-2 text-sm">{currentValue || "—"}</p>
             </div>
             <div>
               <Label htmlFor={`next-${field}`}>{c.next}</Label>
@@ -276,13 +276,13 @@ export function ChangeRequestsPanel({ requests }: { requests: ChangeRequestRow[]
   const c = T[lang];
   if (!requests.length) return null;
   return (
-    <div className="card-lift mt-6 rounded-2xl border border-border bg-card p-5">
+    <div className="card-lift mt-6 rounded-lg border border-border bg-card p-5">
       <h2 className="font-display text-lg font-bold">{c.myRequests}</h2>
       <ul className="mt-3 space-y-2">
         {requests.map((r) => (
           <li
             key={r.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-surface px-3 py-2 text-sm"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-surface px-3 py-2 text-sm"
           >
             <span className="font-medium">
               {fieldLabel(r.field, lang)}: {r.old_value || "—"} → {r.new_value}

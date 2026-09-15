@@ -12,6 +12,7 @@ import {
   markNotificationRead,
   useNotifications,
 } from "@/lib/notifications";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
@@ -34,7 +35,7 @@ const TXT = {
     markAll: "تعليم الكل كمقروء",
     clear: "حذف الكل",
     empty: "لا توجد إشعارات",
-    emptyBody: "ستصلك هنا إشعارات الرسائل والدعوات والطلبات والتوثيق.",
+     emptyBody: "ستصلك هنا إشعارات الدعوات والطلبات والتوثيق. الرسائل لها عداد مستقل.",
     settings: "الإعدادات",
   },
   en: {
@@ -43,7 +44,7 @@ const TXT = {
     markAll: "Mark all as read",
     clear: "Clear all",
     empty: "No notifications",
-    emptyBody: "Messages, invitations, applications and verification updates appear here.",
+     emptyBody: "Invitation, application and verification updates appear here. Messages have their own counter.",
     settings: "Settings",
   },
 } as const;
@@ -58,13 +59,7 @@ function NotificationsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-        <Button variant="ghost" size="sm" className="ms-auto" asChild>
-          <Link to="/settings">{c.settings}</Link>
-        </Button>
-      </div>
-      <p className="mt-2 text-muted-foreground">{c.sub}</p>
+      <WorkspaceHeading title={c.title} description={c.sub} action={<Button variant="ghost" size="sm" asChild><Link to="/settings">{c.settings}</Link></Button>} />
 
       <div className="mt-4 flex flex-wrap gap-2">
         <Button
@@ -108,7 +103,7 @@ function NotificationsPage() {
                 }
                 if (n.link) void navigate({ to: n.link as never });
               }}
-              className={`flex w-full flex-col gap-1 rounded-xl border border-border p-4 text-start transition-colors hover:bg-secondary ${
+               className={`flex min-h-20 w-full flex-col gap-1 rounded-lg border border-border p-4 text-start shadow-card transition-colors hover:bg-secondary ${
                 n.read_at ? "bg-card" : "bg-primary/5"
               }`}
             >

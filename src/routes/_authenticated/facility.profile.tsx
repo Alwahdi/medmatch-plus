@@ -29,6 +29,7 @@ import { countryLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 const TXT = {
   ar: {
@@ -212,14 +213,14 @@ function FacilityProfile() {
   if (isLoading)
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
-        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-96 rounded-lg" />
       </div>
     );
 
   if (!facility)
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-surface text-muted-foreground">
+        <span className="mx-auto grid size-14 place-items-center rounded-lg bg-surface text-muted-foreground">
           <Building2 className="size-7" />
         </span>
         <p className="mt-5 text-muted-foreground">{c.noFacility}</p>
@@ -231,17 +232,10 @@ function FacilityProfile() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
-            <Building2 className="size-7" />
-          </span>
-          <div>
-            <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{c.sub}</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+      <WorkspaceHeading
+        title={c.title}
+        description={c.sub}
+        action={<div className="flex flex-wrap items-center justify-end gap-2">
           {mode === "view" ? (
             <Button onClick={() => setMode("edit")}>
               <Pencil className="size-4" /> {c.editBtn}
@@ -256,12 +250,12 @@ function FacilityProfile() {
               <ExternalLink className="size-4" /> {c.publicView}
             </Link>
           </Button>
-        </div>
-      </div>
+        </div>}
+      />
 
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
           {facility.is_verified ? (
             <BadgeCheck className="size-6 text-primary" />
           ) : (
@@ -281,7 +275,7 @@ function FacilityProfile() {
             </Button>
           </div>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
           <Star className="size-6 text-amber-400" />
           <div>
             <p className="text-sm font-bold">{c.rating}</p>
@@ -295,14 +289,14 @@ function FacilityProfile() {
       </div>
 
       {mode === "view" && (
-        <div className="card-lift mt-6 rounded-2xl border border-border bg-card p-6">
+        <div className="card-lift mt-6 rounded-lg border border-border bg-card p-6">
           <p className="text-xs text-muted-foreground">{c.asOthersSee}</p>
           <div className="mt-4 flex items-start gap-4">
             <RemoteAvatar
               value={facility.logo_url}
               alt={facility.name_ar ?? ""}
               fallbackText={facility.name_ar ?? "?"}
-              className="size-16 shrink-0 rounded-2xl text-lg"
+              className="size-16 shrink-0 rounded-lg text-lg"
             />
             <div className="min-w-0">
               <h2 className="flex items-center gap-2 text-xl font-extrabold">
@@ -346,7 +340,7 @@ function FacilityProfile() {
       )}
 
       {mode === "edit" && (
-      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
+      <div className="card-lift mt-6 space-y-4 rounded-lg border border-border bg-card p-6">
 
         <div className="grid gap-4 sm:grid-cols-2">
           <LockedField label={c.nameAr} locked={locked} target="facility" field="name_ar"
@@ -504,7 +498,7 @@ function FacilityProfilePage() {
           <FacilityVerificationPanel />
         </TabsContent>
         <TabsContent value="plan" className="mt-6">
-          <div className="rounded-2xl border border-border bg-card p-6">
+           <div className="rounded-lg border border-border bg-card p-6 shadow-card">
             <h2 className="font-display text-xl font-extrabold">
               {lang === "ar" ? "باقة الاشتراك" : "Subscription plan"}
             </h2>

@@ -116,19 +116,17 @@ function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="hero-surface relative pb-20 md:pb-24">
-        <div className="mx-auto grid min-h-[min(700px,78vh)] max-w-6xl items-center gap-8 px-4 pt-10 pb-16 md:grid-cols-[minmax(0,1.1fr)_minmax(320px,.9fr)] md:pt-14">
-          <div className="order-2 md:order-1">
-            <img
-              src={heroImage}
-              alt={t("home.hero.title")}
-              width={1600}
-              height={1104}
-              className="aspect-[4/3] w-full rounded-lg object-cover shadow-lift"
-            />
-          </div>
-
-          <div className="order-1 md:order-2">
+      <section className="relative isolate min-h-[min(680px,82vh)] overflow-hidden bg-foreground">
+        <img
+          src={heroImage}
+          alt=""
+          width={1600}
+          height={1104}
+          className="absolute inset-0 -z-20 size-full object-cover object-center"
+        />
+        <div className="absolute inset-0 -z-10 bg-foreground/75" />
+        <div className="mx-auto flex min-h-[min(680px,82vh)] max-w-6xl items-center px-4 pb-36 pt-14 md:pb-32 md:pt-20">
+          <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-md bg-background/10 px-3 py-1.5 text-sm font-medium text-primary-foreground ring-1 ring-background/20">
               <span className="size-2 rounded-full bg-success" />
               {t("home.hero.badge")}
@@ -139,7 +137,7 @@ function Home() {
             <p className="mt-5 max-w-lg text-lg leading-relaxed text-primary-foreground/85">
               {t("home.hero.subtitle")}
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
                 size="lg"
                 asChild
@@ -150,7 +148,8 @@ function Home() {
               <Button
                 size="lg"
                 asChild
-                className="border border-background/25 bg-background/10 text-primary-foreground hover:bg-background/20"
+                 variant="outline"
+                 className="border-primary-foreground/30 bg-background/10 text-primary-foreground hover:bg-background/20 hover:text-primary-foreground"
               >
                 <Link to="/jobs">{t("home.hero.ctaSeekers")}</Link>
               </Button>
@@ -159,7 +158,7 @@ function Home() {
         </div>
 
         {/* Search bar */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-1/2 px-4">
+         <div className="absolute inset-x-0 bottom-5 px-4 md:bottom-0 md:translate-y-1/2">
           <form
             onSubmit={search}
             className="mx-auto flex max-w-5xl flex-col gap-2 rounded-lg border border-border bg-card p-2 shadow-lift sm:flex-row"
@@ -192,15 +191,15 @@ function Home() {
       </section>
 
       {/* Why */}
-      <section className="bg-background pt-24 pb-16 md:pt-28">
+       <section className="bg-background pb-16 pt-10 md:pt-28">
         <div className="mx-auto max-w-6xl px-4">
           <p className="text-center text-sm font-semibold tracking-wide text-accent">
             {t("home.why.label")}
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map((f) => (
-              <div key={f.key} className="card-lift rounded-2xl border border-border bg-card p-6">
-                <span className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+               <div key={f.key} className="card-lift rounded-lg border border-border bg-card p-6">
+                 <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <f.icon className="size-5" />
                 </span>
                 <h3 className="mt-4 text-base font-bold">{t(`home.why.${f.key}.title` as const)}</h3>
@@ -218,7 +217,7 @@ function Home() {
             {t("home.sides.title")}
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <article className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
+             <article className="card-lift overflow-hidden rounded-lg border border-border bg-card">
               <img
                 src={forProsImage}
                 alt={t("home.sides.pros.title")}
@@ -241,7 +240,7 @@ function Home() {
               </div>
             </article>
 
-            <article className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
+             <article className="card-lift overflow-hidden rounded-lg border border-border bg-card">
               <img
                 src={forEmployersImage}
                 alt={t("home.sides.employers.title")}
@@ -279,42 +278,43 @@ function Home() {
           </p>
 
           <div className="mt-8 flex justify-center">
-            <div className="inline-flex rounded-full border border-border bg-card p-1">
+             <div className="inline-flex rounded-lg border border-border bg-card p-1">
               {(
                 [
                   ["employers", t("home.steps.tabEmployers")],
                   ["seekers", t("home.steps.tabSeekers")],
                 ] as const
               ).map(([key, label]) => (
-                <button
+                 <Button
                   key={key}
                   type="button"
                   onClick={() => setTab(key)}
-                  className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+                   variant="ghost"
+                   className={`rounded-md px-5 py-2 text-sm font-semibold transition-colors ${
                     tab === key
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {label}
-                </button>
+                 </Button>
               ))}
             </div>
           </div>
 
           <ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {stepKeys.map((key, i) => (
-              <li key={key} className="card-lift rounded-2xl border border-border bg-card p-6">
-                <span className="flex size-10 items-center justify-center rounded-full bg-accent/15 font-display text-lg font-extrabold text-accent">
+               <li key={key} className="card-lift rounded-lg border border-border bg-card p-6">
+                 <span className="flex size-10 items-center justify-center rounded-lg bg-accent/15 font-display text-lg font-extrabold text-accent">
                   {i + 1}
                 </span>
                 {key === "employer3" && (
-                  <span className="mt-4 inline-block rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                   <span className="mt-4 inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
                     {t("home.steps.employer3.highlight")}
                   </span>
                 )}
                 {key === "seeker2" && (
-                  <span className="mt-4 inline-block rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                   <span className="mt-4 inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
                     {t("home.steps.seeker2.highlight")}
                   </span>
                 )}
@@ -384,9 +384,9 @@ function Home() {
             </div>
           </div>
 
-          <div className="card-lift rounded-3xl border border-border bg-card p-8">
-            <div className="flex items-center gap-3 rounded-2xl border border-dashed border-accent/50 bg-accent/5 p-5">
-              <span className="flex size-11 items-center justify-center rounded-xl bg-accent/15 text-accent">
+           <div className="card-lift rounded-lg border border-border bg-card p-8">
+             <div className="flex items-center gap-3 rounded-lg border border-dashed border-accent/50 bg-accent/5 p-5">
+               <span className="flex size-11 items-center justify-center rounded-lg bg-accent/15 text-accent">
                 <FileUp className="size-5" />
               </span>
               <div>
@@ -403,7 +403,7 @@ function Home() {
               ].map((row) => (
                 <div
                   key={row.label}
-                  className="flex items-center gap-3 rounded-xl bg-surface px-4 py-3 text-sm"
+                   className="flex items-center gap-3 rounded-lg bg-surface px-4 py-3 text-sm"
                 >
                   <row.icon className="size-4 text-accent" />
                   {row.label}
@@ -431,7 +431,7 @@ function Home() {
           </div>
           <div className="mx-auto mt-8 max-w-3xl space-y-3">
             {jobsLoading
-              ? [...Array(6)].map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)
+               ? [...Array(6)].map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)
               : jobs?.map((job) => <JobCard key={job.id} job={job} />)}
           </div>
         </div>
@@ -447,14 +447,14 @@ function Home() {
               <p className="mt-2 text-muted-foreground">{t("home.shifts.subtitle")}</p>
             </div>
             <Button variant="ghost" asChild>
-              <Link to="/shifts">
+               <Link to="/jobs" search={{ type: "shifts" }}>
                 {t("home.shifts.cta")} <ArrowLeft className="size-4" />
               </Link>
             </Button>
           </div>
           <div className="mx-auto mt-8 max-w-3xl space-y-3">
             {shiftsLoading
-              ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-60 rounded-2xl" />)
+               ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-60 rounded-lg" />)
               : shifts?.map((shift) => <ShiftCard key={shift.id} shift={shift} />)}
           </div>
         </div>
@@ -481,7 +481,7 @@ function Home() {
                 key={s.id}
                 to="/specialties/$slug"
                 params={{ slug: s.slug }}
-                className="card-lift rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold transition-colors hover:border-accent hover:text-accent"
+                 className="card-lift rounded-lg border border-border bg-card px-4 py-3 text-sm font-semibold transition-colors hover:border-accent hover:text-accent"
               >
                 {s.name_ar}
               </Link>
@@ -511,7 +511,7 @@ function Home() {
                 key={g.slug}
                 to="/guides/$slug"
                 params={{ slug: g.slug }}
-                className="card-lift rounded-2xl border border-border bg-card p-6"
+                 className="card-lift rounded-lg border border-border bg-card p-6"
               >
                 <span className="text-xs font-semibold text-accent">{g.category}</span>
                 <h3 className="mt-2 font-display text-lg leading-snug font-bold">{g.title}</h3>
@@ -530,13 +530,13 @@ function Home() {
       {/* CTA */}
       <section className="hero-surface py-16">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 text-center">
-          <span className="flex size-12 items-center justify-center rounded-2xl bg-white/12 text-white">
+           <span className="flex size-12 items-center justify-center rounded-lg bg-primary-foreground/12 text-primary-foreground">
             <Bell className="size-6" />
           </span>
-          <h2 className="font-display text-3xl font-extrabold text-white">
+           <h2 className="font-display text-3xl font-extrabold text-primary-foreground">
             {t("home.cta.title")}
           </h2>
-          <p className="max-w-xl text-white/85">
+           <p className="max-w-xl text-primary-foreground/85">
             {t("home.cta.subtitle")}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -548,7 +548,8 @@ function Home() {
             <Button
               size="lg"
               asChild
-              className="border border-white/25 bg-white/10 text-white hover:bg-white/20"
+               variant="outline"
+               className="border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground"
             >
               <Link to="/for-facilities">{t("home.cta.employer")}</Link>
             </Button>

@@ -178,14 +178,14 @@ export function AlertsPanel() {
       </p>
 
       {channels && !(channels.email && channels.whatsapp) && (
-        <div className="mt-4 rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
+        <div className="mt-4 rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
           {lang === "ar"
             ? "تفضيلاتك تُحفظ الآن، ويبدأ الإرسال الفعلي فور تفعيل مزوّد الرسائل عند الإطلاق."
             : "Your preferences are saved now; actual delivery starts as soon as the messaging provider is activated at launch."}
         </div>
       )}
 
-      <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-5 md:grid-cols-2">
+      <div className="mt-6 grid gap-3 rounded-lg border border-border bg-card p-5 md:grid-cols-2">
         <Combobox
           options={[
             { value: ANY, label: c.allSpecialties },
@@ -257,7 +257,7 @@ export function AlertsPanel() {
         {alerts?.map((a) => (
           <li
             key={a.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4"
           >
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Badge variant="outline">

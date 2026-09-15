@@ -303,7 +303,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       {a.pro?.full_name ?? c.healthcarePro}
                       {a.pro?.is_verified && <Badge className="ms-2" variant="secondary">{c.verified}</Badge>}
                       {isHired && (
-                        <Badge className="ms-2 gap-1 bg-success text-white">
+                        <Badge className="ms-2 gap-1 bg-success text-success-foreground">
                           <CheckCircle2 className="size-3.5" /> {c.selected}
                         </Badge>
                       )}

@@ -198,7 +198,7 @@ function CandidateProfile() {
         {c.back}
       </Link>
 
-      <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="mt-4 overflow-hidden rounded-lg border border-border bg-card">
         <div className="h-24 bg-gradient-to-l from-primary/25 via-accent/15 to-primary/5" />
         <div className="px-6 pb-6">
           <div className="-mt-10 flex flex-wrap items-end justify-between gap-4">
@@ -207,7 +207,7 @@ function CandidateProfile() {
                 <RemoteAvatar
                   value={pro.avatar_url}
                   fallbackText={pro.full_name}
-                  className="size-24 rounded-2xl ring-4 ring-card"
+                  className="size-24 rounded-lg ring-4 ring-card"
                 />
                 <span
                   className={`absolute -bottom-1 -end-1 size-5 rounded-full border-4 border-card ${OnlineDotClass(isOnline)}`}
@@ -264,24 +264,24 @@ function CandidateProfile() {
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-xl bg-surface p-3 text-center">
+            <div className="rounded-lg bg-surface p-3 text-center">
               <Briefcase className="mx-auto size-4 text-primary" />
               <p className="mt-1 text-sm font-bold">{pro.years_experience}</p>
               <p className="text-[11px] text-muted-foreground">{c.experience(pro.years_experience)}</p>
             </div>
-            <div className="rounded-xl bg-surface p-3 text-center">
+            <div className="rounded-lg bg-surface p-3 text-center">
               <MapPin className="mx-auto size-4 text-primary" />
               <p className="mt-1 text-sm font-bold">{pro.city ?? "—"}</p>
               <p className="text-[11px] text-muted-foreground">{countryLabel(pro.country, lang)}</p>
             </div>
-            <div className="rounded-xl bg-surface p-3 text-center">
+            <div className="rounded-lg bg-surface p-3 text-center">
               <Banknote className="mx-auto size-4 text-primary" />
               <p className="mt-1 text-sm font-bold">
                 {pro.expected_salary ? formatMoney(Number(pro.expected_salary), pro.currency ?? "YER", lang) : "—"}
               </p>
               <p className="text-[11px] text-muted-foreground">{c.expected}</p>
             </div>
-            <div className="rounded-xl bg-surface p-3 text-center">
+            <div className="rounded-lg bg-surface p-3 text-center">
               <div className="flex justify-center">
                 <RatingStars value={Number(pro.rating_avg ?? 0)} />
               </div>
@@ -299,7 +299,7 @@ function CandidateProfile() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+      <div className="mt-6 rounded-lg border border-border bg-card p-6">
         <h2 className="font-bold">{c.history}</h2>
         {data.apps.length === 0 && data.bookings.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">{c.none}</p>
@@ -336,14 +336,14 @@ function CandidateProfile() {
         )}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+      <div className="mt-6 rounded-lg border border-border bg-card p-6">
         <h2 className="font-bold">{c.reviews}</h2>
         {data.reviews.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">{c.noReviews}</p>
         ) : (
           <ul className="mt-4 space-y-4">
             {data.reviews.map((r) => (
-              <li key={r.id} className="rounded-xl border border-border p-4">
+              <li key={r.id} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-2">
                   <RatingStars value={r.rating} />
                   <span className="text-xs text-muted-foreground">{relativeTime(r.created_at, lang)}</span>

@@ -134,7 +134,7 @@ export function ApplicantReportPanel() {
   if (isLoading) return <p className="text-sm text-muted-foreground">{c.loading}</p>;
   if (isError)
     return (
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-lg border border-border bg-card p-5 shadow-card">
         <p className="text-sm text-muted-foreground">{c.error}</p>
         <Button className="mt-3" variant="outline" onClick={() => void refetch()}>
           {c.retry}
@@ -189,7 +189,7 @@ export function ApplicantReportPanel() {
             {rows.map((r) => {
               const total = r.applications + r.bookings;
               return (
-                <li key={r.key} className="rounded-xl border border-border bg-card p-4">
+                <li key={r.key} className="rounded-lg border border-border bg-card p-4 shadow-card">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-sm font-bold">{r.label}</span>
                     <span className="text-xs text-muted-foreground">
@@ -224,7 +224,7 @@ function Stat({
   value: number;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-lg border border-border bg-card p-4 shadow-card">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Icon className="size-4" />
         <span className="text-xs">{label}</span>

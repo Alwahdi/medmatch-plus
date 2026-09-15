@@ -628,7 +628,7 @@ function FacilityDashboard() {
           </DialogHeader>
           {justPublished ? (
             <div className="space-y-4 py-2 text-center">
-              <CheckCircle2 className="mx-auto size-12 text-emerald-600" />
+               <CheckCircle2 className="mx-auto size-12 text-success" />
               <p className="text-sm text-muted-foreground">
                 {justPublished.kind === "shift" ? c.publishedSubShift : c.publishedSubJob}
               </p>
@@ -751,7 +751,7 @@ function FacilityDashboard() {
         <p className="mt-1 text-sm leading-6 text-muted-foreground">{c.overview}</p>
       </div>
       <div className="mt-4 -mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="inline-flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
+        <div className="inline-flex items-center gap-1 rounded-lg bg-surface p-1" role="tablist">
           {(
             [
               ["all", c.tabAll((jobs?.length ?? 0) + (shifts?.length ?? 0)), Layers],
@@ -1037,7 +1037,7 @@ function FacilityForm() {
       <h1 className="font-display text-3xl font-extrabold">{c.registerTitle}</h1>
       <p className="mt-2 text-muted-foreground">{c.registerSub}</p>
 
-      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div className="card-lift mt-6 space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6">
         <div>
           <Label htmlFor="fname">{c.facilityName}</Label>
           <Input id="fname" maxLength={120} value={form.name_ar}
@@ -1250,7 +1250,7 @@ function JobForm({
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
 
         <div>
@@ -1363,7 +1363,7 @@ function JobForm({
           onChange={(e) => setForm({ ...form, description: e.target.value })} />
       </div>
       {(expired || quotaReached) && (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+        <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
           {expired ? c.subExpiredJob : c.quotaReachedJob}
         </p>
       )}
@@ -1499,7 +1499,7 @@ function ShiftForm({
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
 
         <div>
@@ -1590,7 +1590,7 @@ function ShiftForm({
           onChange={(e) => setForm({ ...form, notes: e.target.value })} />
       </div>
       {(expired || quotaReached) && (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+        <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
           {expired ? c.subExpiredShift : c.quotaReachedShift}
         </p>
       )}
@@ -1622,12 +1622,12 @@ function ReviewStep({
   pending: boolean;
 }) {
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
       <div>
         <h3 className="font-display text-lg font-extrabold">{title}</h3>
         <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
       </div>
-      <dl className="divide-y divide-border rounded-xl border border-border">
+      <dl className="divide-y divide-border rounded-lg border border-border">
         {rows.map((r) => (
           <div key={r.label} className="grid gap-1 p-3 sm:grid-cols-3 sm:gap-3">
             <dt className="text-sm font-semibold text-muted-foreground">{r.label}</dt>

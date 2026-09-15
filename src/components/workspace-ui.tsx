@@ -17,10 +17,10 @@ export function WorkspaceHeading({
   action?: ReactNode;
 }) {
   return (
-    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border pb-5">
       <div className="min-w-0">
-        {eyebrow && <p className="text-xs font-semibold text-muted-foreground">{eyebrow}</p>}
-        <h1 className="mt-1 truncate text-2xl font-bold sm:text-3xl">{title}</h1>
+        {eyebrow && <p className="text-xs font-semibold text-primary">{eyebrow}</p>}
+        <h1 className="mt-1 truncate text-2xl font-bold text-foreground sm:text-3xl">{title}</h1>
         {description && <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -51,15 +51,15 @@ export function NextStepCard({
         : "bg-primary text-primary-foreground";
 
   return (
-    <section className={cn("relative overflow-hidden rounded-lg p-5 shadow-card sm:p-6", toneClass)}>
+    <section className={cn("relative overflow-hidden rounded-lg border border-transparent p-5 shadow-card sm:p-6", toneClass)}>
       <div className="relative z-10 grid grid-cols-[auto_minmax(0,1fr)] gap-4">
         <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-background/15" aria-hidden>
           <Icon className="size-5" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold opacity-80">{label}</p>
+          <p className="text-xs font-semibold">{label}</p>
           <h2 className="mt-1 text-lg font-bold sm:text-xl">{title}</h2>
-          {description && <p className="mt-1 text-sm leading-6 opacity-85">{description}</p>}
+          {description && <p className="mt-1 text-sm leading-6">{description}</p>}
           {action && <div className="mt-4">{action}</div>}
         </div>
       </div>
@@ -92,7 +92,7 @@ export function QuickAction({
     </>
   );
   const classes =
-    "flex min-h-20 w-full items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/35 hover:bg-secondary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+    "flex min-h-20 w-full items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-[border-color,background-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/35 hover:bg-secondary/35 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   if (to) {
     return (
@@ -111,7 +111,7 @@ export function QuickAction({
 export function SectionHeading({ title, action }: { title: string; action?: ReactNode }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-      <h2 className="min-w-0 truncate text-lg font-bold">{title}</h2>
+      <h2 className="min-w-0 truncate text-lg font-bold text-foreground">{title}</h2>
       {action && <div className="shrink-0">{action}</div>}
     </div>
   );

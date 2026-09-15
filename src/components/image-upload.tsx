@@ -69,7 +69,7 @@ export function ImageUpload({
     }
   };
 
-  const shape = rounded === "full" ? "rounded-full" : "rounded-2xl";
+  const shape = rounded === "full" ? "rounded-full" : "rounded-lg";
 
   return (
     <div className={cn("flex items-center gap-4", className)}>

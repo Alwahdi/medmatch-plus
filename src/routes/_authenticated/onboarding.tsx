@@ -198,7 +198,7 @@ function Onboarding() {
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-xl"
+               className="rounded-lg"
               disabled={isFetching}
               onClick={() => void refetch()}
             >
@@ -228,24 +228,26 @@ function PathPicker({ onPick }: { onPick: (p: Path) => void }) {
     <div className="mt-8">
       <p className="text-sm font-bold">{t("ob.pathTitle")}</p>
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
-        <button
+         <Button
           type="button"
+          variant="outline"
           onClick={() => onPick("professional")}
-          className="card-lift rounded-lg border border-border bg-card p-5 text-start transition-colors hover:border-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="card-lift h-auto min-h-36 flex-col items-start rounded-lg p-5 text-start whitespace-normal"
         >
           <Stethoscope className="size-6 text-primary" />
           <p className="mt-3 font-bold">{t("auth.rolePro")}</p>
           <p className="mt-1 text-sm text-muted-foreground">{t("auth.roleProHint")}</p>
-        </button>
-        <button
+         </Button>
+         <Button
           type="button"
+          variant="outline"
           onClick={() => onPick("facility")}
-          className="card-lift rounded-lg border border-border bg-card p-5 text-start transition-colors hover:border-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="card-lift h-auto min-h-36 flex-col items-start rounded-lg p-5 text-start whitespace-normal"
         >
           <Building2 className="size-6 text-primary" />
           <p className="mt-3 font-bold">{t("auth.roleFacility")}</p>
           <p className="mt-1 text-sm text-muted-foreground">{t("auth.roleFacilityHint")}</p>
-        </button>
+         </Button>
       </div>
     </div>
   );
@@ -255,14 +257,15 @@ function PathPicker({ onPick }: { onPick: (p: Path) => void }) {
 function ChangePathLink({ onChangePath }: { onChangePath: () => void }) {
   const { lang } = useLang();
   return (
-    <button
+     <Button
       type="button"
+      variant="ghost"
       onClick={onChangePath}
       className="mt-6 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
     >
       <ArrowRight className="size-4 rtl:rotate-180" />
       {lang === "en" ? "Change account type" : "تغيير نوع الحساب"}
-    </button>
+     </Button>
   );
 }
 

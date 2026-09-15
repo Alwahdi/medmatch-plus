@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import {
   Briefcase,
@@ -11,11 +10,11 @@ import {
 } from "lucide-react";
 
 import { AccountHub, AccountHubSidebarTrigger } from "@/components/account-hub";
+import { useAccountIdentity } from "@/components/account-hub";
 import { NotificationBell } from "@/components/notification-bell";
 import { RemoteAvatar } from "@/components/remote-avatar";
-
-import { supabase } from "@/integrations/supabase/client";
-import { useMyFacility, useRoles, useSession } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 
@@ -49,21 +48,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
   if (roles?.includes("admin")) items.push({ to: "/admin", key: "nav.admin", icon: ShieldCheck });
 
-  const { data: myFacility } = useMyFacility(user);
-  const { data: myProfile } = useQuery({
-    queryKey: ["my-profile-lite", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name,avatar_url")
-        .eq("id", user!.id)
-        .maybeSingle();
-      return data;
-    },
-  });
-  const accountName =
-    (isFacility ? myFacility?.name_ar : myProfile?.full_name) || user?.email || "SyndeoCare";
+  const { name: accountName, image: accountImage } = useAccountIdentity();
 
   /** المسار النشط: مطابقة دقيقة مع تفضيل أطول مسار مطابق. */
   function isActive(to: string) {
@@ -76,7 +61,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
 
 
-  // شريط الجوال السفلي: 4 وجهات عمل + مركز الحساب
+  // شريط الجوال السفلي: وجهات العمل فقط؛ الحساب والإشعارات في الرأس.
   const mobileTabs: Item[] = isFacility
     ? [
         { to: "/facility", key: "nav.facilityHome", icon: LayoutDashboard },
@@ -113,7 +98,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <span
                 className={cn(
                   "ms-auto rounded-full px-2 py-0.5 text-[11px] font-bold",
-                  active ? "bg-white/20 text-white" : "bg-destructive text-destructive-foreground",
+                   active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-destructive text-destructive-foreground",
                 )}
               >
                 {badge > 99 ? "99+" : badge}
@@ -137,13 +122,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4">
           <AccountHub
             trigger={
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 aria-label={t("nav.account")}
                 className="flex min-h-11 min-w-0 items-center gap-2 rounded-lg px-1 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <RemoteAvatar
-                  value={(isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null}
+                   value={accountImage}
                   alt={accountName}
                   fallbackText={accountName}
                   className="size-9 shrink-0 rounded-full text-sm"
@@ -154,7 +140,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
                   </span>
                 </span>
-              </button>
+              </Button>
             }
           />
           <div className="flex shrink-0 items-center gap-2">
@@ -164,9 +150,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </header>
 
 
-      <div className="mx-auto flex max-w-[1400px] gap-6 px-0 py-0 lg:px-4 lg:py-6">
+       <div className="mx-auto flex max-w-[1400px] gap-6 px-0 py-0 lg:px-5 lg:py-6">
         <aside className="hidden w-64 shrink-0 lg:block">
-          <div className="sticky top-24 rounded-lg border border-border bg-card p-3 shadow-card">
+           <div className="sticky top-24 rounded-lg border border-border bg-card p-3 shadow-card">
             <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t(isFacility ? "dash.facilityArea" : "dash.proArea")}
             </p>
@@ -179,7 +165,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom tab bar */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+         className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_color-mix(in_oklab,var(--color-foreground)_7%,transparent)] backdrop-blur lg:hidden"
         aria-label={t("nav.menu")}
       >
         <div className={cn("grid", mobileTabs.length === 3 ? "grid-cols-3" : "grid-cols-4")}>

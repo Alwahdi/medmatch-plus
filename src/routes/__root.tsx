@@ -12,8 +12,10 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider, useLang } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 function NotFoundComponent() {
   return (
@@ -25,12 +27,7 @@ function NotFoundComponent() {
           الرابط الذي فتحته غير صحيح أو تم نقل الصفحة.
         </p>
         <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            العودة للرئيسية
-          </Link>
+          <Link to="/" className={buttonVariants()}>العودة للرئيسية</Link>
         </div>
       </div>
     </div>
@@ -50,18 +47,17 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <h1 className="text-xl font-semibold">تعذّر تحميل هذه الصفحة</h1>
         <p className="mt-2 text-sm text-muted-foreground">حدث خطأ غير متوقع. جرّب التحديث.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+          <Button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             إعادة المحاولة
-          </button>
+          </Button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-lg border border-input px-4 py-2 text-sm font-medium"
+            className={cn(buttonVariants({ variant: "outline" }))}
           >
             الرئيسية
           </a>
@@ -97,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],

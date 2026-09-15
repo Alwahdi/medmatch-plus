@@ -291,7 +291,7 @@ export function FacilityVerificationPanel() {
       <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
 
       <div
-        className={`mt-6 flex flex-wrap items-center gap-3 rounded-2xl border p-5 ${
+        className={`mt-6 flex flex-wrap items-center gap-3 rounded-lg border p-5 ${
           facility.is_verified ? "border-accent/40 bg-accent/5" : "border-border bg-card"
         }`}
       >
@@ -308,7 +308,7 @@ export function FacilityVerificationPanel() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+      <div className="mt-6 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
           <span className="text-xs text-muted-foreground">
@@ -335,7 +335,7 @@ export function FacilityVerificationPanel() {
                   ? "text-destructive"
                   : "text-muted-foreground";
             return (
-              <li key={type} className="flex flex-wrap items-center gap-2 rounded-xl border border-border/60 p-3 sm:gap-3">
+              <li key={type} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/60 p-3 sm:gap-3">
                 <Icon className={`size-5 shrink-0 ${tone}`} />
                 <span className="min-w-0 flex-1 basis-[60%] truncate text-sm">{facilityDocTypeLabel(type, lang)}</span>
                 <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
@@ -351,7 +351,7 @@ export function FacilityVerificationPanel() {
         </ul>
       </div>
 
-      <div className="card-lift mt-6 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div className="card-lift mt-6 space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6">
         <h2 className="text-lg font-bold">{c.addTitle}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -433,7 +433,7 @@ export function FacilityVerificationPanel() {
       ) : (
         <ul className="mt-4 space-y-3">
           {list.map((doc) => (
-            <li key={doc.id} className="rounded-xl border border-border bg-card p-4">
+            <li key={doc.id} className="rounded-lg border border-border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex min-w-0 items-start gap-3">
                   <FileText className="mt-0.5 size-5 text-primary" />

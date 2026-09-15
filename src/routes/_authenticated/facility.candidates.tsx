@@ -20,6 +20,7 @@ import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { useLang } from "@/lib/i18n";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 type CandidatesSearch = { specialty?: string; country?: string; city?: string; minExp?: string };
 
@@ -253,22 +254,16 @@ function Candidates() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{c.subtitle}</p>
-        </div>
-        <div className="text-sm text-muted-foreground">
+      <WorkspaceHeading title={c.title} description={c.subtitle} action={<div className="text-sm text-muted-foreground">
           {remaining !== null && (
             <span>
               {c.remaining} <strong className="text-foreground">{remaining}</strong>
             </span>
           )}
           <Link to="/facility" className="ms-4 text-primary underline">{c.back}</Link>
-        </div>
-      </div>
+        </div>} />
 
-      <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 sm:p-5 md:grid-cols-4">
+      <div className="mt-6 grid gap-3 rounded-lg border border-border bg-card p-4 shadow-card sm:grid-cols-2 sm:p-5 lg:grid-cols-4">
         <Combobox
           options={[
             { value: ANY, label: c.allSpecialties },
@@ -323,7 +318,7 @@ function Candidates() {
       )}
 
       {results && results.length === 0 && (
-        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center">
+        <div className="mt-6 rounded-lg border border-border bg-card p-8 text-center">
           <p className="font-semibold">{c.noResults}</p>
           <p className="mt-2 text-sm text-muted-foreground">{c.widenHint}</p>
         </div>
@@ -332,7 +327,7 @@ function Candidates() {
       {results && results.length > 0 && (
         <ul className="mt-6 space-y-4">
           {results.map((cand) => (
-            <li key={cand.id} className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <li key={cand.id} className="card-lift rounded-lg border border-border bg-card p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 font-bold">

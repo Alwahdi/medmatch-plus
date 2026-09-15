@@ -109,7 +109,7 @@ function BanksIndex() {
                   key={b.slug}
                   to="/interview-questions/$slug"
                   params={{ slug: b.slug }}
-                  className="card-lift rounded-2xl border border-border bg-card p-6 hover:border-accent/30"
+                  className="card-lift rounded-lg border border-border bg-card p-6 hover:border-accent/30"
                 >
                   <h2 className="font-display text-xl font-bold">{title}</h2>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

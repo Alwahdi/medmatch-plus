@@ -170,7 +170,7 @@ function Privacy() {
         <div className="mx-auto max-w-3xl px-4">
           <div className="space-y-8">
             {c.sections.map((s) => (
-              <div key={s.h} className="card-lift rounded-2xl border border-border bg-card p-6">
+              <div key={s.h} className="card-lift rounded-lg border border-border bg-card p-6">
                 <h2 className="font-display text-xl font-bold">{s.h}</h2>
                 <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
                   {s.p.map((line) => (

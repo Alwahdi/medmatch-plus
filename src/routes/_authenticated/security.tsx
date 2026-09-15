@@ -563,7 +563,7 @@ function SecurityPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="flex items-center gap-3">
-        <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
+        <span className="grid size-11 place-items-center rounded-lg bg-primary/10 text-primary">
           <ShieldCheck className="size-6" />
         </span>
         <div>
@@ -573,7 +573,7 @@ function SecurityPage() {
       </div>
 
       {/* password */}
-      <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+      <section className="mt-6 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <KeyRound className="size-5 text-primary" />
           <h2 className="font-bold">{c.pwTitle}</h2>
@@ -655,7 +655,7 @@ function SecurityPage() {
       </section>
 
       {/* linked accounts */}
-      <section className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <section className="mt-4 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <GoogleIcon className="size-5" />
           <h2 className="font-bold">{c.linkedTitle}</h2>
@@ -663,7 +663,7 @@ function SecurityPage() {
         <p className="mt-1 text-sm text-muted-foreground">{c.linkedBody}</p>
 
         <div className="mt-4 space-y-2">
-          <div className="flex items-center gap-3 rounded-xl border border-border p-3">
+          <div className="flex items-center gap-3 rounded-lg border border-border p-3">
             <span className="grid size-9 place-items-center rounded-lg bg-muted">
               <Mail className="size-4" />
             </span>
@@ -678,7 +678,7 @@ function SecurityPage() {
             </Badge>
           </div>
 
-          <div className="flex items-center gap-3 rounded-xl border border-border p-3">
+          <div className="flex items-center gap-3 rounded-lg border border-border p-3">
             <span className="grid size-9 place-items-center rounded-lg bg-muted">
               <GoogleIcon className="size-4" />
             </span>
@@ -704,7 +704,7 @@ function SecurityPage() {
       </section>
 
       {/* MFA */}
-      <section className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <section className="mt-4 rounded-lg border border-border bg-card p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Smartphone className="size-5 text-primary" />
           <h2 className="font-bold">{c.mfaTitle}</h2>
@@ -730,7 +730,7 @@ function SecurityPage() {
               <img
                 src={enroll.qr}
                 alt="TOTP QR"
-                className="size-40 rounded-xl border border-border bg-white p-2"
+                className="size-40 rounded-lg border border-border bg-white p-2"
               />
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">{c.mfaSecret}</p>
@@ -779,7 +779,7 @@ function SecurityPage() {
       </section>
 
       {/* biometrics */}
-      <section className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <section className="mt-4 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <Fingerprint className="size-5 text-primary" />
           <h2 className="font-bold">{c.bioTitle}</h2>
@@ -787,14 +787,14 @@ function SecurityPage() {
         <p className="mt-1 text-sm text-muted-foreground">{c.bioBody}</p>
 
         {!bioSupported && (
-          <p className="mt-3 rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">
+          <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
             {c.bioUnsupported}
           </p>
         )}
 
         <div className="mt-4 space-y-2">
           {(devices ?? []).map((d) => (
-            <div key={d.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
+            <div key={d.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
               <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
                 <Fingerprint className="size-4" />
               </span>
@@ -836,7 +836,7 @@ function SecurityPage() {
       </section>
 
       {/* sessions */}
-      <section className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <section className="mt-4 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <Monitor className="size-5 text-primary" />
           <h2 className="font-bold">{c.sessTitle}</h2>
@@ -851,7 +851,7 @@ function SecurityPage() {
               return (
                 <div
                   key={s.id}
-                  className="flex items-center gap-3 rounded-xl border border-border p-3"
+                  className="flex items-center gap-3 rounded-lg border border-border p-3"
                 >
                   <span className="grid size-9 place-items-center rounded-lg bg-muted">
                     <Icon className="size-4" />

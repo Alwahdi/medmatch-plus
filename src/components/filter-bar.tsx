@@ -1,6 +1,7 @@
 import { X, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export type ActiveFilter = { key: string; label: string; onClear: () => void };
 
@@ -25,20 +26,22 @@ export function FilterBar({
   const t = TXT[lang];
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+    <div className={cn("flex flex-wrap items-center gap-2", className)} aria-label={t.active}>
       {typeof count === "number" && (
         <span className="text-sm font-semibold text-muted-foreground">{t.results(count)}</span>
       )}
       {filters.map((f) => (
-        <button
+        <Button
           key={f.key}
           type="button"
           onClick={f.onClear}
-          className="inline-flex items-center gap-1 rounded-full bg-surface px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          variant="secondary"
+          size="sm"
+          className="min-h-9 gap-1 px-3 text-xs"
         >
           {f.label}
           <X className="size-3.5 text-muted-foreground" />
-        </button>
+        </Button>
       ))}
       {filters.length > 0 && (
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onClearAll}>
