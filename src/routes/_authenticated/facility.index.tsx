@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { FacilityApplicantsPanel } from "@/components/panels/facility.applicants";
+import { FacilityBookingsPanel } from "@/components/panels/facility.bookings";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -350,6 +351,7 @@ function FacilityDashboard() {
   const tab = rawTab === "new-job" ? "jobs" : rawTab === "new-shift" ? "shifts" : rawTab;
   const navigate = useNavigate();
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
+  const [openBookings, setOpenBookings] = useState<string | null>(null);
   const [createMode, setCreateMode] = useState<"job" | "shift" | null>(legacyCreate);
 
   const { user } = useSession();
@@ -719,8 +721,11 @@ function FacilityDashboard() {
           {shifts?.length ? (
             shifts.map((s) => {
               const ended = new Date(s.ends_at).getTime() <= Date.now();
-              // حجز واحد كحد أقصى لكل مناوبة (قيد فريد على shift_id).
-              const bookings = s.shift_bookings ? 1 : 0;
+              // الحجوزات الفعلية (نستثني الملغاة).
+              const bookingRows = (
+                Array.isArray(s.shift_bookings) ? s.shift_bookings : s.shift_bookings ? [s.shift_bookings] : []
+              ) as { id: string; status: string }[];
+              const bookings = bookingRows.filter((b) => b.status !== "cancelled").length;
               return (
                 <PublishedWorkCard
                   key={s.id}
@@ -738,7 +743,12 @@ function FacilityDashboard() {
                   }
                   actions={
                     <>
-                      <WorkCountButton type="shift" count={bookings} />
+                      <WorkCountButton
+                        type="shift"
+                        count={bookings}
+                        expanded={openBookings === s.id}
+                        onToggle={() => setOpenBookings((v) => (v === s.id ? null : s.id))}
+                      />
                       <Button size="sm" variant="outline" asChild>
                         <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
                           <Eye className="size-4" /> {c.view}
@@ -795,7 +805,15 @@ function FacilityDashboard() {
                       )}
                     </>
                   }
-                />
+                >
+                  {openBookings === s.id && facility && (
+                    <FacilityBookingsPanel
+                      shiftId={s.id}
+                      facilityId={facility.id}
+                      shiftCompleted={s.status === "completed"}
+                    />
+                  )}
+                </PublishedWorkCard>
               );
             })
           ) : (
