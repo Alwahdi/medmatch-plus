@@ -91,9 +91,9 @@ export function JobCard({
       <Link
         to="/jobs/$jobId"
         params={{ jobId: job.slug ?? job.id }}
-        className="card-lift group flex items-start gap-4 rounded-2xl border border-border bg-card p-4 hover:border-accent/40 sm:p-5"
+        className="card-lift group flex items-start gap-3 rounded-lg border border-border bg-card p-4 hover:border-primary/35 sm:gap-4 sm:p-5"
       >
-        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface text-muted-foreground sm:size-14">
+        <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground sm:size-12">
           <Building2 className="size-6" />
         </div>
 

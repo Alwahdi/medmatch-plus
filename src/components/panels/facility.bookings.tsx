@@ -116,7 +116,7 @@ export function FacilityBookingsPanel({
   return (
     <ul className="space-y-3">
       {data.map((b) => (
-        <li key={b.id} className="rounded-xl border border-border bg-surface p-4">
+        <li key={b.id} className="rounded-lg border border-border bg-surface p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <p className="font-bold">
@@ -138,7 +138,7 @@ export function FacilityBookingsPanel({
               </p>
               <p className="mt-1 text-xs text-muted-foreground">{c.bookedAt(relativeTime(b.created_at, lang))}</p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
               <Button size="sm" variant="outline" disabled={startChat.isPending} onClick={() => startChat.mutate(b.user_id)}>
                 <MessageSquare className="size-4" /> {c.message}
               </Button>

@@ -9,10 +9,10 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         <div className="sm:col-span-2">
           <div className="flex items-center gap-2">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Stethoscope className="size-5" />
             </span>
-            <span className="font-display text-lg font-extrabold">SyndeoCare</span>
+            <span className="text-lg font-extrabold">SyndeoCare</span>
           </div>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
             {t("footer.tagline")}

@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 import {
   ArrowRight,
-  ArrowUpCircle,
   BadgeCheck,
   Briefcase,
   Building2,
@@ -25,6 +24,8 @@ import {
   CheckCircle2,
   CircleSlash,
   Layers,
+  ClipboardList,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -65,6 +66,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
+import { QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
 
 type FacilitySearch = { tab?: string };
 
@@ -216,6 +218,17 @@ const TXT = {
     inviteNow: "دعوة مختصين الآن",
     doneLater: "لاحقاً",
     inviteDialogTitle: "دعوة مختصين",
+    workspace: "مساحة المنشأة",
+    overview: "إدارة النشر والتوظيف من مكان واحد.",
+    quickActions: "إجراءات مباشرة",
+    createWork: "نشر عمل",
+    createWorkText: "وظيفة أو مناوبة جديدة",
+    candidates: "البحث عن مختصين",
+    candidatesText: "ابحث وادعُ مختصين مناسبين",
+    messagesText: "تابع المحادثات غير المقروءة",
+    facilityProfile: "ملف المنشأة",
+    facilityProfileText: "راجع البيانات والتوثيق",
+    publishedWork: "أعمالك المنشورة",
   },
   en: {
     loading: "Loading...",
@@ -350,6 +363,17 @@ const TXT = {
     inviteNow: "Invite professionals now",
     doneLater: "Later",
     inviteDialogTitle: "Invite professionals",
+    workspace: "Facility workspace",
+    overview: "Manage publishing and hiring in one place.",
+    quickActions: "Direct actions",
+    createWork: "Publish work",
+    createWorkText: "Create a job or shift",
+    candidates: "Find professionals",
+    candidatesText: "Search and invite suitable professionals",
+    messagesText: "Continue unread conversations",
+    facilityProfile: "Facility profile",
+    facilityProfileText: "Review details and verification",
+    publishedWork: "Published work",
   },
 } as const;
 
@@ -528,22 +552,53 @@ function FacilityDashboard() {
   }
   if (!facility) return <FacilityForm />;
 
+  const publishMenu = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="w-full min-h-11 sm:w-auto">
+          <PlusCircle className="size-4" /> {lang === "ar" ? "نشر" : "Create"}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuItem
+          className="min-h-11 gap-2"
+          onSelect={() => {
+            setCreateMode("job");
+            void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
+          }}
+        >
+          <Briefcase className="size-4" /> {c.tabNewJob}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="min-h-11 gap-2"
+          onSelect={() => {
+            setCreateMode("shift");
+            void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
+          }}
+        >
+          <CalendarClock className="size-4" /> {c.tabNewShift}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
       {confirmDialog}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-center gap-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+        <div className="flex min-w-0 items-center gap-3">
           <RemoteAvatar
             value={facility.logo_url}
             alt={facility.name_ar}
             icon={Building2}
-            className="size-12 shrink-0 sm:size-14"
+            className="size-11 shrink-0 sm:size-12"
           />
 
           <div className="min-w-0">
-            <h1 className="flex items-center gap-2 font-display text-xl font-extrabold sm:text-3xl">
+            <p className="text-xs font-semibold text-muted-foreground">{c.workspace}</p>
+            <h1 className="mt-0.5 flex items-center gap-2 text-xl font-bold sm:text-3xl">
               <span className="truncate">{facility.name_ar}</span>
               {facility.is_verified && <BadgeCheck className="size-5 shrink-0 text-primary sm:size-6" />}
             </h1>
@@ -553,33 +608,7 @@ function FacilityDashboard() {
             </p>
           </div>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="w-full min-h-11 sm:w-auto">
-              <PlusCircle className="size-4" /> {lang === "ar" ? "نشر" : "Create"}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem
-              className="min-h-11 gap-2"
-              onSelect={() => {
-                setCreateMode("job");
-                void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
-              }}
-            >
-              <Briefcase className="size-4" /> {c.tabNewJob}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="min-h-11 gap-2"
-              onSelect={() => {
-                setCreateMode("shift");
-                void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
-              }}
-            >
-              <CalendarClock className="size-4" /> {c.tabNewShift}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="shrink-0">{publishMenu}</div>
       </div>
 
       <Dialog
@@ -665,6 +694,16 @@ function FacilityDashboard() {
         </DialogContent>
       </Dialog>
 
+      <section className="mt-8">
+        <SectionHeading title={c.quickActions} />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <QuickAction icon={ClipboardList} label={c.createWork} description={c.createWorkText} onClick={() => setCreateMode("job")} />
+          <QuickAction icon={Users} label={c.candidates} description={c.candidatesText} to="/facility/candidates" />
+          <QuickAction icon={MessageSquare} label={c.unreadMessages} description={c.messagesText} to="/messages" />
+          <QuickAction icon={Settings} label={c.facilityProfile} description={c.facilityProfileText} to="/facility/profile" />
+        </div>
+      </section>
+
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <DashboardMetric icon={Users} value={newApplicants} label={c.newApplicants} />
         <DashboardMetric icon={MessageSquare} value={unreadMessages} label={c.unreadMessages} />
@@ -701,17 +740,17 @@ function FacilityDashboard() {
                {searchesRemaining !== null ? ` · ${c.searchesRemaining(searchesRemaining)}` : ""}
             </p>
           </div>
-          <Button variant="outline" className="w-full gap-2 sm:w-auto" asChild>
-            <Link to="/pricing">
-              <ArrowUpCircle className="size-4" />
-              {c.upgrade}
-            </Link>
+          <Button variant="outline" asChild>
+            <Link to="/pricing">{c.upgrade}</Link>
           </Button>
         </div>
       )}
 
-
-      <div className="mt-8 -mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mt-10">
+        <SectionHeading title={c.publishedWork} />
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">{c.overview}</p>
+      </div>
+      <div className="mt-4 -mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="inline-flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
           {(
             [

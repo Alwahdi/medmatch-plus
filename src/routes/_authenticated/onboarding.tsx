@@ -180,13 +180,14 @@ function Onboarding() {
 
 
   return (
-    <div className="soft-surface px-4 py-12">
+    <div className="min-h-[calc(100dvh-4rem)] bg-background px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-3xl font-extrabold">{t("ob.title")}</h1>
-        <p className="mt-2 text-muted-foreground">{t("ob.subtitle")}</p>
+        <p className="text-xs font-semibold text-muted-foreground">SyndeoCare</p>
+        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{t("ob.title")}</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("ob.subtitle")}</p>
 
         {isError && (
-          <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
+          <div className="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm">
             <AlertTriangle className="size-4 text-destructive" />
             <span className="flex-1">
               {ar
@@ -230,7 +231,7 @@ function PathPicker({ onPick }: { onPick: (p: Path) => void }) {
         <button
           type="button"
           onClick={() => onPick("professional")}
-          className="card-lift card-lift-hover rounded-2xl border border-border bg-card p-6 text-start"
+          className="card-lift rounded-lg border border-border bg-card p-5 text-start transition-colors hover:border-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Stethoscope className="size-6 text-primary" />
           <p className="mt-3 font-bold">{t("auth.rolePro")}</p>
@@ -239,7 +240,7 @@ function PathPicker({ onPick }: { onPick: (p: Path) => void }) {
         <button
           type="button"
           onClick={() => onPick("facility")}
-          className="card-lift card-lift-hover rounded-2xl border border-border bg-card p-6 text-start"
+          className="card-lift rounded-lg border border-border bg-card p-5 text-start transition-colors hover:border-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Building2 className="size-6 text-primary" />
           <p className="mt-3 font-bold">{t("auth.roleFacility")}</p>
@@ -366,7 +367,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
     <>
       <ChangePathLink onChangePath={onChangePath} />
       <Stepper step={step} total={3} />
-      <div className="card-lift mt-4 space-y-4 rounded-2xl border border-border bg-card p-6">
+      <div className="card-lift mt-4 space-y-4 rounded-lg border border-border bg-card p-5 sm:p-6">
         {step === 1 && (
           <>
             <p className="font-bold">{t("ob.pro.step1")}</p>
@@ -464,7 +465,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
                 onChange={(e) => setForm({ ...form, license_number: e.target.value })}
               />
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border p-3">
               <Label htmlFor="ob-shifts" className="cursor-pointer">
                 {t("ob.field.openShifts")}
               </Label>
@@ -474,7 +475,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
                 onCheckedChange={(v) => setForm({ ...form, is_open_to_shifts: v })}
               />
             </div>
-            <div className="rounded-xl bg-secondary p-4">
+            <div className="rounded-lg bg-secondary p-4">
               <p className="flex items-center gap-2 font-bold">
                 <Sparkles className="size-4 text-accent" /> {t("ob.cvTitle")}
               </p>
@@ -486,7 +487,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
           </>
         )}
 
-        <div className="flex items-center justify-between pt-2">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pt-2">
           <div className="flex gap-2">
             {step > 1 && (
               <Button type="button" variant="ghost" onClick={() => setStep(step - 1)}>
@@ -580,7 +581,7 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
     <>
       <ChangePathLink onChangePath={onChangePath} />
       <Stepper step={step} total={2} />
-      <div className="card-lift mt-4 space-y-4 rounded-2xl border border-border bg-card p-6">
+      <div className="card-lift mt-4 space-y-4 rounded-lg border border-border bg-card p-5 sm:p-6">
         {step === 1 ? (
           <>
             <p className="font-bold">{t("ob.fac.step1")}</p>
@@ -664,7 +665,7 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
           </>
         )}
 
-        <div className="flex items-center justify-between pt-2">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pt-2">
           {step > 1 ? (
             <Button type="button" variant="ghost" onClick={() => setStep(1)}>
               {t("ob.back")}
