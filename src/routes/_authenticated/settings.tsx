@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertsPanel } from "@/components/panels/alerts";
 import { Bell, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRoles, useSession } from "@/lib/auth";
@@ -93,19 +92,8 @@ function SettingsPage() {
             <TabsTrigger value="general" className="shrink-0">
               {lang === "ar" ? "عام" : "General"}
             </TabsTrigger>
-            {!isFacility && (
-              <TabsTrigger value="alerts" className="shrink-0">
-                {lang === "ar" ? "تنبيهات الوظائف" : "Job alerts"}
-              </TabsTrigger>
-            )}
           </TabsList>
         </div>
-
-        {!isFacility && (
-          <TabsContent value="alerts" className="mt-6">
-            <AlertsPanel />
-          </TabsContent>
-        )}
 
         <TabsContent value="general" className="mt-0">
 
@@ -136,6 +124,19 @@ function SettingsPage() {
           <Link to="/notifications">{c.notifCta}</Link>
         </Button>
       </section>
+
+      {!isFacility && (
+        <section className="mt-4 rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2">
+            <Bell className="size-5 text-primary" />
+            <h2 className="font-bold">{c.alertsTitle}</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">{c.alertsBody}</p>
+          <Button className="mt-4" variant="outline" asChild>
+            <Link to="/preferences" search={{ tab: "alerts" }}>{c.alertsCta}</Link>
+          </Button>
+        </section>
+      )}
 
       <p className="mt-4 text-xs text-muted-foreground">
         {c.signedInAs} {user?.email}
