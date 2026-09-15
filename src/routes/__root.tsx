@@ -84,7 +84,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "وظائف طبية ومناوبات فورية وتوثيق تراخيص للكوادر الصحية والمنشآت في المنطقة العربية.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:locale", content: "ar_AR" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [

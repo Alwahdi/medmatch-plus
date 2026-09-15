@@ -236,6 +236,7 @@ const TXT = {
     applicantsBody: "ابدأ من الإعلان المرتبط لمراجعة المتقدمين واتخاذ الخطوة التالية.",
     reviewWork: "فتح الأعمال المنشورة",
     trialUsage: "حدود الاستخدام التجريبي",
+    viewPublished: "عرض الإعلان",
   },
   en: {
     loading: "Loading...",
@@ -388,6 +389,7 @@ const TXT = {
     applicantsBody: "Open the related listing to review candidates and take the next step.",
     reviewWork: "Open published work",
     trialUsage: "Trial usage limits",
+    viewPublished: "View listing",
   },
 } as const;
 
@@ -556,7 +558,17 @@ function FacilityDashboard() {
     onError: (e: Error) => toast.error(shiftErrorText(e.message, lang)),
   });
 
-  if (isLoading) return <p className="p-10 text-center text-muted-foreground">{c.loading}</p>;
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-8" aria-label={c.loading}>
+        <div className="h-16 animate-pulse rounded-lg bg-muted" />
+        <div className="h-36 animate-pulse rounded-lg bg-muted" />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-24 animate-pulse rounded-lg bg-muted" />)}
+        </div>
+      </div>
+    );
+  }
   if (facilityQuery.isError) {
     return (
       <EmptyState
@@ -659,15 +671,15 @@ function FacilityDashboard() {
                 >
                   <UserPlus className="size-4" /> {c.inviteNow}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setJustPublished(null);
-                    setCreateMode(null);
-                  }}
-                >
-                  {c.doneLater}
-                </Button>
+                {justPublished.kind === "job" ? (
+                  <Button variant="outline" asChild>
+                    <Link to="/jobs/$jobId" params={{ jobId: justPublished.id }}>{c.viewPublished}</Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" asChild>
+                    <Link to="/shifts/$shiftId" params={{ shiftId: justPublished.id }}>{c.viewPublished}</Link>
+                  </Button>
+                )}
               </div>
             </div>
           ) : (
@@ -711,9 +723,18 @@ function FacilityDashboard() {
         </DialogContent>
       </Dialog>
 
-      {(overdueShifts > 0 || newApplicants > 0) && (
+      {(!facility.is_verified || overdueShifts > 0 || newApplicants > 0) && (
         <div className="mt-6">
-          {overdueShifts > 0 ? (
+          {!facility.is_verified ? (
+            <NextStepCard
+              icon={ShieldAlert}
+              label={c.attention}
+              title={c.verifyNow}
+              description={c.verifyBody}
+              tone="warning"
+              action={<Button variant="secondary" asChild><Link to="/facility/profile" search={{ tab: "verification" }}>{c.verifyNow}</Link></Button>}
+            />
+          ) : overdueShifts > 0 ? (
             <NextStepCard
               icon={CalendarClock}
               label={c.attention}
@@ -751,19 +772,6 @@ function FacilityDashboard() {
         <DashboardMetric icon={Briefcase} value={activeJobs} label={c.activeJobs} />
         <DashboardMetric icon={CalendarClock} value={activeShifts} label={c.openShifts} />
       </div>
-
-      {!facility.is_verified && (
-        <div className="mt-6 flex flex-col gap-4 rounded-lg border border-warning/40 bg-warning/10 p-4 sm:flex-row sm:items-center">
-          <ShieldAlert className="size-6 shrink-0 text-warning-foreground" />
-          <div className="min-w-0">
-            <p className="font-bold">{c.verifyNow}</p>
-            <p className="text-sm text-muted-foreground">{c.verifyBody}</p>
-          </div>
-          <Button className="sm:ms-auto" variant="outline" asChild>
-            <Link to="/facility/profile" search={{ tab: "verification" }}>{c.verifyNow}</Link>
-          </Button>
-        </div>
-      )}
 
       {plan && (
         <div className="mt-6 flex flex-col gap-4 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">

@@ -7,12 +7,12 @@ import { JobCard, type JobRow } from "@/components/job-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
+import { ListSkeleton } from "@/components/list-skeleton";
 
 
 const TXT = {
   ar: {
     title: "الوظائف المحفوظة",
-    loading: "جارٍ التحميل...",
     empty: "لم تحفظ أي وظيفة بعد",
     browse: "تصفح الوظائف",
     error: "تعذّر تحميل الوظائف المحفوظة.",
@@ -20,7 +20,6 @@ const TXT = {
   },
   en: {
     title: "Saved jobs",
-    loading: "Loading...",
     empty: "You haven't saved any job yet",
     browse: "Browse jobs",
     error: "We couldn't load saved jobs.",
@@ -51,7 +50,7 @@ export function SavedPanel() {
   return (
     <div>
       {isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
+        <ListSkeleton />
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (

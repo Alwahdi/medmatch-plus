@@ -67,6 +67,10 @@ const TXT = {
     saveFailed: "تعذّر تحديث المحفوظات",
     appliedToast: "تم إرسال طلبك بنجاح",
     applyFailed: "تعذّر إرسال الطلب",
+    coverCount: (n: number) => `${n} من 2000 حرف`,
+    appliedNext: "تم إرسال طلبك. تابع مرحلته وأي مقابلة جديدة من نشاطك.",
+    trackApplication: "متابعة الطلب",
+    revealedPrivacy: "أصبحت هوية المنشأة ظاهرة لك لأن التواصل أو الطلب بينكما بدأ بالفعل.",
   },
   en: {
     tooLong: "Message is too long",
@@ -119,6 +123,10 @@ const TXT = {
     saveFailed: "Could not update saved jobs",
     appliedToast: "Your application was sent successfully",
     applyFailed: "Could not send the application",
+    coverCount: (n: number) => `${n} of 2,000 characters`,
+    appliedNext: "Your application was sent. Track its stage and any interview updates from your activity.",
+    trackApplication: "Track application",
+    revealedPrivacy: "The employer identity is visible because contact or an application relationship has already started.",
   },
 } as const;
 
@@ -349,7 +357,7 @@ function JobDetail() {
             </ul>
 
             <div className="mt-6 rounded-lg bg-surface p-4 text-sm text-muted-foreground">
-              {c.privacyNote}
+              {revealedFacility ? c.revealedPrivacy : c.privacyNote}
             </div>
           </div>
 
@@ -413,13 +421,18 @@ function JobDetail() {
                   </Button>
                 </>
               ) : existing ? (
-                <p className="mt-2 text-sm text-success">
-                  {c.alreadyApplied}{" "}
-                  <Link to="/activity" search={{ tab: "applications" }} className="underline">
-                    {c.myApplicationsPage}
-                  </Link>
-                  .
-                </p>
+                <div className="mt-4 rounded-lg border border-success/30 bg-success/10 p-4">
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="mt-0.5 size-5 shrink-0 text-success" />
+                    <div>
+                      <p className="font-bold text-success">{apply.isSuccess ? c.appliedNext : c.alreadyApplied}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{c.applyHint}</p>
+                    </div>
+                  </div>
+                  <Button className="mt-4 w-full" variant="outline" asChild>
+                    <Link to="/activity" search={{ tab: "applications" }}>{c.trackApplication}</Link>
+                  </Button>
+                </div>
               ) : (
                 <>
                   <label htmlFor="cover" className="mt-4 block text-sm font-medium">
@@ -436,7 +449,7 @@ function JobDetail() {
                     disabled={!isOpen}
                   />
                   <div className="mt-1 text-end text-xs text-muted-foreground">
-                    {cover.length}/2000
+                    {c.coverCount(cover.length)}
                   </div>
                   <Button
                     className="mt-3 w-full"
@@ -470,13 +483,19 @@ function JobDetail() {
       {/* Sticky mobile apply bar */}
       {!isOwner && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-          <Button
-            className="w-full"
-            disabled={!isOpen}
-            onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-          >
-            {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.notAccepting}
-          </Button>
+           {existing ? (
+             <Button className="w-full" asChild>
+               <Link to="/activity" search={{ tab: "applications" }}>{c.trackApplication}</Link>
+             </Button>
+           ) : (
+             <Button
+               className="w-full"
+               disabled={!isOpen}
+               onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+             >
+               {isOpen ? c.applyTitle : c.notAccepting}
+             </Button>
+           )}
         </div>
       )}
     </>
