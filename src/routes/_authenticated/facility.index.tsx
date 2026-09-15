@@ -1144,7 +1144,7 @@ function FacilityForm() {
           <Textarea id="fdesc" rows={4} maxLength={1000} value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
-        <Button className="w-full sm:w-auto" onClick={() => save.mutate()} disabled={save.isPending}>
+        <Button className="w-full sm:w-auto" onClick={() => save.mutate()} loading={save.isPending}>
           {save.isPending ? c.saving : c.createFacility}
         </Button>
       </div>

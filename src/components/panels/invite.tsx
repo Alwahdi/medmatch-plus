@@ -393,7 +393,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             value={minExp}
             onChange={(e) => setMinExp(e.target.value)}
           />
-          <Button className="md:col-span-4" onClick={() => search.mutate()} disabled={search.isPending}>
+          <Button className="md:col-span-4" onClick={() => search.mutate()} loading={search.isPending}>
             <Search className="size-4" /> {search.isPending ? c.searching : c.searchBtn}
           </Button>
         </div>

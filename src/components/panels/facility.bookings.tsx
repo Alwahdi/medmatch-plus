@@ -148,7 +148,7 @@ export function FacilityBookingsPanel({
               <p className="mt-1 text-xs text-muted-foreground">{c.bookedAt(relativeTime(b.created_at, lang))}</p>
             </div>
             <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
-              <Button size="sm" variant="outline" disabled={startChat.isPending} onClick={async () => {
+              <Button size="sm" variant="outline" loading={startChat.isPending} onClick={async () => {
                 const ok = await confirm({
                   title: c.revealTitle,
                   description: c.revealDesc,

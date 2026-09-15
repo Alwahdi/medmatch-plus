@@ -514,7 +514,7 @@ function AdminPage() {
                       </Button>
                       <Button
                         size="sm"
-                        disabled={review.isPending}
+                        loading={review.isPending}
                         onClick={() => review.mutate({ id: cr.id, status: "approved" })}
                       >
                         <CheckCircle2 className="size-4" /> {c.approve}
@@ -549,7 +549,7 @@ function AdminPage() {
                         size="sm"
                         variant="destructive"
                         className="mt-2"
-                        disabled={review.isPending}
+                        loading={review.isPending}
                         onClick={() => review.mutate({ id: cr.id, status: "rejected", reviewNote: note.trim() })}
                       >
                         {c.reject}
@@ -614,7 +614,7 @@ function AdminPage() {
                       </Button>
                       <Button
                         size="sm"
-                        disabled={reviewFacDoc.isPending}
+                        loading={reviewFacDoc.isPending}
                         onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "approved" })}
                       >
                         <CheckCircle2 className="size-4" /> {c.approve}
@@ -643,7 +643,7 @@ function AdminPage() {
                       <Button
                         size="sm"
                         variant="destructive"
-                        disabled={reviewFacDoc.isPending}
+                        loading={reviewFacDoc.isPending}
                         onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "rejected", reviewNote: note })}
                       >
                         {c.reject}
@@ -834,7 +834,7 @@ function AdminPage() {
                         <>
                           <Button
                             size="sm"
-                            disabled={reviewChange.isPending}
+                            loading={reviewChange.isPending}
                             onClick={() => reviewChange.mutate({ id: r.id, approve: true })}
                           >
                             {reviewChange.isPending ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
@@ -864,7 +864,7 @@ function AdminPage() {
                       <Button
                         size="sm"
                         variant="destructive"
-                        disabled={reviewChange.isPending}
+                        loading={reviewChange.isPending}
                         onClick={() => reviewChange.mutate({ id: r.id, approve: false, note: changeNote })}
                       >
                         {lang === "ar" ? "تأكيد الرفض" : "Confirm rejection"}

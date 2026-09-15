@@ -394,7 +394,7 @@ export function FacilityInterviewBlock({
                 <Button
                   size="sm"
                   variant="ghost"
-                  disabled={cancelIv.isPending}
+                  loading={cancelIv.isPending}
                   onClick={async () => {
                     const ok = await confirm({
                       title: c.cancelTitle,
@@ -483,7 +483,7 @@ export function FacilityInterviewBlock({
           </div>
           <DialogFooter>
             <Button
-              disabled={save.isPending}
+              loading={save.isPending}
               onClick={() => {
                 if (!when || new Date(when).getTime() <= Date.now()) {
                   toast.error(c.needWhen);
@@ -527,7 +527,7 @@ export function FacilityInterviewBlock({
           </div>
           <DialogFooter>
             <Button
-              disabled={complete.isPending}
+              loading={complete.isPending}
               onClick={() => {
                 if (rating < 1) {
                   toast.error(c.needRating);
@@ -589,13 +589,13 @@ export function CandidateInterviewBlock({
         </p>
         {pending && (
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" disabled={respond.isPending} onClick={() => respond.mutate(true)}>
+            <Button size="sm" loading={respond.isPending} onClick={() => respond.mutate(true)}>
               <CheckCircle2 className="size-4" /> {c.confirm}
             </Button>
             <Button
               size="sm"
               variant="outline"
-              disabled={respond.isPending}
+              loading={respond.isPending}
               onClick={async () => {
                 const ok = await confirm({
                   title: c.declineTitle,

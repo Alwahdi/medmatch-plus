@@ -156,7 +156,7 @@ export function CvImportPanel() {
         placeholder={c.placeholder}
       />
       <div className="mt-4 flex flex-wrap gap-3">
-        <Button onClick={() => analyze.mutate()} disabled={analyze.isPending}>
+        <Button onClick={() => analyze.mutate()} loading={analyze.isPending}>
           <Sparkles className="size-4" /> {analyze.isPending ? c.analyzing : c.analyze}
         </Button>
         <Button variant="outline" asChild>
@@ -180,7 +180,7 @@ export function CvImportPanel() {
           {result.bio && (
             <p className="mt-4 rounded-lg bg-surface p-4 text-sm leading-relaxed">{result.bio}</p>
           )}
-          <Button className="mt-5" onClick={() => save.mutate()} disabled={save.isPending}>
+          <Button className="mt-5" onClick={() => save.mutate()} loading={save.isPending}>
             {save.isPending ? c.saving : c.save}
           </Button>
         </div>

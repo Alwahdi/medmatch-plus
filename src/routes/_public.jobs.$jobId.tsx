@@ -14,6 +14,7 @@ import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { toastUndo } from "@/lib/undo";
 
 const TXT = {
   ar: {
@@ -242,7 +243,11 @@ function JobDetail() {
       return true;
     },
     onSuccess: (added) => {
-      toast.success(added ? c.savedToast : c.removedToast);
+      toastUndo(
+        added ? c.savedToast : c.removedToast,
+        () => toggleSave.mutate(),
+        lang,
+      );
       queryClient.invalidateQueries({ queryKey: ["saved-job", realJobId] });
       queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
     },
@@ -470,7 +475,7 @@ function JobDetail() {
                 variant="outline"
                 className="w-full"
                 onClick={() => toggleSave.mutate()}
-                disabled={toggleSave.isPending}
+                loading={toggleSave.isPending}
               >
                 {saved ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
                 {saved ? c.saved : c.saveJob}

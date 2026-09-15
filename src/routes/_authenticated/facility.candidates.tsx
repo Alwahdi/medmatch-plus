@@ -304,7 +304,7 @@ function Candidates() {
           value={minExp}
           onChange={(e) => setMinExp(e.target.value)}
         />
-        <Button className="w-full sm:col-span-2 md:col-span-4" onClick={() => search.mutate()} disabled={search.isPending}>
+        <Button className="w-full sm:col-span-2 md:col-span-4" onClick={() => search.mutate()} loading={search.isPending}>
           <Search className="size-4" /> {search.isPending ? c.searching : c.searchBtn}
         </Button>
       </div>
@@ -344,7 +344,7 @@ function Candidates() {
                     {cand.is_open_to_shifts ? c.openToShifts : ""}
                   </p>
                 </div>
-                <Button size="sm" className="w-full sm:w-auto" onClick={() => startChat.mutate(cand.user_id)} disabled={startChat.isPending}>
+                <Button size="sm" className="w-full sm:w-auto" onClick={() => startChat.mutate(cand.user_id)} loading={startChat.isPending}>
                   <MessageSquare className="size-4" /> {c.contact}
                 </Button>
               </div>

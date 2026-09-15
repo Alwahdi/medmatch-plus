@@ -153,7 +153,7 @@ export function ReviewDialog({
           />
         </div>
         <DialogFooter>
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          <Button onClick={() => save.mutate()} loading={save.isPending}>
             {save.isPending ? c.saving : c.save}
           </Button>
         </DialogFooter>
