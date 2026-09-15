@@ -682,7 +682,8 @@ function FacilityDashboard() {
           {shifts?.length ? (
             shifts.map((s) => {
               const ended = new Date(s.ends_at).getTime() <= Date.now();
-              const bookings = s.shift_bookings?.length ?? 0;
+              // حجز واحد كحد أقصى لكل مناوبة (قيد فريد على shift_id).
+              const bookings = s.shift_bookings ? 1 : 0;
               return (
                 <PublishedWorkCard
                   key={s.id}
