@@ -387,6 +387,9 @@ function FacilityDashboard() {
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
   const [openBookings, setOpenBookings] = useState<string | null>(null);
   const [createMode, setCreateMode] = useState<"job" | "shift" | null>(legacyCreate);
+  type WorkRef = { kind: "job" | "shift"; id: string };
+  const [justPublished, setJustPublished] = useState<WorkRef | null>(null);
+  const [inviteTarget, setInviteTarget] = useState<WorkRef | null>(null);
 
   const { user } = useSession();
   const { total: unreadMessages } = useUnread(user);
