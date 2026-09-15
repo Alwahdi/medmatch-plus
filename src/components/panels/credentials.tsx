@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { BadgeCheck, CheckCircle2, Clock, FileCheck2, FileText, ShieldAlert, ShieldCheck, Trash2, Upload, XCircle } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
