@@ -205,6 +205,7 @@ const TXT = {
     reviewCta: "مراجعة قبل النشر",
     reviewTitle: "راجع التفاصيل قبل النشر",
     reviewSub: "تأكد من صحة البيانات. يمكنك الرجوع والتعديل قبل النشر.",
+    draftSaved: "تُحفظ المسودة تلقائياً على هذا الجهاز",
     backToEdit: "رجوع وتعديل",
     confirmPublish: "تأكيد النشر",
     notSet: "غير محدد",
@@ -350,6 +351,7 @@ const TXT = {
     reviewCta: "Review before publishing",
     reviewTitle: "Review the details before publishing",
     reviewSub: "Check everything is correct. You can go back and edit before publishing.",
+    draftSaved: "Draft saves automatically on this device",
     backToEdit: "Back to edit",
     confirmPublish: "Confirm and publish",
     notSet: "Not set",
@@ -1139,6 +1141,20 @@ function JobForm({
     vacancies: "1",
     required_license: "",
   });
+  const draftKey = `syndeocare:listing-draft:job:${facilityId}`;
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) setForm((current) => ({ ...current, ...(JSON.parse(saved) as Partial<typeof form>) }));
+    } catch {
+      localStorage.removeItem(draftKey);
+    }
+  }, [draftKey]);
+
+  useEffect(() => {
+    localStorage.setItem(draftKey, JSON.stringify(form));
+  }, [draftKey, form]);
 
   useEffect(() => {
     setForm((f) => ({ ...f, country: defaults.country, city: defaults.city }));
@@ -1203,6 +1219,7 @@ function JobForm({
       return data.id as string;
     },
     onSuccess: (id) => {
+      localStorage.removeItem(draftKey);
       toast.success(c.jobPublished);
       setForm({ ...form, title: "", description: "", salary_min: "", salary_max: "" });
       setStep("form");
@@ -1359,6 +1376,7 @@ function JobForm({
         <Textarea id="jdesc" rows={6} maxLength={5000} value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })} />
       </div>
+      <p className="text-xs text-muted-foreground">{c.draftSaved}</p>
       {(expired || quotaReached) && (
         <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
           {expired ? c.subExpiredJob : c.quotaReachedJob}
@@ -1403,6 +1421,20 @@ function ShiftForm({
     city: defaults.city,
     notes: "",
   });
+  const draftKey = `syndeocare:listing-draft:shift:${facilityId}`;
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) setForm((current) => ({ ...current, ...(JSON.parse(saved) as Partial<typeof form>) }));
+    } catch {
+      localStorage.removeItem(draftKey);
+    }
+  }, [draftKey]);
+
+  useEffect(() => {
+    localStorage.setItem(draftKey, JSON.stringify(form));
+  }, [draftKey, form]);
 
   /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
   function validate() {
@@ -1453,6 +1485,7 @@ function ShiftForm({
       return data.id as string;
     },
     onSuccess: (id) => {
+      localStorage.removeItem(draftKey);
       toast.success(c.shiftPublished);
       setForm({ ...form, title: "", starts_at: "", ends_at: "", hourly_rate: "", notes: "" });
       setStep("form");
@@ -1586,6 +1619,7 @@ function ShiftForm({
         <Textarea id="snotes" rows={3} maxLength={1000} value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })} />
       </div>
+      <p className="text-xs text-muted-foreground">{c.draftSaved}</p>
       {(expired || quotaReached) && (
         <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-medium text-destructive">
           {expired ? c.subExpiredShift : c.quotaReachedShift}

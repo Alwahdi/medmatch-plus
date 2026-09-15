@@ -306,6 +306,25 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
     license_number: "",
     is_open_to_shifts: true,
   });
+  const draftKey = user ? `syndeocare:onboarding:professional:${user.id}` : null;
+
+  useEffect(() => {
+    if (!draftKey) return;
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (!saved) return;
+      const parsed = JSON.parse(saved) as Partial<typeof form> & { step?: number };
+      setForm((current) => ({ ...current, ...parsed }));
+      if (parsed.step && parsed.step >= 1 && parsed.step <= 3) setStep(parsed.step);
+    } catch {
+      localStorage.removeItem(draftKey);
+    }
+  }, [draftKey]);
+
+  useEffect(() => {
+    if (!draftKey) return;
+    localStorage.setItem(draftKey, JSON.stringify({ ...form, step }));
+  }, [draftKey, form, step]);
 
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
@@ -362,6 +381,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
       return;
     }
     setBusy(false);
+    if (draftKey) localStorage.removeItem(draftKey);
     toast.success(t("ob.done"));
     navigate({ to: "/dashboard", replace: true });
   }
@@ -537,6 +557,25 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
     website: "",
     description: "",
   });
+  const draftKey = user ? `syndeocare:onboarding:facility:${user.id}` : null;
+
+  useEffect(() => {
+    if (!draftKey) return;
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (!saved) return;
+      const parsed = JSON.parse(saved) as Partial<typeof form> & { step?: number };
+      setForm((current) => ({ ...current, ...parsed }));
+      if (parsed.step === 1 || parsed.step === 2) setStep(parsed.step);
+    } catch {
+      localStorage.removeItem(draftKey);
+    }
+  }, [draftKey]);
+
+  useEffect(() => {
+    if (!draftKey) return;
+    localStorage.setItem(draftKey, JSON.stringify({ ...form, step }));
+  }, [draftKey, form, step]);
 
   const canNext = form.name_ar.trim().length >= 2;
   const canFinish = canNext && !!form.country && form.city.trim().length >= 2;
@@ -576,6 +615,7 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
       return;
     }
     setBusy(false);
+    if (draftKey) localStorage.removeItem(draftKey);
     toast.success(t("ob.done"));
     navigate({ to: "/facility", replace: true });
   }

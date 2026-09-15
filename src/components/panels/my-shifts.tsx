@@ -100,9 +100,9 @@ export function MyShiftsPanel() {
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
-      ) : data?.length ? (
+      ) : data?.filter((booking) => booking.status !== "cancelled").length ? (
         <ul className="space-y-3">
-          {data.map((b) => {
+          {data.filter((booking) => booking.status !== "cancelled").map((b) => {
             const s = b.shifts!;
             const hours = hoursBetween(s.starts_at, s.ends_at);
             return (

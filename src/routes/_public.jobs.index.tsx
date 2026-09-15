@@ -29,6 +29,8 @@ type JobsSearch = {
   type?: string;
   sort?: string;
   kind?: string;
+  scope?: string;
+  hideApplied?: string;
 };
 
 const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
@@ -36,7 +38,7 @@ const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
 export const Route = createFileRoute("/_public/jobs/")({
   validateSearch: (search: Record<string, unknown>): JobsSearch => {
     const out: JobsSearch = {};
-    for (const k of ["q", "country", "city", "specialty", "type", "sort", "kind"] as const) {
+    for (const k of ["q", "country", "city", "specialty", "type", "sort", "kind", "scope", "hideApplied"] as const) {
       const v = str(search[k]);
       if (v) out[k] = v;
     }
@@ -246,21 +248,14 @@ function JobsPage() {
 
   const { pro: profile, mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
   const signedIn = useSignedIn();
-  const [scope, setScope] = useState<Scope>("all");
-  const [scopeTouched, setScopeTouched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [sortState, setSort] = useState<"match" | "new">("new");
-  const sort: "match" | "new" = sp.sort === "match" || sp.sort === "new" ? sp.sort : sortState;
-  const [sortTouched, setSortTouched] = useState(false);
-  const [hideApplied, setHideApplied] = useState(true);
-
-  useEffect(() => {
-    if (!scopeTouched && hasSpecialty) setScope("field");
-  }, [hasSpecialty, scopeTouched]);
-
-  useEffect(() => {
-    if (!sortTouched && profile) setSort("match");
-  }, [profile, sortTouched]);
+  const scope: Scope = sp.scope === "mine" || sp.scope === "field" || sp.scope === "all"
+    ? sp.scope
+    : hasSpecialty ? "field" : "all";
+  const sort: "match" | "new" = sp.sort === "match" || sp.sort === "new"
+    ? sp.sort
+    : profile ? "match" : "new";
+  const hideApplied = signedIn && sp.hideApplied !== "0";
 
   const { data: appliedIds } = useQuery({
     queryKey: ["my-applied-job-ids", user?.id],
@@ -281,8 +276,7 @@ function JobsPage() {
   });
 
   const pickScope = (next: Scope) => {
-    setScopeTouched(true);
-    setScope(next);
+    setParams({ scope: next });
   };
 
   const countries = useMemo(
@@ -383,10 +377,6 @@ function JobsPage() {
   });
 
   const reset = () => {
-    pickScope("all");
-    setSortTouched(true);
-    setSort("new");
-    setHideApplied(false);
     void navigate({ to: "/jobs", search: {}, replace: true });
   };
 
@@ -657,8 +647,6 @@ function JobsPage() {
                         type="button"
                          variant="ghost"
                         onClick={() => {
-                          setSortTouched(true);
-                          setSort(key);
                           setParams({ sort: key });
                         }}
                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
@@ -676,7 +664,7 @@ function JobsPage() {
                    <Button
                     type="button"
                      variant="ghost"
-                    onClick={() => setHideApplied((v) => !v)}
+                    onClick={() => setParams({ hideApplied: hideApplied ? "0" : "1" })}
                     className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                       hideApplied
                         ? "bg-primary text-primary-foreground"
