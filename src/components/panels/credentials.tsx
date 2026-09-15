@@ -349,7 +349,16 @@ export function CredentialsPanel() {
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-sm text-muted-foreground">{c.empty}</p>
+        <EmptyState
+          className="mt-4"
+          icon={FileCheck2}
+          title={c.empty}
+          description={
+            lang === "ar"
+              ? "ارفع ترخيص المزاولة والشهادة والهوية لتظهر عليك شارة التوثيق أمام المنشآت."
+              : "Upload your practice licence, degree and ID so facilities see your verified badge."
+          }
+        />
       )}
     </div>
   );
