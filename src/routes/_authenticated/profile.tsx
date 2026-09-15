@@ -270,6 +270,7 @@ function ProfileOverview() {
       toast.success(c.saved);
       queryClient.invalidateQueries({ queryKey: ["my-pro"] });
       queryClient.invalidateQueries({ queryKey: ["my-account"] });
+      queryClient.invalidateQueries({ queryKey: ["roles", user?.id] });
       setMode("view");
     },
 
