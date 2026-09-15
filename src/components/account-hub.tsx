@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import {
+  BarChart3,
   Bell,
   Building2,
   FileText,
@@ -40,6 +41,7 @@ const TXT = {
     plan: "الباقة والاشتراك",
     invitations: "الدعوات",
     alerts: "تنبيهات الوظائف",
+    report: "التقرير الشهري",
     notifications: "الإشعارات",
     settings: "الإعدادات",
     security: "الأمان وكلمة المرور",
@@ -59,6 +61,7 @@ const TXT = {
     plan: "Plan & subscription",
     invitations: "Invitations",
     alerts: "Job alerts",
+    report: "Monthly report",
     notifications: "Notifications",
     settings: "Settings",
     security: "Security & password",
