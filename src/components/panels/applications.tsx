@@ -75,7 +75,7 @@ export function ApplicationsPanel() {
       ) : data?.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((a) => {
-            const idx = STAGES.indexOf(a.status);
+            const idx = STAGES.indexOf(applicationStage(a.status) as (typeof STAGES)[number]);
             const rejected = a.status === "rejected";
             return (
               <li key={a.id} className="card-lift rounded-2xl border border-border bg-card p-5">
