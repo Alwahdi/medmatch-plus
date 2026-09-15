@@ -164,7 +164,7 @@ function JobsPage() {
   const specialty = sp.specialty ?? ALL;
   const type = sp.type ?? ALL;
   const kind = sp.kind === "job" || sp.kind === "shift" ? sp.kind : ALL;
-  const setKind = (v: string) => setParams({ kind: v, type: v === "shift" ? "" : sp.type });
+  const setKind = (v: string) => setParams({ kind: v, type: v === "shift" ? "" : (sp.type ?? "") });
   const setQ = (v: string) => setParams({ q: v });
   const setCity = (v: string) => setParams({ city: v });
   const setSpecialty = (v: string) => setParams({ specialty: v });
@@ -535,7 +535,7 @@ function JobsPage() {
                   </div>
                 </div>
 
-                <div>
+                <div className={kind === "shift" ? "hidden" : undefined}>
                   <label className="text-sm font-medium">{c.jobType}</label>
                   <div className="mt-1.5">
                     <Combobox
@@ -565,6 +565,30 @@ function JobsPage() {
 
           {/* Results */}
           <div className="lg:order-2">
+            <div className="mb-4 flex items-center gap-1 rounded-xl bg-surface p-1" role="tablist">
+              {(
+                [
+                  [ALL, c.kindAll],
+                  ["job", c.kindJob],
+                  ["shift", c.kindShift],
+                ] as [string, string][]
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={kind === key}
+                  onClick={() => setKind(key)}
+                  className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                    kind === key
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             {hasSpecialty && (
               <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-2">
                 {(
@@ -593,7 +617,7 @@ function JobsPage() {
               <div>
                 <p className="section-label">{c.results}</p>
                 <h2 className="mt-1 font-display text-xl font-extrabold">
-                  {c.count(filtered.length)}
+                  {c.count(items.length)}
                 </h2>
                 <FilterBar
                   className="mt-2"
@@ -655,13 +679,13 @@ function JobsPage() {
               </div>
             )}
 
-            {isLoading ? (
+            {isLoading || shiftsLoading ? (
               <div className="mt-6 space-y-3">
                 {[...Array(6)].map((_, i) => (
                   <Skeleton key={i} className="h-28 rounded-2xl" />
                 ))}
               </div>
-            ) : filtered.length === 0 ? (
+            ) : items.length === 0 ? (
               <div className="mt-10 rounded-2xl border border-border bg-card p-10 text-center">
                 <p className="text-muted-foreground">{c.empty}</p>
                 <Button className="mt-4" variant="outline" onClick={reset}>
@@ -670,18 +694,32 @@ function JobsPage() {
               </div>
             ) : (
               <div className="mt-6 space-y-3">
-                {filtered.map((job) => {
-                  const relevant = relevanceOf(job) > 0;
-                  return (
+                {items.map((item) =>
+                  item.kind === "job" ? (
                     <JobCard
-                      key={job.id}
-                      job={job}
-                      applied={!!appliedIds?.has(job.id)}
-                      saved={!!savedIds?.has(job.id)}
-                      recommended={signedIn && relevant}
+                      key={`job-${item.id}`}
+                      job={item.job}
+                      applied={!!appliedIds?.has(item.id)}
+                      saved={!!savedIds?.has(item.id)}
+                      recommended={signedIn && relevanceOf(item.job) > 0}
                     />
-                  );
-                })}
+                  ) : (
+                    <ShiftCard
+                      key={`shift-${item.id}`}
+                      shift={item.shift}
+                      busy={book.isPending}
+                      mine={!!bookedShiftIds?.has(item.id)}
+                      recommended={signedIn && !!mySpecialtyId && item.shift.specialty_id === mySpecialtyId}
+                      onBook={() => {
+                        if (!user) {
+                          void navigate({ to: "/auth" });
+                          return;
+                        }
+                        book.mutate(item.id);
+                      }}
+                    />
+                  ),
+                )}
               </div>
             )}
 
