@@ -306,9 +306,10 @@ export function FacilityInterviewBlock({
         if (error) throw error;
         return;
       }
+      // الدالة تقبل أحد الهدفين فقط؛ الآخر يُرسل NULL.
       const { error } = await supabase.rpc("schedule_interview", {
-        ...(applicationId ? { _application_id: applicationId } : {}),
-        ...(shiftBookingId ? { _shift_booking_id: shiftBookingId } : {}),
+        _application_id: (applicationId ?? null) as unknown as string,
+        _shift_booking_id: (shiftBookingId ?? null) as unknown as string,
         _scheduled_at: iso,
         _duration_minutes: Math.min(Math.max(Number(duration) || 30, 10), 240),
         _mode: mode,
