@@ -914,12 +914,14 @@ function JobForm({
   defaults,
   quotaReached,
   expired,
+  onCreated,
 }: {
   facilityId: string;
   specialties: Spec[];
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
+  onCreated?: () => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
@@ -986,7 +988,8 @@ function JobForm({
       setForm({ ...form, title: "", description: "", salary_min: "", salary_max: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
-      void navigate({ to: "/facility", search: { tab: "jobs" } });
+      onCreated?.();
+      void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
@@ -1116,12 +1119,14 @@ function ShiftForm({
   defaults,
   quotaReached,
   expired,
+  onCreated,
 }: {
   facilityId: string;
   specialties: Spec[];
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
+  onCreated?: () => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
@@ -1169,7 +1174,8 @@ function ShiftForm({
       setForm({ ...form, title: "", starts_at: "", ends_at: "", hourly_rate: "", notes: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
-      void navigate({ to: "/facility", search: { tab: "shifts" } });
+      onCreated?.();
+      void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
