@@ -109,13 +109,28 @@ export function ApplicationsPanel() {
                 </div>
                 <CandidateInterviewBlock applicationId={a.id} />
                 {!rejected && (
-                  <div className="mt-4 flex gap-1">
-                    {STAGES.map((s, i) => (
-                      <span
-                        key={s}
-                        className={`h-1.5 flex-1 rounded-full ${i <= idx ? "bg-primary" : "bg-border"}`}
-                      />
-                    ))}
+                  <div className="mt-4">
+                    <div className="flex gap-1" aria-hidden="true">
+                      {STAGES.map((s, i) => (
+                        <span
+                          key={s}
+                          className={`h-1.5 flex-1 rounded-full ${i <= idx ? "bg-primary" : "bg-border"}`}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-1.5 flex gap-1 text-[11px]">
+                      {STAGES.map((s, i) => (
+                        <span
+                          key={s}
+                          className={`flex-1 text-center ${i === idx ? "font-bold text-foreground" : "text-muted-foreground"}`}
+                        >
+                          {applicationLabel(s, lang)}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="sr-only">
+                      {c.stageOf(applicationLabel(STAGES[Math.max(idx, 0)]!, lang), idx + 1, STAGES.length)}
+                    </span>
                   </div>
                 )}
               </li>
