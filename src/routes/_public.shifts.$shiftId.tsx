@@ -376,7 +376,12 @@ function ShiftDetail() {
             </div>
 
             {isOwner ? (
-              <OwnerListingPanel kind="shift" />
+              <OwnerListingPanel
+                kind="shift"
+                listingId={shift.id}
+                facilityId={shift.facility_id}
+                completed={shift.status === "completed"}
+              />
             ) : (
             <div id="book" className="card-lift scroll-mt-24 rounded-2xl border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.bookTitle}</h2>
