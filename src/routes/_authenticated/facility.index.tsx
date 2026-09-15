@@ -17,6 +17,10 @@ import {
   Sparkles,
   Users,
   UserPlus,
+  MoreHorizontal,
+  PauseCircle,
+  CheckCircle2,
+  CircleSlash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -29,6 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,6 +126,11 @@ const TXT = {
     confirmCancelShiftTitle: "إلغاء هذه المناوبة؟",
     confirmCancelShiftDesc: "سيتم إلغاء المناوبة وإخفاؤها عن الباحثين، ولا يمكن التراجع.",
     confirmCancelShiftCta: "نعم، ألغِها",
+    moreActions: "إجراءات أخرى",
+    invite: "دعوة مختصين",
+    confirmCompleteTitle: "إنهاء المناوبة؟",
+    confirmCompleteDesc: "سيتم تسجيل المناوبة كمنتهية ولا يمكن التراجع.",
+    confirmCompleteCta: "إنهاء المناوبة",
 
     // Facility form
     registerTitle: "سجّل منشأتك",
@@ -228,6 +238,11 @@ const TXT = {
     confirmCancelShiftTitle: "Cancel this shift?",
     confirmCancelShiftDesc: "The shift will be cancelled and hidden from seekers. This cannot be undone.",
     confirmCancelShiftCta: "Yes, cancel it",
+    moreActions: "More actions",
+    invite: "Invite professionals",
+    confirmCompleteTitle: "Complete shift?",
+    confirmCompleteDesc: "The shift will be marked completed and cannot be reverted.",
+    confirmCompleteCta: "Complete shift",
 
     // Facility form
     registerTitle: "Register your facility",
@@ -322,9 +337,13 @@ function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
-  const tab = Route.useSearch().tab ?? "jobs";
+  const rawTab = Route.useSearch().tab ?? "jobs";
+  // توافق خلفي: الروابط القديمة new-job/new-shift تفتح القسم الصحيح مع نافذة الإنشاء.
+  const legacyCreate = rawTab === "new-job" ? "job" : rawTab === "new-shift" ? "shift" : null;
+  const tab = rawTab === "new-job" ? "jobs" : rawTab === "new-shift" ? "shifts" : rawTab;
   const navigate = useNavigate();
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
+  const [createMode, setCreateMode] = useState<"job" | "shift" | null>(legacyCreate);
 
   const { user } = useSession();
   const { total: unreadMessages } = useUnread(user);
@@ -373,7 +392,7 @@ function FacilityDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shifts")
-        .select("*")
+        .select("*,shift_bookings(id,status)")
         .eq("facility_id", facility!.id)
         .order("starts_at", { ascending: true });
       if (error) throw error;
@@ -485,25 +504,59 @@ function FacilityDashboard() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="w-full min-h-11 sm:w-auto">
-              <PlusCircle className="size-4" /> {lang === "ar" ? "نشر" : "Publish"}
+              <PlusCircle className="size-4" /> {lang === "ar" ? "نشر" : "Create"}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem
               className="min-h-11 gap-2"
-              onSelect={() => void navigate({ to: "/facility", search: { tab: "new-job" } })}
+              onSelect={() => {
+                setCreateMode("job");
+                void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
+              }}
             >
               <Briefcase className="size-4" /> {c.tabNewJob}
             </DropdownMenuItem>
             <DropdownMenuItem
               className="min-h-11 gap-2"
-              onSelect={() => void navigate({ to: "/facility", search: { tab: "new-shift" } })}
+              onSelect={() => {
+                setCreateMode("shift");
+                void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
+              }}
             >
               <CalendarClock className="size-4" /> {c.tabNewShift}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <Dialog open={createMode !== null} onOpenChange={(o) => !o && setCreateMode(null)}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{createMode === "shift" ? c.tabNewShift : c.tabNewJob}</DialogTitle>
+          </DialogHeader>
+          {createMode === "job" && (
+            <JobForm
+              facilityId={facility.id}
+              specialties={specialties ?? []}
+              defaults={{ country: facility.country, city: facility.city }}
+              quotaReached={!!plan && activeJobs >= plan.active_jobs}
+              expired={!!sub && !subActive}
+              onCreated={() => setCreateMode(null)}
+            />
+          )}
+          {createMode === "shift" && (
+            <ShiftForm
+              facilityId={facility.id}
+              specialties={specialties ?? []}
+              defaults={{ country: facility.country, city: facility.city }}
+              quotaReached={!!plan && activeShifts >= plan.active_shifts}
+              expired={!!sub && !subActive}
+              onCreated={() => setCreateMode(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <DashboardMetric icon={Users} value={newApplicants} label={c.newApplicants} />
@@ -601,32 +654,41 @@ function FacilityDashboard() {
                           <Eye className="size-4" /> {c.view}
                         </Link>
                       </Button>
-                      {j.is_active && (
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
-                            <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
-                          </Link>
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={toggleJob.isPending}
-                        onClick={async () => {
-                          if (j.is_active) {
-                            const ok = await confirm({
-                              title: c.confirmCloseTitle,
-                              description: c.confirmCloseDesc,
-                              confirmLabel: c.confirmCloseCta,
-                              destructive: true,
-                            });
-                            if (!ok) return;
-                          }
-                          toggleJob.mutate({ id: j.id, is_active: !j.is_active });
-                        }}
-                      >
-                        {j.is_active ? c.close : c.republish}
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="ghost" className="size-9 p-0" aria-label={c.moreActions}>
+                            <MoreHorizontal className="size-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52">
+                          {j.is_active && (
+                            <DropdownMenuItem asChild className="min-h-11 gap-2">
+                              <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
+                                <UserPlus className="size-4" /> {c.invite}
+                              </Link>
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            className="min-h-11 gap-2"
+                            disabled={toggleJob.isPending}
+                            onSelect={async () => {
+                              if (j.is_active) {
+                                const ok = await confirm({
+                                  title: c.confirmCloseTitle,
+                                  description: c.confirmCloseDesc,
+                                  confirmLabel: c.confirmCloseCta,
+                                  destructive: true,
+                                });
+                                if (!ok) return;
+                              }
+                              toggleJob.mutate({ id: j.id, is_active: !j.is_active });
+                            }}
+                          >
+                            {j.is_active ? <PauseCircle className="size-4" /> : <PlusCircle className="size-4" />}
+                            {j.is_active ? c.close : c.republish}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </>
                   }
                 >
@@ -643,6 +705,8 @@ function FacilityDashboard() {
           {shifts?.length ? (
             shifts.map((s) => {
               const ended = new Date(s.ends_at).getTime() <= Date.now();
+              // حجز واحد كحد أقصى لكل مناوبة (قيد فريد على shift_id).
+              const bookings = s.shift_bookings ? 1 : 0;
               return (
                 <PublishedWorkCard
                   key={s.id}
@@ -660,56 +724,60 @@ function FacilityDashboard() {
                   }
                   actions={
                     <>
-                      <WorkCountButton type="shift" count={s.applications_count ?? 0} />
+                      <WorkCountButton type="shift" count={bookings} />
                       <Button size="sm" variant="outline" asChild>
                         <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
                           <Eye className="size-4" /> {c.view}
                         </Link>
                       </Button>
-                      {s.status === "open" && (
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
-                            <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
-                          </Link>
-                        </Button>
-                      )}
-                      {s.status === "booked" && ended && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={completeShift.isPending}
-                          onClick={async () => {
-                            const ok = await confirm({
-                              title: lang === "ar" ? "إنهاء المناوبة؟" : "Complete shift?",
-                              description:
-                                lang === "ar"
-                                  ? "سيتم تسجيل المناوبة كمنتهية ولا يمكن التراجع."
-                                  : "The shift will be marked completed and cannot be reverted.",
-                              confirmLabel: lang === "ar" ? "إنهاء" : "Complete",
-                            });
-                            if (ok) completeShift.mutate(s.id);
-                          }}
-                        >
-                          {lang === "ar" ? "إنهاء المناوبة" : "Complete"}
-                        </Button>
-                      )}
                       {(s.status === "open" || s.status === "booked") && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={cancelShift.isPending}
-                          onClick={async () => {
-                            const ok = await confirm({
-                              title: c.confirmCancelShiftTitle,
-                              description: c.confirmCancelShiftDesc,
-                              confirmLabel: c.confirmCancelShiftCta,
-                              destructive: true,
-                            });
-                            if (ok) cancelShift.mutate(s.id);
-                          }}
-                        >
-                          {c.cancelShift}
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" className="size-9 p-0" aria-label={c.moreActions}>
+                              <MoreHorizontal className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-52">
+                            {s.status === "open" && (
+                              <DropdownMenuItem asChild className="min-h-11 gap-2">
+                                <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
+                                  <UserPlus className="size-4" /> {c.invite}
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
+                            {s.status === "booked" && ended && (
+                              <DropdownMenuItem
+                                className="min-h-11 gap-2"
+                                disabled={completeShift.isPending}
+                                onSelect={async () => {
+                                  const ok = await confirm({
+                                    title: c.confirmCompleteTitle,
+                                    description: c.confirmCompleteDesc,
+                                    confirmLabel: c.confirmCompleteCta,
+                                  });
+                                  if (ok) completeShift.mutate(s.id);
+                                }}
+                              >
+                                <CheckCircle2 className="size-4" /> {c.confirmCompleteCta}
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              disabled={cancelShift.isPending}
+                              onSelect={async () => {
+                                const ok = await confirm({
+                                  title: c.confirmCancelShiftTitle,
+                                  description: c.confirmCancelShiftDesc,
+                                  confirmLabel: c.confirmCancelShiftCta,
+                                  destructive: true,
+                                });
+                                if (ok) cancelShift.mutate(s.id);
+                              }}
+                            >
+                              <CircleSlash className="size-4" /> {c.cancelShift}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
                     </>
                   }
@@ -721,20 +789,6 @@ function FacilityDashboard() {
           )}
         </TabsContent>
 
-
-        <TabsContent value="new-job" className="mt-6">
-          <JobForm facilityId={facility.id} specialties={specialties ?? []}
-            defaults={{ country: facility.country, city: facility.city }}
-            quotaReached={!!plan && activeJobs >= plan.active_jobs}
-            expired={!!sub && !subActive} />
-        </TabsContent>
-
-        <TabsContent value="new-shift" className="mt-6">
-          <ShiftForm facilityId={facility.id} specialties={specialties ?? []}
-            defaults={{ country: facility.country, city: facility.city }}
-            quotaReached={!!plan && activeShifts >= plan.active_shifts}
-            expired={!!sub && !subActive} />
-        </TabsContent>
       </Tabs>
     </div>
   );
@@ -888,12 +942,14 @@ function JobForm({
   defaults,
   quotaReached,
   expired,
+  onCreated,
 }: {
   facilityId: string;
   specialties: Spec[];
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
+  onCreated?: () => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
@@ -960,7 +1016,8 @@ function JobForm({
       setForm({ ...form, title: "", description: "", salary_min: "", salary_max: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
-      void navigate({ to: "/facility", search: { tab: "jobs" } });
+      onCreated?.();
+      void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
@@ -1090,12 +1147,14 @@ function ShiftForm({
   defaults,
   quotaReached,
   expired,
+  onCreated,
 }: {
   facilityId: string;
   specialties: Spec[];
   defaults: { country: string; city: string };
   quotaReached?: boolean;
   expired?: boolean;
+  onCreated?: () => void;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
@@ -1143,7 +1202,8 @@ function ShiftForm({
       setForm({ ...form, title: "", starts_at: "", ends_at: "", hourly_rate: "", notes: "" });
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
-      void navigate({ to: "/facility", search: { tab: "shifts" } });
+      onCreated?.();
+      void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
     },
     onError: (e: Error) => toast.error(e.message || c.publishFailed),
   });
