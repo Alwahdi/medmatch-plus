@@ -11,7 +11,7 @@ import { applicationLabel, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 
-const STAGES = ["submitted", "reviewing", "shortlisted", "interview", "offer", "hired"];
+const STAGES = [...APPLICATION_STAGES];
 
 const TXT = {
   ar: {
