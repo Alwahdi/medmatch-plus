@@ -742,7 +742,12 @@ function FacilityDashboard() {
                   }
                   actions={
                     <>
-                      <WorkCountButton type="shift" count={bookings} />
+                      <WorkCountButton
+                        type="shift"
+                        count={bookings}
+                        expanded={openBookings === s.id}
+                        onToggle={() => setOpenBookings((v) => (v === s.id ? null : s.id))}
+                      />
                       <Button size="sm" variant="outline" asChild>
                         <Link to="/shifts/$shiftId" params={{ shiftId: s.id }}>
                           <Eye className="size-4" /> {c.view}
