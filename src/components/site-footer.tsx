@@ -24,7 +24,6 @@ export function SiteFooter() {
           <h3 className="text-sm font-bold">{t("footer.forFacilities")}</h3>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/for-facilities" className="hover:text-foreground">{t("footer.howItWorks")}</Link></li>
-            <li><Link to="/pricing" className="hover:text-foreground">{t("footer.plans")}</Link></li>
             <li><Link to="/register/employer" className="hover:text-foreground">{t("footer.registerFacility")}</Link></li>
           </ul>
         </div>
