@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
+import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -25,6 +27,7 @@ type JobsSearch = {
   specialty?: string;
   type?: string;
   sort?: string;
+  kind?: string;
 };
 
 const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
@@ -32,7 +35,7 @@ const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
 export const Route = createFileRoute("/_public/jobs/")({
   validateSearch: (search: Record<string, unknown>): JobsSearch => {
     const out: JobsSearch = {};
-    for (const k of ["q", "country", "city", "specialty", "type", "sort"] as const) {
+    for (const k of ["q", "country", "city", "specialty", "type", "sort", "kind"] as const) {
       const v = str(search[k]);
       if (v) out[k] = v;
     }
