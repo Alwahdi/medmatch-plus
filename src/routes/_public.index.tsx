@@ -105,7 +105,7 @@ function Home() {
 
   function search(e: React.FormEvent) {
     e.preventDefault();
-    navigate({ to: "/jobs" });
+    navigate({ to: "/jobs", search: { q: q.trim() || undefined, city: loc.trim() || undefined } });
   }
 
   const stepKeys = tab === "employers" ? EMPLOYER_STEP_KEYS : SEEKER_STEP_KEYS;
@@ -113,27 +113,27 @@ function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="hero-surface relative pb-16 md:pb-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-14 md:grid-cols-2 md:pt-20">
+      <section className="hero-surface relative pb-20 md:pb-24">
+        <div className="mx-auto grid min-h-[min(700px,78vh)] max-w-6xl items-center gap-8 px-4 pt-10 pb-16 md:grid-cols-[minmax(0,1.1fr)_minmax(320px,.9fr)] md:pt-14">
           <div className="order-2 md:order-1">
             <img
               src={heroImage}
               alt={t("home.hero.title")}
               width={1600}
               height={1104}
-              className="rounded-3xl shadow-2xl"
+              className="aspect-[4/3] w-full rounded-lg object-cover shadow-lift"
             />
           </div>
 
           <div className="order-1 md:order-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
-              <span className="size-2 rounded-full bg-emerald-400" />
+            <span className="inline-flex items-center gap-2 rounded-md bg-background/10 px-3 py-1.5 text-sm font-medium text-primary-foreground ring-1 ring-background/20">
+              <span className="size-2 rounded-full bg-success" />
               {t("home.hero.badge")}
             </span>
-            <h1 className="mt-5 font-display text-4xl leading-tight font-extrabold text-white md:text-5xl">
+            <h1 className="mt-5 text-4xl leading-tight font-bold text-primary-foreground md:text-5xl">
               {t("home.hero.title")}
             </h1>
-            <p className="mt-5 max-w-lg text-lg leading-relaxed text-white/85">
+            <p className="mt-5 max-w-lg text-lg leading-relaxed text-primary-foreground/85">
               {t("home.hero.subtitle")}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -147,7 +147,7 @@ function Home() {
               <Button
                 size="lg"
                 asChild
-                className="border border-white/25 bg-white/10 text-white hover:bg-white/20"
+                className="border border-background/25 bg-background/10 text-primary-foreground hover:bg-background/20"
               >
                 <Link to="/jobs">{t("home.hero.ctaSeekers")}</Link>
               </Button>
@@ -159,9 +159,9 @@ function Home() {
         <div className="absolute inset-x-0 bottom-0 translate-y-1/2 px-4">
           <form
             onSubmit={search}
-            className="mx-auto flex max-w-5xl flex-col gap-2 rounded-2xl border border-border bg-card p-2 shadow-lg sm:flex-row"
+            className="mx-auto flex max-w-5xl flex-col gap-2 rounded-lg border border-border bg-card p-2 shadow-lift sm:flex-row"
           >
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-surface px-3">
+            <div className="flex flex-1 items-center gap-2 rounded-lg bg-surface px-3">
               <Search className="size-4 shrink-0 text-muted-foreground" />
               <input
                 value={q}
@@ -171,7 +171,7 @@ function Home() {
                 className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
-            <div className="flex flex-1 items-center gap-2 rounded-xl bg-surface px-3 sm:max-w-64">
+            <div className="flex flex-1 items-center gap-2 rounded-lg bg-surface px-3 sm:max-w-64">
               <MapPin className="size-4 shrink-0 text-muted-foreground" />
               <input
                 value={loc}
@@ -181,7 +181,7 @@ function Home() {
                 className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
-            <Button type="submit" size="lg" className="h-12 rounded-xl px-8">
+            <Button type="submit" size="lg" className="h-12 px-8">
               {t("home.search.button")}
             </Button>
           </form>

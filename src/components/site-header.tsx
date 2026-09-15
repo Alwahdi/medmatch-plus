@@ -41,13 +41,13 @@ export function SiteHeader() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
         <Link to="/" className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Stethoscope className="size-5" />
           </span>
-          <span className="hidden font-display text-lg font-extrabold tracking-tight sm:inline">SyndeoCare</span>
+          <span className="hidden text-lg font-extrabold sm:inline">SyndeoCare</span>
         </Link>
 
         <nav className="mx-2 hidden items-center gap-0.5 lg:flex">
@@ -122,7 +122,7 @@ export function SiteHeader() {
               key={item.to}
               to={item.to}
               onClick={() => setOpen(false)}
-              className="block rounded-xl px-3 py-3 text-base font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              className="block rounded-lg px-3 py-3 text-base font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
             >
               {t(item.key)}
             </Link>

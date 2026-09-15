@@ -255,14 +255,14 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       {confirmDialog}
 
       {!embedded && (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <h1 className="truncate text-2xl font-bold sm:text-3xl">{c.title}</h1>
           <Link to="/facility" className="text-sm text-primary underline">{c.back}</Link>
         </div>
       )}
 
       {!isLoading && !isError && rows.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-4 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
           <Badge variant="outline">{c.counts(rows.length)}</Badge>
           {job && <Badge variant="secondary">{c.filled(hiredCount, vacancies)}</Badge>}
           {job && !jobOpen && (
@@ -271,7 +271,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
             </Badge>
           )}
           <Select value={stageFilter} onValueChange={setStageFilter}>
-            <SelectTrigger className="h-9 w-full sm:w-48" aria-label={c.stageFilter}>
+            <SelectTrigger className="col-span-2 w-full sm:w-48" aria-label={c.stageFilter}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -296,7 +296,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
             const rowBusy = busyId === a.id;
             const canSelect = jobOpen && !isHired && seatsLeft > 0 && !!job;
             return (
-              <li key={a.id} className="card-lift rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="font-bold">
@@ -316,7 +316,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       {c.appliedFor(a.job?.title ?? "", relativeTime(a.created_at, lang))}
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
                     <Button
                       size="sm"
                       variant="outline"
@@ -420,7 +420,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                   />
                 )}
                 {a.cover_letter && (
-                  <p className="mt-4 rounded-xl bg-surface p-4 text-sm leading-relaxed whitespace-pre-line">
+                    <p className="mt-4 rounded-lg bg-surface p-4 text-sm leading-relaxed whitespace-pre-line">
                     {a.cover_letter}
                   </p>
                 )}

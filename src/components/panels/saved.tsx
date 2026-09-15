@@ -49,15 +49,13 @@ export function SavedPanel() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-
+    <div>
       {isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">{c.loading}</p>
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3">
           {data.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
