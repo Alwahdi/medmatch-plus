@@ -804,7 +804,15 @@ function FacilityDashboard() {
                       )}
                     </>
                   }
-                />
+                >
+                  {openBookings === s.id && facility && (
+                    <FacilityBookingsPanel
+                      shiftId={s.id}
+                      facilityId={facility.id}
+                      shiftCompleted={s.status === "completed"}
+                    />
+                  )}
+                </PublishedWorkCard>
               );
             })
           ) : (
