@@ -165,6 +165,8 @@ const TXT = {
     pickSpecialty: "اختر التخصص",
     employmentType: "نوع التوظيف",
     minExperience: "أقل خبرة مطلوبة (سنوات)",
+    vacancies: "عدد الشواغر",
+    vacanciesHint: "كم مرشحاً تريد توظيفه لهذه الوظيفة؟ تُقفل الوظيفة تلقائياً عند اكتمال العدد.",
     salaryFrom: "الراتب من",
     salaryTo: "الراتب إلى",
     currency: "العملة",
