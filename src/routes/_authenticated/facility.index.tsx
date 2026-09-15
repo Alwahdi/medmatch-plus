@@ -195,6 +195,23 @@ const TXT = {
     startInPast: "وقت البداية يجب أن يكون في المستقبل",
     tooLong: "مدة المناوبة الواحدة لا تتجاوز 24 ساعة — تحقق من التاريخ",
     hourlyRateRequired: "أدخل الأجر بالساعة",
+    // Review step
+    reviewCta: "مراجعة قبل النشر",
+    reviewTitle: "راجع التفاصيل قبل النشر",
+    reviewSub: "تأكد من صحة البيانات. يمكنك الرجوع والتعديل قبل النشر.",
+    backToEdit: "رجوع وتعديل",
+    confirmPublish: "تأكيد النشر",
+    notSet: "غير محدد",
+    none: "بدون",
+    salaryRange: "نطاق الراتب",
+    duration: (h: string) => `المدة: ${h} ساعة`,
+    // Post-publish
+    publishedTitle: "تم النشر بنجاح",
+    publishedSubJob: "وظيفتك أصبحت مرئية للكوادر. تستطيع الآن دعوة مختصين مباشرة لها.",
+    publishedSubShift: "مناوبتك أصبحت مرئية للكوادر. تستطيع الآن دعوة مختصين مباشرة لها.",
+    inviteNow: "دعوة مختصين الآن",
+    doneLater: "لاحقاً",
+    inviteDialogTitle: "دعوة مختصين",
   },
   en: {
     loading: "Loading...",
