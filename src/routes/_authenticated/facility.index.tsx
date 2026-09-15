@@ -1251,6 +1251,12 @@ function JobForm({
             onChange={(e) => setForm({ ...form, min_experience: e.target.value })} />
         </div>
         <div>
+          <Label htmlFor="jvac">{c.vacancies}</Label>
+          <Input id="jvac" type="number" min={1} max={50} value={form.vacancies}
+            onChange={(e) => setForm({ ...form, vacancies: e.target.value })} />
+          <p className="mt-1 text-xs text-muted-foreground">{c.vacanciesHint}</p>
+        </div>
+        <div>
           <Label>{c.country}</Label>
           <Combobox
             options={countryOptions(lang)}
