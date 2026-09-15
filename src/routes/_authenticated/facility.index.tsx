@@ -573,29 +573,84 @@ function FacilityDashboard() {
         </DropdownMenu>
       </div>
 
-      <Dialog open={createMode !== null} onOpenChange={(o) => !o && setCreateMode(null)}>
+      <Dialog
+        open={createMode !== null}
+        onOpenChange={(o) => {
+          if (!o) {
+            setCreateMode(null);
+            setJustPublished(null);
+          }
+        }}
+      >
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{createMode === "shift" ? c.tabNewShift : c.tabNewJob}</DialogTitle>
+            <DialogTitle>
+              {justPublished ? c.publishedTitle : createMode === "shift" ? c.tabNewShift : c.tabNewJob}
+            </DialogTitle>
           </DialogHeader>
-          {createMode === "job" && (
-            <JobForm
-              facilityId={facility.id}
-              specialties={specialties ?? []}
-              defaults={{ country: facility.country, city: facility.city }}
-              quotaReached={!!plan && activeJobs >= plan.active_jobs}
-              expired={!!sub && !subActive}
-              onCreated={() => setCreateMode(null)}
-            />
+          {justPublished ? (
+            <div className="space-y-4 py-2 text-center">
+              <CheckCircle2 className="mx-auto size-12 text-emerald-600" />
+              <p className="text-sm text-muted-foreground">
+                {justPublished.kind === "shift" ? c.publishedSubShift : c.publishedSubJob}
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+                <Button
+                  onClick={() => {
+                    setInviteTarget(justPublished);
+                    setJustPublished(null);
+                    setCreateMode(null);
+                  }}
+                >
+                  <UserPlus className="size-4" /> {c.inviteNow}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setJustPublished(null);
+                    setCreateMode(null);
+                  }}
+                >
+                  {c.doneLater}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {createMode === "job" && (
+                <JobForm
+                  facilityId={facility.id}
+                  specialties={specialties ?? []}
+                  defaults={{ country: facility.country, city: facility.city }}
+                  quotaReached={!!plan && activeJobs >= plan.active_jobs}
+                  expired={!!sub && !subActive}
+                  onCreated={(id) => setJustPublished({ kind: "job", id })}
+                />
+              )}
+              {createMode === "shift" && (
+                <ShiftForm
+                  facilityId={facility.id}
+                  specialties={specialties ?? []}
+                  defaults={{ country: facility.country, city: facility.city }}
+                  quotaReached={!!plan && activeShifts >= plan.active_shifts}
+                  expired={!!sub && !subActive}
+                  onCreated={(id) => setJustPublished({ kind: "shift", id })}
+                />
+              )}
+            </>
           )}
-          {createMode === "shift" && (
-            <ShiftForm
-              facilityId={facility.id}
-              specialties={specialties ?? []}
-              defaults={{ country: facility.country, city: facility.city }}
-              quotaReached={!!plan && activeShifts >= plan.active_shifts}
-              expired={!!sub && !subActive}
-              onCreated={() => setCreateMode(null)}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={inviteTarget !== null} onOpenChange={(o) => !o && setInviteTarget(null)}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{c.inviteDialogTitle}</DialogTitle>
+          </DialogHeader>
+          {inviteTarget && (
+            <InvitePanel
+              jobId={inviteTarget.kind === "job" ? inviteTarget.id : undefined}
+              shiftId={inviteTarget.kind === "shift" ? inviteTarget.id : undefined}
             />
           )}
         </DialogContent>
