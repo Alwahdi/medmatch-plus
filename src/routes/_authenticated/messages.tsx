@@ -17,6 +17,7 @@ import {
   FileText,
   Image as ImageIcon,
   Loader2,
+  MessagesSquare,
   Paperclip,
   Search,
   Send,
@@ -25,6 +26,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
