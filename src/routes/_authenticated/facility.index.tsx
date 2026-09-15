@@ -770,10 +770,11 @@ function FacilityDashboard() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-52">
                           {j.is_active && (
-                            <DropdownMenuItem asChild className="min-h-11 gap-2">
-                              <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
-                                <UserPlus className="size-4" /> {c.invite}
-                              </Link>
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              onSelect={() => setInviteTarget({ kind: "job", id: j.id })}
+                            >
+                              <UserPlus className="size-4" /> {c.invite}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
