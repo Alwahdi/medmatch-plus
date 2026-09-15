@@ -628,7 +628,7 @@ function FacilityDashboard() {
           </DialogHeader>
           {justPublished ? (
             <div className="space-y-4 py-2 text-center">
-              <CheckCircle2 className="mx-auto size-12 text-emerald-600" />
+               <CheckCircle2 className="mx-auto size-12 text-success" />
               <p className="text-sm text-muted-foreground">
                 {justPublished.kind === "shift" ? c.publishedSubShift : c.publishedSubJob}
               </p>

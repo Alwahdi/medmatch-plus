@@ -29,6 +29,7 @@ import { countryLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 const TXT = {
   ar: {
@@ -231,17 +232,10 @@ function FacilityProfile() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <span className="grid size-14 place-items-center rounded-lg bg-primary/10 text-primary">
-            <Building2 className="size-7" />
-          </span>
-          <div>
-            <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{c.sub}</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+      <WorkspaceHeading
+        title={c.title}
+        description={c.sub}
+        action={<div className="flex flex-wrap items-center justify-end gap-2">
           {mode === "view" ? (
             <Button onClick={() => setMode("edit")}>
               <Pencil className="size-4" /> {c.editBtn}
@@ -256,8 +250,8 @@ function FacilityProfile() {
               <ExternalLink className="size-4" /> {c.publicView}
             </Link>
           </Button>
-        </div>
-      </div>
+        </div>}
+      />
 
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">

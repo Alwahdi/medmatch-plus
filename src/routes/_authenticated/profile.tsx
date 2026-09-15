@@ -30,6 +30,7 @@ import { countryLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
+import { WorkspaceHeading } from "@/components/workspace-ui";
 
 type ProfileSearch = { tab?: string };
 
@@ -279,12 +280,10 @@ function ProfileOverview() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-          <p className="mt-1 text-muted-foreground">{c.sub}</p>
-        </div>
-        {mode === "view" ? (
+      <WorkspaceHeading
+        title={c.title}
+        description={c.sub}
+        action={mode === "view" ? (
           <Button onClick={() => setMode("edit")}>
             <Pencil className="size-4" /> {c.editBtn}
           </Button>
@@ -293,7 +292,7 @@ function ProfileOverview() {
             <Eye className="size-4" /> {c.previewBtn}
           </Button>
         )}
-      </div>
+      />
 
       {mode === "view" && (
         <div className="card-lift mt-6 rounded-lg border border-border bg-card p-6">
@@ -323,16 +322,16 @@ function ProfileOverview() {
                   .join(" • ")}
               </p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <span className="rounded-full bg-surface px-3 py-1 text-muted-foreground">
+                 <span className="rounded-md bg-surface px-3 py-1 text-muted-foreground">
                   {form.years_experience} {c.yearsLabel}
                 </span>
                 {profile?.is_verified && (
-                  <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
+                   <span className="rounded-md bg-primary/10 px-3 py-1 font-medium text-primary">
                     {c.verified}
                   </span>
                 )}
                 {form.is_open_to_shifts && (
-                  <span className="rounded-full bg-success/10 px-3 py-1 font-medium text-success">
+                   <span className="rounded-md bg-success/10 px-3 py-1 font-medium text-success">
                     {c.openBadge}
                   </span>
                 )}

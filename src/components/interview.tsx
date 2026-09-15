@@ -517,7 +517,7 @@ export function FacilityInterviewBlock({
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
-                  className="size-4 accent-[hsl(var(--primary))]"
+                   className="size-4 accent-primary"
                   checked={reject}
                   onChange={(e) => setReject(e.target.checked)}
                 />

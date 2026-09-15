@@ -432,12 +432,12 @@ function JobsPage() {
           {/* Compact hero */}
           <section className="page-hero py-10 md:py-12">
             <div className="mx-auto max-w-3xl px-4 text-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-1.5 text-xs font-medium ring-1 ring-white/20">
+               <span className="inline-flex items-center gap-2 rounded-md bg-primary-foreground/12 px-4 py-1.5 text-xs font-medium ring-1 ring-primary-foreground/20">
                 <Briefcase className="size-4" />
                 {c.badge}
               </span>
               <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
-              <p className="mx-auto mt-3 max-w-xl text-white/85">{c.sub}</p>
+               <p className="mx-auto mt-3 max-w-xl text-primary-foreground/85">{c.sub}</p>
             </div>
           </section>
         </>
@@ -574,9 +574,10 @@ function JobsPage() {
                   ["shift", c.kindShift],
                 ] as [string, string][]
               ).map(([key, label]) => (
-                <button
+                 <Button
                   key={key}
                   type="button"
+                   variant="ghost"
                   role="tab"
                   aria-selected={kind === key}
                   onClick={() => setKind(key)}
@@ -587,7 +588,7 @@ function JobsPage() {
                   }`}
                 >
                   {label}
-                </button>
+                 </Button>
               ))}
             </div>
             {hasSpecialty && (
@@ -599,9 +600,10 @@ function JobsPage() {
                     ["all", c.scopeAll],
                   ] as [Scope, string][]
                 ).map(([key, label]) => (
-                  <button
+                   <Button
                     key={key}
                     type="button"
+                     variant="ghost"
                     onClick={() => pickScope(key)}
                     className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                       scope === key
@@ -610,7 +612,7 @@ function JobsPage() {
                     }`}
                   >
                     {label}
-                  </button>
+                   </Button>
                 ))}
               </div>
             )}
@@ -645,9 +647,10 @@ function JobsPage() {
                         ["new", c.sortNew],
                       ] as ["match" | "new", string][]
                     ).map(([key, label]) => (
-                      <button
+                       <Button
                         key={key}
                         type="button"
+                         variant="ghost"
                         onClick={() => {
                           setSortTouched(true);
                           setSort(key);
@@ -660,13 +663,14 @@ function JobsPage() {
                         }`}
                       >
                         {label}
-                      </button>
+                       </Button>
                     ))}
                   </div>
                 )}
                 {!!appliedIds?.size && (
-                  <button
+                   <Button
                     type="button"
+                     variant="ghost"
                     onClick={() => setHideApplied((v) => !v)}
                     className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                       hideApplied
@@ -675,7 +679,7 @@ function JobsPage() {
                     }`}
                   >
                     {c.hideApplied}
-                  </button>
+                   </Button>
                 )}
               </div>
             )}

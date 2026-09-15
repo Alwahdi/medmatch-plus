@@ -636,7 +636,7 @@ function MessagesPage() {
         <span
           className={cn(
             "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
-            activeInfo.online ? "bg-emerald-500" : "bg-muted-foreground/40",
+            activeInfo.online ? "bg-success" : "bg-muted-foreground/40",
           )}
         />
       </span>
@@ -650,7 +650,7 @@ function MessagesPage() {
           )}
         </span>
         <span className="flex items-center gap-2 text-xs">
-          <span className={activeInfo.online ? "text-emerald-600" : "text-muted-foreground"}>
+           <span className={activeInfo.online ? "text-success" : "text-muted-foreground"}>
             {activeInfo.online ? c.online : c.offline}
           </span>
           {activeInfo.linkId && (
@@ -730,7 +730,7 @@ function MessagesPage() {
                         <span
                           className={cn(
                             "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
-                            info.online ? "bg-emerald-500" : "bg-muted-foreground/40",
+                             info.online ? "bg-success" : "bg-muted-foreground/40",
                           )}
                         />
                       </span>
@@ -752,7 +752,7 @@ function MessagesPage() {
                             {data?.previews?.[conv.id] ?? topic ?? info.sub}
                           </span>
                           {count > 0 && (
-                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">
+                             <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-success text-[11px] font-bold text-success-foreground">
                               {count}
                             </span>
                           )}
