@@ -318,10 +318,22 @@ function Candidates() {
       )}
 
       {results && results.length === 0 && (
-        <div className="mt-6 rounded-lg border border-border bg-card p-8 text-center">
-          <p className="font-semibold">{c.noResults}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{c.widenHint}</p>
-        </div>
+        <EmptyState
+          className="mt-6"
+          icon={Search}
+          title={c.noResults}
+          description={c.widenHint}
+          action={
+            activeFilters.length > 0 ? (
+              <Button
+                variant="outline"
+                onClick={() => void navigate({ to: "/facility/candidates", search: {}, replace: true })}
+              >
+                {lang === "ar" ? "مسح كل الفلاتر" : "Clear all filters"}
+              </Button>
+            ) : undefined
+          }
+        />
       )}
 
       {results && results.length > 0 && (
