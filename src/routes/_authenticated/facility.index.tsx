@@ -1185,6 +1185,7 @@ function JobForm({
           { label: c.specialty, value: specName ?? c.notSet },
           { label: c.employmentType, value: employmentLabel(form.employment_type, lang) },
           { label: c.minExperience, value: String(Number(form.min_experience) || 0) },
+          { label: c.vacancies, value: String(Math.max(Number(form.vacancies) || 1, 1)) },
           {
             label: c.country + " / " + c.city,
             value: [countryLabel(form.country, lang), form.city.trim()].filter(Boolean).join(" — "),
