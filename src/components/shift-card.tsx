@@ -43,6 +43,7 @@ const TXT = {
     book: "احجز المناوبة",
     details: "التفاصيل",
     mine: "حجزتها",
+    passed: "انتهى وقتها",
     recommended: "تناسبك",
   },
   en: {
@@ -57,6 +58,7 @@ const TXT = {
     book: "Book this shift",
     details: "Details",
     mine: "Booked by you",
+    passed: "Time passed",
     recommended: "Recommended",
   },
 } as const;
@@ -81,7 +83,8 @@ export function ShiftCard({
   const c = TXT[lang];
   const hours = hoursBetween(shift.starts_at, shift.ends_at);
   const total = hours * Number(shift.hourly_rate);
-  const open = shift.status === "open";
+  const started = new Date(shift.starts_at).getTime() <= Date.now();
+  const open = shift.status === "open" && !started;
 
 
   return (
@@ -166,7 +169,7 @@ export function ShiftCard({
               </Button>
               {onBook && (
                 <Button size="sm" onClick={onBook} disabled={busy || !open}>
-                  {open ? (actionLabel ?? c.book) : c.booked}
+                  {open ? (actionLabel ?? c.book) : started && shift.status === "open" ? c.passed : c.booked}
                 </Button>
               )}
             </div>
