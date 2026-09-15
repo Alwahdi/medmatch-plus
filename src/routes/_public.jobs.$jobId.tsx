@@ -442,7 +442,7 @@ function JobDetail() {
                     disabled={apply.isPending || !isOpen}
                   >
                     {apply.isPending && <Loader2 className="size-4 animate-spin" />}
-                    {apply.isPending ? c.sending : isOpen ? c.sendApply : c.closed}
+                    {apply.isPending ? c.sending : isOpen ? c.sendApply : c.notAccepting}
                   </Button>
                   <p className="mt-2 text-xs text-muted-foreground">{c.applyHint}</p>
                 </>
@@ -473,7 +473,7 @@ function JobDetail() {
             disabled={!isOpen}
             onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
           >
-            {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.closed}
+            {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.notAccepting}
           </Button>
         </div>
       )}
