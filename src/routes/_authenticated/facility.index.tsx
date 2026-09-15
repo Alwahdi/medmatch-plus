@@ -716,50 +716,54 @@ function FacilityDashboard() {
                           <Eye className="size-4" /> {c.view}
                         </Link>
                       </Button>
-                      {s.status === "open" && (
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
-                            <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
-                          </Link>
-                        </Button>
-                      )}
-                      {s.status === "booked" && ended && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={completeShift.isPending}
-                          onClick={async () => {
-                            const ok = await confirm({
-                              title: lang === "ar" ? "إنهاء المناوبة؟" : "Complete shift?",
-                              description:
-                                lang === "ar"
-                                  ? "سيتم تسجيل المناوبة كمنتهية ولا يمكن التراجع."
-                                  : "The shift will be marked completed and cannot be reverted.",
-                              confirmLabel: lang === "ar" ? "إنهاء" : "Complete",
-                            });
-                            if (ok) completeShift.mutate(s.id);
-                          }}
-                        >
-                          {lang === "ar" ? "إنهاء المناوبة" : "Complete"}
-                        </Button>
-                      )}
                       {(s.status === "open" || s.status === "booked") && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={cancelShift.isPending}
-                          onClick={async () => {
-                            const ok = await confirm({
-                              title: c.confirmCancelShiftTitle,
-                              description: c.confirmCancelShiftDesc,
-                              confirmLabel: c.confirmCancelShiftCta,
-                              destructive: true,
-                            });
-                            if (ok) cancelShift.mutate(s.id);
-                          }}
-                        >
-                          {c.cancelShift}
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" className="size-9 p-0" aria-label={c.moreActions}>
+                              <MoreHorizontal className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-52">
+                            {s.status === "open" && (
+                              <DropdownMenuItem asChild className="min-h-11 gap-2">
+                                <Link to="/facility/invite" search={{ job: undefined, shift: s.id }}>
+                                  <UserPlus className="size-4" /> {c.invite}
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
+                            {s.status === "booked" && ended && (
+                              <DropdownMenuItem
+                                className="min-h-11 gap-2"
+                                disabled={completeShift.isPending}
+                                onSelect={async () => {
+                                  const ok = await confirm({
+                                    title: c.confirmCompleteTitle,
+                                    description: c.confirmCompleteDesc,
+                                    confirmLabel: c.confirmCompleteCta,
+                                  });
+                                  if (ok) completeShift.mutate(s.id);
+                                }}
+                              >
+                                <CheckCircle2 className="size-4" /> {c.confirmCompleteCta}
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              disabled={cancelShift.isPending}
+                              onSelect={async () => {
+                                const ok = await confirm({
+                                  title: c.confirmCancelShiftTitle,
+                                  description: c.confirmCancelShiftDesc,
+                                  confirmLabel: c.confirmCancelShiftCta,
+                                  destructive: true,
+                                });
+                                if (ok) cancelShift.mutate(s.id);
+                              }}
+                            >
+                              <CircleSlash className="size-4" /> {c.cancelShift}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
                     </>
                   }
