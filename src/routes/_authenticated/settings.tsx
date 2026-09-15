@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bell, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,10 @@ import { useLang } from "@/lib/i18n";
 type SettingsSearch = { tab?: string };
 
 export const Route = createFileRoute("/_authenticated/settings")({
+  beforeLoad: ({ search }) => {
+    // التنبيهات انتقلت لصفحة التفضيلات — نحافظ على الروابط القديمة.
+    if (search.tab === "alerts") throw redirect({ to: "/preferences", search: { tab: "alerts" } });
+  },
   validateSearch: (search: Record<string, unknown>): SettingsSearch =>
     typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
