@@ -720,8 +720,11 @@ function FacilityDashboard() {
           {shifts?.length ? (
             shifts.map((s) => {
               const ended = new Date(s.ends_at).getTime() <= Date.now();
-              // حجز واحد كحد أقصى لكل مناوبة (قيد فريد على shift_id).
-              const bookings = s.shift_bookings ? 1 : 0;
+              // الحجوزات الفعلية (نستثني الملغاة).
+              const bookingRows = (
+                Array.isArray(s.shift_bookings) ? s.shift_bookings : s.shift_bookings ? [s.shift_bookings] : []
+              ) as { id: string; status: string }[];
+              const bookings = bookingRows.filter((b) => b.status !== "cancelled").length;
               return (
                 <PublishedWorkCard
                   key={s.id}
