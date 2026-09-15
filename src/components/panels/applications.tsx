@@ -7,7 +7,7 @@ import { ReviewDialog } from "@/components/review-dialog";
 import { AlertCircle, Briefcase, CheckCircle2, Clock, FileText, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { applicationLabel, relativeTime } from "@/lib/format";
+import { APPLICATION_STAGES, applicationLabel, applicationStage, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
 
