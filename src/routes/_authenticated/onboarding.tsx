@@ -464,7 +464,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
               {t("ob.next")}
             </Button>
           ) : (
-            <Button type="button" disabled={busy || !canFinish} onClick={finish}>
+            <Button type="button" disabled={busy} onClick={finish}>
               {busy ? t("ob.saving") : t("ob.finish")}
             </Button>
           )}
