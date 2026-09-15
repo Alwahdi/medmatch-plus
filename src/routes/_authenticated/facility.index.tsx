@@ -640,32 +640,41 @@ function FacilityDashboard() {
                           <Eye className="size-4" /> {c.view}
                         </Link>
                       </Button>
-                      {j.is_active && (
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
-                            <UserPlus className="size-4" /> {lang === "ar" ? "دعوة مختصين" : "Invite"}
-                          </Link>
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={toggleJob.isPending}
-                        onClick={async () => {
-                          if (j.is_active) {
-                            const ok = await confirm({
-                              title: c.confirmCloseTitle,
-                              description: c.confirmCloseDesc,
-                              confirmLabel: c.confirmCloseCta,
-                              destructive: true,
-                            });
-                            if (!ok) return;
-                          }
-                          toggleJob.mutate({ id: j.id, is_active: !j.is_active });
-                        }}
-                      >
-                        {j.is_active ? c.close : c.republish}
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="ghost" className="size-9 p-0" aria-label={c.moreActions}>
+                            <MoreHorizontal className="size-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52">
+                          {j.is_active && (
+                            <DropdownMenuItem asChild className="min-h-11 gap-2">
+                              <Link to="/facility/invite" search={{ job: j.id, shift: undefined }}>
+                                <UserPlus className="size-4" /> {c.invite}
+                              </Link>
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            className="min-h-11 gap-2"
+                            disabled={toggleJob.isPending}
+                            onSelect={async () => {
+                              if (j.is_active) {
+                                const ok = await confirm({
+                                  title: c.confirmCloseTitle,
+                                  description: c.confirmCloseDesc,
+                                  confirmLabel: c.confirmCloseCta,
+                                  destructive: true,
+                                });
+                                if (!ok) return;
+                              }
+                              toggleJob.mutate({ id: j.id, is_active: !j.is_active });
+                            }}
+                          >
+                            {j.is_active ? <PauseCircle className="size-4" /> : <PlusCircle className="size-4" />}
+                            {j.is_active ? c.close : c.republish}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </>
                   }
                 >
