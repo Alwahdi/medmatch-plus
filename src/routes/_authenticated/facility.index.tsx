@@ -350,6 +350,7 @@ function FacilityDashboard() {
   const tab = rawTab === "new-job" ? "jobs" : rawTab === "new-shift" ? "shifts" : rawTab;
   const navigate = useNavigate();
   const [openApplicants, setOpenApplicants] = useState<string | null>(null);
+  const [openBookings, setOpenBookings] = useState<string | null>(null);
   const [createMode, setCreateMode] = useState<"job" | "shift" | null>(legacyCreate);
 
   const { user } = useSession();
