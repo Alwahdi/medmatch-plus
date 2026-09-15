@@ -15,6 +15,7 @@ import {
 import { ReviewDialog } from "@/components/review-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { useConfirm } from "@/components/confirm-dialog";
+import { FacilityInterviewBlock } from "@/components/interview";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -411,6 +412,13 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                     )}
                   </div>
                 </div>
+                {applicationStage(a.status) !== "submitted" && (
+                  <FacilityInterviewBlock
+                    applicationId={a.id}
+                    candidateName={a.pro?.full_name ?? c.healthcarePro}
+                    disabled={stage === "rejected"}
+                  />
+                )}
                 {a.cover_letter && (
                   <p className="mt-4 rounded-xl bg-surface p-4 text-sm leading-relaxed whitespace-pre-line">
                     {a.cover_letter}
