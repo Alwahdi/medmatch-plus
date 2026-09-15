@@ -58,6 +58,7 @@ const TXT = {
     noDeadline: "غير محدد",
     open: "مفتوحة",
     closed: "مغلقة",
+    notAccepting: "لم تعد تستقبل طلبات",
     publishedBy: "نُشرت بواسطة",
     saved: "محفوظة",
     saveJob: "حفظ الوظيفة",
@@ -109,6 +110,7 @@ const TXT = {
     noDeadline: "Not set",
     open: "Open",
     closed: "Closed",
+    notAccepting: "No longer accepting applications",
     publishedBy: "Published by",
     saved: "Saved",
     saveJob: "Save job",
@@ -440,7 +442,7 @@ function JobDetail() {
                     disabled={apply.isPending || !isOpen}
                   >
                     {apply.isPending && <Loader2 className="size-4 animate-spin" />}
-                    {apply.isPending ? c.sending : isOpen ? c.sendApply : c.closed}
+                    {apply.isPending ? c.sending : isOpen ? c.sendApply : c.notAccepting}
                   </Button>
                   <p className="mt-2 text-xs text-muted-foreground">{c.applyHint}</p>
                 </>
@@ -471,7 +473,7 @@ function JobDetail() {
             disabled={!isOpen}
             onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
           >
-            {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.closed}
+            {isOpen ? (existing ? c.alreadyApplied : c.applyTitle) : c.notAccepting}
           </Button>
         </div>
       )}

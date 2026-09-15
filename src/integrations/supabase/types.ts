@@ -1387,6 +1387,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      hire_applicant: { Args: { _application_id: string }; Returns: Json }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
@@ -1507,6 +1508,13 @@ export type Database = {
         }
         Returns: string
       }
+      set_application_stage: {
+        Args: {
+          _application_id: string
+          _status: Database["public"]["Enums"]["application_status"]
+        }
+        Returns: Database["public"]["Enums"]["application_status"]
+      }
       slugify: { Args: { input: string }; Returns: string }
       start_candidate_conversation: {
         Args: {
@@ -1520,6 +1528,10 @@ export type Database = {
       submit_job_application: {
         Args: { _cover_letter?: string; _job_id: string }
         Returns: string
+      }
+      unhire_applicant: {
+        Args: { _application_id: string }
+        Returns: undefined
       }
     }
     Enums: {

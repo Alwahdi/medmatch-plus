@@ -17,24 +17,75 @@ export const EMPLOYMENT_LABELS_EN: Record<string, string> = {
 };
 
 export const APPLICATION_LABELS: Record<string, string> = {
-  submitted: "تم التقديم",
+  submitted: "جديد",
   reviewing: "قيد المراجعة",
-  shortlisted: "قائمة مختصرة",
-  interview: "مقابلة",
-  offer: "عرض وظيفي",
-  hired: "تم التعيين",
-  rejected: "غير مقبول",
+  shortlisted: "قيد المراجعة",
+  interview: "مقابلة / عرض",
+  offer: "مقابلة / عرض",
+  hired: "مُختار",
+  rejected: "غير مُختار",
 };
 
 export const APPLICATION_LABELS_EN: Record<string, string> = {
-  submitted: "Submitted",
+  submitted: "New",
   reviewing: "Under review",
-  shortlisted: "Shortlisted",
-  interview: "Interview",
-  offer: "Offer",
-  hired: "Hired",
+  shortlisted: "Under review",
+  interview: "Interview / offer",
+  offer: "Interview / offer",
+  hired: "Selected",
   rejected: "Not selected",
 };
+
+/** The four stages the product exposes. Legacy values collapse into them. */
+export const APPLICATION_STAGES = ["submitted", "reviewing", "interview", "hired"] as const;
+
+export type ApplicationStage = (typeof APPLICATION_STAGES)[number];
+
+/** Maps any stored application status onto one of the four exposed stages (or "rejected"). */
+export function applicationStage(status: string): ApplicationStage | "rejected" {
+  switch (status) {
+    case "shortlisted":
+      return "reviewing";
+    case "offer":
+      return "interview";
+    case "rejected":
+      return "rejected";
+    case "submitted":
+    case "reviewing":
+    case "interview":
+    case "hired":
+      return status;
+    default:
+      return "submitted";
+  }
+}
+
+/** Turns a pipeline RPC error code into natural language. */
+export function applicationErrorText(raw: string, lang: "ar" | "en" = "ar") {
+  const code = ["NOT_FOUND", "FORBIDDEN", "ALREADY_HIRED", "JOB_CLOSED", "VACANCIES_FILLED", "NOT_HIRED", "USE_HIRE_APPLICANT"].find(
+    (k) => raw.includes(k),
+  );
+  const ar: Record<string, string> = {
+    NOT_FOUND: "لم نعثر على هذا الطلب.",
+    FORBIDDEN: "هذا الطلب لا يخص وظائف منشأتك.",
+    ALREADY_HIRED: "هذا المرشح مُختار بالفعل.",
+    JOB_CLOSED: "الوظيفة مقفلة — لا يمكن تعديل المراحل.",
+    VACANCIES_FILLED: "اكتملت شواغر هذه الوظيفة.",
+    NOT_HIRED: "هذا المرشح غير مُختار أصلاً.",
+    USE_HIRE_APPLICANT: "استخدم زر اختيار المرشح.",
+  };
+  const en: Record<string, string> = {
+    NOT_FOUND: "We couldn't find this application.",
+    FORBIDDEN: "This application doesn't belong to your facility.",
+    ALREADY_HIRED: "This candidate is already selected.",
+    JOB_CLOSED: "The job is closed — stages can't be changed.",
+    VACANCIES_FILLED: "All positions for this job are filled.",
+    NOT_HIRED: "This candidate isn't selected.",
+    USE_HIRE_APPLICANT: "Use the select-candidate button.",
+  };
+  if (!code) return lang === "ar" ? "تعذّر إتمام العملية." : "The action couldn't be completed.";
+  return (lang === "ar" ? ar : en)[code]!;
+}
 
 export const CREDENTIAL_LABELS: Record<string, string> = {
   pending: "بانتظار المراجعة",
