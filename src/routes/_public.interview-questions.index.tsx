@@ -94,7 +94,7 @@ function BanksIndex() {
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/jobs">
-                {c.browseJobs} <ArrowLeft className="size-4" />
+                {c.browseJobs} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>

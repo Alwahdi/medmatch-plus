@@ -568,8 +568,22 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
         </div>
       )}
 
+      <nav className="-mx-1 mt-5 flex gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:thin]" aria-label={c.title}>
+        {[
+          ["security-password", c.pwTitle],
+          ["security-linked", c.linkedTitle],
+          ["security-mfa", c.mfaTitle],
+          ["security-biometric", c.bioTitle],
+          ["security-sessions", c.sessTitle],
+        ].map(([id, label]) => (
+          <a key={id} href={`#${id}`} className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border bg-card px-3 text-xs font-semibold hover:border-primary/40 hover:text-primary">
+            {label}
+          </a>
+        ))}
+      </nav>
+
       {/* password */}
-      <section className="mt-6 rounded-lg border border-border bg-card p-5">
+      <section id="security-password" className="mt-4 scroll-mt-24 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <KeyRound className="size-5 text-primary" />
           <h2 className="font-bold">{c.pwTitle}</h2>
@@ -651,7 +665,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       </section>
 
       {/* linked accounts */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-5">
+      <section id="security-linked" className="mt-4 scroll-mt-24 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <GoogleIcon className="size-5" />
           <h2 className="font-bold">{c.linkedTitle}</h2>
@@ -700,7 +714,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       </section>
 
       {/* MFA */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-5">
+      <section id="security-mfa" className="mt-4 scroll-mt-24 rounded-lg border border-border bg-card p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Smartphone className="size-5 text-primary" />
           <h2 className="font-bold">{c.mfaTitle}</h2>
@@ -775,7 +789,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       </section>
 
       {/* biometrics */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-5">
+      <section id="security-biometric" className="mt-4 scroll-mt-24 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <Fingerprint className="size-5 text-primary" />
           <h2 className="font-bold">{c.bioTitle}</h2>
@@ -837,7 +851,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       </section>
 
       {/* sessions */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-5">
+      <section id="security-sessions" className="mt-4 scroll-mt-24 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <Monitor className="size-5 text-primary" />
           <h2 className="font-bold">{c.sessTitle}</h2>

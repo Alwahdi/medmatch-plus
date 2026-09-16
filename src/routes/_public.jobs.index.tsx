@@ -255,6 +255,19 @@ function JobsPage() {
   const { pro: profile, mySpecialty, mySpecialtyId, fieldIds, hasSpecialty } = useSpecialtyScope();
   const signedIn = useSignedIn();
   const [showFilters, setShowFilters] = useState(false);
+  useEffect(() => {
+    if (!showFilters) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowFilters(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [showFilters]);
   const scope: Scope = sp.scope === "mine" || sp.scope === "field" || sp.scope === "all"
     ? sp.scope
     : hasSpecialty ? "field" : "all";
