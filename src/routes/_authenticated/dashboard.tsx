@@ -123,7 +123,7 @@ function Dashboard() {
     if (roles?.includes("facility")) navigate({ to: "/facility", replace: true });
   }, [roles, navigate]);
 
-  const { data: profile } = useQuery({
+  const { data: profile, isError: profileErr, refetch: profileRefetch } = useQuery({
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -136,7 +136,7 @@ function Dashboard() {
     },
   });
 
-  const { data: apps } = useQuery({
+  const { data: apps, isError: appsErr, refetch: appsRefetch } = useQuery({
     queryKey: ["my-apps", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -150,7 +150,7 @@ function Dashboard() {
     },
   });
 
-  const { data: creds } = useQuery({
+  const { data: creds, isError: credsErr, refetch: credsRefetch } = useQuery({
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -159,7 +159,7 @@ function Dashboard() {
     },
   });
 
-  const { data: bookings } = useQuery({
+  const { data: bookings, isError: bookingsErr, refetch: bookingsRefetch } = useQuery({
     queryKey: ["my-shifts", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -173,7 +173,7 @@ function Dashboard() {
     },
   });
 
-  const { data: pendingInvites } = useQuery({
+  const { data: pendingInvites, isError: pendingInvitesErr, refetch: pendingInvitesRefetch } = useQuery({
     queryKey: ["pending-invitations", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -186,7 +186,7 @@ function Dashboard() {
     },
   });
 
-  const { data: pendingInterviews } = useQuery({
+  const { data: pendingInterviews, isError: pendingInterviewsErr, refetch: pendingInterviewsRefetch } = useQuery({
     queryKey: ["pending-interviews", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -201,7 +201,7 @@ function Dashboard() {
     },
   });
 
-  const { data: jobs } = useQuery({
+  const { data: jobs, isError: jobsErr, refetch: jobsRefetch } = useQuery({
     queryKey: ["recommended-jobs"],
     queryFn: async () => {
       const { data, error } = await supabase
