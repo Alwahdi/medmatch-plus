@@ -168,18 +168,18 @@ function FacilityProfilePage() {
     <>
       <section className="page-hero py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-4">
-          <nav className="flex flex-wrap items-center gap-2 text-xs text-white/70">
-            <Link to="/" className="hover:text-white">
+          <nav className="flex flex-wrap items-center gap-2 text-xs text-on-hero/70">
+            <Link to="/" className="hover:text-on-hero">
               {c.home}
             </Link>
             <span>/</span>
-            <span className="text-white">{facility.name_ar}</span>
+            <span className="text-on-hero">{facility.name_ar}</span>
           </nav>
           <Button
             variant="ghost"
             size="sm"
             asChild
-            className="mt-3 text-white/80 hover:bg-white/10 hover:text-white"
+            className="mt-3 text-on-hero/80 hover:bg-white/10 hover:text-on-hero"
           >
             <Link to="/jobs">
               <ArrowLeft className="size-4" /> {c.back}
@@ -191,7 +191,7 @@ function FacilityProfilePage() {
                 value={facility.logo_url}
                 alt={facility.name_ar}
                 icon={Building2}
-                className="size-16 bg-white/12 text-white ring-1 ring-white/20"
+                className="size-16 bg-white/12 text-on-hero ring-1 ring-white/20"
               />
               <span
                 className={`absolute -bottom-0.5 -end-0.5 size-4 rounded-full border-2 border-transparent ${OnlineDotClass(isOnline)}`}
@@ -203,11 +203,11 @@ function FacilityProfilePage() {
               <h1 className="font-display text-3xl font-extrabold md:text-4xl">
                 {facility.name_ar}
               </h1>
-              <p className={`mt-1 flex items-center gap-1.5 text-xs font-semibold ${isOnline ? "text-emerald-300" : "text-white/60"}`}>
+              <p className={`mt-1 flex items-center gap-1.5 text-xs font-semibold ${isOnline ? "text-emerald-300" : "text-on-hero/60"}`}>
                 <span className={`size-2 rounded-full ${OnlineDotClass(isOnline)}`} />
                 {isOnline ? c.online : c.offline}
               </p>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-white/85">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-on-hero/85">
                 <span className="flex items-center gap-1 text-sm">
                   <MapPin className="size-4" /> {facility.city}،{" "}
                   {countryLabel(facility.country, lang)}

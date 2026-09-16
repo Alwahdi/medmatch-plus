@@ -228,20 +228,20 @@ function Lightbox({
           download={name ?? undefined}
           target="_blank"
           rel="noreferrer"
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
         >
           <Download className="size-5" />
         </a>
         <button
           type="button"
           onClick={onClose}
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
         >
           <X className="size-5" />
         </button>
       </div>
       {name && (
-        <span className="absolute top-6 start-4 max-w-[60%] truncate text-sm text-white/80">
+        <span className="absolute top-6 start-4 max-w-[60%] truncate text-sm text-on-hero/80">
           {name}
         </span>
       )}
@@ -328,12 +328,12 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
             className="max-h-72 w-full rounded-lg bg-black object-cover"
           />
           <span className="absolute inset-0 flex items-center justify-center">
-            <span className="flex size-12 items-center justify-center rounded-full bg-black/55 text-white">
+            <span className="flex size-12 items-center justify-center rounded-full bg-black/55 text-on-hero">
               <PlayIcon className="size-6" />
             </span>
           </span>
           {size ? (
-            <span className="absolute bottom-2 start-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] text-white">
+            <span className="absolute bottom-2 start-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] text-on-hero">
               {formatBytes(size)}
             </span>
           ) : null}
@@ -354,7 +354,7 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
             className="max-h-72 w-full rounded-lg border border-border/30 object-cover transition hover:opacity-95"
           />
           {size ? (
-            <span className="absolute bottom-2 start-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] text-white">
+            <span className="absolute bottom-2 start-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] text-on-hero">
               {formatBytes(size)}
             </span>
           ) : null}

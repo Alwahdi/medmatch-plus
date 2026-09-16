@@ -82,7 +82,7 @@ function SpecialtiesIndex() {
             {c.badge}
           </span>
           <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/85">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-on-hero/85">
             {c.sub}
           </p>
         </div>
