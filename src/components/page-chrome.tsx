@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { DashboardShell } from "@/components/dashboard-shell";
+import { OfflineBanner } from "@/components/offline-banner";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { useSession } from "@/lib/auth";
@@ -15,7 +16,8 @@ export function PageChrome({ children }: { children: ReactNode }) {
   if (!loading && user) return <DashboardShell>{children}</DashboardShell>;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
+      <OfflineBanner />
       <SiteHeader />
       <main id="main-content" className="flex-1">{children}</main>
       <SiteFooter />
