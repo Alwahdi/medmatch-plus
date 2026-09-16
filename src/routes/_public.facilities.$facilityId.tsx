@@ -103,13 +103,14 @@ function FacilityProfilePage() {
   const { data: facility, isLoading, isError: facErr, error: facErrObj, refetch: facRefetch } = useQuery({
     queryKey: ["public-facility", facilityId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facilities")
         .select(
           "id,user_id,name_ar,name_en,facility_type,country,city,description,website,logo_url,is_verified,rating_avg,rating_count",
         )
         .eq("id", facilityId)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -118,12 +119,13 @@ function FacilityProfilePage() {
     queryKey: ["public-facility-jobs", facilityId],
     enabled: !!facility,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("jobs")
         .select("id,slug,title,city,country,salary_min,salary_max,currency,is_active")
         .eq("facility_id", facilityId)
         .eq("is_active", true)
         .order("created_at", { ascending: false });
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -132,12 +134,13 @@ function FacilityProfilePage() {
     queryKey: ["public-facility-shifts", facilityId],
     enabled: !!facility,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("shifts")
         .select("id,title,starts_at,hourly_rate,currency,city,country,status")
         .eq("facility_id", facilityId)
         .eq("status", "open")
         .order("starts_at", { ascending: true });
+      if (error) throw error;
       return data ?? [];
     },
   });

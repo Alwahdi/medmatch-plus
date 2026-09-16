@@ -166,11 +166,12 @@ function Candidates() {
     queryKey: ["my-facility", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facilities")
         .select("id,name_ar")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -179,11 +180,12 @@ function Candidates() {
     queryKey: ["search-quota", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facility_subscriptions")
         .select("searches_used,plan_code,subscription_plans(candidate_searches,name_ar)")
         .eq("facility_id", facility!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });

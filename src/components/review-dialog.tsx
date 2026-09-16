@@ -75,13 +75,14 @@ export function ReviewDialog({
   const { data: existing } = useQuery({
     queryKey: ["review", direction, facilityId, professionalUserId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("reviews")
         .select("id,rating,comment")
         .eq("direction", direction)
         .eq("facility_id", facilityId)
         .eq("professional_user_id", professionalUserId)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });

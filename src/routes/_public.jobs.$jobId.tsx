@@ -192,11 +192,12 @@ function JobDetail() {
     queryKey: ["revealed-facility", job?.facility_id, user?.id],
     enabled: !!user && !!job?.facility_id,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facilities")
         .select("id,name_ar,name_en,city,country,is_verified")
         .eq("id", job!.facility_id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -206,12 +207,13 @@ function JobDetail() {
     queryKey: ["application", realJobId, user?.id],
     enabled: !!user && !!realJobId,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("applications")
         .select("id,status")
         .eq("job_id", realJobId!)
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -220,12 +222,13 @@ function JobDetail() {
     queryKey: ["saved-job", realJobId, user?.id],
     enabled: !!user && !!realJobId,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("saved_jobs")
         .select("id")
         .eq("job_id", realJobId!)
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
