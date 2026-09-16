@@ -37,10 +37,10 @@ export function FilterBar({
           onClick={f.onClear}
           variant="secondary"
           size="sm"
-          className="min-h-9 gap-1 px-3 text-xs"
+          className="min-h-11 gap-1.5 px-3 text-xs"
         >
           {f.label}
-          <X className="size-3.5 text-muted-foreground" />
+          <X className="size-4 text-muted-foreground" />
         </Button>
       ))}
       {filters.length > 0 && (

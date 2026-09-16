@@ -96,7 +96,7 @@ function SpecialtiesIndex() {
                 <h2 className="font-display text-2xl font-bold">{c.categories[category] ?? category}</h2>
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/jobs">
-                    {c.browseAll} <ArrowLeft className="size-4" />
+                    {c.browseAll} <ArrowLeft className="size-4 ltr:rotate-180" />
                   </Link>
                 </Button>
               </div>

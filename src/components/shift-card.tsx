@@ -94,24 +94,24 @@ export function ShiftCard({
           {c.urgent}
         </span>
       )}
-      <div className="card-lift flex items-start gap-3 rounded-lg border border-border border-s-4 border-s-accent/70 bg-card p-4 hover:border-accent/40 sm:gap-4 sm:p-5">
-        <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground sm:size-12">
+      <div className="card-lift group relative grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-lg border border-border border-s-4 border-s-accent/70 bg-card p-4 hover:border-accent/40 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-4 sm:p-5">
+        <Link
+          to="/shifts/$shiftId"
+          params={{ shiftId: shift.id }}
+          className="absolute inset-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={`${c.details}: ${shift.title}`}
+        />
+        <div className="pointer-events-none order-2 grid size-10 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground sm:order-1 sm:size-12">
           <CalendarClock className="size-6" />
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="pointer-events-none order-1 min-w-0 sm:order-2">
           <div className="flex flex-wrap items-center gap-2">
             <WorkTypeBadge type="shift" />
             <WorkStatusBadge status={shift.status as "open" | "booked" | "cancelled" | "completed"} />
           </div>
           <div className="mt-1.5 flex flex-wrap items-start justify-between gap-2">
-            <Link
-              to="/shifts/$shiftId"
-              params={{ shiftId: shift.id }}
-              className="font-display text-base leading-snug font-bold hover:text-primary sm:text-lg"
-            >
-              <h3>{shift.title}</h3>
-            </Link>
+            <h3 className="font-display text-base leading-snug font-bold group-hover:text-primary sm:text-lg">{shift.title}</h3>
             {shift.facility_verified && (
               <span className="flex items-center gap-1 text-xs text-accent">
                 <ShieldCheck className="size-3.5" /> {c.verified}
@@ -161,14 +161,14 @@ export function ShiftCard({
                 {formatMoney(total, shift.currency, lang)}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" asChild>
+            <div className="pointer-events-auto relative z-10 grid w-full grid-cols-2 gap-2 min-[380px]:flex min-[380px]:w-auto">
+              <Button size="sm" variant="outline" asChild className="w-full min-[380px]:w-auto">
                 <Link to="/shifts/$shiftId" params={{ shiftId: shift.id }}>
                   {c.details}
                 </Link>
               </Button>
               {onBook && (
-                <Button size="sm" onClick={onBook} disabled={busy || !open}>
+                <Button size="sm" className="w-full min-[380px]:w-auto" onClick={onBook} disabled={busy || !open}>
                   {open ? (actionLabel ?? c.book) : started && shift.status === "open" ? c.passed : c.booked}
                 </Button>
               )}

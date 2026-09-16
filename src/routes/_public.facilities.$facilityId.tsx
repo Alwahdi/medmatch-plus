@@ -193,7 +193,7 @@ function FacilityProfilePage() {
             className="mt-3 text-on-hero/80 hover:bg-white/10 hover:text-on-hero"
           >
             <Link to="/jobs">
-              <ArrowLeft className="size-4" /> {c.back}
+              <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>
           <div className="mt-4 flex flex-wrap items-center gap-4">

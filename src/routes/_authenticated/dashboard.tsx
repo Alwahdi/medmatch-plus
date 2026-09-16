@@ -280,7 +280,7 @@ function Dashboard() {
             label={c.nextStep}
             title={c.invitationsTitle(pendingInvites)}
             description={c.invitationsText}
-            action={<Button variant="secondary" asChild><Link to="/invitations">{c.viewInvitations}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+            action={<Button variant="secondary" asChild><Link to="/invitations">{c.viewInvitations}<ArrowLeft className="ltr:rotate-180" /></Link></Button>}
           />
         ) : pendingInterviews ? (
           <NextStepCard
@@ -289,7 +289,7 @@ function Dashboard() {
             title={c.interviewsTitle(pendingInterviews)}
             description={c.interviewsText}
             tone="warning"
-            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.viewInterviews}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.viewInterviews}<ArrowLeft className="ltr:rotate-180" /></Link></Button>}
           />
         ) : activeApplications.length > 0 ? (
           <NextStepCard
@@ -298,7 +298,7 @@ function Dashboard() {
             title={c.continueTitle}
             description={c.continueText}
             tone="accent"
-            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.continueCta}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.continueCta}<ArrowLeft className="ltr:rotate-180" /></Link></Button>}
           />
         ) : upcomingBookings.length > 0 ? (
           <NextStepCard
@@ -307,7 +307,7 @@ function Dashboard() {
             title={c.shiftTitle}
             description={c.shiftText}
             tone="accent"
-            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "shifts" }}>{c.shiftCta}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+            action={<Button variant="secondary" asChild><Link to="/activity" search={{ tab: "shifts" }}>{c.shiftCta}<ArrowLeft className="ltr:rotate-180" /></Link></Button>}
           />
         ) : (
           <NextStepCard
@@ -316,7 +316,7 @@ function Dashboard() {
             title={c.discover}
             description={c.discoverText}
             tone="accent"
-            action={<Button variant="secondary" asChild><Link to="/jobs">{c.browseNow}<ArrowLeft className="rtl:rotate-180" /></Link></Button>}
+            action={<Button variant="secondary" asChild><Link to="/jobs">{c.browseNow}<ArrowLeft className="ltr:rotate-180" /></Link></Button>}
           />
         )}
       </div>

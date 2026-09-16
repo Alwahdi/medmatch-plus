@@ -182,7 +182,7 @@ function Privacy() {
           </div>
           <div className="mt-10 text-center">
             <Button variant="outline" asChild>
-              <Link to="/contact">{c.contactUs} <ArrowLeft className="size-4" /></Link>
+              <Link to="/contact">{c.contactUs} <ArrowLeft className="size-4 ltr:rotate-180" /></Link>
             </Button>
           </div>
         </div>

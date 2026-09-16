@@ -86,7 +86,7 @@ function BlogIndex() {
                 <span>{formatDate(post.date, lang)}</span>
               </div>
               <span className="mt-3 flex items-center gap-1 text-sm font-bold text-primary">
-                {c.more} <ArrowLeft className="size-4 rtl:rotate-180" />
+                {c.more} <ArrowLeft className="size-4 ltr:rotate-180" />
               </span>
             </Link>
           ))}

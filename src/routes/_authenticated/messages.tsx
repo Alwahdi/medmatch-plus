@@ -482,9 +482,9 @@ function MessagesPage() {
 
   return (
     <div className="mx-auto flex h-[calc(100dvh-10rem)] max-w-6xl flex-col px-0 py-0 sm:px-4 sm:py-6 lg:h-[calc(100dvh-8rem)]">
-      <div className="hidden sm:block">
-        <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
+      <div className="px-4 pb-3 pt-2 sm:px-0 sm:pb-0 sm:pt-0">
+        <h1 className="font-display text-xl font-extrabold sm:text-3xl">{c.title}</h1>
+        <p className="mt-1 hidden text-sm text-muted-foreground sm:block">{c.sub}</p>
       </div>
 
       {isLoading ? (

@@ -47,7 +47,7 @@ function ActivityPage() {
         value={tab}
         onValueChange={(v) => void navigate({ to: "/activity", search: { tab: v as ActivityTab }, replace: true })}
       >
-        <div className="-mx-4 mt-6 overflow-x-auto px-4 pb-1">
+        <div className="-mx-4 mt-6 overflow-x-auto border-x border-transparent px-4 pb-2 [scrollbar-width:thin]">
           <TabsList className="w-max">
             <TabsTrigger value="applications" className="shrink-0">{c.applications}</TabsTrigger>
             <TabsTrigger value="shifts" className="shrink-0">{c.shifts}</TabsTrigger>

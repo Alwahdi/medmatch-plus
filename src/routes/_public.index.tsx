@@ -118,7 +118,7 @@ function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative isolate min-h-[min(680px,82vh)] overflow-hidden bg-foreground">
+      <section className="relative isolate min-h-[min(640px,78dvh)] overflow-hidden bg-foreground">
         <img
           src={heroImage}
           alt=""
@@ -127,7 +127,7 @@ function Home() {
           className="absolute inset-0 -z-20 size-full object-cover object-center"
         />
         <div className="absolute inset-0 -z-10 bg-foreground/75" />
-        <div className="mx-auto flex min-h-[min(680px,82vh)] max-w-6xl items-center px-4 pb-36 pt-14 md:pb-32 md:pt-20">
+        <div className="mx-auto flex min-h-[min(640px,78dvh)] max-w-6xl items-center px-4 pb-48 pt-10 sm:pb-36 md:pb-32 md:pt-20">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-md bg-background/10 px-3 py-1.5 text-sm font-medium text-primary-foreground ring-1 ring-background/20">
               <span className="size-2 rounded-full bg-success" />
@@ -193,14 +193,14 @@ function Home() {
       </section>
 
       {/* Why */}
-       <section className="bg-background pb-16 pt-10 md:pt-28">
+        <section className="bg-background pb-12 pt-8 md:pb-16 md:pt-28">
         <div className="mx-auto max-w-6xl px-4">
           <p className="text-center text-sm font-semibold tracking-wide text-accent">
             {t("home.why.label")}
           </p>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+           <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {WHY.map((f) => (
-               <div key={f.key} className="card-lift rounded-lg border border-border bg-card p-6">
+                <div key={f.key} className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
                  <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <f.icon className="size-5" />
                 </span>
@@ -213,12 +213,12 @@ function Home() {
       </section>
 
       {/* Two sides */}
-      <section className="soft-surface py-16 md:py-20">
+      <section className="soft-surface py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="text-center font-display text-3xl font-extrabold">
             {t("home.sides.title")}
           </h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <div className="mt-7 grid gap-5 md:mt-10 md:grid-cols-2 md:gap-6">
              <article className="card-lift overflow-hidden rounded-lg border border-border bg-card">
               <img
                 src={forProsImage}
@@ -226,7 +226,7 @@ function Home() {
                 width={1280}
                 height={960}
                 loading="lazy"
-                className="h-56 w-full object-cover"
+                className="h-44 w-full object-cover sm:h-56"
               />
               <div className="p-6">
                 <span className="text-xs font-semibold text-accent">{t("home.sides.pros.label")}</span>
@@ -249,7 +249,7 @@ function Home() {
                 width={1280}
                 height={960}
                 loading="lazy"
-                className="h-56 w-full object-cover"
+                className="h-44 w-full object-cover sm:h-56"
               />
               <div className="p-6">
                 <span className="text-xs font-semibold text-accent">{t("home.sides.employers.label")}</span>
@@ -267,7 +267,7 @@ function Home() {
       </section>
 
       {/* How it works */}
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <p className="text-center text-sm font-semibold tracking-wide text-accent">
             {t("home.steps.label")}
@@ -304,9 +304,9 @@ function Home() {
             </div>
           </div>
 
-          <ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-8 grid gap-3 sm:gap-5 md:mt-10 md:grid-cols-2 lg:grid-cols-4">
             {stepKeys.map((key, i) => (
-               <li key={key} className="card-lift rounded-lg border border-border bg-card p-6">
+               <li key={key} className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
                  <span className="flex size-10 items-center justify-center rounded-lg bg-accent/15 font-display text-lg font-extrabold text-accent">
                   {i + 1}
                 </span>
@@ -343,7 +343,7 @@ function Home() {
       </section>
 
       {/* AI CV */}
-      <section className="soft-surface py-16 md:py-20">
+      <section className="soft-surface py-12 md:py-20">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-2">
           <div>
             <p className="text-sm font-semibold tracking-wide text-accent">
@@ -417,7 +417,7 @@ function Home() {
       </section>
 
       {/* Latest jobs */}
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -427,7 +427,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
               <Link to="/jobs">
-                {t("home.jobs.cta")} <ArrowLeft className="size-4" />
+                {t("home.jobs.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -435,14 +435,14 @@ function Home() {
             {jobsErr ? (
               <ErrorState onRetry={() => void jobsRefetch()} />
             ) : jobsLoading
-               ? [...Array(6)].map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)
-              : jobs?.map((job) => <JobCard key={job.id} job={job} />)}
+               ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)
+              : jobs?.map((job, index) => <div key={job.id} className={index > 2 ? "hidden sm:block" : undefined}><JobCard job={job} /></div>)}
           </div>
         </div>
       </section>
 
       {/* Shifts */}
-      <section className="soft-surface py-16 md:py-20">
+      <section className="soft-surface py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -452,7 +452,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
                <Link to="/jobs" search={{ kind: "shift" }}>
-                {t("home.shifts.cta")} <ArrowLeft className="size-4" />
+                 {t("home.shifts.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -460,14 +460,14 @@ function Home() {
             {shiftsErr ? (
               <ErrorState onRetry={() => void shiftsRefetch()} />
             ) : shiftsLoading
-               ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-60 rounded-lg" />)
-              : shifts?.map((shift) => <ShiftCard key={shift.id} shift={shift} />)}
+               ? [...Array(2)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)
+              : shifts?.map((shift, index) => <div key={shift.id} className={index > 1 ? "hidden sm:block" : undefined}><ShiftCard shift={shift} /></div>)}
           </div>
         </div>
       </section>
 
       {/* Specialties */}
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -477,7 +477,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
               <Link to="/specialties">
-                {t("home.specialties.cta")} <ArrowLeft className="size-4" />
+                 {t("home.specialties.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -497,7 +497,7 @@ function Home() {
       </section>
 
       {/* Guides */}
-      <section className="soft-surface py-16 md:py-20">
+      <section className="soft-surface py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -507,7 +507,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
               <Link to="/guides">
-                {t("home.guides.cta")} <ArrowLeft className="size-4" />
+                 {t("home.guides.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -534,7 +534,7 @@ function Home() {
       </section>
 
       {/* CTA */}
-      <section className="hero-surface py-16">
+      <section className="hero-surface py-12 md:py-16">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 text-center">
            <span className="flex size-12 items-center justify-center rounded-lg bg-primary-foreground/12 text-primary-foreground">
             <Bell className="size-6" />

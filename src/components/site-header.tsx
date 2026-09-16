@@ -46,7 +46,7 @@ export function SiteHeader() {
     <>
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
-        <BrandLogo className="shrink-0" labelClassName="hidden sm:inline" />
+        <BrandLogo className="min-h-11 shrink-0" labelClassName="hidden sm:inline" />
 
         <nav className="mx-2 hidden items-center gap-0.5 lg:flex" aria-label={t("nav.menu")}>
           {PRIMARY_NAV.map((item) => (
@@ -69,7 +69,7 @@ export function SiteHeader() {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5 px-2"
+              className="min-w-11 gap-1.5 px-2"
               aria-label={t("lang.label")}
               onClick={() => setLang(lang === "ar" ? "en" : "ar")}
             >
