@@ -61,6 +61,7 @@ import { useOnlineUsers } from "@/lib/presence";
 import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { dayKey, dayLabel, timeLabel, EMOJIS, PICKER_EMOJIS, TXT, type Conversation, type Msg } from "@/components/panels/messages.shared";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({
@@ -77,7 +78,6 @@ export const Route = createFileRoute("/_authenticated/messages")({
   component: MessagesPage,
 });
 
-import { dayKey, dayLabel, timeLabel, EMOJIS, PICKER_EMOJIS, TXT, type Conversation, type Msg } from "@/components/panels/messages.shared";
 
 function MessagesPage() {
   const { lang } = useLang();
