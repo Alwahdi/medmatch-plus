@@ -72,6 +72,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { TXT, shiftErrorText, type FacilitySearch, type PlanRow, type SubRow } from "@/components/panels/facility.shared";
 
+export const Route = createFileRoute("/_authenticated/facility/")({
+  validateSearch: (search: Record<string, unknown>): FacilitySearch => {
+    const tab = search["tab"];
+    return typeof tab === "string" ? { tab } : {};
+  },
+  head: () => ({
+    meta: [
+      { title: "لوحة المنشأة | SyndeoCare" },
+      { name: "description", content: "أعمالك المنشورة والمتقدمون والحجوزات وتوثيق المنشأة في مكان واحد." },
+      { property: "og:title", content: "لوحة المنشأة | SyndeoCare" },
+      { property: "og:description", content: "إدارة الوظائف والمناوبات والمتقدمين." },
+    ],
+  }),
+  component: FacilityDashboard,
+});
+
 function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
