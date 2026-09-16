@@ -17,13 +17,13 @@ export function WorkspaceHeading({
   action?: ReactNode;
 }) {
   return (
-    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border pb-5">
+    <header className="grid grid-cols-1 items-start gap-4 border-b border-border pb-5 sm:grid-cols-[minmax(0,1fr)_auto]">
       <div className="min-w-0">
         {eyebrow && <p className="text-xs font-semibold text-primary">{eyebrow}</p>}
         <h1 className="mt-1 text-2xl font-bold leading-tight text-foreground sm:text-3xl">{title}</h1>
         {description && <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>}
       </div>
-      {action && <div className="min-w-0 shrink-0">{action}</div>}
+      {action && <div className="min-w-0 [&>*]:max-w-full">{action}</div>}
     </header>
   );
 }
