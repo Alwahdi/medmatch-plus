@@ -155,7 +155,8 @@ function Dashboard() {
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("credentials").select("status").eq("user_id", user!.id);
+      const { data, error } = await supabase.from("credentials").select("status").eq("user_id", user!.id);
+      if (error) throw error;
       return data ?? [];
     },
   });

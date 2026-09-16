@@ -127,7 +127,8 @@ function FacilityDashboard() {
   const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
+      const { data, error } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
+      if (error) throw error;
       return data ?? [];
     },
   });

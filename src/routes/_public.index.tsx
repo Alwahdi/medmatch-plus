@@ -99,7 +99,8 @@ function Home() {
   const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["home-specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,slug,name_ar").limit(12);
+      const { data, error } = await supabase.from("specialties").select("id,slug,name_ar").limit(12);
+      if (error) throw error;
       return data ?? [];
     },
   });

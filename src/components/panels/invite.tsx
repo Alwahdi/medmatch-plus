@@ -129,7 +129,8 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
   const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
+      const { data, error } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -152,10 +153,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     enabled: !!(jobId || shiftId),
     queryFn: async () => {
       if (jobId) {
-        const { data } = await supabase.from("jobs").select("id,title").eq("id", jobId).maybeSingle();
+        const { data, error } = await supabase.from("jobs").select("id,title").eq("id", jobId).maybeSingle();
+        if (error) throw error;
         return data ? { kind: "job" as const, title: data.title } : null;
       }
-      const { data } = await supabase.from("shifts").select("id,title").eq("id", shiftId!).maybeSingle();
+      const { data, error } = await supabase.from("shifts").select("id,title").eq("id", shiftId!).maybeSingle();
+      if (error) throw error;
       return data ? { kind: "shift" as const, title: data.title } : null;
     },
   });
