@@ -31,6 +31,7 @@ import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
 import { WorkspaceHeading } from "@/components/workspace-ui";
+import { ErrorState } from "@/components/error-state";
 
 type ProfileSearch = { tab?: string };
 
@@ -135,7 +136,7 @@ function ProfileOverview() {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<"view" | "edit">("view");
 
-  const { data: specialties } = useQuery({
+  const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
       const { data, error } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
@@ -144,7 +145,7 @@ function ProfileOverview() {
     },
   });
 
-  const { data: profile, isFetched: proFetched } = useQuery({
+  const { data: profile, isError: profileErr, refetch: profileRefetch, isFetched: proFetched } = useQuery({
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -157,7 +158,7 @@ function ProfileOverview() {
     },
   });
 
-  const { data: account } = useQuery({
+  const { data: account, isError: accountErr, refetch: accountRefetch } = useQuery({
     queryKey: ["my-account", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -277,6 +278,22 @@ function ProfileOverview() {
 
     onError: (e: Error) => toast.error(e.message || c.saveFailed),
   });
+
+  const loadErrors = [
+    { err: specialtiesErr, retry: specialtiesRefetch },
+    { err: profileErr, retry: profileRefetch },
+    { err: accountErr, retry: accountRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <ErrorState
+          onRetry={() => {
+            for (const q of loadErrors) void q.retry();
+          }}
+        />
+      </div>
+    );
 
   return (
     <div className="mx-auto max-w-3xl">
