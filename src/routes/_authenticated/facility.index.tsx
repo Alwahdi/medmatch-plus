@@ -68,6 +68,7 @@ import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { TXT, shiftErrorText, type FacilitySearch, type PlanRow, type SubRow } from "@/components/panels/facility.shared";
 
