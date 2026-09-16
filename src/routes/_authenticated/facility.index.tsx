@@ -564,10 +564,10 @@ function FacilityDashboard() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-6xl space-y-4 px-4 py-8" aria-label={c.loading}>
-        <div className="h-16 animate-pulse rounded-lg bg-muted" />
-        <div className="h-36 animate-pulse rounded-lg bg-muted" />
+        <Skeleton className="h-16 rounded-lg" />
+        <Skeleton className="h-36 rounded-lg" />
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-24 animate-pulse rounded-lg bg-muted" />)}
+          {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-24 rounded-lg" />)}
         </div>
       </div>
     );
