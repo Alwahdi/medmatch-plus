@@ -235,6 +235,27 @@ function Dashboard() {
     })
     .slice(0, 3);
 
+  const loadErrors = [
+    { err: profileErr, retry: profileRefetch },
+    { err: appsErr, retry: appsRefetch },
+    { err: credsErr, retry: credsRefetch },
+    { err: bookingsErr, retry: bookingsRefetch },
+    { err: pendingInvitesErr, retry: pendingInvitesRefetch },
+    { err: pendingInterviewsErr, retry: pendingInterviewsRefetch },
+    { err: jobsErr, retry: jobsRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <ErrorState
+          onRetry={() => {
+            for (const q of loadErrors) void q.retry();
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
       <WorkspaceHeading eyebrow={c.workspace} title={c.hello(profile?.full_name || c.you)} description={c.sub} />
