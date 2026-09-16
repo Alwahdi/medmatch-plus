@@ -361,10 +361,10 @@ export function FacilityInterviewBlock({
     <div className="mt-4 rounded-lg border border-border bg-surface p-4">
       {confirmDialog}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="flex items-center gap-2 text-sm font-bold">
+        <div className="flex items-center gap-2 text-sm font-bold">
           <CalendarClock className="size-4 text-primary" /> {c.interview}
           {row && <Badge variant={row.status === "confirmed" ? "secondary" : "outline"}>{statusLabel(row.status, lang)}</Badge>}
-        </p>
+        </div>
         {!disabled && (
           <div className="flex flex-wrap gap-2">
             <Button
@@ -583,10 +583,10 @@ export function CandidateInterviewBlock({
     <div className="mt-4 rounded-lg border border-border bg-surface p-4">
       {confirmDialog}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="flex items-center gap-2 text-sm font-bold">
+        <div className="flex items-center gap-2 text-sm font-bold">
           <CalendarClock className="size-4 text-primary" /> {c.interview}
           <Badge variant={row.status === "confirmed" ? "secondary" : "outline"}>{statusLabel(row.status, lang)}</Badge>
-        </p>
+        </div>
         {pending && (
           <div className="flex flex-wrap gap-2">
             <Button size="sm" loading={respond.isPending} onClick={() => respond.mutate(true)}>
