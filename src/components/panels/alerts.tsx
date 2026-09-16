@@ -25,6 +25,7 @@ import { EmptyState } from "@/components/empty-state";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 import { toastUndo } from "@/lib/undo";
+import { ErrorState } from "@/components/error-state";
 
 
 const ANY = "any";
@@ -98,13 +99,13 @@ export function AlertsPanel() {
   const [channel, setChannel] = useState<"email" | "whatsapp">("email");
   const [phone, setPhone] = useState("");
 
-  const { data: channels } = useQuery({
+  const { data: channels, isError: channelsErr, refetch: channelsRefetch } = useQuery({
     queryKey: ["alert-channels"],
     queryFn: () => getChannelStatus(),
     staleTime: 5 * 60_000,
   });
 
-  const { data: specialties } = useQuery({
+  const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
       const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
@@ -112,7 +113,7 @@ export function AlertsPanel() {
     },
   });
 
-  const { data: alerts } = useQuery({
+  const { data: alerts, isError: alertsErr, refetch: alertsRefetch } = useQuery({
     queryKey: ["job-alerts", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -179,6 +180,19 @@ export function AlertsPanel() {
     },
   });
 
+  const loadErrors = [
+    { err: channelsErr, retry: channelsRefetch },
+    { err: specialtiesErr, retry: specialtiesRefetch },
+    { err: alertsErr, retry: alertsRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <ErrorState
+        onRetry={() => {
+          for (const q of loadErrors) void q.retry();
+        }}
+      />
+    );
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       {confirmDialog}
