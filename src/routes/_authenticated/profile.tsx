@@ -518,7 +518,7 @@ function ProfilePage() {
         value={tab}
         onValueChange={(v) => void navigate({ to: "/profile", search: { tab: v }, replace: true })}
       >
-        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+        <div className="-mx-4 overflow-x-auto border-x border-transparent px-4 pb-2 [scrollbar-width:thin]">
           <TabsList className="w-max">
             <TabsTrigger value="overview" className="shrink-0">{tt.overview}</TabsTrigger>
             <TabsTrigger value="cv" className="shrink-0">{tt.cv}</TabsTrigger>

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,6 +95,8 @@ const TXT = {
     scopeAll: "كل التخصصات",
     showFilters: "إظهار التصفية",
     hideFilters: "إخفاء التصفية",
+    applyFilters: "عرض النتائج",
+    closeFilters: "إغلاق التصفية",
     sort: "الترتيب",
     sortMatch: "الأنسب لي",
     sortNew: "الأحدث",
@@ -135,6 +137,8 @@ const TXT = {
     scopeAll: "All specialties",
     showFilters: "Show filters",
     hideFilters: "Hide filters",
+    applyFilters: "Show results",
+    closeFilters: "Close filters",
     sort: "Sort",
     sortMatch: "Best match",
     sortNew: "Newest",
@@ -443,22 +447,43 @@ function JobsPage() {
       )}
 
       <section className={signedIn ? "py-6" : "py-8 md:py-12"}>
-
+        <div className="mx-auto mb-4 max-w-6xl px-4 lg:hidden">
+          <Button
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => setShowFilters(true)}
+            aria-expanded={showFilters}
+          >
+            <SlidersHorizontal className="size-4" />
+            {c.showFilters}
+            {activeFilters.length > 0 && (
+              <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                {activeFilters.length}
+              </span>
+            )}
+          </Button>
+        </div>
         <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[320px_minmax(0,1fr)]">
           {/* Filters sidebar */}
-          <aside className="lg:order-1">
-            <Button
-              variant="outline"
-              className="mb-3 w-full gap-2 lg:hidden"
-              onClick={() => setShowFilters((v) => !v)}
-            >
-              <SlidersHorizontal className="size-4" />
-              {showFilters ? c.hideFilters : c.showFilters}
-            </Button>
+          {showFilters && (
+            <button
+              type="button"
+              className="fixed inset-0 z-[59] bg-foreground/40 backdrop-blur-sm lg:hidden"
+              onClick={() => setShowFilters(false)}
+              aria-label={c.closeFilters}
+            />
+          )}
+          <aside className={`${showFilters ? "fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-y-auto rounded-t-lg bg-background p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" : "hidden"} lg:static lg:order-1 lg:block lg:max-h-none lg:overflow-visible lg:rounded-none lg:bg-transparent lg:p-0`}>
+            <div className="mb-4 flex items-center justify-between lg:hidden">
+              <h2 className="font-display text-lg font-bold">{c.filters}</h2>
+              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} aria-label={c.closeFilters}>
+                <X className="size-5" />
+              </Button>
+            </div>
             <div
-              className={`${showFilters ? "" : "hidden lg:block"} sticky top-24 rounded-lg border border-border bg-card p-5 shadow-card`}
+              className="rounded-lg border border-border bg-card p-5 shadow-card lg:sticky lg:top-24"
             >
-              <div className="flex items-center justify-between gap-2">
+              <div className="hidden items-center justify-between gap-2 lg:flex">
                 <h2 className="font-display text-lg font-bold">{c.filters}</h2>
                 <span className="grid size-9 place-items-center rounded-lg bg-surface text-muted-foreground">
                   <SlidersHorizontal className="size-4" />
@@ -558,6 +583,9 @@ function JobsPage() {
 
                 <Button variant="outline" className="w-full gap-2" onClick={reset}>
                   <RotateCcw className="size-4" /> {c.reset}
+                </Button>
+                <Button className="w-full lg:hidden" onClick={() => setShowFilters(false)}>
+                  {c.applyFilters} · {c.count(items.length)}
                 </Button>
               </div>
             </div>

@@ -427,7 +427,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
               <Link to="/jobs">
-                {t("home.jobs.cta")} <ArrowLeft className="size-4" />
+                {t("home.jobs.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -452,7 +452,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
                <Link to="/jobs" search={{ kind: "shift" }}>
-                {t("home.shifts.cta")} <ArrowLeft className="size-4" />
+                 {t("home.shifts.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -477,7 +477,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
               <Link to="/specialties">
-                {t("home.specialties.cta")} <ArrowLeft className="size-4" />
+                 {t("home.specialties.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>
@@ -507,7 +507,7 @@ function Home() {
             </div>
             <Button variant="ghost" asChild>
               <Link to="/guides">
-                {t("home.guides.cta")} <ArrowLeft className="size-4" />
+                 {t("home.guides.cta")} <ArrowLeft className="size-4 ltr:rotate-180" />
               </Link>
             </Button>
           </div>

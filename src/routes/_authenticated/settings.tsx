@@ -104,7 +104,7 @@ function SettingsPage() {
         }
         className="mt-6"
       >
-        <div className="-mx-4 overflow-x-auto px-4 pb-1">
+        <div className="-mx-4 overflow-x-auto border-x border-transparent px-4 pb-2 [scrollbar-width:thin]">
           <TabsList className="w-max">
             <TabsTrigger value="general" className="shrink-0">{c.tabGeneral}</TabsTrigger>
             {!isFacility && (

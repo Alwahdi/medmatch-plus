@@ -43,7 +43,7 @@ export function MobileMenuSheet({ open, onClose, title, closeLabel, header, chil
             type="button"
             onClick={onClose}
             aria-label={closeLabel}
-            className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             <X className="size-5" />
           </button>
