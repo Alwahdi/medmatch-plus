@@ -15,6 +15,7 @@ import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
+import { ErrorState } from "@/components/error-state";
 
 const TXT = {
   ar: {
@@ -172,7 +173,7 @@ function JobDetail() {
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobId);
 
-  const { data: job, isLoading } = useQuery({
+  const { data: job, isLoading, isError: jobErr, error: jobErrObj, refetch: jobRefetch } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
       const query = supabase.from("jobs").select("*,specialties(name_ar,name_en)");
@@ -272,6 +273,13 @@ function JobDetail() {
         e.message.startsWith("SC_") ? e.message.slice(3) : engagementErrorText(e.message, lang),
       ),
   });
+
+  if (jobErr)
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <ErrorState error={jobErrObj} onRetry={() => void jobRefetch()} />
+      </div>
+    );
 
   if (isLoading)
     return (

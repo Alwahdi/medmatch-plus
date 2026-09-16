@@ -21,6 +21,7 @@ import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, formatSalary } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
+import { ErrorState } from "@/components/error-state";
 
 const TXT = {
   ar: {
@@ -99,7 +100,7 @@ function FacilityProfilePage() {
   const { user } = useSession();
   const online = useOnlineUsers(user);
 
-  const { data: facility, isLoading } = useQuery({
+  const { data: facility, isLoading, isError: facErr, error: facErrObj, refetch: facRefetch } = useQuery({
     queryKey: ["public-facility", facilityId],
     queryFn: async () => {
       const { data } = await supabase
@@ -140,6 +141,13 @@ function FacilityProfilePage() {
       return data ?? [];
     },
   });
+
+  if (facErr)
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <ErrorState error={facErrObj} onRetry={() => void facRefetch()} />
+      </div>
+    );
 
   if (isLoading)
     return (

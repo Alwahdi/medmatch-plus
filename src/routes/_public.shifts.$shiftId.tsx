@@ -28,6 +28,7 @@ import {
   specialtyName,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { ErrorState } from "@/components/error-state";
 
 const TXT = {
   ar: {
@@ -157,7 +158,7 @@ function ShiftDetail() {
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
 
-  const { data: shift, isLoading } = useQuery({
+  const { data: shift, isLoading, isError: shiftErr, error: shiftErrObj, refetch: shiftRefetch } = useQuery({
     queryKey: ["shift", shiftId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -217,6 +218,13 @@ function ShiftDetail() {
       queryClient.invalidateQueries({ queryKey: ["shift", shiftId] });
     },
   });
+
+  if (shiftErr)
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <ErrorState error={shiftErrObj} onRetry={() => void shiftRefetch()} />
+      </div>
+    );
 
   if (isLoading)
     return (
