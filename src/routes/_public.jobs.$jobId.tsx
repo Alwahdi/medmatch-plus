@@ -15,6 +15,7 @@ import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
+import { ErrorState } from "@/components/error-state";
 
 const TXT = {
   ar: {
@@ -172,7 +173,7 @@ function JobDetail() {
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobId);
 
-  const { data: job, isLoading } = useQuery({
+  const { data: job, isLoading, isError: jobErr, error: jobErrObj, refetch: jobRefetch } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
       const query = supabase.from("jobs").select("*,specialties(name_ar,name_en)");
@@ -273,6 +274,13 @@ function JobDetail() {
       ),
   });
 
+  if (jobErr)
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <ErrorState error={jobErrObj} onRetry={() => void jobRefetch()} />
+      </div>
+    );
+
   if (isLoading)
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
@@ -290,21 +298,21 @@ function JobDetail() {
       {/* Hero */}
       <section className="page-hero py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-4">
-          <nav className="flex flex-wrap items-center gap-2 text-xs text-white/70">
-            <Link to="/" className="hover:text-white">{c.home}</Link>
+          <nav className="flex flex-wrap items-center gap-2 text-xs text-on-hero/70">
+            <Link to="/" className="hover:text-on-hero">{c.home}</Link>
             <span>/</span>
-            <Link to="/jobs" className="hover:text-white">{c.jobsCrumb}</Link>
+            <Link to="/jobs" className="hover:text-on-hero">{c.jobsCrumb}</Link>
             <span>/</span>
-            <span className="text-white">{job.title}</span>
+            <span className="text-on-hero">{job.title}</span>
           </nav>
-          <Button variant="ghost" size="sm" asChild className="mt-3 text-white/80 hover:bg-white/10 hover:text-white">
+          <Button variant="ghost" size="sm" asChild className="mt-3 text-on-hero/80 hover:bg-white/10 hover:text-on-hero">
             <Link to="/jobs">
               <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-white/85">
-            <Badge className={isOpen ? "bg-success text-white" : "bg-muted text-foreground"}>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-on-hero/85">
+            <Badge className={isOpen ? "bg-success text-on-hero" : "bg-muted text-foreground"}>
               {isOpen ? c.open : c.closed}
             </Badge>
             <span className="flex items-center gap-2">
@@ -317,7 +325,7 @@ function JobDetail() {
               </Badge>
             )}
             {!!job.applications_count && (
-              <Badge variant="outline" className="border-white/30 text-white">
+              <Badge variant="outline" className="border-white/30 text-on-hero">
                 {c.applications(job.applications_count)}
               </Badge>
             )}

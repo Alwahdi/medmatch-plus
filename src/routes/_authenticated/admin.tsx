@@ -24,6 +24,7 @@ import { useRoles, useSession } from "@/lib/auth";
 import { fieldLabel } from "@/components/change-request";
 import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { ErrorState } from "@/components/error-state";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -160,7 +161,7 @@ function AdminPage() {
   const [changeRejectId, setChangeRejectId] = useState<string | null>(null);
   const [logQuery, setLogQuery] = useState("");
 
-  const { data: creds, isLoading: credsLoading } = useQuery({
+  const { data: creds, isError: credsErr, refetch: credsRefetch, isLoading: credsLoading } = useQuery({
     queryKey: ["admin-creds"],
     enabled: !!isAdmin,
     queryFn: async () => {
@@ -173,7 +174,7 @@ function AdminPage() {
     },
   });
 
-  const { data: facilities } = useQuery({
+  const { data: facilities, isError: facilitiesErr, refetch: facilitiesRefetch } = useQuery({
     queryKey: ["admin-facilities"],
     enabled: !!isAdmin,
     queryFn: async () => {
@@ -186,7 +187,7 @@ function AdminPage() {
     },
   });
 
-  const { data: pros } = useQuery({
+  const { data: pros, isError: prosErr, refetch: prosRefetch } = useQuery({
     queryKey: ["admin-pros"],
     enabled: !!isAdmin,
     queryFn: async () => {
@@ -199,7 +200,7 @@ function AdminPage() {
     },
   });
 
-  const { data: facDocs, isLoading: facDocsLoading } = useQuery({
+  const { data: facDocs, isError: facDocsErr, refetch: facDocsRefetch, isLoading: facDocsLoading } = useQuery({
     queryKey: ["admin-facility-docs"],
     enabled: !!isAdmin,
     queryFn: async () => {
@@ -212,7 +213,7 @@ function AdminPage() {
     },
   });
 
-  const { data: inbox } = useQuery({
+  const { data: inbox, isError: inboxErr, refetch: inboxRefetch } = useQuery({
     queryKey: ["admin-inbox"],
     enabled: !!isAdmin,
     queryFn: async () => {
@@ -225,7 +226,7 @@ function AdminPage() {
     },
   });
 
-  const { data: changeReqs } = useQuery({
+  const { data: changeReqs, isError: changeReqsErr, refetch: changeReqsRefetch } = useQuery({
     queryKey: ["admin-change-requests"],
     enabled: !!isAdmin,
     queryFn: async () => {
@@ -238,7 +239,7 @@ function AdminPage() {
     },
   });
 
-  const { data: changeLog } = useQuery({
+  const { data: changeLog, isError: changeLogErr, refetch: changeLogRefetch } = useQuery({
     queryKey: ["admin-change-log"],
     enabled: !!isAdmin,
     queryFn: async () => {
@@ -412,6 +413,26 @@ function AdminPage() {
   const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
   const pendingChanges = (changeReqs ?? []).filter((r) => r.status === "pending");
   const shownChanges = pendingOnly ? pendingChanges : changeReqs ?? [];
+  const loadErrors = [
+    { err: credsErr, retry: credsRefetch },
+    { err: facilitiesErr, retry: facilitiesRefetch },
+    { err: prosErr, retry: prosRefetch },
+    { err: facDocsErr, retry: facDocsRefetch },
+    { err: inboxErr, retry: inboxRefetch },
+    { err: changeReqsErr, retry: changeReqsRefetch },
+    { err: changeLogErr, retry: changeLogRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <ErrorState
+          onRetry={() => {
+            for (const q of loadErrors) void q.retry();
+          }}
+        />
+      </div>
+    );
+
   const shownLog = (changeLog ?? []).filter((l) =>
     logQuery.trim() ? `${l.field} ${l.old_value ?? ""} ${l.new_value ?? ""}`.includes(logQuery.trim()) : true,
   );

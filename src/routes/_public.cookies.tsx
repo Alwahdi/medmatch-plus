@@ -112,7 +112,7 @@ function CookiesPage() {
         <div className="mx-auto max-w-3xl px-4">
           <span className="section-label">{c.badge}</span>
           <h1 className="mt-3 font-display text-3xl font-extrabold md:text-4xl">{c.title}</h1>
-          <p className="mt-3 text-white/85">{c.sub}</p>
+          <p className="mt-3 text-on-hero/85">{c.sub}</p>
         </div>
       </section>
 

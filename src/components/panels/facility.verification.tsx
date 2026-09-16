@@ -40,6 +40,7 @@ import {
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { ErrorState } from "@/components/error-state";
 
 
 const TXT = {
@@ -164,7 +165,7 @@ export function FacilityVerificationPanel() {
   });
   const [file, setFile] = useState<File | null>(null);
 
-  const { data: facility, isLoading: facLoading } = useQuery({
+  const { data: facility, isError: facilityErr, refetch: facilityRefetch, isLoading: facLoading } = useQuery({
     queryKey: ["my-facility-verify", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -178,7 +179,7 @@ export function FacilityVerificationPanel() {
     },
   });
 
-  const { data: docs, isLoading } = useQuery({
+  const { data: docs, isError: docsErr, refetch: docsRefetch, isLoading } = useQuery({
     queryKey: ["facility-docs", facility?.id],
     enabled: !!facility?.id,
     queryFn: async (): Promise<FacilityDoc[]> => {
@@ -289,6 +290,18 @@ export function FacilityVerificationPanel() {
   ).length;
   const pct = Math.round((approvedRequired / FACILITY_REQUIRED_DOCS.length) * 100);
 
+  const loadErrors = [
+    { err: facilityErr, retry: facilityRefetch },
+    { err: docsErr, retry: docsRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <ErrorState
+        onRetry={() => {
+          for (const q of loadErrors) void q.retry();
+        }}
+      />
+    );
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       {confirmDialog}

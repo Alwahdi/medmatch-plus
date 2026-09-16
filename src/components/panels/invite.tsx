@@ -15,6 +15,7 @@ import { countryLabel, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
+import { ErrorState } from "@/components/error-state";
 
 const ANY = "any";
 
@@ -125,7 +126,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
   const [minExp, setMinExp] = useState("");
   const [results, setResults] = useState<Candidate[] | null>(null);
 
-  const { data: specialties } = useQuery({
+  const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
       const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
@@ -133,7 +134,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: facility } = useQuery({
+  const { data: facility, isError: facilityErr, refetch: facilityRefetch } = useQuery({
     queryKey: ["my-facility", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -146,7 +147,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: target } = useQuery({
+  const { data: target, isError: targetErr, refetch: targetRefetch } = useQuery({
     queryKey: ["invite-target", jobId, shiftId],
     enabled: !!(jobId || shiftId),
     queryFn: async () => {
@@ -159,7 +160,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: recent } = useQuery({
+  const { data: recent, isError: recentErr, refetch: recentRefetch } = useQuery({
     queryKey: ["past-collaborators", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -195,7 +196,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: sentInvites } = useQuery({
+  const { data: sentInvites, isError: sentInvitesErr, refetch: sentInvitesRefetch } = useQuery({
     queryKey: ["invitations-sent", facility?.id, jobId, shiftId],
     enabled: !!facility,
     queryFn: async () => {
@@ -283,6 +284,21 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     );
   }
 
+  const loadErrors = [
+    { err: specialtiesErr, retry: specialtiesRefetch },
+    { err: facilityErr, retry: facilityRefetch },
+    { err: targetErr, retry: targetRefetch },
+    { err: recentErr, retry: recentRefetch },
+    { err: sentInvitesErr, retry: sentInvitesRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <ErrorState
+        onRetry={() => {
+          for (const q of loadErrors) void q.retry();
+        }}
+      />
+    );
   return (
     <div>
       <div className="rounded-lg border border-border bg-card p-5 shadow-card">

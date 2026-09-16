@@ -23,6 +23,7 @@ import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime }
 import { useLang } from "@/lib/i18n";
 import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { ErrorState } from "@/components/error-state";
 
 export const Route = createFileRoute("/_authenticated/facility/candidates/$userId")({
   head: () => ({
@@ -99,7 +100,7 @@ function CandidateProfile() {
   const navigate = useNavigate();
   const online = useOnlineUsers(user);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError: loadErr, error: loadErrObj, refetch: loadRefetch } = useQuery({
     queryKey: ["candidate-profile", userId, user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -173,6 +174,13 @@ function CandidateProfile() {
     },
     onError: (e: Error) => toast.error(e.message === "no-facility" ? c.noFacility : c.chatFailed),
   });
+
+  if (loadErr)
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <ErrorState error={loadErrObj} onRetry={() => void loadRefetch()} />
+      </div>
+    );
 
   if (isLoading) return <div className="mx-auto max-w-4xl px-4 py-10"><ListSkeleton rows={3} /></div>;
 

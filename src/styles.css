@@ -46,6 +46,7 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
   --color-surface: var(--surface);
+  --color-on-hero: var(--on-hero);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -68,6 +69,8 @@
   --background: oklch(0.978 0.004 240);
   --foreground: oklch(0.24 0.025 250);
   --surface: oklch(0.955 0.009 230);
+  /* نص فوق الرؤوس الملوّنة الداكنة */
+  --on-hero: oklch(1 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.24 0.025 250);
   --popover: oklch(1 0 0);

@@ -71,6 +71,7 @@ import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/c
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { TXT, shiftErrorText, type FacilitySearch, type PlanRow, type SubRow } from "@/components/panels/facility.shared";
+import { ErrorState } from "@/components/error-state";
 
 export const Route = createFileRoute("/_authenticated/facility/")({
   validateSearch: (search: Record<string, unknown>): FacilitySearch => {
@@ -123,7 +124,7 @@ function FacilityDashboard() {
   });
   const { data: facility, isLoading } = facilityQuery;
 
-  const { data: specialties } = useQuery({
+  const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
       const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
@@ -131,7 +132,7 @@ function FacilityDashboard() {
     },
   });
 
-  const { data: jobs } = useQuery({
+  const { data: jobs, isError: jobsErr, refetch: jobsRefetch } = useQuery({
     queryKey: ["facility-jobs", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -145,7 +146,7 @@ function FacilityDashboard() {
     },
   });
 
-  const { data: shifts } = useQuery({
+  const { data: shifts, isError: shiftsErr, refetch: shiftsRefetch } = useQuery({
     queryKey: ["facility-shifts", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -159,7 +160,7 @@ function FacilityDashboard() {
     },
   });
 
-  const { data: sub } = useQuery({
+  const { data: sub, isError: subErr, refetch: subRefetch } = useQuery({
     queryKey: ["facility-sub", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -224,6 +225,23 @@ function FacilityDashboard() {
     },
     onError: (e: Error) => toast.error(shiftErrorText(e.message, lang)),
   });
+
+  const loadErrors = [
+    { err: specialtiesErr, retry: specialtiesRefetch },
+    { err: jobsErr, retry: jobsRefetch },
+    { err: shiftsErr, retry: shiftsRefetch },
+    { err: subErr, retry: subRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <ErrorState
+          onRetry={() => {
+            for (const q of loadErrors) void q.retry();
+          }}
+        />
+      </div>
+    );
 
   if (isLoading) {
     return (

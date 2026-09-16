@@ -24,6 +24,7 @@ import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { ErrorState } from "@/components/error-state";
 
 
 const TXT = {
@@ -117,7 +118,7 @@ export function CredentialsPanel() {
     issuer: z.string().trim().max(120).optional(),
   });
 
-  const { data: items, isLoading } = useQuery({
+  const { data: items, isError: itemsErr, refetch: itemsRefetch, isLoading } = useQuery({
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -195,6 +196,17 @@ export function CredentialsPanel() {
   const isVerified = approvedRequired === PRO_REQUIRED_DOCS.length;
   const pct = Math.round((approvedRequired / PRO_REQUIRED_DOCS.length) * 100);
 
+  const loadErrors = [
+    { err: itemsErr, retry: itemsRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <ErrorState
+        onRetry={() => {
+          for (const q of loadErrors) void q.retry();
+        }}
+      />
+    );
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       {confirmDialog}

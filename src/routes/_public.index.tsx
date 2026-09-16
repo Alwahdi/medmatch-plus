@@ -25,6 +25,7 @@ import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { GUIDES } from "@/content/guides";
 import { DICT, useLang } from "@/lib/i18n";
+import { ErrorState } from "@/components/error-state";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
@@ -63,7 +64,7 @@ function Home() {
   const [loc, setLoc] = useState("");
   const [tab, setTab] = useState<"employers" | "seekers">("employers");
 
-  const { data: jobs, isLoading: jobsLoading } = useQuery({
+  const { data: jobs, isError: jobsErr, refetch: jobsRefetch, isLoading: jobsLoading } = useQuery({
     queryKey: ["home-jobs"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -79,7 +80,7 @@ function Home() {
     },
   });
 
-  const { data: shifts, isLoading: shiftsLoading } = useQuery({
+  const { data: shifts, isError: shiftsErr, refetch: shiftsRefetch, isLoading: shiftsLoading } = useQuery({
     queryKey: ["home-shifts"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -95,7 +96,7 @@ function Home() {
     },
   });
 
-  const { data: specialties } = useQuery({
+  const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["home-specialties"],
     queryFn: async () => {
       const { data } = await supabase.from("specialties").select("id,slug,name_ar").limit(12);
@@ -112,6 +113,22 @@ function Home() {
   }
 
   const stepKeys = tab === "employers" ? EMPLOYER_STEP_KEYS : SEEKER_STEP_KEYS;
+
+  const loadErrors = [
+    { err: jobsErr, retry: jobsRefetch },
+    { err: shiftsErr, retry: shiftsRefetch },
+    { err: specialtiesErr, retry: specialtiesRefetch },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <ErrorState
+          onRetry={() => {
+            for (const q of loadErrors) void q.retry();
+          }}
+        />
+      </div>
+    );
 
   return (
     <>

@@ -33,6 +33,7 @@ import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import {
+import { ErrorState } from "@/components/error-state";
   deviceLabel,
   platformAuthenticatorAvailable,
   registerBiometric,
@@ -263,7 +264,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   });
 
   /* ---------------- identities ---------------- */
-  const { data: identities, refetch: refetchIdentities } = useQuery({
+  const { data: identities, isError: identitiesErr, refetch: refetchIdentities } = useQuery({
     queryKey: ["identities", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -334,7 +335,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   }
 
   /* ---------------- MFA ---------------- */
-  const { data: factors, refetch: refetchFactors } = useQuery({
+  const { data: factors, isError: factorsErr, refetch: refetchFactors } = useQuery({
     queryKey: ["mfa-factors", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -413,7 +414,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     void platformAuthenticatorAvailable().then(setBioSupported);
   }, []);
 
-  const { data: devices } = useQuery({
+  const { data: devices, isError: devicesErr, refetch: devicesRefetch } = useQuery({
     queryKey: ["trusted-devices", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -479,7 +480,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   }
 
   /* ---------------- sessions ---------------- */
-  const { data: sessions, refetch: refetchSessions } = useQuery({
+  const { data: sessions, isError: sessionsErr, refetch: refetchSessions } = useQuery({
     queryKey: ["my-sessions", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -539,6 +540,20 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     "bg-emerald-600",
   ];
 
+  const loadErrors = [
+    { err: identitiesErr, retry: refetchIdentities },
+    { err: factorsErr, retry: refetchFactors },
+    { err: devicesErr, retry: devicesRefetch },
+    { err: sessionsErr, retry: refetchSessions },
+  ].filter((q) => q.err);
+  if (loadErrors.length > 0)
+    return (
+      <ErrorState
+        onRetry={() => {
+          for (const q of loadErrors) void q.retry();
+        }}
+      />
+    );
   return (
     <div className={embedded ? "" : "mx-auto max-w-3xl px-4 py-10"}>
       {!embedded && (

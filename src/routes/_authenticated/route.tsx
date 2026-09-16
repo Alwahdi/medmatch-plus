@@ -99,7 +99,7 @@ function AuthenticatedLayout() {
 
   if (authError || sessionError || rolesQuery.isError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="flex min-h-dvh items-center justify-center bg-background px-4">
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 text-center">
           <p className="font-bold">تعذّر التحقق من حسابك</p>
           <p className="mt-2 text-sm text-muted-foreground">تحقق من اتصالك ثم حاول مجدداً. لن يتم تسجيل خروجك بسبب بطء الشبكة.</p>
@@ -118,7 +118,7 @@ function AuthenticatedLayout() {
 
   if (!ready || sessionLoading || (user && rolesQuery.isLoading)) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-dvh items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

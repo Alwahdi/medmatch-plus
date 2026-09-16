@@ -12,6 +12,7 @@ import {
 import { AccountHub, AccountHubSidebarTrigger } from "@/components/account-hub";
 import { useAccountIdentity } from "@/components/account-hub";
 import { NotificationBell } from "@/components/notification-bell";
+import { OfflineBanner } from "@/components/offline-banner";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { Button } from "@/components/ui/button";
 import { useRoles, useSession } from "@/lib/auth";
@@ -117,7 +118,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
+      <OfflineBanner />
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4">
           <AccountHub
