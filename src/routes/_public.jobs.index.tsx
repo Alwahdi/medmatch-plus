@@ -19,6 +19,7 @@ import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
 import { labelCityWithCountry } from "@/lib/geo";
 import { matchesQuery } from "@/lib/search";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
+import { ErrorState } from "@/components/error-state";
 
 
 type JobsSearch = {
@@ -188,7 +189,7 @@ function JobsPage() {
     },
   });
 
-  const { data: jobs, isLoading } = useQuery({
+  const { data: jobs, isLoading, isError: jobsErr, error: jobsErrObj, refetch: jobsRefetch } = useQuery({
     queryKey: ["jobs"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -206,7 +207,7 @@ function JobsPage() {
     },
   });
 
-  const { data: shifts, isLoading: shiftsLoading } = useQuery({
+  const { data: shifts, isLoading: shiftsLoading, isError: shiftsErr, error: shiftsErrObj, refetch: shiftsRefetch } = useQuery({
     queryKey: ["shifts"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -677,7 +678,16 @@ function JobsPage() {
               </div>
             )}
 
-            {isLoading || shiftsLoading ? (
+            {jobsErr || shiftsErr ? (
+              <ErrorState
+                className="mt-6"
+                error={jobsErrObj ?? shiftsErrObj}
+                onRetry={() => {
+                  void jobsRefetch();
+                  void shiftsRefetch();
+                }}
+              />
+            ) : isLoading || shiftsLoading ? (
               <div className="mt-6 space-y-3">
                 {[...Array(6)].map((_, i) => (
                   <Skeleton key={i} className="h-28 rounded-lg" />
