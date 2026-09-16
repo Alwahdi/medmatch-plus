@@ -284,7 +284,7 @@ function ShiftDetail() {
             className="mt-3 text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
           >
             <Link to="/jobs" search={{ kind: "shift" }}>
-              <ArrowLeft className="size-4 ltr:rotate-180" /> {c.back}
+              <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{shift.title}</h1>

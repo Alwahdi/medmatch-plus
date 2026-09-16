@@ -310,7 +310,7 @@ function JobDetail() {
           </nav>
           <Button variant="ghost" size="sm" asChild className="mt-3 text-on-hero/80 hover:bg-white/10 hover:text-on-hero">
             <Link to="/jobs">
-              <ArrowLeft className="size-4 ltr:rotate-180" /> {c.back}
+              <ArrowLeft className="size-4 rtl:rotate-180" /> {c.back}
             </Link>
           </Button>
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>
