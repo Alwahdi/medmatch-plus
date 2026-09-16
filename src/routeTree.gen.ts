@@ -38,6 +38,7 @@ import { Route as PublicForFacilitiesRouteImport } from './routes/_public.for-fa
 import { Route as PublicPricingRouteImport } from './routes/_public.pricing'
 import { Route as PublicPrivacyRouteImport } from './routes/_public.privacy'
 import { Route as PublicTermsRouteImport } from './routes/_public.terms'
+import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
 import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
 import { Route as AuthenticatedFacilityCandidatesRouteImport } from './routes/_authenticated/facility.candidates'
 import { Route as AuthenticatedFacilityInviteRouteImport } from './routes/_authenticated/facility.invite'
@@ -209,6 +210,12 @@ const PublicTermsRoute = PublicTermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => PublicRoute,
 } as any)
+const AuthenticatedFacilityIndexRoute =
+  AuthenticatedFacilityIndexRouteImport.update({
+    id: '/facility/',
+    path: '/facility/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFacilityApplicantsRoute =
   AuthenticatedFacilityApplicantsRouteImport.update({
     id: '/facility/applicants',
@@ -371,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
+  '/facility/': typeof AuthenticatedFacilityIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/guides/': typeof PublicGuidesIndexRoute
   '/interview-questions/': typeof PublicInterviewQuestionsIndexRoute
@@ -422,6 +430,7 @@ export interface FileRoutesByTo {
   '/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
+  '/facility': typeof AuthenticatedFacilityIndexRoute
   '/blog': typeof PublicBlogIndexRoute
   '/guides': typeof PublicGuidesIndexRoute
   '/interview-questions': typeof PublicInterviewQuestionsIndexRoute
@@ -476,6 +485,7 @@ export interface FileRoutesById {
   '/_public/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/_public/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
+  '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_public/guides/': typeof PublicGuidesIndexRoute
   '/_public/interview-questions/': typeof PublicInterviewQuestionsIndexRoute
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/shifts/$shiftId'
     | '/specialties/$slug'
     | '/api/public/dispatch-alerts'
+    | '/facility/'
     | '/blog/'
     | '/guides/'
     | '/interview-questions/'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/shifts/$shiftId'
     | '/specialties/$slug'
     | '/api/public/dispatch-alerts'
+    | '/facility'
     | '/blog'
     | '/guides'
     | '/interview-questions'
@@ -633,6 +645,7 @@ export interface FileRouteTypes {
     | '/_public/shifts/$shiftId'
     | '/_public/specialties/$slug'
     | '/api/public/dispatch-alerts'
+    | '/_authenticated/facility/'
     | '/_public/blog/'
     | '/_public/guides/'
     | '/_public/interview-questions/'
@@ -854,6 +867,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicTermsRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_authenticated/facility/': {
+      id: '/_authenticated/facility/'
+      path: '/facility'
+      fullPath: '/facility/'
+      preLoaderRoute: typeof AuthenticatedFacilityIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/facility/applicants': {
       id: '/_authenticated/facility/applicants'
       path: '/facility/applicants'
@@ -1050,6 +1070,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFacilityInviteRoute: typeof AuthenticatedFacilityInviteRoute
   AuthenticatedFacilityProfileRoute: typeof AuthenticatedFacilityProfileRoute
   AuthenticatedFacilityVerificationRoute: typeof AuthenticatedFacilityVerificationRoute
+  AuthenticatedFacilityIndexRoute: typeof AuthenticatedFacilityIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1078,6 +1099,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFacilityProfileRoute: AuthenticatedFacilityProfileRoute,
   AuthenticatedFacilityVerificationRoute:
     AuthenticatedFacilityVerificationRoute,
+  AuthenticatedFacilityIndexRoute: AuthenticatedFacilityIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
