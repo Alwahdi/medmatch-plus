@@ -178,11 +178,12 @@ function ShiftDetail() {
     queryKey: ["revealed-facility", shift?.facility_id, user?.id],
     enabled: !!user && !!shift?.facility_id,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facilities")
         .select("id,name_ar,name_en,city,country,is_verified")
         .eq("id", shift!.facility_id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -191,12 +192,13 @@ function ShiftDetail() {
     queryKey: ["shift-booking", shiftId, user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("shift_bookings")
         .select("id,status")
         .eq("shift_id", shiftId)
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });

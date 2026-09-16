@@ -138,11 +138,12 @@ function FacilityProfile() {
     queryKey: ["my-facility", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facilities")
         .select("*")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });

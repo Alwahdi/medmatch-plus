@@ -3,7 +3,10 @@ import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
 export const getRouter = () => {
-  const queryClient = new QueryClient();
+  // محاولة إضافية واحدة فقط: المستخدم يرى رسالة واضحة بسرعة بدل انتظار طويل صامت.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: 1, retryDelay: 800 } },
+  });
 
   const router = createRouter({
     routeTree,

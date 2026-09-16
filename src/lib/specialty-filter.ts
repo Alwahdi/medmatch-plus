@@ -35,11 +35,12 @@ export function useSpecialtyScope() {
     queryKey: ["my-pro-specialty", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("healthcare_professionals")
         .select("specialty_id,years_experience,country,license_country")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });

@@ -99,7 +99,8 @@ function Home() {
   const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["home-specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,slug,name_ar").limit(12);
+      const { data, error } = await supabase.from("specialties").select("id,slug,name_ar").limit(12);
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -113,22 +114,6 @@ function Home() {
   }
 
   const stepKeys = tab === "employers" ? EMPLOYER_STEP_KEYS : SEEKER_STEP_KEYS;
-
-  const loadErrors = [
-    { err: jobsErr, retry: jobsRefetch },
-    { err: shiftsErr, retry: shiftsRefetch },
-    { err: specialtiesErr, retry: specialtiesRefetch },
-  ].filter((q) => q.err);
-  if (loadErrors.length > 0)
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <ErrorState
-          onRetry={() => {
-            for (const q of loadErrors) void q.retry();
-          }}
-        />
-      </div>
-    );
 
   return (
     <>
@@ -447,7 +432,9 @@ function Home() {
             </Button>
           </div>
           <div className="mx-auto mt-8 max-w-3xl space-y-3">
-            {jobsLoading
+            {jobsErr ? (
+              <ErrorState onRetry={() => void jobsRefetch()} />
+            ) : jobsLoading
                ? [...Array(6)].map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)
               : jobs?.map((job) => <JobCard key={job.id} job={job} />)}
           </div>
@@ -470,7 +457,9 @@ function Home() {
             </Button>
           </div>
           <div className="mx-auto mt-8 max-w-3xl space-y-3">
-            {shiftsLoading
+            {shiftsErr ? (
+              <ErrorState onRetry={() => void shiftsRefetch()} />
+            ) : shiftsLoading
                ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-60 rounded-lg" />)
               : shifts?.map((shift) => <ShiftCard key={shift.id} shift={shift} />)}
           </div>

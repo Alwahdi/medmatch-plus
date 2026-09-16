@@ -162,3 +162,11 @@
 - وُحد شكل الانتظار في لوحة المنشأة باستخدام `Skeleton` بدل نص «جارٍ التحميل».
 - أُصلح تداخل HTML غير صالح في بطاقة المقابلة (`<p>` تحتوي `<Badge>`) الذي كان يسبب تحذير hydration في صفحة «نشاطي».
 - التحقق: typecheck والبناء نظيفان؛ فحص متصفح مسجّل الدخول على 390 و1280 لثماني صفحات — بلا تجاوز أفقي ولا أخطاء console.
+
+## المرحلة 19 — الشاشة لا تُترك صامتة (منفذة)
+- `src/components/error-state.tsx`: حالة خطأ موحّدة (شبكة/جلسة/صلاحية/عام) بزر إعادة محاولة أو تسجيل دخول.
+- `src/lib/network.ts` + `src/components/offline-banner.tsx`: شريط انقطاع الاتصال مع إعادة جلب تلقائية عند العودة (في `dashboard-shell` و`page-chrome`).
+- ربط `isError`/`refetch` في: dashboard، facility.index، admin، profile، jobs.index، jobs.$jobId، shifts.$shiftId، facilities.$facilityId، facility.candidates.$userId، الصفحة الرئيسية، ولوحات credentials/facility.verification/alerts/invite/security.
+- كل استعلامات supabase أصبحت ترمي الخطأ (`if (error) throw error`) بدل ابتلاعه — 37 موضعاً.
+- `retry: 1` في QueryClient ليصل المستخدم إلى رسالة واضحة بسرعة.
+- `min-h-screen` → `min-h-dvh` في الإطارات الثلاثة، ورمز `--on-hero` بديلاً عن `text-white` في رؤوس الصفحات.

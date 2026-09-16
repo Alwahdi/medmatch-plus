@@ -64,11 +64,12 @@ export function CvPanel() {
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("healthcare_professionals")
         .select("*,specialties(name_ar,name_en)")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -77,11 +78,12 @@ export function CvPanel() {
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("credentials")
         .select("*")
         .eq("user_id", user!.id)
         .order("issue_date", { ascending: false });
+      if (error) throw error;
       return data ?? [];
     },
   });

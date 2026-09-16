@@ -89,7 +89,8 @@ export function CvImportPanel() {
   const { data: specialties } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar,name_en");
+      const { data, error } = await supabase.from("specialties").select("id,name_ar,name_en");
+      if (error) throw error;
       return data ?? [];
     },
   });

@@ -81,11 +81,12 @@ export function useAccountIdentity() {
     queryKey: ["my-profile-lite", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("full_name,avatar_url")
         .eq("id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });

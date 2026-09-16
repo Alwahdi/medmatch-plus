@@ -128,11 +128,12 @@ function Dashboard() {
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("healthcare_professionals")
         .select("*")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -155,7 +156,8 @@ function Dashboard() {
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("credentials").select("status").eq("user_id", user!.id);
+      const { data, error } = await supabase.from("credentials").select("status").eq("user_id", user!.id);
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -164,13 +166,14 @@ function Dashboard() {
     queryKey: ["my-shifts", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("shift_bookings")
         .select("id,status,shifts(id,title,starts_at)")
         .eq("user_id", user!.id)
         .neq("status", "cancelled")
         .order("created_at", { ascending: false })
       return data ?? [];
+      if (error) throw error;
     },
   });
 

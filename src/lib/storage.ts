@@ -40,7 +40,8 @@ export async function removeImage(path: string) {
 async function resolve(value: string | null | undefined) {
   if (!value) return null;
   if (/^https?:\/\//.test(value)) return value;
-  const { data } = await supabase.storage.from(AVATARS_BUCKET).createSignedUrl(value, 60 * 60);
+  const { data, error } = await supabase.storage.from(AVATARS_BUCKET).createSignedUrl(value, 60 * 60);
+  if (error) throw error;
   return data?.signedUrl ?? null;
 }
 

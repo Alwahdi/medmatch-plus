@@ -294,7 +294,8 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
     queryKey: ["chat-file", path],
     staleTime: 50 * 60 * 1000,
     queryFn: async () => {
-      const { data } = await supabase.storage.from(CHAT_BUCKET).createSignedUrl(path, 60 * 60);
+      const { data, error } = await supabase.storage.from(CHAT_BUCKET).createSignedUrl(path, 60 * 60);
+      if (error) throw error;
       return data?.signedUrl ?? null;
     },
   });

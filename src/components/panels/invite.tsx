@@ -129,7 +129,8 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
   const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
     queryFn: async () => {
-      const { data } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
+      const { data, error } = await supabase.from("specialties").select("id,name_ar,name_en").order("name_ar");
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -138,11 +139,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     queryKey: ["my-facility", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("facilities")
         .select("id,name_ar")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -152,10 +154,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     enabled: !!(jobId || shiftId),
     queryFn: async () => {
       if (jobId) {
-        const { data } = await supabase.from("jobs").select("id,title").eq("id", jobId).maybeSingle();
+        const { data, error } = await supabase.from("jobs").select("id,title").eq("id", jobId).maybeSingle();
+        if (error) throw error;
         return data ? { kind: "job" as const, title: data.title } : null;
       }
-      const { data } = await supabase.from("shifts").select("id,title").eq("id", shiftId!).maybeSingle();
+      const { data, error } = await supabase.from("shifts").select("id,title").eq("id", shiftId!).maybeSingle();
+      if (error) throw error;
       return data ? { kind: "shift" as const, title: data.title } : null;
     },
   });
@@ -172,19 +176,21 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       const shiftIds = (shifts ?? []).map((s) => s.id);
       const ids = new Set<string>();
       if (jobIds.length) {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("applications")
           .select("user_id")
           .in("job_id", jobIds)
           .eq("status", "hired");
+        if (error) throw error;
         for (const a of data ?? []) ids.add(a.user_id);
       }
       if (shiftIds.length) {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("shift_bookings")
           .select("user_id")
           .in("shift_id", shiftIds)
           .eq("status", "confirmed");
+        if (error) throw error;
         for (const b of data ?? []) ids.add(b.user_id);
       }
       if (ids.size === 0) return [];

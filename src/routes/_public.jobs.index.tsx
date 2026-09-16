@@ -242,7 +242,8 @@ function JobsPage() {
     queryKey: ["my-booked-shift-ids", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("shift_bookings").select("shift_id").eq("user_id", user!.id);
+      const { data, error } = await supabase.from("shift_bookings").select("shift_id").eq("user_id", user!.id);
+      if (error) throw error;
       return new Set((data ?? []).map((r) => r.shift_id));
     },
   });
@@ -262,7 +263,8 @@ function JobsPage() {
     queryKey: ["my-applied-job-ids", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("applications").select("job_id").eq("user_id", user!.id);
+      const { data, error } = await supabase.from("applications").select("job_id").eq("user_id", user!.id);
+      if (error) throw error;
       return new Set((data ?? []).map((r) => r.job_id));
     },
   });
@@ -271,7 +273,8 @@ function JobsPage() {
     queryKey: ["my-saved-job-ids", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("saved_jobs").select("job_id").eq("user_id", user!.id);
+      const { data, error } = await supabase.from("saved_jobs").select("job_id").eq("user_id", user!.id);
+      if (error) throw error;
       return new Set((data ?? []).map((r) => r.job_id));
     },
   });

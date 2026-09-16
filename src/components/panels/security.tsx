@@ -32,8 +32,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { formatDateTime, relativeTime } from "@/lib/format";
-import {
 import { ErrorState } from "@/components/error-state";
+import {
   deviceLabel,
   platformAuthenticatorAvailable,
   registerBiometric,
