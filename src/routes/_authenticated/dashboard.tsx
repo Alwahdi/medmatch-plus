@@ -5,6 +5,7 @@ import { ArrowLeft, Briefcase, CalendarClock, FileText, Mail, MessageSquare, Shi
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { JobCard, type JobRow } from "@/components/job-card";
+import { ErrorState } from "@/components/error-state";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { applicationLabel, formatDateTime } from "@/lib/format";
