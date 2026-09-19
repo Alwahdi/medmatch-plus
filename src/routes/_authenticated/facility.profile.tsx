@@ -95,6 +95,7 @@ const TXT = {
     pickCountry: "Choose a country",
     city: "City",
     website: "Website",
+    websiteHint: "Enter just the domain, like example.com — it will be saved as https://",
     logo: "Facility logo",
     description: "About the facility",
     descHint: "Describe your specialties and work environment — it improves applications.",
