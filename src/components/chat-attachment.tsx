@@ -164,6 +164,7 @@ export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undef
       />
       <button
         type="button"
+        aria-label={playing ? (ar ? "إيقاف مؤقت" : "Pause") : ar ? "تشغيل الرسالة الصوتية" : "Play voice note"}
         onClick={() => {
           const el = ref.current;
           if (!el) return;
@@ -176,16 +177,21 @@ export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undef
             setPlaying(false);
           }
         }}
-        className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-full transition",
-          mine ? "bg-white/20 hover:bg-white/30" : "bg-primary/10 text-primary hover:bg-primary/20",
-        )}
+        className="-m-1 flex size-11 shrink-0 items-center justify-center rounded-full"
       >
-        {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+        <span
+          className={cn(
+            "flex size-9 items-center justify-center rounded-full transition",
+            mine ? "bg-white/20 hover:bg-white/30" : "bg-primary/10 text-primary hover:bg-primary/20",
+          )}
+        >
+          {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+        </span>
       </button>
       <button
         type="button"
-        className="flex h-8 flex-1 items-end gap-[2px]"
+        aria-label={ar ? "شريط تقدّم الصوت" : "Audio scrubber"}
+        className="flex h-11 flex-1 items-end gap-[2px] pb-1.5"
         onClick={(e) => {
           const el = ref.current;
           if (!el || !duration) return;
