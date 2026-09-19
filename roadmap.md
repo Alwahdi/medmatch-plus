@@ -421,3 +421,12 @@ External dependencies still unavailable: transactional email and WhatsApp delive
   - candidate search access rows and invitations (pending or otherwise) no longer appear in any branch.
 - Verified with rollback-only transactions on live data: search access + pending invitation → `can_read_avatar_path` = false; after a conversation row exists → true. No QA rows persisted.
 - Candidate search cards unchanged: still no `full_name` and no avatar; the `/facility/candidates/$userId` full profile stays engagement-gated by RLS.
+
+## Phase 43 — candidate-search content anonymity (done)
+- Free-text fields could leak identity: `headline`/`bio` are user-authored and could contain a name, phone, or employer, defeating the anonymous search design.
+- Tracked idempotent migration mirrors the live hotfix for `public.search_candidates_idempotent(uuid, uuid, text, text, integer, integer)`: same return signature for compatibility, but `headline` and `bio` are always `NULL` in the fresh response, in the cached (`candidate_search_requests.result`) payload, and in the replayed cached response.
+- Grants: `search_candidates_idempotent` → `authenticated` + `service_role`; legacy `search_candidates_atomic` → `service_role` only (EXECUTE revoked from `authenticated`/`anon`; the UI uses the idempotent RPC).
+- UI (`facility.candidates.tsx`): the result card is deliberately anonymous — specialty, verified badge, experience, city/country, open-to-shifts, plus an AR/EN note that name, photo and bio appear after the conversation starts. No `—` placeholder, no bio block, no name/avatar/license/contact.
+- Full candidate profile after `start_candidate_conversation` (or application/booking engagement) is unchanged and still RLS-gated.
+- Verified on live data in rollback-only transactions: fresh search and a repeated identical `request_id` both return zero non-null `headline`/`bio`; the repeat replays the cache and the search quota increments exactly once; stored cache rows contain no free text.
+- Visual: 390 and 1280 checks ran signed in, but the available test account has no facility role, so the facility-only screen redirected to the dashboard — card layout change verified by code review and clean typecheck/build only.

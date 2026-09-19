@@ -55,12 +55,10 @@ const ANY = "any";
 type Candidate = {
   id: string;
   user_id: string;
-  headline: string | null;
   specialty_id: string | null;
   years_experience: number;
   country: string | null;
   city: string | null;
-  bio: string | null;
   is_open_to_shifts: boolean;
   is_verified: boolean;
 };
@@ -97,6 +95,7 @@ const TXT = {
     chatFailed: "تعذّر بدء المحادثة",
     completeFacility: "أكمل بيانات المنشأة أولاً",
     initialContact: "تواصل مبدئي",
+    anonymousNote: "الاسم والصورة والنبذة تظهر بعد بدء المحادثة.",
   },
   en: {
     errors: {
@@ -129,6 +128,7 @@ const TXT = {
     chatFailed: "Failed to start conversation",
     completeFacility: "Complete your facility profile first",
     initialContact: "Initial contact",
+    anonymousNote: "Name, photo and bio appear after you start the conversation.",
   },
 } as const;
 
@@ -357,7 +357,7 @@ function Candidates() {
                     )}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {cand.headline ?? "—"} · {c.experience(cand.years_experience)} ·{" "}
+                    {c.experience(cand.years_experience)} ·{" "}
                     {[cand.city, countryLabel(cand.country, lang)].filter(Boolean).join("، ")}
                     {cand.is_open_to_shifts ? c.openToShifts : ""}
                   </p>
@@ -367,7 +367,7 @@ function Candidates() {
                 </Button>
               </div>
 
-              {cand.bio && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{cand.bio}</p>}
+              <p className="mt-3 text-xs text-muted-foreground">{c.anonymousNote}</p>
             </li>
           ))}
         </ul>
