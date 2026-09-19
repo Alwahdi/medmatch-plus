@@ -179,9 +179,8 @@ function NewMatchesCard() {
 
       const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const { data: jobs, error: jobsError } = await supabase
-        .from("jobs")
+        .from("public_jobs")
         .select("id,specialty_id,country,city,employment_type")
-        .eq("is_active", true)
         .gte("created_at", since);
       if (jobsError) throw jobsError;
 

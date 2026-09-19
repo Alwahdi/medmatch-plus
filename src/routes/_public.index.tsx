@@ -67,32 +67,22 @@ function Home() {
   const { data: jobs, isError: jobsErr, refetch: jobsRefetch, isLoading: jobsLoading } = useQuery({
     queryKey: ["home-jobs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select(
-          "id,slug,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialties(name_ar)",
-        )
-        .eq("is_active", true)
+      const { data, error } = await publicJobsQuery()
         .order("created_at", { ascending: false })
         .limit(6);
       if (error) throw error;
-      return data as unknown as JobRow[];
+      return withSpecialties(data) as unknown as JobRow[];
     },
   });
 
   const { data: shifts, isError: shiftsErr, refetch: shiftsRefetch, isLoading: shiftsLoading } = useQuery({
     queryKey: ["home-shifts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("shifts")
-        .select(
-          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialties(name_ar)",
-        )
-        .eq("status", "open")
+      const { data, error } = await publicShiftsQuery()
         .order("starts_at", { ascending: true })
         .limit(4);
       if (error) throw error;
-      return data as unknown as ShiftRow[];
+      return withSpecialties(data) as unknown as ShiftRow[];
     },
   });
 
