@@ -58,3 +58,46 @@ SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... bun scripts/setup-storage-buckets
 
 The script is idempotent and holds no secrets; keep both values in the
 environment only.
+
+## Admin bootstrap (first administrator)
+
+There is no self-service way to become an administrator. Nothing in the frontend,
+email address, or signup metadata grants the `admin` role.
+
+The first administrator must be assigned explicitly from a trusted backend/SQL
+context (service role), after the project owner picks the account:
+
+```sql
+-- run from a trusted service-role context only
+select public.bootstrap_admin_role('<auth-user-uuid>');
+```
+
+`bootstrap_admin_role` has `EXECUTE` revoked from `anon` and `authenticated`;
+only `service_role` can call it.
+
+Once at least one administrator exists, further admins are managed from the
+trusted admin flow:
+
+```sql
+select public.admin_set_admin_role('<auth-user-uuid>', true);   -- grant
+select public.admin_set_admin_role('<auth-user-uuid>', false);  -- revoke
+```
+
+`admin_set_admin_role` requires the caller to already be an administrator, refuses
+self-removal, and refuses removing the last administrator.
+
+### Release readiness
+
+Signed-in administrators can open **Admin → Release readiness**, which runs
+`public.release_readiness_report()`: live admin count, orphaned role/profile rows,
+role/profile mismatches, intentional owner-less facility listings, and any
+leftover `*@e2e.syndeocare.test` test accounts. A `live_admin_count` of `0` is a
+release blocker, not a warning.
+
+### Orphan cleanup
+
+`public.cleanup_orphaned_identities()` (service role only, repeatable) removes
+role, notification, and device rows that belong to deleted accounts, hides
+orphaned professional profiles from search, and deletes orphaned profiles only
+when they carry no business history (applications, bookings, reviews,
+conversations, messages, invitations).
