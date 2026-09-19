@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
-import { publicShiftsQuery, withSpecialty, OWNER_SHIFT_COLUMNS } from "@/lib/public-listings";
+import { publicShiftsQuery, toPublicShift, OWNER_SHIFT_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import {
@@ -167,7 +167,7 @@ function ShiftDetail() {
         .eq("id", shiftId)
         .maybeSingle();
       if (publicError) throw publicError;
-      if (publicRow) return withSpecialty(publicRow);
+      if (publicRow) return toPublicShift(publicRow);
 
       // Booked/past shifts stay reachable for the owner, admin, or engaged users
       // through the base table policy — with explicit columns only.

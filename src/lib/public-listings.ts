@@ -43,3 +43,54 @@ export function withSpecialties<T extends SpecialtyNames>(rows: T[] | null | und
 
 export const publicJobsQuery = () => supabase.from("public_jobs").select(PUBLIC_JOB_COLUMNS);
 export const publicShiftsQuery = () => supabase.from("public_shifts").select(PUBLIC_SHIFT_COLUMNS);
+
+import type { Database } from "@/integrations/supabase/types";
+
+type SpecialtyLabel = { name_ar: string; name_en: string } | null;
+
+export type PublicJobRow = {
+  id: string;
+  slug: string | null;
+  title: string;
+  description: string;
+  specialty_id: string | null;
+  employment_type: Database["public"]["Enums"]["employment_type"];
+  country: string;
+  city: string;
+  salary_min: number;
+  salary_max: number;
+  currency: string;
+  min_experience: number;
+  required_license: string | null;
+  created_at: string;
+  expires_at: string | null;
+  is_featured: boolean;
+  facility_verified: boolean;
+  applications_count: number;
+  vacancies: number;
+  facility_id: string;
+  specialties: SpecialtyLabel;
+};
+
+export type PublicShiftRow = {
+  id: string;
+  title: string;
+  notes: string | null;
+  specialty_id: string | null;
+  starts_at: string;
+  ends_at: string;
+  hourly_rate: number;
+  currency: string;
+  country: string;
+  city: string;
+  status: Database["public"]["Enums"]["shift_status"];
+  is_urgent: boolean;
+  facility_verified: boolean;
+  applications_count: number;
+  created_at: string;
+  facility_id: string;
+  specialties: SpecialtyLabel;
+};
+
+export const toPublicJob = (row: SpecialtyNames) => withSpecialty(row) as unknown as PublicJobRow;
+export const toPublicShift = (row: SpecialtyNames) => withSpecialty(row) as unknown as PublicShiftRow;

@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
-import { publicJobsQuery, withSpecialty, OWNER_JOB_COLUMNS } from "@/lib/public-listings";
+import { publicJobsQuery, toPublicJob, OWNER_JOB_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, experienceLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
@@ -181,7 +181,7 @@ function JobDetail() {
         isUuid ? pub.eq("id", jobId) : pub.eq("slug", jobId)
       ).maybeSingle();
       if (publicError) throw publicError;
-      if (publicRow) return { ...withSpecialty(publicRow), is_active: true };
+      if (publicRow) return { ...toPublicJob(publicRow), is_active: true };
 
       // Closed/expired listings stay reachable for the owner, admin, or engaged users
       // through the base table policy — with explicit columns only.
