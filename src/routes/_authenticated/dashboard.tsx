@@ -124,7 +124,7 @@ function Dashboard() {
     if (roles?.includes("facility")) navigate({ to: "/facility", replace: true });
   }, [roles, navigate]);
 
-  const { data: profile, isError: profileErr, refetch: profileRefetch } = useQuery({
+  const { data: profile, isError: profileErr, isPending: profilePending, refetch: profileRefetch } = useQuery({
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -138,7 +138,7 @@ function Dashboard() {
     },
   });
 
-  const { data: apps, isError: appsErr, refetch: appsRefetch } = useQuery({
+  const { data: apps, isError: appsErr, isPending: appsPending, refetch: appsRefetch } = useQuery({
     queryKey: ["my-apps", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -191,7 +191,7 @@ function Dashboard() {
     },
   });
 
-  const { data: pendingInterviews, isError: pendingInterviewsErr, refetch: pendingInterviewsRefetch } = useQuery({
+  const { data: pendingInterviews, isError: pendingInterviewsErr, isPending: pendingInterviewsPending, refetch: pendingInterviewsRefetch } = useQuery({
     queryKey: ["pending-interviews", user?.id],
     enabled: !!user,
     queryFn: async () => {
