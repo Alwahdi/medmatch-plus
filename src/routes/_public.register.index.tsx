@@ -198,7 +198,7 @@ function RegisterSeeker() {
     });
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error, lang));
       return;
     }
     if (!data.session) {
@@ -349,7 +349,7 @@ function RegisterSeeker() {
             </>
           )}
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">{L.terms}</p>
+          <ConsentNote className="mt-4" />
           <p className="mt-3 text-center text-sm">
             {L.have}{" "}
             <Link to="/auth" className="font-bold text-primary hover:underline">

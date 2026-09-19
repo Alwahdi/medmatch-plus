@@ -235,7 +235,7 @@ function RegisterEmployer() {
     });
     if (error) {
       setBusy(false);
-      toast.error(error.message);
+      toast.error(friendlyError(error, lang));
       return;
     }
     if (data.session && data.user) {
@@ -482,7 +482,7 @@ function RegisterEmployer() {
                   <Button type="submit" className="w-full" disabled={busy}>
                     {busy ? L.submitting : L.submit}
                   </Button>
-                  <p className="text-center text-xs text-muted-foreground">{L.terms}</p>
+                  <ConsentNote />
                   <p className="text-center text-sm">
                     {L.have}{" "}
                     <Link to="/auth" className="font-bold text-primary hover:underline">
