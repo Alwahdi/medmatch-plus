@@ -125,7 +125,10 @@ function FacilityProfilePage() {
         .eq("facility_id", facilityId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as {
+        id: string; slug: string | null; title: string; city: string; country: string;
+        salary_min: number; salary_max: number; currency: string;
+      }[];
     },
   });
 
@@ -139,7 +142,10 @@ function FacilityProfilePage() {
         .eq("facility_id", facilityId)
         .order("starts_at", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as {
+        id: string; title: string; starts_at: string; hourly_rate: number; currency: string;
+        city: string; country: string; status: string;
+      }[];
     },
   });
 
