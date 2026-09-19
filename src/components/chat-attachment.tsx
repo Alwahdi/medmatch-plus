@@ -30,6 +30,41 @@ function chatPath(conversationId: string, file: File) {
   return `${conversationId}/${Date.now()}-${safe}`;
 }
 
+/** MIME types we can infer from a known extension when the browser reports none. */
+const EXT_MIME: Record<string, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  mov: "video/quicktime",
+  m4a: "audio/mp4",
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  ogg: "audio/ogg",
+  oga: "audio/ogg",
+  txt: "text/plain",
+  csv: "text/csv",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+};
+
+/**
+ * MediaRecorder reports values like `audio/webm;codecs=opus`, while the storage
+ * bucket only allows base MIME types — so the parameters are stripped here.
+ */
+export function baseMime(file: File): string | null {
+  const raw = (file.type || "").split(";")[0]?.trim().toLowerCase();
+  if (raw) return raw;
+  const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+  return EXT_MIME[ext] ?? null;
+}
+
 /**
  * Uploads a chat attachment. When `onProgress` is provided the upload goes through
  * XHR so the UI can show a WhatsApp-style percentage ring; `signal` aborts it.
@@ -40,7 +75,8 @@ export async function uploadChatFile(
   options?: { onProgress?: (percent: number) => void; signal?: AbortSignal },
 ) {
   const path = chatPath(conversationId, file);
-  const contentType = file.type || "application/octet-stream";
+  const contentType = baseMime(file);
+  if (!contentType) throw new Error("unsupported_file_type");
 
   const baseUrl = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
   const apiKey = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] as string | undefined;
