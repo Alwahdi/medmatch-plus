@@ -48,6 +48,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { VoiceRecorder } from "@/components/voice-recorder";
 import {
+  baseMime,
   ChatAttachment,
   CHAT_MAX_BYTES,
   formatBytes,
