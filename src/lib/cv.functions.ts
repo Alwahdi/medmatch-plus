@@ -103,19 +103,28 @@ export const parseCv = createServerFn({ method: "POST" })
 
     try {
       const parsed = JSON.parse(args) as Record<string, unknown>;
-      const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+      // حدود صارمة على مخرجات النموذج حتى لا يُنتج قيماً غير منطقية.
+      const str = (v: unknown, max: number) => {
+        if (typeof v !== "string") return null;
+        const t = v.replace(/\s+/g, " ").trim();
+        return t ? t.slice(0, max) : null;
+      };
+      const yearsRaw = parsed["years_experience"];
+      const years =
+        typeof yearsRaw === "number" && Number.isFinite(yearsRaw)
+          ? Math.min(60, Math.max(0, Math.round(yearsRaw)))
+          : null;
       return {
         profile: {
-          full_name: str(parsed["full_name"]),
-          headline: str(parsed["headline"]),
-          years_experience:
-            typeof parsed["years_experience"] === "number" ? Math.max(0, Math.round(parsed["years_experience"])) : null,
-          country: str(parsed["country"]),
-          city: str(parsed["city"]),
-          bio: str(parsed["bio"]),
-          license_country: str(parsed["license_country"]),
-          license_number: str(parsed["license_number"]),
-          specialty_hint: str(parsed["specialty_hint"]),
+          full_name: str(parsed["full_name"], 120),
+          headline: str(parsed["headline"], 160),
+          years_experience: years,
+          country: str(parsed["country"], 60),
+          city: str(parsed["city"], 60),
+          bio: str(parsed["bio"], 1000),
+          license_country: str(parsed["license_country"], 60),
+          license_number: str(parsed["license_number"], 60),
+          specialty_hint: str(parsed["specialty_hint"], 80),
         },
       };
     } catch {
