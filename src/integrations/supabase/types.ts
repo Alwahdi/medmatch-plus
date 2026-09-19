@@ -91,6 +91,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "alert_deliveries_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_deliveries_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "public_shifts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "alert_deliveries_shift_id_fkey"
             columns: ["shift_id"]
             isOneToOne: false
@@ -133,6 +147,13 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -275,6 +296,20 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "public_shifts"
             referencedColumns: ["id"]
           },
           {
@@ -665,10 +700,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "interviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "interviews_shift_booking_id_fkey"
             columns: ["shift_booking_id"]
             isOneToOne: false
             referencedRelation: "shift_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "public_shifts"
             referencedColumns: ["id"]
           },
           {
@@ -727,6 +776,20 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "public_shifts"
             referencedColumns: ["id"]
           },
           {
@@ -1199,6 +1262,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "public_shifts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reviews_shift_id_fkey"
             columns: ["shift_id"]
             isOneToOne: false
@@ -1234,6 +1311,13 @@ export type Database = {
             referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "saved_jobs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
+            referencedColumns: ["id"]
+          },
         ]
       }
       shift_bookings: {
@@ -1259,6 +1343,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shift_bookings_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: true
+            referencedRelation: "public_shifts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shift_bookings_shift_id_fkey"
             columns: ["shift_id"]
@@ -1489,7 +1580,86 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_jobs: {
+        Row: {
+          applications_count: number | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          employment_type: Database["public"]["Enums"]["employment_type"] | null
+          expires_at: string | null
+          facility_id: string | null
+          facility_verified: boolean | null
+          id: string | null
+          is_featured: boolean | null
+          min_experience: number | null
+          required_license: string | null
+          salary_max: number | null
+          salary_min: number | null
+          slug: string | null
+          specialty_id: string | null
+          specialty_name_ar: string | null
+          specialty_name_en: string | null
+          title: string | null
+          vacancies: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_specialty_id_fkey"
+            columns: ["specialty_id"]
+            isOneToOne: false
+            referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_shifts: {
+        Row: {
+          applications_count: number | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          currency: string | null
+          ends_at: string | null
+          facility_id: string | null
+          facility_verified: boolean | null
+          hourly_rate: number | null
+          id: string | null
+          is_urgent: boolean | null
+          notes: string | null
+          specialty_id: string | null
+          specialty_name_ar: string | null
+          specialty_name_en: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["shift_status"] | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_specialty_id_fkey"
+            columns: ["specialty_id"]
+            isOneToOne: false
+            referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_data_integrity_report: {
