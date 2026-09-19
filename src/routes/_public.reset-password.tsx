@@ -85,10 +85,16 @@ function readLinkParams() {
 function ResetPasswordPage() {
   const { lang } = useLang();
   const t = (k: keyof typeof T) => T[k][lang === "en" ? "en" : "ar"];
-  const [phase, setPhase] = useState<Phase>("checking");
+  // نحفظ نجاح العملية خارج حالة المكوّن لأن تسجيل الخروج بعد التغيير يعيد بناء الصفحة.
+  const [phase, setPhase] = useState<Phase>(() =>
+    typeof window !== "undefined" && window.sessionStorage.getItem(DONE_KEY) === "1"
+      ? "done"
+      : "checking",
+  );
 
   useEffect(() => {
     let cancelled = false;
+    if (phase === "done") return;
     const params = readLinkParams();
     if (!params) return;
 
