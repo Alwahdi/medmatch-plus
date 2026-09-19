@@ -37,6 +37,7 @@ import { Route as PublicCookiesRouteImport } from './routes/_public.cookies'
 import { Route as PublicForFacilitiesRouteImport } from './routes/_public.for-facilities'
 import { Route as PublicPricingRouteImport } from './routes/_public.pricing'
 import { Route as PublicPrivacyRouteImport } from './routes/_public.privacy'
+import { Route as PublicResetPasswordRouteImport } from './routes/_public.reset-password'
 import { Route as PublicTermsRouteImport } from './routes/_public.terms'
 import { Route as AuthenticatedFacilityIndexRouteImport } from './routes/_authenticated/facility.index'
 import { Route as AuthenticatedFacilityApplicantsRouteImport } from './routes/_authenticated/facility.applicants'
@@ -205,6 +206,11 @@ const PublicPrivacyRoute = PublicPrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicResetPasswordRoute = PublicResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicTermsRoute = PublicTermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -363,6 +369,7 @@ export interface FileRoutesByFullPath {
   '/for-facilities': typeof PublicForFacilitiesRoute
   '/pricing': typeof PublicPricingRoute
   '/privacy': typeof PublicPrivacyRoute
+  '/reset-password': typeof PublicResetPasswordRoute
   '/terms': typeof PublicTermsRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
@@ -415,6 +422,7 @@ export interface FileRoutesByTo {
   '/for-facilities': typeof PublicForFacilitiesRoute
   '/pricing': typeof PublicPricingRoute
   '/privacy': typeof PublicPrivacyRoute
+  '/reset-password': typeof PublicResetPasswordRoute
   '/terms': typeof PublicTermsRoute
   '/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
   '/facility/candidates': typeof AuthenticatedFacilityCandidatesRouteWithChildren
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/_public/for-facilities': typeof PublicForFacilitiesRoute
   '/_public/pricing': typeof PublicPricingRoute
   '/_public/privacy': typeof PublicPrivacyRoute
+  '/_public/reset-password': typeof PublicResetPasswordRoute
   '/_public/terms': typeof PublicTermsRoute
   '/_public/': typeof PublicIndexRoute
   '/_authenticated/facility/applicants': typeof AuthenticatedFacilityApplicantsRoute
@@ -524,6 +533,7 @@ export interface FileRouteTypes {
     | '/for-facilities'
     | '/pricing'
     | '/privacy'
+    | '/reset-password'
     | '/terms'
     | '/facility/applicants'
     | '/facility/candidates'
@@ -576,6 +586,7 @@ export interface FileRouteTypes {
     | '/for-facilities'
     | '/pricing'
     | '/privacy'
+    | '/reset-password'
     | '/terms'
     | '/facility/applicants'
     | '/facility/candidates'
@@ -629,6 +640,7 @@ export interface FileRouteTypes {
     | '/_public/for-facilities'
     | '/_public/pricing'
     | '/_public/privacy'
+    | '/_public/reset-password'
     | '/_public/terms'
     | '/_public/'
     | '/_authenticated/facility/applicants'
@@ -858,6 +870,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PublicPrivacyRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/reset-password': {
+      id: '/_public/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof PublicResetPasswordRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/terms': {
@@ -1113,6 +1132,7 @@ interface PublicRouteChildren {
   PublicForFacilitiesRoute: typeof PublicForFacilitiesRoute
   PublicPricingRoute: typeof PublicPricingRoute
   PublicPrivacyRoute: typeof PublicPrivacyRoute
+  PublicResetPasswordRoute: typeof PublicResetPasswordRoute
   PublicTermsRoute: typeof PublicTermsRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
@@ -1140,6 +1160,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicForFacilitiesRoute: PublicForFacilitiesRoute,
   PublicPricingRoute: PublicPricingRoute,
   PublicPrivacyRoute: PublicPrivacyRoute,
+  PublicResetPasswordRoute: PublicResetPasswordRoute,
   PublicTermsRoute: PublicTermsRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
