@@ -69,7 +69,7 @@ const ALL = "all";
 
 const TXT = {
   ar: {
-    badge: "وظائف دائمة ومناوبات فورية من منشآت موثّقة",
+    badge: "وظائف دائمة ومناوبات فورية في مكان واحد",
     title: "الفرص الطبية المتاحة",
     sub: "فرص دائمة لأطباء، تمريض، صيادلة، وفنيين في اليمن والمنطقة العربية — بنطاق راتب معلن وفلاتر دقيقة.",
     search: "ابحث بالمسمى أو التخصص أو المدينة",
@@ -111,7 +111,7 @@ const TXT = {
     mySub: "مرتّبة حسب التخصص والموقع المسجلين في ملفك.",
   },
   en: {
-    badge: "Permanent roles and instant shifts from verified employers",
+    badge: "Permanent roles and instant shifts in one place",
     title: "Open medical opportunities",
     sub: "Permanent roles for physicians, nurses, pharmacists and technicians across Yemen and the Arab region — with published salary ranges and precise filters.",
     search: "Search by title, specialty or city",

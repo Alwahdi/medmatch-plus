@@ -244,6 +244,24 @@ function Dashboard() {
   const nextStepPending =
     !user || profilePending || appsPending || bookingsPending || pendingInvitesPending || pendingInterviewsPending;
 
+  // وجهة "الخطوة التالية" الحالية — نستبعد نفس الوجهة من "وصول سريع" حتى لا يتكرر الإجراء.
+  const nextStepTarget: string | null = nextStepPending
+    ? null
+    : !profile
+      ? "/profile"
+      : pendingInvites
+        ? "/invitations"
+        : pendingInterviews || activeApplications.length > 0 || upcomingBookings.length > 0
+          ? "/activity"
+          : "/jobs";
+
+  const quickActions = [
+    { icon: Briefcase, label: c.discover, description: c.discoverText, to: "/jobs" as const },
+    { icon: FileText, label: c.activity, description: c.activityText, to: "/activity" as const },
+    { icon: MessageSquare, label: c.messages, description: c.messagesText, to: "/messages" as const },
+    { icon: UserRound, label: c.profile, description: c.profileText, to: "/profile" as const },
+  ].filter((a) => a.to !== nextStepTarget);
+
   const loadErrors = [
     { err: profileErr, retry: profileRefetch },
     { err: appsErr, retry: appsRefetch },
@@ -333,11 +351,12 @@ function Dashboard() {
 
       <section className="mt-8">
         <SectionHeading title={c.quickActions} />
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickAction icon={Briefcase} label={c.discover} description={c.discoverText} to="/jobs" />
-          <QuickAction icon={FileText} label={c.activity} description={c.activityText} to="/activity" />
-          <QuickAction icon={MessageSquare} label={c.messages} description={c.messagesText} to="/messages" />
-          <QuickAction icon={UserRound} label={c.profile} description={c.profileText} to="/profile" />
+        <div
+          className={`mt-3 grid gap-3 sm:grid-cols-2 ${quickActions.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}
+        >
+          {quickActions.map((a) => (
+            <QuickAction key={a.to} icon={a.icon} label={a.label} description={a.description} to={a.to} />
+          ))}
         </div>
       </section>
 

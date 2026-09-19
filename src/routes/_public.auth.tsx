@@ -150,7 +150,7 @@ function AuthPage() {
   return (
     <div className="bg-background px-4 py-8 sm:py-12">
       <div className="card-lift mx-auto grid max-w-5xl overflow-hidden rounded-lg border border-border bg-card lg:grid-cols-2">
-        <div className="order-2 p-6 sm:p-10 lg:order-1">
+        <div className="p-6 sm:p-10">
           <div className="mx-auto w-full max-w-sm">
             <div className="mx-auto flex size-12 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
               <LogIn className="size-5" />
@@ -197,7 +197,7 @@ function AuthPage() {
           </div>
         </div>
 
-        <aside className="order-1 flex flex-col justify-between gap-10 bg-accent p-8 text-accent-foreground sm:p-10 lg:order-2">
+        <aside className="hidden flex-col justify-between gap-10 bg-accent p-8 text-accent-foreground sm:p-10 lg:flex">
           <div>
             <span className="inline-flex items-center gap-2 rounded-md bg-background/10 px-3 py-1 text-xs font-bold text-accent-foreground">
               <span className="size-1.5 rounded-full bg-success" />

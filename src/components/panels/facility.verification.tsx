@@ -48,7 +48,7 @@ import { ErrorState } from "@/components/error-state";
 const TXT = {
   ar: {
     title: "توثيق المنشأة",
-    sub: "ارفع مستندات منشأتك الرسمية. يراجعها فريقنا خلال ٢٤–٤٨ ساعة، ولا تظهر للكوادر أبداً — يظهر لهم فقط شارة «منشأة موثّقة».",
+    sub: "ارفع مستندات منشأتك الرسمية. يراجعها فريقنا يدوياً، ولا تظهر للكوادر أبداً — يظهر لهم فقط شارة «منشأة موثّقة».",
     noFacility: "أنشئ ملف المنشأة أولاً قبل رفع مستندات التوثيق.",
     createNow: "إنشاء ملف المنشأة",
     verified: "منشأة موثّقة",
@@ -84,7 +84,7 @@ const TXT = {
     fileReq: "أرفق ملف المستند",
     fileTooBig: "حجم الملف يتجاوز ١٠ ميجابايت",
     uploadFailed: "تعذّر رفع الملف",
-    uploaded: "تم رفع المستند، ستتم مراجعته خلال ٢٤–٤٨ ساعة",
+    uploaded: "تم رفع المستند، وسيظهر هنا بحالة «قيد المراجعة» حتى تكتمل مراجعته",
     saveFailed: "تعذّر الحفظ",
     deleted: "تم حذف المستند",
     deleteQ: "حذف هذا المستند؟",
@@ -93,7 +93,7 @@ const TXT = {
   },
   en: {
     title: "Facility verification",
-    sub: "Upload your official facility documents. Our team reviews them within 24–48 hours; professionals never see the files — only the “Verified facility” badge.",
+    sub: "Upload your official facility documents. Our team reviews them manually; professionals never see the files — only the “Verified facility” badge.",
     noFacility: "Create your facility profile before uploading verification documents.",
     createNow: "Create facility profile",
     verified: "Verified facility",
@@ -129,7 +129,7 @@ const TXT = {
     fileReq: "Attach the document file",
     fileTooBig: "File size exceeds 10 MB",
     uploadFailed: "Failed to upload the file",
-    uploaded: "Document uploaded, it will be reviewed within 24–48 hours",
+    uploaded: "Document uploaded — it stays “Under review” here until our team completes the review",
     saveFailed: "Failed to save",
     deleted: "Document deleted",
     deleteQ: "Delete this document?",

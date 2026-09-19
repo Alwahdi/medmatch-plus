@@ -100,7 +100,7 @@ export const DICT: Dict = {
   "home.hero.ctaSeekers": { ar: "تصفّح الوظائف", en: "Browse jobs" },
   "home.search.placeholderRole": { ar: "المسمى الوظيفي، الكلمة المفتاحية، أو التخصص", en: "Job title, keyword, or specialty" },
   "home.search.placeholderLoc": { ar: "المدينة أو الموقع", en: "City or location" },
-  "home.search.button": { ar: "تصفّح الوظائف", en: "Browse jobs" },
+  "home.search.button": { ar: "ابحث", en: "Search" },
   "home.why.label": { ar: "لماذا SyndeoCare", en: "Why SyndeoCare" },
   "home.why.verified.title": { ar: "توثيق واضح للناشرين", en: "Clear employer verification" },
   "home.why.verified.text": {
