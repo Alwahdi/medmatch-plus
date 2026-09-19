@@ -176,14 +176,25 @@ function JobDetail() {
   const { data: job, isLoading, isError: jobErr, error: jobErrObj, refetch: jobRefetch } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
-      const query = supabase.from("jobs").select("*,specialties(name_ar,name_en)");
-      const { data, error } = await (isUuid ? query.eq("id", jobId) : query.eq("slug", jobId))
+      // Public browsing goes through the sanitized view (no publisher/owner data).
+      const pub = publicJobsQuery();
+      const { data: publicRow, error: publicError } = await (
+        isUuid ? pub.eq("id", jobId) : pub.eq("slug", jobId)
+      ).maybeSingle();
+      if (publicError) throw publicError;
+      if (publicRow) return { ...withSpecialty(publicRow), is_active: true };
+
+      // Closed/expired listings stay reachable for the owner, admin, or engaged users
+      // through the base table policy — with explicit columns only.
+      const owned = supabase.from("jobs").select(OWNER_JOB_COLUMNS);
+      const { data, error } = await (isUuid ? owned.eq("id", jobId) : owned.eq("slug", jobId))
         .maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
       return data;
     },
   });
+
 
   const realJobId = job?.id;
   const isOwner = !!myFacility && !!job && job.facility_id === myFacility.id;
