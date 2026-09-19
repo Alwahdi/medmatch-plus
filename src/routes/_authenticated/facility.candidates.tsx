@@ -128,6 +128,7 @@ const TXT = {
     chatFailed: "Failed to start conversation",
     completeFacility: "Complete your facility profile first",
     initialContact: "Initial contact",
+    anonymousNote: "Name, photo and bio appear after you start the conversation.",
   },
 } as const;
 
