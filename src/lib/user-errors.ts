@@ -10,6 +10,11 @@ type Rule = { test: RegExp; ar: string; en: string };
 const RULES: Rule[] = [
   // طلبات تعديل البيانات
   {
+    test: /INVALID_MEDIA_PATH/i,
+    ar: "الصورة غير صالحة. ارفع الصورة من جهازك بدل استخدام رابط خارجي.",
+    en: "This image isn't valid. Upload the image from your device instead of using an external link.",
+  },
+  {
     test: /INVALID_ATTACHMENT_PATH/i,
     ar: "المرفق غير صالح. أعد رفع الملف من جهازك ثم أرسل الطلب.",
     en: "The attachment isn't valid. Upload the file again, then submit the request.",
