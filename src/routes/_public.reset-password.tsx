@@ -68,6 +68,8 @@ const T = {
 
 type Phase = "checking" | "ready" | "invalid" | "done";
 
+const DONE_KEY = "syndeocare.password-reset.done";
+
 /** يقرأ معاملات الرابط من الاستعلام والهاش معاً (Supabase يستخدم الاثنين حسب التدفق). */
 function readLinkParams() {
   if (typeof window === "undefined") return null;
