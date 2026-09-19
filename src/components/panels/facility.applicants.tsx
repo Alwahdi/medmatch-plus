@@ -144,7 +144,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       const facilityId = facility.id;
       const { data: jobs, error: jobsError } = await supabase
         .from("jobs")
-        .select("id,title,vacancies,is_active")
+        .select("id,title,vacancies,is_active,auto_closed")
         .eq("facility_id", facility.id);
       if (jobsError) throw jobsError;
       const ids = (jobs ?? []).map((j) => j.id).filter((id) => !jobId || id === jobId);
@@ -182,6 +182,8 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
   const hiredCount = useMemo(() => rows.filter((r) => r.status === "hired").length, [rows]);
   const vacancies = Math.max(job?.vacancies ?? 1, 1);
   const jobOpen = job ? job.is_active : true;
+  // الوظيفة التي أُقفلت تلقائياً باكتمال الشواغر يمكن التراجع عن اختيارها وتُفتح من جديد.
+  const canUndoHire = jobOpen || (job?.auto_closed ?? false);
   const seatsLeft = Math.max(vacancies - hiredCount, 0);
 
   const visible = useMemo(
@@ -362,7 +364,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       </Button>
                     )}
 
-                    {isHired && jobOpen && (
+                    {isHired && canUndoHire && (
                       <Button
                         size="sm"
                         variant="outline"

@@ -12,7 +12,7 @@ import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
-import { employmentLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
+import { employmentLabel, experienceLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
@@ -367,7 +367,7 @@ function JobDetail() {
 
             <h2 className="mt-6 text-lg font-bold">{c.requirements}</h2>
             <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-              <li>{c.expReq(job.min_experience, specialty || c.defaultSpecialty)}</li>
+              {job.min_experience > 0 && <li>{c.expReq(job.min_experience, specialty || c.defaultSpecialty)}</li>}
               {job.required_license && <li>{c.licenseReq(job.required_license)}</li>}
               <li>{c.teamworkReq}</li>
             </ul>
@@ -395,7 +395,7 @@ function JobDetail() {
                 </div>
                 <div className="flex justify-between">
                   <span>{c.minExp}</span>
-                  <span className="font-medium text-foreground">{c.years(job.min_experience)}</span>
+                  <span className="font-medium text-foreground">{experienceLabel(job.min_experience, lang)}</span>
                 </div>
                 {specialty && (
                   <div className="flex justify-between">
