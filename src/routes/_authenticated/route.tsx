@@ -54,29 +54,52 @@ function AuthenticatedLayout() {
   useEffect(() => {
     let active = true;
     setAuthError(false);
+
+    /** غياب الجلسة = زائر؛ أي خطأ آخر (شبكة/خادم) = شاشة إعادة المحاولة. */
+    const isMissingSession = (error: unknown) => {
+      const name = error instanceof Error ? error.name : "";
+      const message = error instanceof Error ? error.message.toLowerCase() : "";
+      if (name === "AuthSessionMissingError") return true;
+      return (
+        message.includes("auth session missing") ||
+        message.includes("session_not_found") ||
+        message.includes("session missing") ||
+        message.includes("invalid jwt") ||
+        message.includes("jwt expired") ||
+        message.includes("refresh token") ||
+        message.includes("not authenticated")
+      );
+    };
+
+    const toAuth = () => {
+      const next = `${window.location.pathname}${window.location.search}`;
+      void navigate({
+        to: "/auth",
+        search: next && next !== "/" ? { next } : {},
+        replace: true,
+      });
+    };
+
     supabase.auth
       .getUser()
       .then(({ data, error }) => {
         if (!active) return;
-        // لا توجد جلسة أصلاً (زائر) — إلى صفحة الدخول، وليست رسالة عطل.
-        if (!data.user) {
-          void navigate({ to: "/auth", replace: true });
+        // الخطأ أولاً: عطل الشبكة/الخادم ليس تسجيل خروج.
+        if (error) {
+          if (isMissingSession(error)) toAuth();
+          else setAuthError(true);
           return;
         }
-        if (error) {
-          setAuthError(true);
+        if (!data.user) {
+          toAuth();
           return;
         }
         setReady(true);
       })
       .catch((error: unknown) => {
         if (!active) return;
-        const message = error instanceof Error ? error.message.toLowerCase() : "";
-        if (message.includes("session") || message.includes("jwt") || message.includes("not authenticated")) {
-          void navigate({ to: "/auth", replace: true });
-          return;
-        }
-        setAuthError(true);
+        if (isMissingSession(error)) toAuth();
+        else setAuthError(true);
       });
     return () => {
       active = false;
