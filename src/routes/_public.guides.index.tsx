@@ -56,13 +56,13 @@ const GUIDE_EN: Record<string, { title: string; description: string; category: s
 export const Route = createFileRoute("/_public/guides/")({
   head: () => ({
     meta: [
-      { title: "أدلة المسار المهني الصحي | SyndeoCare" },
+      { title: "أدلة المسار المهني الصحي | Healthcare career guides | SyndeoCare" },
       {
         name: "description",
         content:
           "أدلة عملية للكوادر الصحية: كتابة سيرة ذاتية تجتاز ATS، توثيق التراخيص، العمل بالمناوبات، والتفاوض على الراتب.",
       },
-      { property: "og:title", content: "أدلة المسار المهني الصحي | SyndeoCare" },
+      { property: "og:title", content: "أدلة المسار المهني الصحي | Healthcare career guides | SyndeoCare" },
       { property: "og:description", content: "محتوى عملي يساعدك على الحصول على الوظيفة الصحية المناسبة." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -135,12 +135,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/jobs/$jobId")({
   head: () => ({
     meta: [
-      { title: "تفاصيل الوظيفة | SyndeoCare" },
+      { title: "تفاصيل الوظيفة | Job details | SyndeoCare" },
       {
         name: "description",
         content: "تفاصيل الوظيفة الطبية: المنشأة، الموقع، نطاق الراتب، المتطلبات، والتقديم المباشر.",
       },
-      { property: "og:title", content: "تفاصيل الوظيفة | SyndeoCare" },
+      { property: "og:title", content: "تفاصيل الوظيفة | Job details | SyndeoCare" },
       { property: "og:description", content: "تعرّف على تفاصيل الوظيفة وقدّم عليها مباشرة." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

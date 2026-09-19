@@ -47,13 +47,13 @@ export const Route = createFileRoute("/_public/jobs/")({
   },
   head: () => ({
     meta: [
-      { title: "الفرص الطبية: وظائف ومناوبات | SyndeoCare" },
+      { title: "الفرص الطبية: وظائف ومناوبات | Medical jobs & shifts | SyndeoCare" },
       {
         name: "description",
         content:
           "تصفح وظائف الأطباء والتمريض والصيادلة والفنيين في اليمن والخليج ومصر، مع نطاق راتب معلن وفلاتر دقيقة.",
       },
-      { property: "og:title", content: "الفرص الطبية: وظائف ومناوبات | SyndeoCare" },
+      { property: "og:title", content: "الفرص الطبية: وظائف ومناوبات | Medical jobs & shifts | SyndeoCare" },
       {
         property: "og:description",
           content: "وظائف طبية في المنطقة العربية بنطاق راتب معلن وفلاتر حسب التخصص والموقع.",

@@ -12,17 +12,19 @@ import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
+import { ConsentNote } from "@/components/consent-note";
+import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_public/register/")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب باحث عن عمل | SyndeoCare" },
+      { title: "إنشاء حساب كادر صحي | Create a professional account | SyndeoCare" },
       {
         name: "description",
         content:
           "أنشئ حساب باحث عن عمل واحد على SyndeoCare للوظائف والشيفتات المرنة والطلبات وملفك المهني الموثّق.",
       },
-      { property: "og:title", content: "إنشاء حساب باحث عن عمل | SyndeoCare" },
+      { property: "og:title", content: "إنشاء حساب كادر صحي | Create a professional account | SyndeoCare" },
       {
         property: "og:description",
         content: "حوّل خبرتك الطبية إلى فرصتك القادمة مع ملف مهني موثّق.",
@@ -198,7 +200,7 @@ function RegisterSeeker() {
     });
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error, lang));
       return;
     }
     if (!data.session) {
@@ -349,7 +351,7 @@ function RegisterSeeker() {
             </>
           )}
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">{L.terms}</p>
+          <ConsentNote className="mt-4" />
           <p className="mt-3 text-center text-sm">
             {L.have}{" "}
             <Link to="/auth" className="font-bold text-primary hover:underline">

@@ -1,29 +1,42 @@
-# Welcome to your Lovable project
+# SyndeoCare
 
-This project was built with [Lovable](https://lovable.dev).
+منصة توظيف طبي عربية أولاً (RTL) تربط الكوادر الصحية بالمستشفيات والعيادات: وظائف دائمة، مناوبات، توثيق تراخيص، مراسلة، ومراجعات.
 
-## Build with Lovable
+Arabic-first healthcare hiring platform: permanent jobs, shifts, credential verification, messaging, and reviews.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## Stack
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- TanStack Start v1 (React 19, SSR) + TanStack Router / Query
+- Vite 7, TypeScript, Tailwind CSS v4 (`src/styles.css`), shadcn-style UI
+- Supabase (Postgres + RLS, Auth, Storage) through Lovable Cloud
+- Server logic: `createServerFn` (`src/lib/*.functions.ts`); public HTTP endpoints under `src/routes/api/public/*`
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Local development
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+bun install
+bun run dev        # http://localhost:8080
+bunx tsgo --noEmit # typecheck
+bun run build
 ```
 
-## Built with
+## Environment variables
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+Names only — never commit values.
+
+Client: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`
+
+Server: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`
+
+## Architecture
+
+```text
+src/routes/_public/*         public pages (SSR): home, jobs, shifts, facilities, specialties, auth
+src/routes/_authenticated/*  signed-in area (client-gated): dashboard, profile, facility, admin
+src/routes/api/public/*      webhooks / cron endpoints (caller verified in the handler)
+src/components/              shared UI, panels, shared states (error/empty/skeleton)
+src/lib/                     i18n, auth, formatting, storage rules, server functions
+supabase/migrations/         tracked schema, RLS policies, grants, RPCs
+```
+
+Key rules enforced in the database, not the UI: system-managed fields (verification badges, counters, document review status) are not writable by account owners; sensitive actions run through `SECURITY DEFINER` RPCs with role checks; professional identity stays hidden until an engagement exists.

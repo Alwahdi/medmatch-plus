@@ -31,6 +31,7 @@ import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
+import { friendlyError } from "@/lib/user-errors";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { ErrorState } from "@/components/error-state";
 import {
@@ -260,7 +261,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       setConfirmPw("");
       toast.success(c.pwDone);
     },
-    onError: (e: Error) => toast.error(e.message || c.failed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   /* ---------------- identities ---------------- */
@@ -291,7 +292,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       const msg = (error.message || "").toLowerCase();
       const disabled = msg.includes("manual link") || msg.includes("disabled") || msg.includes("422");
       if (!disabled) {
-        toast.error(error.message || c.failed);
+        toast.error(friendlyError(error, lang, c.failed));
         return;
       }
       toast.info(c.linkHint);
@@ -327,7 +328,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     if (!ok) return;
     const { error } = await supabase.auth.unlinkIdentity(googleIdentity);
     if (error) {
-      toast.error(error.message || c.failed);
+      toast.error(friendlyError(error, lang, c.failed));
       return;
     }
     toast.success(c.unlinkDone);
@@ -360,7 +361,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     },
     onSuccess: (data) =>
       setEnroll({ id: data.id, qr: data.totp.qr_code, secret: data.totp.secret }),
-    onError: (e: Error) => toast.error(e.message || c.failed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   const verifyEnroll = useMutation({
@@ -381,7 +382,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       toast.success(c.mfaDone);
       void refetchFactors();
     },
-    onError: (e: Error) => toast.error(e.message || c.failed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   async function cancelEnroll() {
@@ -401,7 +402,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     if (!ok) return;
     const { error } = await supabase.auth.mfa.unenroll({ factorId: activeFactor.id });
     if (error) {
-      toast.error(error.message || c.failed);
+      toast.error(friendlyError(error, lang, c.failed));
       return;
     }
     toast.success(c.mfaRemoved);
@@ -472,7 +473,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     if (!ok) return;
     const { error } = await supabase.from("trusted_devices").delete().eq("id", id);
     if (error) {
-      toast.error(error.message || c.failed);
+      toast.error(friendlyError(error, lang, c.failed));
       return;
     }
     toast.success(c.bioRemoved);
@@ -512,7 +513,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     if (!ok) return;
     const { error } = await supabase.auth.signOut({ scope: "others" });
     if (error) {
-      toast.error(error.message || c.failed);
+      toast.error(friendlyError(error, lang, c.failed));
       return;
     }
     toast.success(c.signOutOthersDone);

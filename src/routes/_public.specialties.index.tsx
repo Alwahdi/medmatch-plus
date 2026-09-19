@@ -4,6 +4,9 @@ import { Stethoscope, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { specialtyName } from "@/lib/format";
+import { ErrorState } from "@/components/error-state";
+import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { useLang } from "@/lib/i18n";
 
 const TXT = {
@@ -12,6 +15,9 @@ const TXT = {
     title: "التخصصات الطبية",
     sub: "اختر تخصصك لعرض الوظائف والمناوبات المتاحة فيه عبر الدول العربية.",
     browseAll: "تصفح كل الوظائف",
+    loading: "جارٍ تحميل التخصصات…",
+    emptyTitle: "لا توجد تخصصات بعد",
+    emptyBody: "سيتم عرض التخصصات هنا فور إضافتها.",
     categories: {
       doctor: "الأطباء",
       nurse: "التمريض",
@@ -25,6 +31,9 @@ const TXT = {
     title: "Medical specialties",
     sub: "Choose your specialty to see the jobs and shifts available in it across Arab countries.",
     browseAll: "Browse all jobs",
+    loading: "Loading specialties…",
+    emptyTitle: "No specialties yet",
+    emptyBody: "Specialties will appear here as soon as they are added.",
     categories: {
       doctor: "Physicians",
       nurse: "Nursing",
@@ -38,12 +47,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/specialties/")({
   head: () => ({
     meta: [
-      { title: "التخصصات الطبية | SyndeoCare" },
+      { title: "التخصصات الطبية | Medical specialties | SyndeoCare" },
       {
         name: "description",
         content: "تصفح الوظائف والمناوبات الطبية حسب التخصص: طوارئ، تمريض، صيدلة، أشعة، تخدير وغيرها.",
       },
-      { property: "og:title", content: "التخصصات الطبية | SyndeoCare" },
+      { property: "og:title", content: "التخصصات الطبية | Medical specialties | SyndeoCare" },
       { property: "og:description", content: "فرص عمل طبية مصنّفة حسب التخصص." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -56,13 +65,14 @@ function SpecialtiesIndex() {
   const { lang } = useLang();
   const c = TXT[lang];
 
-  const { data } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["specialties-all"],
     queryFn: async () => {
-      const { data: rows } = await supabase
+      const { data: rows, error: queryError } = await supabase
         .from("specialties")
         .select("id,slug,name_ar,name_en,category")
         .order("category");
+      if (queryError) throw queryError;
       return rows ?? [];
     },
   });
@@ -90,6 +100,16 @@ function SpecialtiesIndex() {
 
       <section className="pb-16 md:pb-20">
         <div className="mx-auto max-w-6xl px-4">
+          {isLoading && (
+            <>
+              <span className="sr-only">{c.loading}</span>
+              <ListSkeleton rows={4} />
+            </>
+          )}
+          {isError && <ErrorState error={error} onRetry={() => void refetch()} />}
+          {!isLoading && !isError && Object.keys(groups).length === 0 && (
+            <EmptyState icon={Stethoscope} title={c.emptyTitle} description={c.emptyBody} />
+          )}
           {Object.entries(groups).map(([category, items]) => (
             <section key={category} className="mt-10 first:mt-0">
               <div className="flex flex-wrap items-end justify-between gap-4">

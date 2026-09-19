@@ -122,12 +122,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/shifts/$shiftId")({
   head: () => ({
     meta: [
-      { title: "تفاصيل المناوبة | SyndeoCare" },
+      { title: "تفاصيل المناوبة | Shift details | SyndeoCare" },
       {
         name: "description",
         content: "تفاصيل المناوبة الطبية: التوقيت، المدة، الأجر بالساعة، الموقع، والحجز المباشر.",
       },
-      { property: "og:title", content: "تفاصيل المناوبة | SyndeoCare" },
+      { property: "og:title", content: "تفاصيل المناوبة | Shift details | SyndeoCare" },
       { property: "og:description", content: "اطّلع على تفاصيل المناوبة واحجزها مباشرة." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

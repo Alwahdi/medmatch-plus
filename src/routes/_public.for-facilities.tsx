@@ -7,7 +7,7 @@ import { useMyFacility, useSession } from "@/lib/auth";
 export const Route = createFileRoute("/_public/for-facilities")({
   head: () => ({
     meta: [
-      { title: "للمنشآت الصحية | وظّف كوادر بحالة توثيق واضحة | SyndeoCare" },
+      { title: "للمنشآت الصحية | For healthcare employers | SyndeoCare" },
       {
         name: "description",
         content:

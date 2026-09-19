@@ -6,13 +6,13 @@ import { useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/_public/privacy")({
   head: () => ({
     meta: [
-      { title: "سياسة الخصوصية | SyndeoCare" },
+      { title: "سياسة الخصوصية | Privacy Policy | SyndeoCare" },
       {
         name: "description",
         content:
           "كيف تجمع SyndeoCare بياناتك وتستخدمها وتحميها: الملف المهني، وثائق التراخيص، والرسائل داخل المنصة.",
       },
-      { property: "og:title", content: "سياسة الخصوصية | SyndeoCare" },
+      { property: "og:title", content: "سياسة الخصوصية | Privacy Policy | SyndeoCare" },
       { property: "og:description", content: "تفاصيل جمع البيانات واستخدامها وحقوقك في SyndeoCare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

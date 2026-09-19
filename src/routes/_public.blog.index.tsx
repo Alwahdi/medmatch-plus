@@ -28,12 +28,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/blog/")({
   head: () => ({
     meta: [
-      { title: "مدونة التوظيف الصحي | SyndeoCare" },
+      { title: "مدونة التوظيف الصحي | Healthcare hiring blog | SyndeoCare" },
       {
         name: "description",
         content: "مقالات عن سوق العمل الصحي والمناوبات والمقابلات ونصائح التوظيف للمنشآت الطبية.",
       },
-      { property: "og:title", content: "مدونة التوظيف الصحي | SyndeoCare" },
+      { property: "og:title", content: "مدونة التوظيف الصحي | Healthcare hiring blog | SyndeoCare" },
       {
         property: "og:description",
         content: "مقالات عن سوق العمل الصحي والمناوبات والمقابلات ونصائح التوظيف.",

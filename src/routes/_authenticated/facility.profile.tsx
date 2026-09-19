@@ -29,6 +29,7 @@ import { countryLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
+import { friendlyError } from "@/lib/user-errors";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
 const TXT = {
@@ -208,7 +209,7 @@ function FacilityProfile() {
       queryClient.invalidateQueries({ queryKey: ["my-facility-lite"] });
       setMode("view");
     },
-    onError: (e: Error) => toast.error(e.message || c.failed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   if (isLoading)

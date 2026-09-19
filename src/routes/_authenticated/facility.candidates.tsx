@@ -21,6 +21,7 @@ import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { useLang } from "@/lib/i18n";
+import { friendlyError } from "@/lib/user-errors";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
 type CandidatesSearch = { specialty?: string; country?: string; city?: string; minExp?: string };
@@ -216,7 +217,7 @@ function Candidates() {
       refetchQuota();
       if (rows.length === 0) toast.info(c.noResults);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(friendlyError(e, lang)),
   });
 
   const startChat = useMutation({

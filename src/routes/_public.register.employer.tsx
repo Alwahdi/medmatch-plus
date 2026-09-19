@@ -11,19 +11,21 @@ import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
+import { ConsentNote } from "@/components/consent-note";
+import { friendlyError } from "@/lib/user-errors";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
 import { Combobox, comboText } from "@/components/ui/combobox";
 
 export const Route = createFileRoute("/_public/register/employer")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب ناشر وظائف | SyndeoCare" },
+      { title: "إنشاء حساب منشأة | Create an employer account | SyndeoCare" },
       {
         name: "description",
         content:
           "أنشئ حساب ناشر وظائف على SyndeoCare وابدأ التوظيف في أقل من دقيقة مع تجربة مجانية 30 يومًا.",
       },
-      { property: "og:title", content: "إنشاء حساب ناشر وظائف | SyndeoCare" },
+      { property: "og:title", content: "إنشاء حساب منشأة | Create an employer account | SyndeoCare" },
       { property: "og:description", content: "ابدأ التوظيف خلال دقيقة، بدون بطاقة ائتمان." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -235,7 +237,7 @@ function RegisterEmployer() {
     });
     if (error) {
       setBusy(false);
-      toast.error(error.message);
+      toast.error(friendlyError(error, lang));
       return;
     }
     if (data.session && data.user) {
@@ -482,7 +484,7 @@ function RegisterEmployer() {
                   <Button type="submit" className="w-full" disabled={busy}>
                     {busy ? L.submitting : L.submit}
                   </Button>
-                  <p className="text-center text-xs text-muted-foreground">{L.terms}</p>
+                  <ConsentNote />
                   <p className="text-center text-sm">
                     {L.have}{" "}
                     <Link to="/auth" className="font-bold text-primary hover:underline">

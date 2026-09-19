@@ -40,6 +40,7 @@ import {
 } from "@/lib/format";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
+import { friendlyError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ErrorState } from "@/components/error-state";
 
@@ -229,7 +230,7 @@ export function FacilityVerificationPanel() {
       setFile(null);
       void queryClient.invalidateQueries({ queryKey: ["facility-docs"] });
     },
-    onError: (e: Error) => toast.error(e.message || c.saveFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
 
   const remove = useMutation({
