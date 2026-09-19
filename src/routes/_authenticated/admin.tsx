@@ -286,7 +286,7 @@ function AdminPage() {
       const { error } = await supabase.rpc("admin_review_credential", {
         _id: id,
         _status: status,
-        _note: reviewNote ?? undefined,
+        ...(reviewNote ? { _note: reviewNote } : {}),
       });
       if (error) throw error;
     },
@@ -313,7 +313,7 @@ function AdminPage() {
       const { error } = await supabase.rpc("admin_review_facility_document", {
         _id: id,
         _status: status,
-        _note: reviewNote ?? undefined,
+        ...(reviewNote ? { _note: reviewNote } : {}),
       });
       if (error) throw error;
     },
