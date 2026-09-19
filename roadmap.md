@@ -367,3 +367,6 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 
 ## Phase 33 — interview completion time invariant (done)
 - Tracked migration mirrors the live hotfix: `complete_interview` raises `INTERVIEW_NOT_STARTED` when `scheduled_at > now()`. UI hides the "finish & rate" button until the scheduled time passes; AR/EN error copy added for race/time-drift. Completion stays available for scheduled/confirmed after the time, per existing policy. Verified: live function contains the guard, RPC callable by authenticated without permission errors (guard ordering returns INTERVIEW_NOT_FOUND for unknown ids), typecheck/build clean.
+
+## Phase 34 — revoke non-client table privileges (done)
+- Tracked idempotent migration loops over every public base table revoking TRUNCATE/REFERENCES/TRIGGER from anon + authenticated (SELECT/INSERT/UPDATE/DELETE untouched). Verified via information_schema.role_table_grants: zero remaining rows for those privileges. Build clean.
