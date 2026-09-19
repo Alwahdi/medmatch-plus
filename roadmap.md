@@ -378,3 +378,7 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - Tracked idempotent migration: dropped public `public read facility reviews`; SELECT on pro_to_facility reviews is authenticated-only and limited to the reviewed professional, the author, the owning facility, or admin (facility_to_pro policy untouched; rating_avg/rating_count logic unchanged).
 - Role-simulation test: anon 0 rows, professional 3, facility owner 1 (own facility only), unrelated authenticated 0. No admin account exists yet (existing release blocker), so the admin branch is verified by policy expression only.
 - No public UI reads individual reviews: public facility page uses the aggregate columns; review-dialog and facility candidate detail are authenticated-only. Build/typecheck clean.
+
+## Phase 37 — hide unreleased pricing from anonymous users (done)
+- Tracked idempotent migration: dropped `plans public read`; SELECT on `public.subscription_plans` is authenticated-only (`plans authenticated read`), `REVOKE SELECT ... FROM anon`. Plan rows and prices unchanged (trial/basic/pro intact).
+- Verified: anon gets 42501 permission denied; authenticated reads all 3 plans. All UI usages of subscription_plans live under `_authenticated` (facility plan/quota screens) — no public page depends on the table. `/pricing` is a redirect to `/for-facilities` (no pricing UI in the trial launch). Build/typecheck clean.
