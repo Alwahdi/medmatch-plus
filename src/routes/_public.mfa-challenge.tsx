@@ -7,7 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/lib/i18n";
-import { safeNextPath } from "@/lib/safe-next";
+
+/** يقبل المسارات الداخلية فقط، ويرفض أي رابط خارجي. */
+function safeNextPath(value: string | null) {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  if (value.startsWith("/auth") || value.startsWith("/mfa-challenge")) return null;
+  return value;
+}
 
 export const Route = createFileRoute("/_public/mfa-challenge")({
   head: () => ({
