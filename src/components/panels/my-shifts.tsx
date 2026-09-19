@@ -69,7 +69,7 @@ export function MyShiftsPanel() {
       const { data, error } = await supabase
         .from("shift_bookings")
         .select(
-          "id,created_at,status,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country,facility_id)",
+          "id,created_at,status,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country,facility_id,status)",
         )
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
@@ -121,7 +121,7 @@ export function MyShiftsPanel() {
                   <p className="font-display text-lg font-extrabold text-accent">
                     {formatMoney(s.hourly_rate * hours, s.currency, lang)}
                   </p>
-                  {b.status === "confirmed" && user && (
+                  {b.status === "confirmed" && s.status === "completed" && user && (
                     <div className="mt-1 flex justify-end">
                       <ReviewDialog
                         direction="pro_to_facility"

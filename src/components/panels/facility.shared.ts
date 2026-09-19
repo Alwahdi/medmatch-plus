@@ -46,6 +46,8 @@ export const TXT = {
     confirmCloseCta: "نعم، أغلقها",
     confirmCancelShiftTitle: "إلغاء هذه المناوبة؟",
     confirmCancelShiftDesc: "سيتم إلغاء المناوبة وإخفاؤها عن الباحثين، ولا يمكن التراجع.",
+    confirmCancelBookedShiftDesc:
+      "هذه المناوبة محجوزة. الإلغاء سيلغي حجز المختص ويصله إشعار بذلك، ولا يمكن التراجع.",
     confirmCancelShiftCta: "نعم، ألغِها",
     moreActions: "إجراءات أخرى",
     tabAll: (n: number) => `الكل (${n})`,
@@ -200,6 +202,8 @@ export const TXT = {
     confirmCloseCta: "Yes, close it",
     confirmCancelShiftTitle: "Cancel this shift?",
     confirmCancelShiftDesc: "The shift will be cancelled and hidden from seekers. This cannot be undone.",
+    confirmCancelBookedShiftDesc:
+      "This shift is booked. Cancelling it will cancel the professional's booking and notify them. This cannot be undone.",
     confirmCancelShiftCta: "Yes, cancel it",
     moreActions: "More actions",
     tabAll: (n: number) => `All (${n})`,
@@ -337,6 +341,18 @@ export function shiftErrorText(raw: string, lang: "ar" | "en") {
     return lang === "ar"
       ? "لا يمكن إنهاء المناوبة إلا بعد انتهاء وقتها وكونها محجوزة."
       : "A shift can only be completed once it is booked and its time has passed.";
-  return raw;
+  if (raw.includes("SHIFT_HAS_ACTIVE_BOOKING"))
+    return lang === "ar"
+      ? "هذه المناوبة محجوزة — ألغِ الحجز أولاً ثم ألغِ المناوبة."
+      : "This shift is booked — cancel the booking first, then cancel the shift.";
+  if (raw.includes("SHIFT_BOOKING_INVARIANT"))
+    return lang === "ar"
+      ? "حالة المناوبة لا تطابق حجوزاتها، حدّث الصفحة وحاول مجدداً."
+      : "The shift status doesn't match its bookings. Refresh the page and try again.";
+  if (raw.includes("SHIFT_NOT_FOUND"))
+    return lang === "ar" ? "لم نعد نجد هذه المناوبة." : "We couldn't find this shift.";
+  if (raw.includes("FORBIDDEN"))
+    return lang === "ar" ? "هذا الإجراء متاح لمالك المنشأة فقط." : "Only the facility owner can do this.";
+  return lang === "ar" ? "تعذّر إتمام الإجراء، حاول مرة أخرى." : "We couldn't complete that action. Please try again.";
 }
 
