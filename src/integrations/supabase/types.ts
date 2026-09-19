@@ -1490,6 +1490,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_admin_role: {
+        Args: { _grant: boolean; _user_id: string }
+        Returns: boolean
+      }
       admin_set_facility_verified: {
         Args: { _facility_id: string; _value: boolean }
         Returns: undefined
@@ -1499,6 +1503,7 @@ export type Database = {
         Returns: undefined
       }
       book_open_shift: { Args: { _shift_id: string }; Returns: string }
+      bootstrap_admin_role: { Args: { _user_id: string }; Returns: boolean }
       can_view_facility_identity: {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean
@@ -1513,6 +1518,7 @@ export type Database = {
       }
       claim_facility_role: { Args: never; Returns: boolean }
       claim_professional_role: { Args: never; Returns: boolean }
+      cleanup_orphaned_identities: { Args: never; Returns: Json }
       complete_interview: {
         Args: {
           _interview_id: string
@@ -1570,6 +1576,15 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      release_readiness_report: {
+        Args: never
+        Returns: {
+          check_code: string
+          detail: string
+          severity: string
+          value: number
+        }[]
       }
       reschedule_interview: {
         Args: { _interview_id: string; _notes?: string; _scheduled_at: string }
