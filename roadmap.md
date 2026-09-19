@@ -345,3 +345,18 @@ Changes:
 - `panels/facility.verification.tsx`, `panels/credentials.tsx` — removed the 24–48h review-time promise; copy now describes the "Under review" state.
 
 Verified: 7 viewports x AR/EN on public routes — no horizontal overflow, no console errors; professional/facility/admin screens at 390 and 1440 clean; typecheck and build clean. QA fixtures (2 accounts + profiles + temporary admin role) created and fully deleted.
+
+## Phase 31 — OAuth onboarding + release acceptance gate (done)
+- Google sign-up on `/register` and `/register/employer` now returns to `/auth?next=/onboarding` (fixed internal path, no user-supplied redirect) instead of the home page, so the callback always reaches onboarding. `sc_signup_intent` still selects the professional/facility flow; `/auth` keeps the Phase 25 safe-`next` handling.
+- Invitations: repo migration now ends with `REVOKE INSERT ON public.invitations FROM authenticated` (and anon); creation goes only through `send_candidate_invitation`, client keeps SELECT/DELETE + UPDATE(status).
+
+Acceptance tested this pass:
+- Typecheck and build clean.
+- OAuth callback logic: roleless + professional intent -> professional onboarding (3 steps); roleless + facility intent -> facility onboarding (2 steps); user with an existing role -> /dashboard with no loop; `next=//evil.com` rejected.
+- 10 public routes x 7 viewports (320/360/390/430/768/1280/1440) x AR/EN: no horizontal overflow, no console errors.
+- DB matches migrations: invitations have no client INSERT, messages limited to body/attachment insert + read/delivered update, jobs/shifts visibility policies present (5 each), all 12 workflow/admin RPCs present.
+- QA fixtures: 2 temporary accounts created and deleted; 0 `*@e2e.syndeocare.test` users, 0 orphan roles, 0 QA rows remain.
+
+Release state: NOT published (no automatic publish).
+🚩 Single release blocker: live admin count = 0. The project owner must choose the first real admin account; it is then granted through `bootstrap_admin_role` from the trusted server context (see README). No account is assigned automatically.
+External dependencies still unavailable: transactional email and WhatsApp delivery (credentials/domain approval pending) — the product surfaces these as unavailable rather than pretending they send.
