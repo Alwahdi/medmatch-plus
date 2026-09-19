@@ -1471,6 +1471,30 @@ export type Database = {
           issue_code: string
         }[]
       }
+      admin_review_credential: {
+        Args: {
+          _id: string
+          _note?: string
+          _status: Database["public"]["Enums"]["credential_status"]
+        }
+        Returns: undefined
+      }
+      admin_review_facility_document: {
+        Args: {
+          _id: string
+          _note?: string
+          _status: Database["public"]["Enums"]["credential_status"]
+        }
+        Returns: undefined
+      }
+      admin_set_facility_verified: {
+        Args: { _facility_id: string; _value: boolean }
+        Returns: undefined
+      }
+      admin_set_professional_verified: {
+        Args: { _professional_id: string; _value: boolean }
+        Returns: undefined
+      }
       book_open_shift: { Args: { _shift_id: string }; Returns: string }
       can_view_facility_identity: {
         Args: { _facility_id: string; _user_id: string }
