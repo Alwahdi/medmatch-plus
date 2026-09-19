@@ -94,7 +94,26 @@ function AuthenticatedLayout() {
           toAuth();
           return;
         }
-        setReady(true);
+        // التحقق بخطوتين: حساب فعّل التطبيق ولم يؤكّد الجلسة لا يدخل التطبيق الخاص.
+        void supabase.auth
+          .mfa
+          .getAuthenticatorAssuranceLevel()
+          .then(({ data: aal }) => {
+            if (!active) return;
+            if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+              const next = `${window.location.pathname}${window.location.search}`;
+              void navigate({
+                to: "/mfa-challenge",
+                search: next && next !== "/" ? { next } : {},
+                replace: true,
+              });
+              return;
+            }
+            setReady(true);
+          })
+          .catch(() => {
+            if (active) setAuthError(true);
+          });
       })
       .catch((error: unknown) => {
         if (!active) return;
