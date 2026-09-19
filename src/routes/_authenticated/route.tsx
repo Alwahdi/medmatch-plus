@@ -32,7 +32,7 @@ const PRO_ONLY = [
 /** مسارات المنشآت فقط. */
 const FACILITY_ONLY = ["/facility"];
 /** المسارات المسموحة لحساب جديد بلا نوع بعد (إكمال الإعداد فقط). */
-const ROLELESS_ALLOWED = ["/onboarding", "/profile", "/cv-import", "/cv", "/settings", "/messages", "/notifications"];
+const ROLELESS_ALLOWED = ["/onboarding", "/profile", "/cv-import", "/cv"];
 /** مسارات الإدارة فقط. */
 const ADMIN_ONLY = ["/admin"];
 

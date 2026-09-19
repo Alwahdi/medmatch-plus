@@ -26,7 +26,17 @@ import { DICT, useLang } from "@/lib/i18n";
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
   role: z.enum(["professional", "facility"]).optional(),
+  /** المسار الذي حاول المستخدم فتحه قبل تسجيل الدخول (داخلي فقط). */
+  next: z.string().optional(),
 });
+
+/** يقبل المسارات الداخلية فقط، ويرفض أي رابط خارجي. */
+function safeNext(value: string | undefined) {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  if (value.startsWith("/auth")) return null;
+  return value;
+}
 
 export const Route = createFileRoute("/_public/auth")({
   validateSearch: searchSchema,
