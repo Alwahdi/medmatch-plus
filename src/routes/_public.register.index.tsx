@@ -6,7 +6,6 @@ import { Briefcase, Building2, Check, Eye, EyeOff, ShieldCheck } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
@@ -14,6 +13,7 @@ import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 import { ConsentNote } from "@/components/consent-note";
 import { friendlyError } from "@/lib/user-errors";
+import { PHONE_PLACEHOLDER_AR, PHONE_PLACEHOLDER_EN, isValidPhone, normalizePhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_public/register/")({
   head: () => ({
@@ -56,16 +56,13 @@ const AR = {
   name: "الاسم الكامل",
   namePh: "أدخل اسمك الكامل",
   phone: "رقم الجوال",
-  phonePh: "مثال: 05xxxxxxxx",
+  phonePh: PHONE_PLACEHOLDER_AR,
   email: "البريد الإلكتروني",
   emailPh: "أدخل بريدك الإلكتروني",
   password: "كلمة المرور",
   passwordPh: "8 أحرف على الأقل",
   confirm: "تأكيد كلمة المرور",
   confirmPh: "تأكيد",
-  gender: "الجنس",
-  male: "ذكر",
-  female: "أنثى",
   submit: "إنشاء حساب",
   submitting: "جارٍ الإنشاء…",
   terms: "بإنشاء حساب، فإنك توافق على الشروط و سياسة الخصوصية.",
@@ -97,16 +94,13 @@ const EN: typeof AR = {
   name: "Full name",
   namePh: "Enter your full name",
   phone: "Mobile number",
-  phonePh: "e.g. 05xxxxxxxx",
+  phonePh: PHONE_PLACEHOLDER_EN,
   email: "Email",
   emailPh: "Enter your email",
   password: "Password",
   passwordPh: "At least 8 characters",
   confirm: "Confirm password",
   confirmPh: "Confirm",
-  gender: "Gender",
-  male: "Male",
-  female: "Female",
   submit: "Create account",
   submitting: "Creating…",
   terms: "By creating an account you agree to the Terms and Privacy Policy.",
@@ -129,7 +123,6 @@ function RegisterSeeker() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [gender, setGender] = useState("male");
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -175,7 +168,7 @@ function RegisterSeeker() {
     const parsed = z
       .object({
         fullName: z.string().trim().min(2).max(100),
-        phone: z.string().trim().min(6).max(20),
+        phone: z.string().trim().min(6).max(20).refine(isValidPhone),
         email: z.string().trim().email().max(255),
         password: z.string().min(8).max(72),
       })
@@ -196,8 +189,8 @@ function RegisterSeeker() {
         emailRedirectTo: `${window.location.origin}/onboarding`,
         data: {
           full_name: parsed.data.fullName,
-          phone: parsed.data.phone,
-          gender,
+          // رقم الجوال يُحفظ في ملف الحساب عبر قاعدة البيانات، ويبقى بياناً خاصاً.
+          phone: normalizePhone(parsed.data.phone),
           role: "professional",
         },
       },
@@ -331,23 +324,6 @@ function RegisterSeeker() {
                   toggle={() => setShowConfirm((v) => !v)}
                   toggleLabel={L.show}
                 />
-                <div>
-                  <Label>{L.gender}</Label>
-                  <RadioGroup value={gender} onValueChange={setGender} className="mt-2 flex gap-6">
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="male" id="rs-male" />
-                      <Label htmlFor="rs-male" className="font-normal">
-                        {L.male}
-                      </Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="female" id="rs-female" />
-                      <Label htmlFor="rs-female" className="font-normal">
-                        {L.female}
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
                 <Button type="submit" className="w-full" disabled={busy}>
                   {busy ? L.submitting : L.submit}
                 </Button>

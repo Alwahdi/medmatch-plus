@@ -512,3 +512,11 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - UI: facility shift cancel now calls the RPC (no direct status write); booked shifts get a distinct confirmation warning; complete action still only after end; `my-shifts` review dialog requires a completed shift.
 - Friendly errors: `SHIFT_HAS_ACTIVE_BOOKING`, `SHIFT_BOOKING_INVARIANT`, `INVALID_SHIFT_ENGAGEMENT`, `ENGAGEMENT_REQUIRED`, `SHIFT_NOT_FOUND`, `FORBIDDEN`; `shiftErrorText` no longer falls back to the raw backend message.
 - Verified on live DB with a rolled-back QA shift: manual open→booked = SHIFT_BOOKING_INVARIANT, premature complete = blocked, clean open→cancelled = allowed. Typecheck and build clean.
+
+## Phase 49 — signup data continuity + data minimization (done)
+- `handle_new_user()` (idempotent migration): stores trimmed `full_name` (max 100) and a sanitized phone (digits + optional leading `+`, 7–15 digits, else NULL) into `profiles`; no arbitrary metadata keys copied, no role derived from metadata.
+- Safe backfill (data-only): 3 live profiles with `phone IS NULL` received their signup phone; existing phone values were never overwritten.
+- Onboarding prefill: `FacilitySteps` seeds name/type/country/city from signup metadata as initial defaults only (validated type against the known list, trimmed/length-capped); a saved local draft still wins, and existing-facility users are redirected before the form. Professional name prefill unchanged; phone is no longer asked twice.
+- Data minimization: gender removed from professional registration UI and metadata (no schema added). Employer governorate stays a UI-only helper for city selection and is no longer sent as permanent metadata.
+- Phone UX: neutral placeholder (`771234567` / `+967771234567`), shared `normalizePhone`/`isValidPhone` used by both forms; phone stays private account data, never part of public candidate/facility identity.
+- Verified: normalization/validation cases in SQL, `on_auth_user_created` trigger intact, both signup pages at 390px AR with no gender field, no overflow, no console errors. Typecheck and build clean.
