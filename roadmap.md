@@ -411,3 +411,13 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - `src/lib/user-errors.ts`: friendly AR/EN mappings for `WEBSITE_INVALID` and `WEBSITE_TOO_LONG`; no raw Postgres error surfaces.
 - After save, the facility query is invalidated and the form re-syncs from the row, so the normalized `https://…` value is what the user sees.
 - Both website links (public facility page and facility profile) render with `target="_blank"` and `rel="noopener noreferrer"`.
+
+## Phase 42 — candidate-search avatar anonymity correction (done)
+- Corrects Phase 39: candidate search is intentionally anonymous (no name, no photo before contact), so `candidate_search_access` and `invitations` must NOT grant Storage avatar access.
+- Tracked idempotent migration now mirrors the narrower live `public.can_read_avatar_path(text, uuid)` (plpgsql, STABLE SECURITY DEFINER, `search_path=public`, EXECUTE to `authenticated`/`service_role` only, revoked from PUBLIC/anon):
+  - owner and admin: unchanged.
+  - professional → facility logo: only after conversation `identity_revealed`, application status shortlisted/interview/offer/hired, or a confirmed shift booking.
+  - facility → professional avatar: only on direct engagement — application to one of its jobs, booking on one of its shifts, or an existing conversation.
+  - candidate search access rows and invitations (pending or otherwise) no longer appear in any branch.
+- Verified with rollback-only transactions on live data: search access + pending invitation → `can_read_avatar_path` = false; after a conversation row exists → true. No QA rows persisted.
+- Candidate search cards unchanged: still no `full_name` and no avatar; the `/facility/candidates/$userId` full profile stays engagement-gated by RLS.
