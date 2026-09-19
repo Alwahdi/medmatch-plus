@@ -454,3 +454,14 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - `messages.tsx` send path now stores the base MIME (`baseMime(upload)`, stripping `;codecs=…` from voice notes) and truncates the file name to 255 chars, matching the DB constraints and the bucket's allowed base types.
 - Verified in rollback-only transactions: valid text / image / document / voice-note inserts succeed; 2001-char body → `MESSAGE_TOO_LONG`; blank body → `MESSAGE_EMPTY`; foreign-conversation path, 256-char name, blank type, 10MB+1 size each rejected with their codes; attachment metadata auto-cleared on a plain text message; reaction add/remove succeed while a 17-emoji and a blank emoji are rejected. Receipt update by the recipient still works (read_at + delivered_at set) and the sender is still blocked with `MESSAGE_RECEIPT_FORBIDDEN`.
 - Mobile sweep at 320/390 (AR): conversation list, thread, bubbles, reactions, attachment/voice controls and the composer render with zero horizontal overflow and no keyboard overlap.
+
+## Phase 46 — preserve recruitment history on listing deletion (done)
+- Finding: owners can DELETE their own jobs/shifts directly, and existing FKs cascade into applications, shift_bookings, interviews and invitations — a modified client could erase real hiring history.
+- Idempotent migration mirroring the live hotfix: `public.guard_listing_history_delete()` (plpgsql, `search_path=public`) on `BEFORE DELETE` of `public.jobs` (`trg_guard_job_history_delete`) and `public.shifts` (`trg_guard_shift_history_delete`).
+  - Job blocked with `JOB_HAS_HISTORY` when any application, invitation, conversation, interview or review references it.
+  - Shift blocked with `SHIFT_HAS_HISTORY` when any booking, invitation, conversation, interview or review references it.
+  - Listings with no human interaction stay deletable (saved_jobs / job-alert style rows are not business history and may cascade).
+  - EXECUTE revoked from PUBLIC/anon/authenticated, granted to `service_role` only.
+- Historical FK cascades intentionally left unchanged; the trigger is the safety gate. No existing data touched or removed.
+- `src/lib/user-errors.ts`: AR/EN friendly mappings telling the facility to close the job / cancel the shift instead of deleting it. No UI delete action exists for jobs or shifts today (only documents, credentials, alerts, saved jobs, devices, reactions), so no destructive-confirm dialog was added; the mapping is in place for whenever a delete action ships.
+- Verified in a rollback-only transaction: a pristine job and a pristine shift delete cleanly; a job with applications is blocked with `JOB_HAS_HISTORY`; a shift with bookings is blocked with `SHIFT_HAS_HISTORY`. Owner-only DELETE RLS policies on jobs/shifts confirmed intact, and the trigger function is not callable by anon/authenticated.
