@@ -376,9 +376,10 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
         type="button"
         variant="link"
         onClick={reset}
+        disabled={resetting}
         className="w-full text-center"
       >
-        {tx("forgot")}
+        {resetting ? tx("resetSending") : tx("forgot")}
       </Button>
     </form>
   );
