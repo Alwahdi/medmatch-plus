@@ -945,6 +945,33 @@ function AdminPage() {
           )}
         </TabsContent>
       </Tabs>
+        </TabsContent>
+
+        <TabsContent value="readiness" className="mt-6">
+          {readinessErr ? (
+            <ErrorState onRetry={() => void readinessRefetch()} />
+          ) : readinessLoading ? (
+            <ListSkeleton rows={4} />
+          ) : (
+            <ul className="space-y-2">
+              {(readiness ?? []).map((r) => (
+                <li
+                  key={r.check_code}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
+                >
+                  <span className="min-w-0">
+                    <b className="block">{READINESS_LABEL[r.check_code]?.[lang] ?? r.check_code}</b>
+                    <span className="text-xs text-muted-foreground">{r.detail}</span>
+                  </span>
+                  <Badge variant={r.severity === "blocker" ? "destructive" : r.severity === "warning" ? "secondary" : "outline"}>
+                    {r.value}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
