@@ -109,6 +109,11 @@ export const INVITE_TXT = {
     experience: (n: number) => experienceLabel(n, "en"),
     sentTitle: "Sent invitations",
     statuses: { pending: "Pending", accepted: "Accepted", declined: "Declined", cancelled: "Cancelled" },
+    cancel: "Withdraw invitation",
+    cancelConfirmTitle: "Withdraw this invitation?",
+    cancelConfirmBody: "The professional will be told the invitation is no longer available. This can't be undone.",
+    cancelled: "Invitation withdrawn",
+    cancelFailed: "Could not withdraw the invitation",
     errors: {
       NOT_A_FACILITY: "This feature is available for facility accounts only.",
       NO_ACTIVE_SUBSCRIPTION: "Search is temporarily paused for this account — contact support for help.",
