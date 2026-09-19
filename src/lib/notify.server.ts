@@ -40,6 +40,21 @@ export function channelStatus(): ChannelStatus {
   };
 }
 
+/**
+ * Readiness for proactive (business-initiated) job/shift alerts.
+ *
+ * Outside the 24h customer service window WhatsApp only delivers approved
+ * templates, so plain text cannot be promised: the channel counts as ready
+ * only when an approved template name is configured too.
+ */
+export function alertChannelStatus(): ChannelStatus {
+  const base = channelStatus();
+  return {
+    email: base.email,
+    whatsapp: base.whatsapp && Boolean(env("WHATSAPP_TEMPLATE_NAME")),
+  };
+}
+
 export async function sendEmail(input: {
   to: string;
   subject: string;
