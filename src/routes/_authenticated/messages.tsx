@@ -355,8 +355,9 @@ function MessagesPage() {
           });
           attachment = {
             attachment_path: path,
-            attachment_name: upload.name,
-            attachment_type: upload.type || "application/octet-stream",
+            // نفس القيود المطبّقة في قاعدة البيانات: اسم <=255 ونوع MIME أساسي.
+            attachment_name: (upload.name || "file").slice(-255),
+            attachment_type: baseMime(upload) ?? "application/octet-stream",
             attachment_size: upload.size,
           };
         } finally {
