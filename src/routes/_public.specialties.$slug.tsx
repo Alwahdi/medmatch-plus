@@ -6,6 +6,7 @@ import { ListSkeleton } from "@/components/list-skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 

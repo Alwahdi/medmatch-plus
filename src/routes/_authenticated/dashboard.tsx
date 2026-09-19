@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ErrorState } from "@/components/error-state";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, withSpecialties } from "@/lib/public-listings";
 import { useRoles, useSession } from "@/lib/auth";
 import { applicationLabel, formatDateTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";

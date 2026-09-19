@@ -11,6 +11,7 @@ import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { useSession } from "@/lib/auth";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";

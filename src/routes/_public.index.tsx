@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { GUIDES } from "@/content/guides";
 import { DICT, useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
