@@ -114,14 +114,15 @@ function Onboarding() {
   // من يملك دوراً فعلياً لا يرى شاشة الإعداد مطلقاً.
   useEffect(() => {
     if (redirected || !roles || roles.length === 0) return;
-    if (roles.includes("facility")) {
-      setRedirected(true);
-      void navigate({ to: "/facility", replace: true });
-      return;
-    }
+    // نفس ترتيب resolveLanding / roleHome: مدير ثم منشأة ثم كادر.
     if (roles.includes("admin")) {
       setRedirected(true);
       void navigate({ to: "/admin", replace: true });
+      return;
+    }
+    if (roles.includes("facility")) {
+      setRedirected(true);
+      void navigate({ to: "/facility", replace: true });
       return;
     }
     if (roles.includes("professional")) {
@@ -142,8 +143,9 @@ function Onboarding() {
       if (!roles.includes(role)) {
         try {
           await activateRole(rpc, queryClient, user.id);
-        } catch {
+        } catch (e) {
           setRedirected(false);
+          toast.error(t("ob.error"), { description: friendlyError(e, lang, t("ob.error")) });
           return;
         }
       }
@@ -192,8 +194,8 @@ function Onboarding() {
             <AlertTriangle className="size-4 text-destructive" />
             <span className="flex-1">
               {ar
-                ? "تعذّر التحقق من حالة حسابك، لكن يمكنك المتابعة واختيار نوع الحساب."
-                : "We couldn't check your account status, but you can continue and pick an account type."}
+                ? "تعذّر التحقق من حالة حسابك. جرّب إعادة المحاولة؛ وإن تابعت فسيُحدَّث ملفك الحالي ولن يُنشأ ملف مكرر."
+                : "We couldn't check your account status. Try again; if you continue, your existing profile is updated — no duplicate is created."}
             </span>
             <Button
               type="button"
@@ -382,7 +384,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
       await activateRole("claim_professional_role", queryClient, user!.id);
     } catch (e) {
       setBusy(false);
-      toast.error(t("ob.error"), { description: (e as Error).message });
+      toast.error(t("ob.error"), { description: friendlyError(e, lang, t("ob.error")) });
       return;
     }
     setBusy(false);
@@ -620,7 +622,7 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
       await activateRole("claim_facility_role", queryClient, user!.id);
     } catch (e) {
       setBusy(false);
-      toast.error(t("ob.error"), { description: (e as Error).message });
+      toast.error(t("ob.error"), { description: friendlyError(e, lang, t("ob.error")) });
       return;
     }
     setBusy(false);

@@ -70,6 +70,8 @@ const TXT = {
     saved: "تم إرسال دعوة المقابلة",
     rescheduled: "تم تحديث موعد المقابلة",
     needWhen: "اختر موعداً في المستقبل",
+    needPlace: "أضف عنوان المقابلة الحضورية",
+    passed: "انتهى وقت هذه المقابلة",
     minutes: (n: number) => `${n} دقيقة`,
     statusScheduled: "بانتظار تأكيد المرشح",
     statusConfirmed: "أكّد المرشح الحضور",
@@ -124,6 +126,8 @@ const TXT = {
     saved: "Interview invitation sent",
     rescheduled: "Interview time updated",
     needWhen: "Pick a time in the future",
+    needPlace: "Add the address for an on-site interview",
+    passed: "The interview time has passed",
     minutes: (n: number) => `${n} min`,
     statusScheduled: "Awaiting candidate confirmation",
     statusConfirmed: "Candidate confirmed",
@@ -166,7 +170,18 @@ const ERRORS: Record<string, { ar: string; en: string }> = {
   NOT_CANDIDATE: { ar: "هذه المقابلة ليست لك.", en: "This interview is not yours." },
   INTERVIEW_NOT_PENDING: { ar: "لم يعد بالإمكان تعديل هذه المقابلة.", en: "This interview can no longer change." },
   INTERVIEW_COMPLETED: { ar: "المقابلة انتهت بالفعل.", en: "This interview is already completed." },
+  INTERVIEW_CANCELLED: { ar: "المقابلة ملغاة بالفعل.", en: "This interview is already cancelled." },
   INTERVIEW_RATING_INVALID: { ar: "اختر تقييماً من 1 إلى 5.", en: "Pick a rating from 1 to 5." },
+  INTERVIEW_DURATION_INVALID: { ar: "المدة يجب أن تكون بين 10 و240 دقيقة.", en: "Duration must be between 10 and 240 minutes." },
+  INTERVIEW_LOCATION_REQUIRED: { ar: "أضف عنوان المقابلة الحضورية.", en: "Add the on-site interview address." },
+  INTERVIEW_LOCATION_TOO_LONG: { ar: "العنوان طويل جداً.", en: "The address is too long." },
+  INTERVIEW_URL_INVALID: { ar: "رابط الاجتماع غير صالح.", en: "The meeting link isn't valid." },
+  INTERVIEW_URL_TOO_LONG: { ar: "رابط الاجتماع طويل جداً.", en: "The meeting link is too long." },
+  INTERVIEW_NOTES_TOO_LONG: { ar: "الملاحظات طويلة جداً.", en: "The notes are too long." },
+  APPLICATION_NOT_INTERVIEWABLE: {
+    ar: "لا يمكن جدولة مقابلة لطلب محسوم (مُختار أو غير مُختار).",
+    en: "You can't schedule an interview for a decided application.",
+  },
   BOOKING_NOT_FOUND: { ar: "الحجز غير موجود أو ملغى.", en: "Booking not found or cancelled." },
   APPLICATION_NOT_FOUND: { ar: "الطلب غير موجود.", en: "Application not found." },
 };
@@ -489,6 +504,10 @@ export function FacilityInterviewBlock({
                   toast.error(c.needWhen);
                   return;
                 }
+                if (mode === "onsite" && !place.trim()) {
+                  toast.error(c.needPlace);
+                  return;
+                }
                 save.mutate();
               }}
             >
@@ -577,7 +596,9 @@ export function CandidateInterviewBlock({
 
   if (!row || row.status === "cancelled") return null;
 
-  const pending = row.status === "scheduled";
+  const over = new Date(row.scheduled_at).getTime() + (row.duration_minutes || 30) * 60_000 <= Date.now();
+  const pending = row.status === "scheduled" && !over;
+
 
   return (
     <div className="mt-4 rounded-lg border border-border bg-surface p-4">
@@ -586,6 +607,9 @@ export function CandidateInterviewBlock({
         <div className="flex items-center gap-2 text-sm font-bold">
           <CalendarClock className="size-4 text-primary" /> {c.interview}
           <Badge variant={row.status === "confirmed" ? "secondary" : "outline"}>{statusLabel(row.status, lang)}</Badge>
+          {over && row.status !== "completed" && (
+            <span className="text-xs font-normal text-muted-foreground">{c.passed}</span>
+          )}
         </div>
         {pending && (
           <div className="flex flex-wrap gap-2">

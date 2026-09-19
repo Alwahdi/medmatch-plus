@@ -62,14 +62,22 @@ export function applicationStage(status: string): ApplicationStage | "rejected" 
 
 /** Turns a pipeline RPC error code into natural language. */
 export function applicationErrorText(raw: string, lang: "ar" | "en" = "ar") {
-  const code = ["NOT_FOUND", "FORBIDDEN", "ALREADY_HIRED", "JOB_CLOSED", "VACANCIES_FILLED", "NOT_HIRED", "USE_HIRE_APPLICANT"].find(
-    (k) => raw.includes(k),
-  );
+  const code = [
+    "JOB_CLOSED_MANUALLY",
+    "NOT_FOUND",
+    "FORBIDDEN",
+    "ALREADY_HIRED",
+    "JOB_CLOSED",
+    "VACANCIES_FILLED",
+    "NOT_HIRED",
+    "USE_HIRE_APPLICANT",
+  ].find((k) => raw.includes(k));
   const ar: Record<string, string> = {
     NOT_FOUND: "لم نعثر على هذا الطلب.",
     FORBIDDEN: "هذا الطلب لا يخص وظائف منشأتك.",
     ALREADY_HIRED: "هذا المرشح مُختار بالفعل.",
     JOB_CLOSED: "الوظيفة مقفلة — لا يمكن تعديل المراحل.",
+    JOB_CLOSED_MANUALLY: "أعد فتح الوظيفة أولاً ثم تراجع عن الاختيار.",
     VACANCIES_FILLED: "اكتملت شواغر هذه الوظيفة.",
     NOT_HIRED: "هذا المرشح غير مُختار أصلاً.",
     USE_HIRE_APPLICANT: "استخدم زر اختيار المرشح.",
@@ -79,6 +87,7 @@ export function applicationErrorText(raw: string, lang: "ar" | "en" = "ar") {
     FORBIDDEN: "This application doesn't belong to your facility.",
     ALREADY_HIRED: "This candidate is already selected.",
     JOB_CLOSED: "The job is closed — stages can't be changed.",
+    JOB_CLOSED_MANUALLY: "Reopen the job first, then undo the selection.",
     VACANCIES_FILLED: "All positions for this job are filled.",
     NOT_HIRED: "This candidate isn't selected.",
     USE_HIRE_APPLICANT: "Use the select-candidate button.",

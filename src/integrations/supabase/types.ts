@@ -771,6 +771,7 @@ export type Database = {
       jobs: {
         Row: {
           applications_count: number
+          auto_closed: boolean
           city: string
           country: string
           created_at: string
@@ -796,6 +797,7 @@ export type Database = {
         }
         Insert: {
           applications_count?: number
+          auto_closed?: boolean
           city: string
           country: string
           created_at?: string
@@ -821,6 +823,7 @@ export type Database = {
         }
         Update: {
           applications_count?: number
+          auto_closed?: boolean
           city?: string
           country?: string
           created_at?: string

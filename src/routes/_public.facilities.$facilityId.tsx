@@ -145,14 +145,18 @@ function FacilityProfilePage() {
     },
   });
 
-  if (facErr)
+  // منع الوصول لهوية المنشأة ليس خطأ: اعرضه كحالة «الهوية محجوبة».
+  const identityBlocked =
+    !!facErr && ((facErrObj as { code?: string } | null)?.code === "42501" || (facErrObj as { code?: string } | null)?.code === "PGRST301");
+
+  if (facErr && !identityBlocked)
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
         <ErrorState error={facErrObj} onRetry={() => void facRefetch()} />
       </div>
     );
 
-  if (isLoading)
+  if (isLoading && !identityBlocked)
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
         <Skeleton className="h-80 rounded-lg" />
