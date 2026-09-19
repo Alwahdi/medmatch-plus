@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { countryLabel, relativeTime } from "@/lib/format";
+import { countryLabel, relativeTime, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { useConfirm } from "@/components/confirm-dialog";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -19,7 +19,7 @@ const TXT = {
   ar: {
     healthcarePro: "كادر صحي",
     verified: "موثّق",
-    experience: (n: number) => `خبرة ${n} سنة`,
+    experience: (n: number) => experienceLabel(n, "ar"),
     bookedAt: (time: string) => `حجز المناوبة ${time}`,
     message: "مراسلة",
     viewProfile: "الملف الكامل",
@@ -36,7 +36,7 @@ const TXT = {
   en: {
     healthcarePro: "Healthcare professional",
     verified: "Verified",
-    experience: (n: number) => `${n} years experience`,
+    experience: (n: number) => experienceLabel(n, "en"),
     bookedAt: (time: string) => `Booked ${time}`,
     message: "Message",
     viewProfile: "Full profile",

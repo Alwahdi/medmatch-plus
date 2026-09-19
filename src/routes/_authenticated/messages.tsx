@@ -63,7 +63,7 @@ import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { dayKey, dayLabel, timeLabel, EMOJIS, PICKER_EMOJIS, TXT, type Conversation, type Msg } from "@/components/panels/messages.shared";
-import { friendlyError } from "@/lib/user-errors";
+import { friendlyError, userError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({
@@ -340,8 +340,8 @@ function MessagesPage() {
     mutationFn: async (voice?: File) => {
       const body = voice ? "" : draft.trim();
       const upload = voice ?? file;
-      if (!body && !upload) throw new Error(c.empty);
-      if (body.length > 2000) throw new Error(c.tooLong);
+      if (!body && !upload) userError(c.empty);
+      if (body.length > 2000) userError(c.tooLong);
 
       let attachment: Record<string, unknown> = {};
       if (upload) {

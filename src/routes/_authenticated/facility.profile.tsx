@@ -29,7 +29,7 @@ import { countryLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
-import { friendlyError } from "@/lib/user-errors";
+import { friendlyError, userError } from "@/lib/user-errors";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
 const TXT = {
@@ -187,7 +187,7 @@ function FacilityProfile() {
           city: z.string().trim().min(2, c.cityRequired).max(60),
         })
         .safeParse(form);
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+      if (!parsed.success) userError(parsed.error.issues[0]!.message);
       const { error } = await supabase
         .from("facilities")
         .update({

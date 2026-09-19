@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { fieldLabel } from "@/components/change-request";
-import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel } from "@/lib/format";
+import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
 
@@ -74,14 +74,14 @@ const TXT = {
     updateFailed: "تعذّر التحديث",
     facilityUpdated: "تم تحديث حالة المنشأة",
     proUpdated: "تم تحديث حالة الكادر",
-    autoVerify: "يتم توثيق الكادر تلقائياً عند اعتماد ترخيصه.",
+    autoVerify: "يُوثَّق الكادر تلقائياً عند اعتماد ترخيص مزاولة المهنة وبطاقة الهوية / الجواز معاً.",
     noPros: "لا توجد ملفات كوادر.",
     noMsgs: "لا توجد رسائل.",
     handled: "تمت المعالجة",
     markHandled: "وضع كمعالجة",
     reopen: "إعادة فتح",
     msgUpdated: "تم تحديث حالة الرسالة",
-    experience: (n: number) => `${n} سنة خبرة`,
+    experience: (n: number) => experienceLabel(n, "ar"),
     fileFailed: "تعذّر فتح الملف",
     rating: (a: number, n: number) => `${a} (${n} تقييم)`,
   },
@@ -120,14 +120,14 @@ const TXT = {
     updateFailed: "Failed to update",
     facilityUpdated: "Facility status updated",
     proUpdated: "Professional status updated",
-    autoVerify: "Professionals are verified automatically once their license is approved.",
+    autoVerify: "Professionals are verified automatically once both their practice license and ID / passport are approved.",
     noPros: "No professional profiles.",
     noMsgs: "No messages.",
     handled: "Handled",
     markHandled: "Mark as handled",
     reopen: "Reopen",
     msgUpdated: "Message status updated",
-    experience: (n: number) => `${n} yrs experience`,
+    experience: (n: number) => experienceLabel(n, "en"),
     fileFailed: "Could not open the file",
     rating: (a: number, n: number) => `${a} (${n} reviews)`,
   },

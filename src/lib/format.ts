@@ -184,9 +184,28 @@ const COUNTRY_EN: Record<string, string> = {
 };
 
 /** Country names are stored in Arabic; show an English label when available. */
+/** بعض السجلات القديمة تخزّن رمز الدولة (YE) بدل الاسم — نعيده إلى اسم مقروء. */
+const COUNTRY_BY_CODE: Record<string, string> = Object.fromEntries(
+  Object.entries(COUNTRY_EN).map(([ar, en]) => [en, ar]),
+);
+const ISO_COUNTRY: Record<string, string> = {
+  YE: "اليمن",
+  SA: "السعودية",
+  AE: "الإمارات",
+  EG: "مصر",
+  JO: "الأردن",
+  OM: "عُمان",
+  QA: "قطر",
+  KW: "الكويت",
+  BH: "البحرين",
+  IQ: "العراق",
+  SD: "السودان",
+};
+
 export function countryLabel(value: string | null | undefined, lang: Lang = "ar") {
   if (!value) return "";
-  return lang === "en" ? (COUNTRY_EN[value] ?? value) : value;
+  const canonical = ISO_COUNTRY[value.toUpperCase()] ?? COUNTRY_BY_CODE[value] ?? value;
+  return lang === "en" ? (COUNTRY_EN[canonical] ?? canonical) : canonical;
 }
 
 function locale(lang: Lang) {
@@ -268,4 +287,14 @@ export function facilityDocTypeLabel(value: string, lang: Lang = "ar") {
   if (lang !== "en") return value;
   const i = FACILITY_DOC_TYPES.indexOf(value);
   return i >= 0 ? (FACILITY_DOC_TYPES_EN[i] as string) : value;
+}
+
+/** صياغة سنوات الخبرة بجمع عربي صحيح (سنة/سنتان/سنوات). */
+export function experienceLabel(n: number, lang: Lang = "ar") {
+  if (lang === "en") return `${n} year${n === 1 ? "" : "s"} experience`;
+  if (n === 0) return "بدون خبرة مسجّلة";
+  if (n === 1) return "خبرة سنة واحدة";
+  if (n === 2) return "خبرة سنتان";
+  if (n <= 10) return `خبرة ${n} سنوات`;
+  return `خبرة ${n} سنة`;
 }

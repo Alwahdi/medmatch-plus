@@ -24,7 +24,7 @@ import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
-import { friendlyError } from "@/lib/user-errors";
+import { friendlyError, userError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ErrorState } from "@/components/error-state";
 
@@ -137,10 +137,10 @@ export function CredentialsPanel() {
   const add = useMutation({
     mutationFn: async () => {
       const parsed = schema.safeParse(form);
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+      if (!parsed.success) userError(parsed.error.issues[0]!.message);
       if (file) {
         const invalid = checkUpload(file, "document", lang);
-        if (invalid) throw new Error(invalid);
+        if (invalid) userError(invalid);
       }
 
       let filePath: string | null = null;
@@ -148,7 +148,7 @@ export function CredentialsPanel() {
         const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
         filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("credentials").upload(filePath, file);
-        if (upErr) throw new Error(c.uploadFailed);
+        if (upErr) userError(c.uploadFailed);
       }
 
       const { error } = await supabase.from("credentials").insert({

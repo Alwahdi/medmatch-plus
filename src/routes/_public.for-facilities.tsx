@@ -167,7 +167,7 @@ function ForFacilities() {
       </div>
 
       {/* Sticky mobile CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-[var(--app-bottom-nav)] z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+var(--app-safe-bottom))] backdrop-blur md:hidden">
         <Button className="w-full" size="lg" asChild>
           <Link to={employerHref}>{c.registerFree}</Link>
         </Button>

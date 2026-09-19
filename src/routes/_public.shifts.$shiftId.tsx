@@ -447,7 +447,7 @@ function ShiftDetail() {
 
       {/* Sticky mobile book bar */}
       {!isOwner && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        <div className="fixed inset-x-0 bottom-[var(--app-bottom-nav)] z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+var(--app-safe-bottom))] backdrop-blur lg:hidden">
            {booking ? (
              <Button className="w-full" asChild>
                <Link to="/activity" search={{ tab: "shifts" }}>{c.trackBooking}</Link>
@@ -455,10 +455,11 @@ function ShiftDetail() {
            ) : (
              <Button
                className="w-full"
-               disabled={!isOpen}
-               onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+               disabled={!isOpen || book.isPending}
+               loading={book.isPending}
+               onClick={onBook}
              >
-               {isOpen ? c.bookTitle : c.unavailable}
+               {isOpen ? c.book : c.unavailable}
              </Button>
            )}
         </div>
