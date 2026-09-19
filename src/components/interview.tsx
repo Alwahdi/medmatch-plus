@@ -494,7 +494,14 @@ export function FacilityInterviewBlock({
                   </div>
                   <div>
                     <Label>{c.mode}</Label>
-                    <Select value={mode} onValueChange={setMode}>
+                    <Select
+                      value={mode}
+                      onValueChange={(v) => {
+                        setMode(v);
+                        if (v !== "onsite") setPlace("");
+                        if (v !== "video") setLink("");
+                      }}
+                    >
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="video">{c.video}</SelectItem>
