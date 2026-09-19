@@ -184,6 +184,10 @@ const ERRORS: Record<string, { ar: string; en: string }> = {
   },
   BOOKING_NOT_FOUND: { ar: "الحجز غير موجود أو ملغى.", en: "Booking not found or cancelled." },
   APPLICATION_NOT_FOUND: { ar: "الطلب غير موجود.", en: "Application not found." },
+  INTERVIEW_NOT_STARTED: {
+    ar: "لا يمكن إنهاء المقابلة قبل موعدها المجدول.",
+    en: "The interview can't be finished before its scheduled time.",
+  },
 };
 
 function errText(raw: string, lang: Lang) {
@@ -301,6 +305,7 @@ export function FacilityInterviewBlock({
   const [reject, setReject] = useState(false);
 
   const active = row && (row.status === "scheduled" || row.status === "confirmed");
+  const started = !!row && new Date(row.scheduled_at).getTime() <= Date.now();
   const isReschedule = !!row && (active || row.status === "declined");
 
   const refresh = () => {
@@ -403,9 +408,11 @@ export function FacilityInterviewBlock({
             </Button>
             {active && (
               <>
-                <Button size="sm" variant="outline" onClick={() => setCompleteOpen(true)}>
-                  <CheckCircle2 className="size-4" /> {c.complete}
-                </Button>
+                {started && (
+                  <Button size="sm" variant="outline" onClick={() => setCompleteOpen(true)}>
+                    <CheckCircle2 className="size-4" /> {c.complete}
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="ghost"
