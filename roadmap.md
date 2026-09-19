@@ -364,3 +364,6 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 ## Phase 32 — migration parity repair (done)
 - Tracked idempotent migration grants `USAGE ON SCHEMA private` + `EXECUTE` on `private.can_read_job_row` / `private.can_read_shift_row` to `authenticated` only; anon explicitly revoked. Fixes the Phase 28 regression where authenticated jobs/shifts SELECT returned 42501.
 - Verified live: authenticated reads jobs/shifts with no permission errors; anon sees only open/active rows (closed/history empty) and cannot call the helpers (private schema not exposed). Helpers are STABLE SECURITY DEFINER with empty search_path — no RLS recursion. Closed rows visible to the test account only via its real engagements (applications/invitations), as designed.
+
+## Phase 33 — interview completion time invariant (done)
+- Tracked migration mirrors the live hotfix: `complete_interview` raises `INTERVIEW_NOT_STARTED` when `scheduled_at > now()`. UI hides the "finish & rate" button until the scheduled time passes; AR/EN error copy added for race/time-drift. Completion stays available for scheduled/confirmed after the time, per existing policy. Verified: live function contains the guard, RPC callable by authenticated without permission errors (guard ordering returns INTERVIEW_NOT_FOUND for unknown ids), typecheck/build clean.
