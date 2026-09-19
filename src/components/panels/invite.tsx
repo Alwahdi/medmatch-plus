@@ -64,6 +64,11 @@ export const INVITE_TXT = {
     experience: (n: number) => experienceLabel(n, "ar"),
     sentTitle: "الدعوات المُرسلة",
     statuses: { pending: "بانتظار الرد", accepted: "مقبولة", declined: "مرفوضة", cancelled: "ملغاة" },
+    cancel: "سحب الدعوة",
+    cancelConfirmTitle: "سحب الدعوة؟",
+    cancelConfirmBody: "سيتم إبلاغ المختص بأن الدعوة لم تعد متاحة، ولا يمكن التراجع عن السحب.",
+    cancelled: "تم سحب الدعوة",
+    cancelFailed: "تعذّر سحب الدعوة",
     errors: {
       NOT_A_FACILITY: "هذه الميزة متاحة لحسابات المنشآت فقط.",
       NO_ACTIVE_SUBSCRIPTION: "البحث متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة.",
