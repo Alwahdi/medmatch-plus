@@ -88,9 +88,10 @@ const TXT = {
   signIn: { ar: "تسجيل الدخول", en: "Sign in" },
   signingIn: { ar: "جارٍ تسجيل الدخول...", en: "Signing in..." },
   forgot: { ar: "نسيت كلمة المرور؟", en: "Forgot your password?" },
+  resetSending: { ar: "جارٍ الإرسال...", en: "Sending..." },
   resetSent: {
-    ar: "أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك.",
-    en: "We sent a password reset link to your email.",
+    ar: "إذا كان هذا البريد مسجلاً لدينا فسيصلك رابط لتعيين كلمة مرور جديدة.",
+    en: "If this email is registered with us, a link to set a new password is on its way.",
   },
   resetNeedEmail: {
     ar: "اكتب بريدك الإلكتروني أولاً ثم اضغط نسيت كلمة المرور.",
