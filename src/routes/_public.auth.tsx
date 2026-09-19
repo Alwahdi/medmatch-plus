@@ -233,7 +233,7 @@ function AuthPage() {
   );
 }
 
-function GoogleButton({ label, errorText, next }: { label: string; errorText: string; next?: string }) {
+function GoogleButton({ label, errorText, next }: { label: string; errorText: string; next?: string | undefined }) {
   const [busy, setBusy] = useState(false);
   async function signIn() {
     setBusy(true);
