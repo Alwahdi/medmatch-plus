@@ -67,8 +67,8 @@ export function useMyFacility(user: User | null) {
 /** الصفحة الرئيسية المناسبة لدور المستخدم. */
 export function roleHome(roles: AppRole[] | undefined) {
   if (!roles) return "/dashboard";
-  if (roles.includes("facility")) return "/facility";
   if (roles.includes("admin")) return "/admin";
+  if (roles.includes("facility")) return "/facility";
   if (roles.includes("professional")) return "/dashboard";
   // حساب جديد بلا نوع (مثلاً دخول جوجل) — يكمل الإعداد أولاً.
   return "/onboarding";

@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { roleHome, useRoles, useSession } from "@/lib/auth";
+import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 
 // ملاحظة: فحص الجلسة يتم بعد الترطيب (داخل المكوّن) وليس في beforeLoad،
@@ -30,6 +31,8 @@ const PRO_ONLY = [
 ];
 /** مسارات المنشآت فقط. */
 const FACILITY_ONLY = ["/facility"];
+/** المسارات المسموحة لحساب جديد بلا نوع بعد (إكمال الإعداد فقط). */
+const ROLELESS_ALLOWED = ["/onboarding", "/profile", "/cv-import", "/cv", "/settings", "/messages", "/notifications"];
 /** مسارات الإدارة فقط. */
 const ADMIN_ONLY = ["/admin"];
 
@@ -43,6 +46,7 @@ function AuthenticatedLayout() {
   const [ready, setReady] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const { lang } = useLang();
   const { user, loading: sessionLoading, error: sessionError } = useSession();
   const rolesQuery = useRoles(user);
   const { data: roles } = rolesQuery;
@@ -98,7 +102,14 @@ function AuthenticatedLayout() {
       void navigate({ to: home, replace: true });
       return;
     }
-    if (matches(pathname, PRO_ONLY) && !isPro && !isAdmin && !roleless) {
+    if (roleless) {
+      // حساب جديد بلا نوع: فقط ما يلزم لإكمال الإعداد (الملف/استيراد السيرة).
+      if (!matches(pathname, ROLELESS_ALLOWED)) {
+        void navigate({ to: "/onboarding", replace: true });
+      }
+      return;
+    }
+    if (matches(pathname, PRO_ONLY) && !isPro && !isAdmin) {
       void navigate({ to: home, replace: true });
     }
   }, [ready, roles, pathname, navigate]);
@@ -107,15 +118,19 @@ function AuthenticatedLayout() {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-background px-4">
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 text-center">
-          <p className="font-bold">تعذّر التحقق من حسابك</p>
-          <p className="mt-2 text-sm text-muted-foreground">تحقق من اتصالك ثم حاول مجدداً. لن يتم تسجيل خروجك بسبب بطء الشبكة.</p>
+          <p className="font-bold">{lang === "ar" ? "تعذّر التحقق من حسابك" : "We couldn't verify your account"}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {lang === "ar"
+              ? "تحقق من اتصالك ثم حاول مجدداً. لن يتم تسجيل خروجك بسبب بطء الشبكة."
+              : "Check your connection and try again. A slow network won't sign you out."}
+          </p>
           <Button className="mt-5" onClick={() => {
             setReady(false);
             setAuthError(false);
             setAttempt((value) => value + 1);
             void rolesQuery.refetch();
           }}>
-            إعادة المحاولة
+            {lang === "ar" ? "إعادة المحاولة" : "Try again"}
           </Button>
         </div>
       </div>
