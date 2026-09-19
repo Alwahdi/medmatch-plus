@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, isNotFound, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/error-state";
@@ -115,6 +115,16 @@ function SpecialtyPage() {
       <div className="mx-auto max-w-5xl px-4 py-12">
         <span className="sr-only">{c.loading}</span>
         <ListSkeleton rows={3} />
+      </div>
+    );
+  const missing = isError && isNotFound(error);
+  if (missing)
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+        <h1 className="font-display text-2xl font-bold">{c.notAvailable}</h1>
+        <Button className="mt-6" asChild>
+          <Link to="/specialties">{c.allSpecialties}</Link>
+        </Button>
       </div>
     );
   if (isError || !data)
