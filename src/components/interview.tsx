@@ -175,7 +175,14 @@ const ERRORS: Record<string, { ar: string; en: string }> = {
   INTERVIEW_DURATION_INVALID: { ar: "المدة يجب أن تكون بين 10 و240 دقيقة.", en: "Duration must be between 10 and 240 minutes." },
   INTERVIEW_LOCATION_REQUIRED: { ar: "أضف عنوان المقابلة الحضورية.", en: "Add the on-site interview address." },
   INTERVIEW_LOCATION_TOO_LONG: { ar: "العنوان طويل جداً.", en: "The address is too long." },
-  INTERVIEW_URL_INVALID: { ar: "رابط الاجتماع غير صالح.", en: "The meeting link isn't valid." },
+  INTERVIEW_URL_REQUIRED: {
+    ar: "أضف رابط الاجتماع لمقابلة الفيديو.",
+    en: "Add a meeting link for a video interview.",
+  },
+  INTERVIEW_URL_INVALID: {
+    ar: "رابط الاجتماع غير صالح. يجب أن يبدأ بـ ‎https://‎.",
+    en: "The meeting link isn't valid. It must start with https://.",
+  },
   INTERVIEW_URL_TOO_LONG: { ar: "رابط الاجتماع طويل جداً.", en: "The meeting link is too long." },
   INTERVIEW_NOTES_TOO_LONG: { ar: "الملاحظات طويلة جداً.", en: "The notes are too long." },
   APPLICATION_NOT_INTERVIEWABLE: {
