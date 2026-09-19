@@ -94,11 +94,16 @@ export async function removeImage(path: string) {
   await supabase.storage.from(AVATARS_BUCKET).remove([path]);
 }
 
+/**
+ * Avatars/logos live in a private bucket. Viewers without permission (guests, or
+ * parties before identity is revealed) simply get no URL, so the caller renders
+ * its neutral fallback instead of surfacing a storage error.
+ */
 async function resolve(value: string | null | undefined) {
   if (!value) return null;
   if (/^https?:\/\//.test(value)) return value;
   const { data, error } = await supabase.storage.from(AVATARS_BUCKET).createSignedUrl(value, 60 * 60);
-  if (error) throw error;
+  if (error) return null;
   return data?.signedUrl ?? null;
 }
 
@@ -108,6 +113,7 @@ export function useImageUrl(value: string | null | undefined) {
     queryKey: ["image-url", value],
     enabled: !!value,
     staleTime: 50 * 60 * 1000,
+    retry: false,
     queryFn: () => resolve(value),
   });
   if (!value) return null;
