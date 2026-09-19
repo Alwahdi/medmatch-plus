@@ -473,7 +473,7 @@ function AdminPage() {
       <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label={c.statPending} value={pendingDocs.length} icon={FileText} />
         <StatCard label={c.statFacilities} value={(facilities ?? []).filter((f) => !f.is_verified).length} icon={Building2} />
         <StatCard label={c.statPros} value={(pros ?? []).filter((p) => p.is_verified).length} icon={Stethoscope} />

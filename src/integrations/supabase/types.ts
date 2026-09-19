@@ -1504,6 +1504,10 @@ export type Database = {
       }
       book_open_shift: { Args: { _shift_id: string }; Returns: string }
       bootstrap_admin_role: { Args: { _user_id: string }; Returns: boolean }
+      can_read_avatar_path: {
+        Args: { _owner_folder: string; _viewer: string }
+        Returns: boolean
+      }
       can_view_facility_identity: {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean

@@ -160,7 +160,7 @@ function Home() {
         </div>
 
         {/* Search bar */}
-         <div className="absolute inset-x-0 bottom-5 px-4 md:bottom-0 md:translate-y-1/2">
+         <div className="absolute inset-x-0 bottom-5 px-4 md:bottom-8">
           <form
             onSubmit={search}
             className="mx-auto flex max-w-5xl flex-col gap-2 rounded-lg border border-border bg-card p-2 shadow-lift sm:flex-row"
@@ -193,7 +193,7 @@ function Home() {
       </section>
 
       {/* Why */}
-        <section className="bg-background pb-12 pt-8 md:pb-16 md:pt-28">
+        <section className="bg-background pb-12 pt-10 md:pb-16 md:pt-16">
         <div className="mx-auto max-w-6xl px-4">
           <p className="text-center text-sm font-semibold tracking-wide text-accent">
             {t("home.why.label")}

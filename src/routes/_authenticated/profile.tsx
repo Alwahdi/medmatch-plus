@@ -300,10 +300,8 @@ function ProfileOverview() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <WorkspaceHeading
-        title={c.title}
-        description={c.sub}
-        action={mode === "view" ? (
+      <div className="flex justify-end">
+        {mode === "view" ? (
           <Button onClick={() => setMode("edit")}>
             <Pencil className="size-4" /> {c.editBtn}
           </Button>
@@ -312,7 +310,7 @@ function ProfileOverview() {
             <Eye className="size-4" /> {c.previewBtn}
           </Button>
         )}
-      />
+      </div>
 
       {mode === "view" && (
         <div className="card-lift mt-6 rounded-lg border border-border bg-card p-6">
@@ -503,8 +501,22 @@ function ProfileOverview() {
 }
 
 const TABS = {
-  ar: { overview: "البيانات", cv: "سيرتي الذاتية", cvImport: "استيراد سيرة", credentials: "الوثائق والتراخيص" },
-  en: { overview: "Details", cv: "My CV", cvImport: "Import CV", credentials: "Documents" },
+  ar: {
+    overview: "البيانات",
+    cv: "سيرتي الذاتية",
+    cvImport: "استيراد سيرة",
+    credentials: "الوثائق والتراخيص",
+    title: "ملفي المهني",
+    sub: "كلما اكتمل ملفك ارتفعت دقة الترشيحات وفرصتك في القبول.",
+  },
+  en: {
+    overview: "Details",
+    cv: "My CV",
+    cvImport: "Import CV",
+    credentials: "Documents",
+    title: "My professional profile",
+    sub: "The more complete your profile, the more accurate your recommendations and your chances of acceptance.",
+  },
 } as const;
 
 function ProfilePage() {
@@ -515,7 +527,9 @@ function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      <WorkspaceHeading title={tt.title} description={tt.sub} />
       <Tabs
+        className="mt-6"
         value={tab}
         onValueChange={(v) => void navigate({ to: "/profile", search: { tab: v }, replace: true })}
       >
