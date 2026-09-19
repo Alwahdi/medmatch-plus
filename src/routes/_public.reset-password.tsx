@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, Eye, EyeOff, KeyRound, Lock, ShieldAlert } from "lucide-react";
@@ -85,7 +85,6 @@ function readLinkParams() {
 function ResetPasswordPage() {
   const { lang } = useLang();
   const t = (k: keyof typeof T) => T[k][lang === "en" ? "en" : "ar"];
-  const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>("checking");
 
   useEffect(() => {
