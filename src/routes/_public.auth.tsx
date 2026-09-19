@@ -308,14 +308,20 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
   }
 
   async function reset(): Promise<void> {
+    if (resetting) return;
     const parsed = emailSchema.safeParse(email);
     if (!parsed.success) {
       toast.error(tx("resetNeedEmail"));
       return;
     }
-    await supabase.auth.resetPasswordForEmail(parsed.data, {
-      redirectTo: `${window.location.origin}/auth`,
-    });
+    setResetting(true);
+    // نفس الرسالة في كل الحالات حتى لا نكشف ما إذا كان البريد مسجّلاً لدينا.
+    await supabase.auth
+      .resetPasswordForEmail(parsed.data, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      .catch(() => undefined);
+    setResetting(false);
     toast.success(tx("resetSent"));
   }
 
