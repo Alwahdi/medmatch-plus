@@ -152,7 +152,8 @@ export function LockedField({
       if (!next.trim()) throw new Error(c.need);
       let attachment: string | null = null;
       if (file) {
-        if (file.size > 10 * 1024 * 1024) throw new Error(c.big);
+        const invalid = checkUpload(file, "document", lang);
+        if (invalid) throw new Error(invalid);
         const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().slice(0, 5);
         const path = `${user!.id}/change-${field}-${Date.now()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("credentials").upload(path, file);

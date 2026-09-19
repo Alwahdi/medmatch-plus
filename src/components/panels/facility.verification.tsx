@@ -203,7 +203,8 @@ export function FacilityVerificationPanel() {
       const parsed = schema.safeParse(form);
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
       if (!file) throw new Error(c.fileReq);
-      if (file.size > 10 * 1024 * 1024) throw new Error(c.fileTooBig);
+      const invalid = checkUpload(file, "document", lang);
+      if (invalid) throw new Error(invalid);
 
       const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
       const filePath = `${facility!.id}/${crypto.randomUUID()}.${ext}`;
@@ -433,7 +434,7 @@ export function FacilityVerificationPanel() {
           <Input
             id="fd-file"
             type="file"
-            accept=".pdf,image/*"
+            accept="application/pdf,image/jpeg,image/png,image/webp"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
         </div>

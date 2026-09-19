@@ -207,8 +207,9 @@ function MessagesPage() {
   function pickFile(input: HTMLInputElement) {
     const f = input.files?.[0];
     if (!f) return;
-    if (f.size > CHAT_MAX_BYTES) {
-      toast.error(c.tooBig);
+    const invalid = checkUpload(f, "chat", lang);
+    if (invalid) {
+      toast.error(f.size > CHAT_MAX_BYTES ? c.tooBig : invalid);
       input.value = "";
       return;
     }
