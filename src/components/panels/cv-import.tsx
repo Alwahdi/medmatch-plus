@@ -37,6 +37,8 @@ const TXT = {
     saved: "تم بناء ملفك المهني",
     saveFailed: "تعذّر حفظ الملف — راجع بياناتك يدوياً",
     tooManyRequests: "الطلبات كثيرة الآن، جرّب بعد قليل.",
+    cooldownMin: (m: number) => `بلغت الحد المسموح لتحليل السيرة الذاتية مؤقتاً. جرّب بعد ${m} دقيقة. نصّك المكتوب محفوظ كما هو.`,
+    cooldownHour: (h: number) => `بلغت الحد المسموح لتحليل السيرة الذاتية اليوم. جرّب بعد ${h} ساعة. نصّك المكتوب محفوظ كما هو.`,
     noCredits: "رصيد الذكاء الاصطناعي غير كافٍ حالياً.",
     unavailable: "خدمة التحليل غير متاحة حالياً.",
     failed: "تعذّر تحليل السيرة الذاتية، جرّب نصاً أوضح.",
@@ -64,6 +66,8 @@ const TXT = {
     saved: "Your profile has been built",
     saveFailed: "Failed to save profile — please review your details manually",
     tooManyRequests: "Too many requests right now, try again shortly.",
+    cooldownMin: (m: number) => `You've reached the CV analysis limit for now. Try again in ${m} min. Your text is preserved.`,
+    cooldownHour: (h: number) => `You've reached today's CV analysis limit. Try again in ${h} h. Your text is preserved.`,
     noCredits: "AI credit is currently insufficient.",
     unavailable: "The analysis service is currently unavailable.",
     failed: "Failed to analyze the CV, try clearer text.",
@@ -79,6 +83,11 @@ export function CvImportPanel() {
   const runParse = useServerFn(parseCv);
   const [text, setText] = useState("");
   const [result, setResult] = useState<ParsedCv | null>(null);
+
+  const cooldownMessage = (seconds: number) => {
+    const minutes = Math.max(1, Math.ceil(seconds / 60));
+    return minutes >= 60 ? c.cooldownHour(Math.ceil(minutes / 60)) : c.cooldownMin(minutes);
+  };
 
   const AI_ERRORS: Record<string, string> = {
     RATE_LIMIT: c.tooManyRequests,
@@ -100,6 +109,9 @@ export function CvImportPanel() {
     mutationFn: async () => {
       if (text.trim().length < 50) throw new UserFacingError(c.tooShort);
       const res = await runParse({ data: { text: text.trim() } });
+      if (res.error === "AI_RATE_LIMIT") {
+        throw new UserFacingError(cooldownMessage(res.retryAfterSeconds ?? 3600));
+      }
       if (!res.profile) throw new UserFacingError(AI_ERRORS[res.error ?? "AI_FAILED"] ?? c.failed);
       return res.profile;
     },
