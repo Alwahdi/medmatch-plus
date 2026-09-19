@@ -81,7 +81,7 @@ const EN: typeof AR = {
   badge: "Built for healthcare",
   heroTitle: "Turn your medical experience into your next opportunity.",
   heroBody:
-    "Create one job seeker account for jobs, flexible shifts, applications and your verified professional profile.",
+    "Create one job seeker account for jobs, flexible shifts, applications and a professional profile with visible verification status.",
   b1: "Build a professional profile you keep using",
   b2: "Discover jobs and shifts in one place",
   b3: "Control who can access your information",

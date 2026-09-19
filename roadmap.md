@@ -226,3 +226,8 @@
 - user-errors: UserFacingError + عدم عرض أي رسالة backend غير معروفة خاماً؛ طُبق على change-request/alerts/messages/cv-import/invite/facility.index/candidates/onboarding.
 - إعداد buckets: scripts/setup-storage-buckets.mjs قابل لإعادة التشغيل + توثيق في README (القيد: migration runner يمنع الكتابة على storage.buckets).
 - تحقق: RLS على candidate_search_access (سياسة واحدة)، لا bucket بلا allowed_mime_types، أعمدة المرحلتين 21/22 ما زالت ممنوعة، صفحات عامة 320/768/1280 بلا تمدد، الزائر إلى /auth، عطل الشبكة لا يسجّل خروجاً، صفحات الكادر تفتح سليمة. لم يُختبر: حساب بلا دور (يتطلب إنشاء بيانات حقيقية).
+
+## Phase 25 — إغلاق نهائي
+- Google OAuth يحافظ على `next` الآمن عبر redirect_uri إلى /auth (URL/URLSearchParams + safeNext)، وتسجيل الدخول بكلمة المرور يحافظ عليه أصلاً.
+- نصوص الثقة: حذف "verified professional profile" و"توظيف خلال 24-72 ساعة / Hire within 24-72 hours" من التسجيل والتسويق؛ لا ادعاءات مطلقة متبقية.
+- تحقق: typecheck/build نظيفان؛ /dashboard و/facility و/messages للزائر تذهب إلى /auth?next=...؛ الصفحات العامة بلا تمدد أو أخطاء console.
