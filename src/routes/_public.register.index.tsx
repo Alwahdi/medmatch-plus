@@ -18,13 +18,13 @@ import { friendlyError } from "@/lib/user-errors";
 export const Route = createFileRoute("/_public/register/")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب باحث عن عمل | SyndeoCare" },
+      { title: "إنشاء حساب كادر صحي | Create a professional account | SyndeoCare" },
       {
         name: "description",
         content:
           "أنشئ حساب باحث عن عمل واحد على SyndeoCare للوظائف والشيفتات المرنة والطلبات وملفك المهني الموثّق.",
       },
-      { property: "og:title", content: "إنشاء حساب باحث عن عمل | SyndeoCare" },
+      { property: "og:title", content: "إنشاء حساب كادر صحي | Create a professional account | SyndeoCare" },
       {
         property: "og:description",
         content: "حوّل خبرتك الطبية إلى فرصتك القادمة مع ملف مهني موثّق.",

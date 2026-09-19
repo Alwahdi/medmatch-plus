@@ -88,12 +88,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/cookies")({
   head: () => ({
     meta: [
-      { title: "سياسة ملفات الارتباط | SyndeoCare" },
+      { title: "سياسة ملفات الارتباط | Cookie Policy | SyndeoCare" },
       {
         name: "description",
         content: "ما هي ملفات الارتباط التي تستخدمها SyndeoCare ولماذا، وكيف تتحكم بها من متصفحك.",
       },
-      { property: "og:title", content: "سياسة ملفات الارتباط | SyndeoCare" },
+      { property: "og:title", content: "سياسة ملفات الارتباط | Cookie Policy | SyndeoCare" },
       { property: "og:description", content: "تفاصيل استخدام ملفات الارتباط على منصة SyndeoCare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

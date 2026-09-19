@@ -79,12 +79,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/facilities/$facilityId")({
   head: () => ({
     meta: [
-      { title: "ملف المنشأة الصحية | SyndeoCare" },
+      { title: "ملف المنشأة الصحية | Healthcare employer profile | SyndeoCare" },
       {
         name: "description",
         content: "تعرّف على المنشأة الصحية: نبذتها، توثيقها، تقييماتها، ووظائفها ومناوباتها المنشورة.",
       },
-      { property: "og:title", content: "ملف المنشأة الصحية | SyndeoCare" },
+      { property: "og:title", content: "ملف المنشأة الصحية | Healthcare employer profile | SyndeoCare" },
       { property: "og:description", content: "ملف المنشأة الصحية ووظائفها المنشورة على SyndeoCare." },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary_large_image" },

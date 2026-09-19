@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
     meta: [
-      { title: "من نحن | SyndeoCare — منصة التوظيف الطبي العربية" },
+      { title: "من نحن | About SyndeoCare — Arabic healthcare hiring" },
       {
         name: "description",
         content:

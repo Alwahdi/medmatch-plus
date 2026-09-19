@@ -19,13 +19,13 @@ import { Combobox, comboText } from "@/components/ui/combobox";
 export const Route = createFileRoute("/_public/register/employer")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب ناشر وظائف | SyndeoCare" },
+      { title: "إنشاء حساب منشأة | Create an employer account | SyndeoCare" },
       {
         name: "description",
         content:
           "أنشئ حساب ناشر وظائف على SyndeoCare وابدأ التوظيف في أقل من دقيقة مع تجربة مجانية 30 يومًا.",
       },
-      { property: "og:title", content: "إنشاء حساب ناشر وظائف | SyndeoCare" },
+      { property: "og:title", content: "إنشاء حساب منشأة | Create an employer account | SyndeoCare" },
       { property: "og:description", content: "ابدأ التوظيف خلال دقيقة، بدون بطاقة ائتمان." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

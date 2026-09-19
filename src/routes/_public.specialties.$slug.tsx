@@ -39,12 +39,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/specialties/$slug")({
   head: () => ({
     meta: [
-      { title: "وظائف حسب التخصص | SyndeoCare" },
+      { title: "وظائف حسب التخصص | Jobs by specialty | SyndeoCare" },
       {
         name: "description",
         content: "وظائف ومناوبات طبية متاحة الآن في هذا التخصص عبر المنشآت الصحية في الدول العربية.",
       },
-      { property: "og:title", content: "وظائف حسب التخصص | SyndeoCare" },
+      { property: "og:title", content: "وظائف حسب التخصص | Jobs by specialty | SyndeoCare" },
       { property: "og:description", content: "فرص عمل ومناوبات في تخصصك الطبي." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -6,13 +6,13 @@ import { useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/_public/terms")({
   head: () => ({
     meta: [
-      { title: "شروط الاستخدام | SyndeoCare" },
+      { title: "شروط الاستخدام | Terms of Use | SyndeoCare" },
       {
         name: "description",
         content:
           "شروط استخدام منصة SyndeoCare للكوادر الصحية والمنشآت: الحساب، الإعلانات، والالتزام المهني.",
       },
-      { property: "og:title", content: "شروط الاستخدام | SyndeoCare" },
+      { property: "og:title", content: "شروط الاستخدام | Terms of Use | SyndeoCare" },
       { property: "og:description", content: "الشروط المنظّمة لاستخدام منصة SyndeoCare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

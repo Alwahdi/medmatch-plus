@@ -47,12 +47,12 @@ const TXT = {
 export const Route = createFileRoute("/_public/specialties/")({
   head: () => ({
     meta: [
-      { title: "التخصصات الطبية | SyndeoCare" },
+      { title: "التخصصات الطبية | Medical specialties | SyndeoCare" },
       {
         name: "description",
         content: "تصفح الوظائف والمناوبات الطبية حسب التخصص: طوارئ، تمريض، صيدلة، أشعة، تخدير وغيرها.",
       },
-      { property: "og:title", content: "التخصصات الطبية | SyndeoCare" },
+      { property: "og:title", content: "التخصصات الطبية | Medical specialties | SyndeoCare" },
       { property: "og:description", content: "فرص عمل طبية مصنّفة حسب التخصص." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

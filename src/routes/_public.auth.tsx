@@ -32,12 +32,12 @@ export const Route = createFileRoute("/_public/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول | SyndeoCare" },
+      { title: "تسجيل الدخول | Sign in | SyndeoCare" },
       {
         name: "description",
         content: "سجّل دخولك إلى حسابك في SyndeoCare وتابع طلباتك وفرصك المحفوظة وملفك المهني.",
       },
-      { property: "og:title", content: "تسجيل الدخول | SyndeoCare" },
+      { property: "og:title", content: "تسجيل الدخول | Sign in | SyndeoCare" },
       { property: "og:description", content: DICT["auth.subtitle"]!.ar },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

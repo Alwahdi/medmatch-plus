@@ -13,13 +13,13 @@ import { useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/_public/contact")({
   head: () => ({
     meta: [
-      { title: "تواصل معنا | SyndeoCare" },
+      { title: "تواصل معنا | Contact SyndeoCare" },
       {
         name: "description",
         content:
           "راسل فريق SyndeoCare لأي استفسار عن الوظائف، المناوبات، توثيق التراخيص، أو حساب المنشأة.",
       },
-      { property: "og:title", content: "تواصل معنا | SyndeoCare" },
+      { property: "og:title", content: "تواصل معنا | Contact SyndeoCare" },
       { property: "og:description", content: "فريق SyndeoCare جاهز للرد على استفساراتك." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

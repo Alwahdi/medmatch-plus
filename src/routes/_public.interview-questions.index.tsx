@@ -48,13 +48,13 @@ const BANK_EN: Record<string, { title: string; description: string }> = {
 export const Route = createFileRoute("/_public/interview-questions/")({
   head: () => ({
     meta: [
-      { title: "بنوك أسئلة المقابلات الطبية | SyndeoCare" },
+      { title: "بنوك أسئلة المقابلات الطبية | Medical interview question banks | SyndeoCare" },
       {
         name: "description",
         content:
           "أسئلة مقابلات التمريض والأطباء والصيدلة والمهن المساندة، مع إرشادات للإجابة النموذجية.",
       },
-      { property: "og:title", content: "بنوك أسئلة المقابلات الطبية | SyndeoCare" },
+      { property: "og:title", content: "بنوك أسئلة المقابلات الطبية | Medical interview question banks | SyndeoCare" },
       { property: "og:description", content: "استعد لمقابلتك القادمة بأسئلة حقيقية وإرشادات إجابة." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
