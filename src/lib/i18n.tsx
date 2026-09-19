@@ -339,6 +339,10 @@ export const DICT: Dict = {
   "ob.field.facName": { ar: "اسم المنشأة", en: "Employer name" },
   "ob.field.facType": { ar: "نوع المنشأة", en: "Employer type" },
   "ob.field.website": { ar: "الموقع الإلكتروني (اختياري)", en: "Website (optional)" },
+  "ob.field.websiteHint": {
+    ar: "اكتب النطاق فقط مثل example.com وسيُحفظ تلقائياً بصيغة https://",
+    en: "Enter just the domain, like example.com — it will be saved as https://",
+  },
   "ob.field.description": { ar: "نبذة عن المنشأة (اختياري)", en: "About the employer (optional)" },
   "ob.cvTitle": { ar: "عندك سيرة ذاتية؟", en: "Have a CV?" },
   "ob.cvBody": {

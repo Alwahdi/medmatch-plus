@@ -56,6 +56,7 @@ const TXT = {
     pickCountry: "اختر الدولة",
     city: "المدينة",
     website: "الموقع الإلكتروني",
+    websiteHint: "اكتب النطاق فقط مثل example.com وسيُحفظ تلقائياً بصيغة https://",
     logo: "شعار المنشأة",
     description: "نبذة عن المنشأة",
     descHint: "اكتب نبذة واضحة عن تخصصات المنشأة وبيئة العمل — تزيد فرص التقديم عليك.",
@@ -94,6 +95,7 @@ const TXT = {
     pickCountry: "Choose a country",
     city: "City",
     website: "Website",
+    websiteHint: "Enter just the domain, like example.com — it will be saved as https://",
     logo: "Facility logo",
     description: "About the facility",
     descHint: "Describe your specialties and work environment — it improves applications.",
@@ -326,7 +328,7 @@ function FacilityProfile() {
                 <a
                   href={facility.website}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   dir="ltr"
                   className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
                 >
@@ -417,10 +419,16 @@ function FacilityProfile() {
             <Input
               id="website"
               dir="ltr"
-              maxLength={200}
+              inputMode="url"
+              maxLength={300}
+              placeholder="example.com"
+              aria-describedby="website-hint"
               value={form.website}
               onChange={(e) => setForm({ ...form, website: e.target.value })}
             />
+            <p id="website-hint" className="mt-1 text-xs text-muted-foreground">
+              {c.websiteHint}
+            </p>
           </div>
           <div className="sm:col-span-2">
             <Label>{c.logo}</Label>

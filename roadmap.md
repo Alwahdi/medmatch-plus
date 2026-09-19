@@ -403,3 +403,11 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - Upload flows unchanged: `uploadImage()` writes `${userId}/${prefix}-${ts}.${ext}` in the private avatars bucket, so profile avatars and facility logos satisfy the trigger as-is.
 - `src/lib/user-errors.ts`: friendly AR/EN mapping for `INVALID_MEDIA_PATH` in case of a race or manual call, so no raw Postgres error reaches the UI.
 - Verified: existing rows all compatible; authenticated update to `https://example.com/tracker.png` rejected; trigger function not executable by anon/authenticated. Typecheck/build clean.
+
+## Phase 41 — facility website URL safety + normalization (done)
+- Tracked idempotent migration matching the live hotfix: `public.normalize_facility_website()` (plpgsql, `search_path=public`, EXECUTE revoked from PUBLIC/anon/authenticated) with a BEFORE INSERT OR UPDATE OF `website` trigger on `public.facilities`.
+- Rules: blank → NULL; >300 chars → `WEBSITE_TOO_LONG`; explicit non-HTTP scheme (`javascript:`, `data:`, …) → `WEBSITE_INVALID`; bare domain → prefixed with `https://`; any remaining non `https?://<no-whitespace>` form → `WEBSITE_INVALID`.
+- UI: facility profile and facility onboarding website inputs now use `inputMode="url"`, `maxLength={300}`, an `example.com` placeholder, and an AR/EN hint (linked via `aria-describedby`) stating a bare domain is saved as https.
+- `src/lib/user-errors.ts`: friendly AR/EN mappings for `WEBSITE_INVALID` and `WEBSITE_TOO_LONG`; no raw Postgres error surfaces.
+- After save, the facility query is invalidated and the form re-syncs from the row, so the normalized `https://…` value is what the user sees.
+- Both website links (public facility page and facility profile) render with `target="_blank"` and `rel="noopener noreferrer"`.

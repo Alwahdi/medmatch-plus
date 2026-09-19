@@ -257,7 +257,7 @@ function FacilityProfilePage() {
               <a
                 href={facility.website}
                 target="_blank"
-                rel="noreferrer noopener"
+                rel="noopener noreferrer"
                 className="flex items-center gap-1 text-primary underline"
               >
                 <Globe className="size-4" /> {c.website}

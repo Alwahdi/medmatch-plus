@@ -702,10 +702,16 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
               <Input
                 id="ob-fac-site"
                 dir="ltr"
-                maxLength={200}
+                inputMode="url"
+                maxLength={300}
+                placeholder="example.com"
+                aria-describedby="ob-fac-site-hint"
                 value={form.website}
                 onChange={(e) => setForm({ ...form, website: e.target.value })}
               />
+              <p id="ob-fac-site-hint" className="mt-1 text-xs text-muted-foreground">
+                {t("ob.field.websiteHint")}
+              </p>
             </div>
             <div>
               <Label htmlFor="ob-fac-desc">{t("ob.field.description")}</Label>

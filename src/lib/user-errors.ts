@@ -8,6 +8,17 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // موقع المنشأة
+  {
+    test: /WEBSITE_TOO_LONG/i,
+    ar: "رابط الموقع طويل جداً. استخدم رابطاً لا يتجاوز 300 حرف.",
+    en: "The website link is too long. Use a link of 300 characters or fewer.",
+  },
+  {
+    test: /WEBSITE_INVALID/i,
+    ar: "رابط الموقع غير صالح. اكتبه بصيغة example.com أو https://example.com.",
+    en: "That website link isn't valid. Enter it like example.com or https://example.com.",
+  },
   // طلبات تعديل البيانات
   {
     test: /INVALID_MEDIA_PATH/i,
