@@ -285,10 +285,34 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
+  /** سحب دعوة معلّقة — الحالة فقط، والباقي يفرضه الخادم. */
+  const cancelInvite = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("invitations").update({ status: "cancelled" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.cancelled);
+      queryClient.invalidateQueries({ queryKey: ["invitations-sent"] });
+    },
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.cancelFailed)),
+  });
+
+  async function askCancel(id: string) {
+    const ok = await confirm({
+      title: c.cancelConfirmTitle,
+      description: c.cancelConfirmBody,
+      confirmLabel: c.cancel,
+      destructive: true,
+    });
+    if (ok) cancelInvite.mutate(id);
+  }
+
   function InviteButton({ userId }: { userId: string }) {
     const st = statusOf(userId);
     if (st === "accepted") return <Badge className="bg-success text-success-foreground">{c.accepted}</Badge>;
     if (st === "declined") return <Badge variant="secondary">{c.declined}</Badge>;
+    if (st === "cancelled") return <Badge variant="secondary">{c.statuses.cancelled}</Badge>;
     if (st === "pending") return <Badge variant="secondary">{c.invited}</Badge>;
     return (
       <Button
