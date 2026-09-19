@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, withSpecialty, OWNER_JOB_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, experienceLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
@@ -424,12 +425,6 @@ function JobDetail() {
                     {job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}
                   </span>
                 </div>
-                {job.publisher_name && (
-                  <div className="flex justify-between">
-                    <span>{c.publishedBy}</span>
-                    <span className="font-medium text-foreground">{job.publisher_name}</span>
-                  </div>
-                )}
               </div>
             </div>
 

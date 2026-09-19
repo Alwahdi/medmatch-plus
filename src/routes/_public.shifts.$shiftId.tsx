@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
+import { publicShiftsQuery, withSpecialty, OWNER_SHIFT_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import {
@@ -161,9 +162,18 @@ function ShiftDetail() {
   const { data: shift, isLoading, isError: shiftErr, error: shiftErrObj, refetch: shiftRefetch } = useQuery({
     queryKey: ["shift", shiftId],
     queryFn: async () => {
+      // Public browsing goes through the sanitized view (no booked_by / owner data).
+      const { data: publicRow, error: publicError } = await publicShiftsQuery()
+        .eq("id", shiftId)
+        .maybeSingle();
+      if (publicError) throw publicError;
+      if (publicRow) return withSpecialty(publicRow);
+
+      // Booked/past shifts stay reachable for the owner, admin, or engaged users
+      // through the base table policy — with explicit columns only.
       const { data, error } = await supabase
         .from("shifts")
-        .select("*,specialties(name_ar,name_en)")
+        .select(OWNER_SHIFT_COLUMNS)
         .eq("id", shiftId)
         .maybeSingle();
       if (error) throw error;
