@@ -40,3 +40,21 @@ supabase/migrations/         tracked schema, RLS policies, grants, RPCs
 ```
 
 Key rules enforced in the database, not the UI: system-managed fields (verification badges, counters, document review status) are not writable by account owners; sensitive actions run through `SECURITY DEFINER` RPCs with role checks; professional identity stays hidden until an engagement exists.
+
+## Storage bucket configuration
+
+Allowed MIME types and size limits for the `avatars`, `credentials`,
+`facility-docs` and `chat-attachments` buckets are enforced twice: by the
+`is_allowed_upload()` check used in the `storage.objects` policies (tracked in
+migrations) and by the buckets themselves.
+
+Bucket rows cannot be written from SQL migrations (the migration runner rejects
+writes to `storage.buckets`), so bucket-level settings are applied with a
+repeatable script:
+
+```bash
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... bun scripts/setup-storage-buckets.mjs
+```
+
+The script is idempotent and holds no secrets; keep both values in the
+environment only.
