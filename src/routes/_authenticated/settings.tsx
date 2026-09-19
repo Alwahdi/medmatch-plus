@@ -9,6 +9,7 @@ import { NotificationsPanel } from "@/components/panels/notifications";
 import { SecurityPanel } from "@/components/panels/security";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
+import { ErrorState } from "@/components/error-state";
 import { useLang } from "@/lib/i18n";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
@@ -164,7 +165,7 @@ function NewMatchesCard() {
   const c = TXT[lang];
   const { user } = useSession();
 
-  const { data } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["alert-matches", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -196,6 +197,17 @@ function NewMatchesCard() {
       return { alerts: alerts.length, matches };
     },
   });
+
+  if (isLoading)
+    return (
+      <section className="rounded-lg border border-border bg-card p-5 shadow-card">
+        <div className="h-5 w-48 animate-pulse rounded bg-muted" />
+        <div className="mt-3 h-4 w-64 animate-pulse rounded bg-muted" />
+      </section>
+    );
+
+  if (isError)
+    return <ErrorState error={error} onRetry={() => void refetch()} className="py-8" />;
 
   if (!data) return null;
 
