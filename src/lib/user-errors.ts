@@ -19,7 +19,19 @@ const RULES: Rule[] = [
     ar: "رابط الموقع غير صالح. اكتبه بصيغة example.com أو https://example.com.",
     en: "That website link isn't valid. Enter it like example.com or https://example.com.",
   },
+  // حذف الفرص مع وجود سجل توظيف
+  {
+    test: /JOB_HAS_HISTORY/i,
+    ar: "لا يمكن حذف هذه الوظيفة لأن لها سجل توظيف (تقديمات أو دعوات أو محادثات أو مقابلات). أغلق الوظيفة بدلاً من حذفها للحفاظ على السجل.",
+    en: "This job can't be deleted because it already has recruitment history (applications, invitations, conversations, or interviews). Close it instead to keep the record.",
+  },
+  {
+    test: /SHIFT_HAS_HISTORY/i,
+    ar: "لا يمكن حذف هذه المناوبة لأن لها سجل توظيف (حجوزات أو دعوات أو محادثات أو مقابلات). ألغِ المناوبة بدلاً من حذفها للحفاظ على السجل.",
+    en: "This shift can't be deleted because it already has recruitment history (bookings, invitations, conversations, or interviews). Cancel it instead to keep the record.",
+  },
   // الرسائل والمرفقات
+
   {
     test: /MESSAGE_TOO_LONG/i,
     ar: "الرسالة طويلة جداً. اختصرها إلى 2000 حرف أو أقل.",
