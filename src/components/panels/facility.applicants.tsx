@@ -182,6 +182,8 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
   const hiredCount = useMemo(() => rows.filter((r) => r.status === "hired").length, [rows]);
   const vacancies = Math.max(job?.vacancies ?? 1, 1);
   const jobOpen = job ? job.is_active : true;
+  // الوظيفة التي أُقفلت تلقائياً باكتمال الشواغر يمكن التراجع عن اختيارها وتُفتح من جديد.
+  const canUndoHire = jobOpen || (job?.auto_closed ?? false);
   const seatsLeft = Math.max(vacancies - hiredCount, 0);
 
   const visible = useMemo(
