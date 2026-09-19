@@ -155,7 +155,11 @@ function ResetPasswordPage() {
             </div>
             <h1 className="mt-4 font-display text-xl font-extrabold">{t("doneTitle")}</h1>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t("doneBody")}</p>
-            <Button asChild className="mt-6 h-11 w-full rounded-lg">
+            <Button
+              asChild
+              className="mt-6 h-11 w-full rounded-lg"
+              onClick={() => window.sessionStorage.removeItem(DONE_KEY)}
+            >
               <Link to="/auth">{t("toSignIn")}</Link>
             </Button>
           </div>
