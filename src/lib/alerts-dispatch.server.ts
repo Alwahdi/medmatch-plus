@@ -2,13 +2,44 @@
  * Job/shift alert dispatcher.
  *
  * Finds new listings that match each active alert, sends them through the
- * configured channel (email / WhatsApp) and records every attempt in
- * `alert_deliveries` — including attempts skipped because the channel is not
- * configured yet, so nothing is ever silently lost or duplicated.
+ * configured channel (email / WhatsApp) and records exactly one logical row per
+ * (alert, listing, channel) in `alert_deliveries`.
+ *
+ * Delivery semantics:
+ * - Only `status = 'sent'` is a permanent delivery; that pair is never retried.
+ * - `not_configured` rows are retried as soon as the channel becomes usable.
+ * - `failed` rows are retried with a bounded policy: at most MAX_ATTEMPTS
+ *   attempts, never closer together than RETRY_INTERVAL_MS.
+ * - Retries UPDATE the existing row (status/error/recipient/attempt_count/
+ *   last_attempt_at); only the first attempt INSERTs.
+ * - `job_alerts.last_sent_at` only advances when something was actually sent.
  */
-import { channelStatus, sendEmail, sendWhatsApp, type SendResult } from "./notify.server";
+import { alertChannelStatus, sendEmail, sendWhatsApp, type SendResult } from "./notify.server";
 
-const SITE_URL = process.env["PUBLIC_SITE_URL"] ?? "https://medmatch-plus.lovable.app";
+/** Canonical public site URL, without a trailing slash. */
+export function siteUrl(): string {
+  const raw = process.env["PUBLIC_SITE_URL"]?.trim();
+  const base = raw && raw.length > 0 ? raw : "https://syndeocare.ai";
+  return base.replace(/\/+$/, "");
+}
+
+/** Escape text before interpolating it into HTML (also attribute-safe). */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/** Only ever emit our own absolute http(s) links into href attributes. */
+export function safeHref(url: string): string {
+  return /^https?:\/\//i.test(url) ? escapeHtml(url) : escapeHtml(siteUrl());
+}
+
+export const MAX_ATTEMPTS = 5;
+export const RETRY_INTERVAL_MS = 15 * 60 * 1000;
 
 type Alert = {
   id: string;
@@ -24,6 +55,7 @@ type Alert = {
 
 type Job = {
   id: string;
+  slug: string | null;
   title: string;
   city: string;
   country: string;
@@ -47,6 +79,13 @@ type Shift = {
   created_at: string;
 };
 
+export type DeliveryRow = {
+  id: string;
+  status: string;
+  attempt_count: number | null;
+  last_attempt_at: string | null;
+};
+
 export type DispatchSummary = {
   configured: { email: boolean; whatsapp: boolean };
   alerts: number;
@@ -54,7 +93,27 @@ export type DispatchSummary = {
   sent: number;
   skipped: number;
   failed: number;
+  retried: number;
 };
+
+/**
+ * Decide whether a (alert, listing, channel) pair should be attempted now.
+ * Pure + exported so the retry policy is testable without a provider.
+ */
+export function shouldAttempt(
+  existing: DeliveryRow | undefined,
+  channelConfigured: boolean,
+  now: number,
+): boolean {
+  if (!existing) return true;
+  if (existing.status === "sent") return false;
+  if (existing.status === "not_configured") return channelConfigured;
+  // failed (or any other non-terminal state): bounded backoff
+  const attempts = existing.attempt_count ?? 1;
+  if (attempts >= MAX_ATTEMPTS) return false;
+  const last = existing.last_attempt_at ? Date.parse(existing.last_attempt_at) : 0;
+  return now - last >= RETRY_INTERVAL_MS;
+}
 
 function jobMatches(alert: Alert, job: Job) {
   if (alert.specialty_id && alert.specialty_id !== job.specialty_id) return false;
@@ -76,39 +135,49 @@ function num(v: number) {
   return new Intl.NumberFormat("ar-EG-u-nu-latn", { maximumFractionDigits: 0 }).format(v);
 }
 
+export function jobUrl(job: Pick<Job, "id" | "slug">) {
+  return `${siteUrl()}/jobs/${job.slug && job.slug.trim() ? job.slug : job.id}`;
+}
+
+export function shiftUrl(shift: Pick<Shift, "id">) {
+  return `${siteUrl()}/shifts/${shift.id}`;
+}
+
 function jobBody(job: Job) {
+  const url = jobUrl(job);
   return {
     subject: `فرصة جديدة تناسبك: ${job.title}`,
     text:
       `فرصة جديدة على SyndeoCare\n\n${job.title}\n${job.city}، ${job.country}\n` +
-      `الراتب: ${num(job.salary_min)} – ${num(job.salary_max)} ${job.currency}\n\n` +
-      `${SITE_URL}/jobs/${job.id}`,
-    url: `${SITE_URL}/jobs/${job.id}`,
+      `الراتب: ${num(job.salary_min)} – ${num(job.salary_max)} ${job.currency}\n\n${url}`,
+    url,
   };
 }
 
 function shiftBody(shift: Shift) {
+  const url = shiftUrl(shift);
   return {
     subject: `مناوبة جديدة تناسبك: ${shift.title}`,
     text:
       `مناوبة جديدة على SyndeoCare\n\n${shift.title}\n${shift.city}، ${shift.country}\n` +
-      `الأجر بالساعة: ${num(shift.hourly_rate)} ${shift.currency}\n\n${SITE_URL}/shifts`,
-    url: `${SITE_URL}/shifts`,
+      `الأجر بالساعة: ${num(shift.hourly_rate)} ${shift.currency}\n\n${url}`,
+    url,
   };
 }
 
-function html(title: string, text: string, url: string) {
+/** Build the HTML email. All listing-derived content is escaped. */
+export function html(title: string, text: string, url: string) {
   return `<!doctype html><html lang="ar" dir="rtl"><body style="background:#ffffff;font-family:Arial,sans-serif;padding:24px;color:#0f172a">
-  <h2 style="margin:0 0 12px">${title}</h2>
-  <p style="white-space:pre-line;line-height:1.7">${text}</p>
-  <p><a href="${url}" style="display:inline-block;background:#0e7490;color:#ffffff;padding:10px 18px;border-radius:10px;text-decoration:none">عرض التفاصيل</a></p>
+  <h2 style="margin:0 0 12px">${escapeHtml(title)}</h2>
+  <p style="white-space:pre-line;line-height:1.7">${escapeHtml(text)}</p>
+  <p><a href="${safeHref(url)}" style="display:inline-block;background:#0e7490;color:#ffffff;padding:10px 18px;border-radius:10px;text-decoration:none">عرض التفاصيل</a></p>
   <p style="color:#64748b;font-size:12px">SyndeoCare — منصة التوظيف الطبي</p>
 </body></html>`;
 }
 
 export async function dispatchAlerts(options?: { limit?: number }): Promise<DispatchSummary> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const configured = channelStatus();
+  const configured = alertChannelStatus();
   const summary: DispatchSummary = {
     configured,
     alerts: 0,
@@ -116,6 +185,7 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
     sent: 0,
     skipped: 0,
     failed: 0,
+    retried: 0,
   };
 
   const { data: alertRows } = await supabaseAdmin
@@ -130,7 +200,7 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
   const [{ data: jobRows }, { data: shiftRows }] = await Promise.all([
     supabaseAdmin
       .from("jobs")
-      .select("id,title,city,country,specialty_id,employment_type,salary_min,salary_max,currency,created_at")
+      .select("id,slug,title,city,country,specialty_id,employment_type,salary_min,salary_max,currency,created_at")
       .eq("is_active", true)
       .gte("created_at", since)
       .order("created_at", { ascending: false })
@@ -148,13 +218,29 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
 
   const { data: deliveredRows } = await supabaseAdmin
     .from("alert_deliveries")
-    .select("alert_id,job_id,shift_id")
+    .select("id,alert_id,job_id,shift_id,channel,status,attempt_count,last_attempt_at")
     .in("alert_id", alerts.map((a) => a.id));
-  const delivered = new Set(
-    (deliveredRows ?? []).map((d) => `${d.alert_id}:${d.job_id ?? ""}:${(d as { shift_id?: string | null }).shift_id ?? ""}`),
-  );
+
+  const key = (alertId: string, jobId: string | null, shiftId: string | null, channel: string) =>
+    `${alertId}:${jobId ?? ""}:${shiftId ?? ""}:${channel}`;
+
+  const existingByKey = new Map<string, DeliveryRow>();
+  for (const row of (deliveredRows ?? []) as Array<
+    DeliveryRow & { alert_id: string; job_id: string | null; shift_id: string | null; channel: string }
+  >) {
+    existingByKey.set(key(row.alert_id, row.job_id, row.shift_id, row.channel), {
+      id: row.id,
+      status: row.status,
+      attempt_count: row.attempt_count,
+      last_attempt_at: row.last_attempt_at,
+    });
+  }
+
+  const now = Date.now();
 
   for (const alert of alerts) {
+    const channelConfigured = alert.channel === "whatsapp" ? configured.whatsapp : configured.email;
+
     let recipient: string | null = null;
     if (alert.channel === "whatsapp") {
       recipient = alert.whatsapp_phone;
@@ -163,29 +249,37 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
       recipient = authUser?.user?.email ?? null;
     }
 
-    const pending: Array<{ jobId: string | null; shiftId: string | null; subject: string; text: string; url: string }> = [];
+    const pending: Array<{
+      jobId: string | null;
+      shiftId: string | null;
+      subject: string;
+      text: string;
+      url: string;
+      existing: DeliveryRow | undefined;
+    }> = [];
 
     for (const job of jobs) {
       if (!jobMatches(alert, job)) continue;
-      if (delivered.has(`${alert.id}:${job.id}:`)) continue;
-      const b = jobBody(job);
-      pending.push({ jobId: job.id, shiftId: null, ...b });
+      const existing = existingByKey.get(key(alert.id, job.id, null, alert.channel));
+      if (!shouldAttempt(existing, channelConfigured, now)) continue;
+      pending.push({ jobId: job.id, shiftId: null, existing, ...jobBody(job) });
     }
     for (const shift of shifts) {
       if (!shiftMatches(alert, shift)) continue;
-      if (delivered.has(`${alert.id}::${shift.id}`)) continue;
-      const b = shiftBody(shift);
-      pending.push({ jobId: null, shiftId: shift.id, ...b });
+      const existing = existingByKey.get(key(alert.id, null, shift.id, alert.channel));
+      if (!shouldAttempt(existing, channelConfigured, now)) continue;
+      pending.push({ jobId: null, shiftId: shift.id, existing, ...shiftBody(shift) });
     }
 
     summary.matched += pending.length;
+    let sentForAlert = 0;
 
     for (const item of pending.slice(0, 10)) {
       let result: SendResult;
       if (!recipient) {
         result = { status: "failed", error: "missing_recipient" };
       } else if (alert.channel === "whatsapp") {
-        result = await sendWhatsApp({ to: recipient, text: item.text });
+        result = await sendWhatsApp({ to: recipient, text: item.text, requireTemplate: true });
       } else {
         result = await sendEmail({
           to: recipient,
@@ -195,22 +289,46 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
         });
       }
 
-      if (result.status === "sent") summary.sent += 1;
-      else if (result.status === "failed") summary.failed += 1;
-      else summary.skipped += 1;
+      if (result.status === "sent") {
+        summary.sent += 1;
+        sentForAlert += 1;
+      } else if (result.status === "failed") {
+        summary.failed += 1;
+      } else {
+        summary.skipped += 1;
+      }
 
-      await supabaseAdmin.from("alert_deliveries").insert({
-        alert_id: alert.id,
-        job_id: item.jobId,
-        shift_id: item.shiftId,
-        channel: alert.channel,
-        recipient,
-        status: result.status,
-        error: result.error ?? null,
-      } as never);
+      const stamp = new Date().toISOString();
+      if (item.existing) {
+        summary.retried += 1;
+        await supabaseAdmin
+          .from("alert_deliveries")
+          .update({
+            status: result.status,
+            error: result.error ?? null,
+            recipient,
+            attempt_count: (item.existing.attempt_count ?? 1) + 1,
+            last_attempt_at: stamp,
+            ...(result.status === "sent" ? { sent_at: stamp } : {}),
+          } as never)
+          .eq("id", item.existing.id);
+      } else {
+        await supabaseAdmin.from("alert_deliveries").insert({
+          alert_id: alert.id,
+          job_id: item.jobId,
+          shift_id: item.shiftId,
+          channel: alert.channel,
+          recipient,
+          status: result.status,
+          error: result.error ?? null,
+          attempt_count: 1,
+          last_attempt_at: stamp,
+        } as never);
+      }
     }
 
-    if (pending.length) {
+    // Only a real delivery advances the alert's "last sent" timestamp.
+    if (sentForAlert > 0) {
       await supabaseAdmin
         .from("job_alerts")
         .update({ last_sent_at: new Date().toISOString() })

@@ -13,7 +13,9 @@
  * WhatsApp (Meta Cloud API compatible):
  *   WHATSAPP_TOKEN            - permanent access token
  *   WHATSAPP_PHONE_NUMBER_ID  - sender phone number id
- *   WHATSAPP_TEMPLATE_NAME    - optional approved template name (defaults to plain text)
+ *   WHATSAPP_TEMPLATE_NAME    - approved template name; REQUIRED for proactive
+ *                               job/shift alerts (plain text is only deliverable
+ *                               inside the 24h service window)
  */
 
 export type SendStatus = "sent" | "failed" | "not_configured";
@@ -37,6 +39,21 @@ export function channelStatus(): ChannelStatus {
   return {
     email: Boolean(env("RESEND_API_KEY") && env("ALERTS_FROM_EMAIL")),
     whatsapp: Boolean(env("WHATSAPP_TOKEN") && env("WHATSAPP_PHONE_NUMBER_ID")),
+  };
+}
+
+/**
+ * Readiness for proactive (business-initiated) job/shift alerts.
+ *
+ * Outside the 24h customer service window WhatsApp only delivers approved
+ * templates, so plain text cannot be promised: the channel counts as ready
+ * only when an approved template name is configured too.
+ */
+export function alertChannelStatus(): ChannelStatus {
+  const base = channelStatus();
+  return {
+    email: base.email,
+    whatsapp: base.whatsapp && Boolean(env("WHATSAPP_TEMPLATE_NAME")),
   };
 }
 
@@ -75,13 +92,19 @@ export async function sendEmail(input: {
   }
 }
 
-export async function sendWhatsApp(input: { to: string; text: string }): Promise<SendResult> {
+export async function sendWhatsApp(input: {
+  to: string;
+  text: string;
+  /** Proactive (business-initiated) sends require an approved template. */
+  requireTemplate?: boolean;
+}): Promise<SendResult> {
   const token = env("WHATSAPP_TOKEN");
   const phoneId = env("WHATSAPP_PHONE_NUMBER_ID");
   if (!token || !phoneId) return { status: "not_configured" };
 
   const to = input.to.replace(/[^\d]/g, "");
   const templateName = env("WHATSAPP_TEMPLATE_NAME");
+  if (input.requireTemplate && !templateName) return { status: "not_configured" };
   const payload = templateName
     ? {
         messaging_product: "whatsapp",
