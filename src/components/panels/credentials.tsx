@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
+import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ErrorState } from "@/components/error-state";
@@ -136,7 +137,10 @@ export function CredentialsPanel() {
     mutationFn: async () => {
       const parsed = schema.safeParse(form);
       if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
-      if (file && file.size > 10 * 1024 * 1024) throw new Error(c.fileTooBig);
+      if (file) {
+        const invalid = checkUpload(file, "document", lang);
+        if (invalid) throw new Error(invalid);
+      }
 
       let filePath: string | null = null;
       if (file) {
@@ -304,7 +308,7 @@ export function CredentialsPanel() {
         </div>
         <div>
           <Label htmlFor="file">{c.file}</Label>
-          <Input id="file" type="file" accept=".pdf,image/*"
+          <Input id="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         </div>
         <Button onClick={() => add.mutate()} loading={add.isPending}>

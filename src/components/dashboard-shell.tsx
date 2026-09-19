@@ -134,7 +134,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                    value={accountImage}
                   alt={accountName}
                   fallbackText={accountName}
-                  className="size-9 shrink-0 rounded-full text-sm"
+                  className="size-11 shrink-0 rounded-full text-sm"
                 />
                 <span className="hidden min-w-0 flex-col text-start sm:flex">
                   <span className="truncate text-sm font-bold leading-tight">{accountName}</span>

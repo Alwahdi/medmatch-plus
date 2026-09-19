@@ -1533,6 +1533,10 @@ export type Database = {
         Returns: boolean
       }
       hire_applicant: { Args: { _application_id: string }; Returns: Json }
+      is_allowed_upload: {
+        Args: { _bucket: string; _metadata: Json; _name: string }
+        Returns: boolean
+      }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
@@ -1687,6 +1691,15 @@ export type Database = {
           _job_id?: string
           _professional_user_id: string
           _shift_id?: string
+          _subject?: string
+        }
+        Returns: string
+      }
+      submit_contact_message: {
+        Args: {
+          _email: string
+          _message: string
+          _name: string
           _subject?: string
         }
         Returns: string
