@@ -204,13 +204,15 @@ function FacilityDashboard() {
 
   const cancelShift = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("shifts").update({ status: "cancelled" }).eq("id", id);
+      // إلغاء موثوق: يلغي الحجز ويُخطر المختص في عملية واحدة بدل تحديث الحالة مباشرة.
+      const { error } = await supabase.rpc("cancel_facility_shift", { _shift_id: id });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.shiftCancelled);
       queryClient.invalidateQueries({ queryKey: ["facility-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["facility-shift-bookings"] });
     },
     onError: (e: Error) => toast.error(shiftErrorText(e.message, lang)),
   });
@@ -664,7 +666,10 @@ function FacilityDashboard() {
                               onSelect={async () => {
                                 const ok = await confirm({
                                   title: c.confirmCancelShiftTitle,
-                                  description: c.confirmCancelShiftDesc,
+                                  description:
+                                    s.status === "booked"
+                                      ? c.confirmCancelBookedShiftDesc
+                                      : c.confirmCancelShiftDesc,
                                   confirmLabel: c.confirmCancelShiftCta,
                                   destructive: true,
                                 });

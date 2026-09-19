@@ -1709,6 +1709,10 @@ export type Database = {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean
       }
+      cancel_facility_shift: {
+        Args: { _reason?: string; _shift_id: string }
+        Returns: string
+      }
       cancel_interview: {
         Args: { _interview_id: string; _reason?: string }
         Returns: undefined

@@ -32,6 +32,22 @@ const MAP: Record<string, { ar: string; en: string }> = {
     ar: "تغيير حالة المناوبة غير مسموح.",
     en: "That shift status change isn't allowed.",
   },
+  SHIFT_HAS_ACTIVE_BOOKING: {
+    ar: "هذه المناوبة محجوزة — يجب إلغاء الحجز أولاً.",
+    en: "This shift is booked — the booking must be cancelled first.",
+  },
+  SHIFT_BOOKING_INVARIANT: {
+    ar: "حالة المناوبة لا تطابق حجوزاتها، حدّث الصفحة وحاول مجدداً.",
+    en: "The shift status doesn't match its bookings. Refresh the page and try again.",
+  },
+  INVALID_SHIFT_ENGAGEMENT: {
+    ar: "يمكن تقييم المناوبة بعد اكتمالها فقط.",
+    en: "You can review a shift only after it is completed.",
+  },
+  ENGAGEMENT_REQUIRED: {
+    ar: "التقييم متاح بعد تعامل مكتمل بين الطرفين.",
+    en: "Reviews are available after a completed engagement between both sides.",
+  },
   UNAUTHENTICATED: { ar: "سجّل الدخول أولاً.", en: "Please sign in first." },
 };
 
