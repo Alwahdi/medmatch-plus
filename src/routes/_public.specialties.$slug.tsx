@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/error-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
@@ -69,14 +70,15 @@ function SpecialtyPage() {
   const c = TXT[lang];
   const { slug } = Route.useParams();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["specialty", slug],
     queryFn: async () => {
-      const { data: specialty } = await supabase
+      const { data: specialty, error: specialtyError } = await supabase
         .from("specialties")
         .select("id,slug,name_ar,name_en,category")
         .eq("slug", slug)
         .maybeSingle();
+      if (specialtyError) throw specialtyError;
       if (!specialty) throw notFound();
 
       const [{ data: jobs }, { data: shifts }] = await Promise.all([
@@ -115,7 +117,12 @@ function SpecialtyPage() {
         <ListSkeleton rows={3} />
       </div>
     );
-  if (!data) return null;
+  if (isError || !data)
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-12">
+        <ErrorState error={error} onRetry={() => void refetch()} />
+      </div>
+    );
 
   const specialty = specialtyName(data.specialty, lang);
 
