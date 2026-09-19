@@ -355,7 +355,7 @@ function Candidates() {
                     )}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {cand.headline ?? "—"} · {c.experience(cand.years_experience)} ·{" "}
+                    {c.experience(cand.years_experience)} ·{" "}
                     {[cand.city, countryLabel(cand.country, lang)].filter(Boolean).join("، ")}
                     {cand.is_open_to_shifts ? c.openToShifts : ""}
                   </p>
