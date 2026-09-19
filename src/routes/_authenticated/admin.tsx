@@ -280,10 +280,11 @@ function AdminPage() {
       status: "approved" | "rejected";
       reviewNote?: string;
     }) => {
-      const { error } = await supabase
-        .from("credentials")
-        .update({ status, review_note: reviewNote ?? null })
-        .eq("id", id);
+      const { error } = await supabase.rpc("admin_review_credential", {
+        _id: id,
+        _status: status,
+        _note: reviewNote ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -306,10 +307,11 @@ function AdminPage() {
       status: "approved" | "rejected";
       reviewNote?: string;
     }) => {
-      const { error } = await supabase
-        .from("facility_documents")
-        .update({ status, review_note: reviewNote ?? null })
-        .eq("id", id);
+      const { error } = await supabase.rpc("admin_review_facility_document", {
+        _id: id,
+        _status: status,
+        _note: reviewNote ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
