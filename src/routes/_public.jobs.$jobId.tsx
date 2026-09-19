@@ -395,7 +395,7 @@ function JobDetail() {
                 </div>
                 <div className="flex justify-between">
                   <span>{c.minExp}</span>
-                  <span className="font-medium text-foreground">{c.years(job.min_experience)}</span>
+                  <span className="font-medium text-foreground">{experienceLabel(job.min_experience, lang)}</span>
                 </div>
                 {specialty && (
                   <div className="flex justify-between">
