@@ -470,23 +470,38 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             {sentInvites.map((i) => (
               <li
                 key={i.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
+                className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
               >
                 <Link
                   to="/facility/candidates/$userId"
                   params={{ userId: i.professional_user_id }}
-                  className="text-primary underline underline-offset-4"
+                  className="inline-flex min-h-11 items-center text-primary underline underline-offset-4"
                 >
                   {i.professional_user_id.slice(0, 8)}…
                 </Link>
-                <Badge variant={i.status === "accepted" ? "default" : "secondary"}>
+                <Badge
+                  className="ms-auto"
+                  variant={i.status === "accepted" ? "default" : "secondary"}
+                >
                   {c.statuses[i.status as keyof typeof c.statuses]}
                 </Badge>
+                {i.status === "pending" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="min-h-11"
+                    disabled={cancelInvite.isPending}
+                    onClick={() => void askCancel(i.id)}
+                  >
+                    <X className="size-4" /> {c.cancel}
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
         </section>
       ) : null}
+      {confirmDialog}
     </div>
   );
 }
