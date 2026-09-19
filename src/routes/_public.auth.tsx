@@ -159,7 +159,7 @@ function AuthPage() {
             <p className="mt-1 text-center text-sm text-muted-foreground">{tx("welcomeSub")}</p>
 
             <div className="mt-6">
-              <GoogleButton label={tx("google")} errorText={tx("googleError")} />
+              <GoogleButton label={tx("google")} errorText={tx("googleError")} next={next} />
             </div>
 
             <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
@@ -233,12 +233,19 @@ function AuthPage() {
   );
 }
 
-function GoogleButton({ label, errorText }: { label: string; errorText: string }) {
+function GoogleButton({ label, errorText, next }: { label: string; errorText: string; next?: string }) {
   const [busy, setBusy] = useState(false);
   async function signIn() {
     setBusy(true);
+    let redirectUri = window.location.origin;
+    const back = safeNext(next);
+    if (back) {
+      const url = new URL("/auth", window.location.origin);
+      url.searchParams.set("next", back);
+      redirectUri = url.toString();
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: redirectUri,
     });
     if (result.error) {
       toast.error(errorText);
