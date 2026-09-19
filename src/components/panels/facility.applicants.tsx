@@ -144,7 +144,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       const facilityId = facility.id;
       const { data: jobs, error: jobsError } = await supabase
         .from("jobs")
-        .select("id,title,vacancies,is_active")
+        .select("id,title,vacancies,is_active,auto_closed")
         .eq("facility_id", facility.id);
       if (jobsError) throw jobsError;
       const ids = (jobs ?? []).map((j) => j.id).filter((id) => !jobId || id === jobId);
