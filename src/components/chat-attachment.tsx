@@ -229,13 +229,18 @@ export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undef
       </span>
       <button
         type="button"
+        aria-label={ar ? `سرعة التشغيل ${speed}x` : `Playback speed ${speed}x`}
         onClick={() => setSpeedIndex((i) => (i + 1) % SPEEDS.length)}
-        className={cn(
-          "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums transition",
-          mine ? "bg-white/20 hover:bg-white/30" : "bg-secondary text-foreground hover:bg-secondary/70",
-        )}
+        className="-me-1 flex size-11 shrink-0 items-center justify-center"
       >
-        {speed}x
+        <span
+          className={cn(
+            "rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums transition",
+            mine ? "bg-white/20 hover:bg-white/30" : "bg-secondary text-foreground hover:bg-secondary/70",
+          )}
+        >
+          {speed}x
+        </span>
       </button>
     </div>
   );
