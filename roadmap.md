@@ -360,3 +360,7 @@ Acceptance tested this pass:
 Release state: NOT published (no automatic publish).
 🚩 Single release blocker: live admin count = 0. The project owner must choose the first real admin account; it is then granted through `bootstrap_admin_role` from the trusted server context (see README). No account is assigned automatically.
 External dependencies still unavailable: transactional email and WhatsApp delivery (credentials/domain approval pending) — the product surfaces these as unavailable rather than pretending they send.
+
+## Phase 32 — migration parity repair (done)
+- Tracked idempotent migration grants `USAGE ON SCHEMA private` + `EXECUTE` on `private.can_read_job_row` / `private.can_read_shift_row` to `authenticated` only; anon explicitly revoked. Fixes the Phase 28 regression where authenticated jobs/shifts SELECT returned 42501.
+- Verified live: authenticated reads jobs/shifts with no permission errors; anon sees only open/active rows (closed/history empty) and cannot call the helpers (private schema not exposed). Helpers are STABLE SECURITY DEFINER with empty search_path — no RLS recursion. Closed rows visible to the test account only via its real engagements (applications/invitations), as designed.
