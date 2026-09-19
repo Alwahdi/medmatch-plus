@@ -266,7 +266,12 @@ function Dashboard() {
       <WorkspaceHeading eyebrow={c.workspace} title={c.hello(profile?.full_name || c.you)} description={c.sub} />
 
       <div className="mt-6">
-        {!profile ? (
+        {nextStepPending ? (
+          <div
+            className="h-28 animate-pulse rounded-lg border border-border bg-muted/40"
+            aria-hidden="true"
+          />
+        ) : !profile ? (
           <NextStepCard
             icon={UserRound}
             label={c.nextStep}
