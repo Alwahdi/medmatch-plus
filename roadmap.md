@@ -373,3 +373,8 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 
 ## Phase 35 — change request canonicalization & attachment ownership (done)
 - Tracked idempotent migration for BEFORE INSERT trigger `normalize_profile_change_request()`: derives `old_value` server-side from profiles/healthcare_professionals/facilities per target+field, enforces user_id=auth.uid(), facility ownership, facility_id/target coherence, an unchanged field allowlist, and `attachment_path` starting with `auth.uid()/`; EXECUTE revoked from anon/authenticated. Admin review reads only DB-derived old_value. UI unchanged functionally; added AR/EN messages for INVALID_ATTACHMENT_PATH and INVALID_REQUEST_TARGET.
+
+## Phase 36 — review privacy hardening (done)
+- Tracked idempotent migration: dropped public `public read facility reviews`; SELECT on pro_to_facility reviews is authenticated-only and limited to the reviewed professional, the author, the owning facility, or admin (facility_to_pro policy untouched; rating_avg/rating_count logic unchanged).
+- Role-simulation test: anon 0 rows, professional 3, facility owner 1 (own facility only), unrelated authenticated 0. No admin account exists yet (existing release blocker), so the admin branch is verified by policy expression only.
+- No public UI reads individual reviews: public facility page uses the aggregate columns; review-dialog and facility candidate detail are authenticated-only. Build/typecheck clean.
