@@ -253,6 +253,21 @@ function AdminPage() {
     },
   });
 
+  const {
+    data: readiness,
+    isError: readinessErr,
+    isLoading: readinessLoading,
+    refetch: readinessRefetch,
+  } = useQuery({
+    queryKey: ["admin-readiness"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("release_readiness_report");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const reviewChange = useMutation({
     mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
       const args = note ? { _id: id, _approve: approve, _note: note } : { _id: id, _approve: approve };
