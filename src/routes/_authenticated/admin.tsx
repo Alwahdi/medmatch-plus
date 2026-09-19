@@ -494,6 +494,9 @@ function AdminPage() {
             <TabsTrigger value="changelog" className="shrink-0">
               {lang === "ar" ? "سجل التعديلات" : "Change log"}
             </TabsTrigger>
+            <TabsTrigger value="readiness" className="shrink-0">
+              {lang === "ar" ? "جاهزية الإطلاق" : "Release readiness"}
+            </TabsTrigger>
           </TabsList>
         </div>
 
