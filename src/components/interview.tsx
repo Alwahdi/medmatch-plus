@@ -71,6 +71,12 @@ const TXT = {
     rescheduled: "تم تحديث موعد المقابلة",
     needWhen: "اختر موعداً في المستقبل",
     needPlace: "أضف عنوان المقابلة الحضورية",
+    needLink: "أضف رابط الاجتماع لمقابلة الفيديو",
+    badLink: "الرابط يجب أن يبدأ بـ ‎https://‎",
+    linkPh: "https://meet.example.com/abc",
+    placePh: "اسم المبنى، الحي، المدينة",
+    required: "مطلوب",
+    phoneHint: "سنتواصل مع المرشح هاتفياً على رقمه المسجّل في حسابه، فلا حاجة لرابط أو عنوان.",
     passed: "انتهى وقت هذه المقابلة",
     minutes: (n: number) => `${n} دقيقة`,
     statusScheduled: "بانتظار تأكيد المرشح",
@@ -127,6 +133,12 @@ const TXT = {
     rescheduled: "Interview time updated",
     needWhen: "Pick a time in the future",
     needPlace: "Add the address for an on-site interview",
+    needLink: "Add a meeting link for a video interview",
+    badLink: "The link must start with https://",
+    linkPh: "https://meet.example.com/abc",
+    placePh: "Building, district, city",
+    required: "Required",
+    phoneHint: "We'll call the candidate on the phone number saved in their account — no link or address needed.",
     passed: "The interview time has passed",
     minutes: (n: number) => `${n} min`,
     statusScheduled: "Awaiting candidate confirmation",
@@ -175,7 +187,14 @@ const ERRORS: Record<string, { ar: string; en: string }> = {
   INTERVIEW_DURATION_INVALID: { ar: "المدة يجب أن تكون بين 10 و240 دقيقة.", en: "Duration must be between 10 and 240 minutes." },
   INTERVIEW_LOCATION_REQUIRED: { ar: "أضف عنوان المقابلة الحضورية.", en: "Add the on-site interview address." },
   INTERVIEW_LOCATION_TOO_LONG: { ar: "العنوان طويل جداً.", en: "The address is too long." },
-  INTERVIEW_URL_INVALID: { ar: "رابط الاجتماع غير صالح.", en: "The meeting link isn't valid." },
+  INTERVIEW_URL_REQUIRED: {
+    ar: "أضف رابط الاجتماع لمقابلة الفيديو.",
+    en: "Add a meeting link for a video interview.",
+  },
+  INTERVIEW_URL_INVALID: {
+    ar: "رابط الاجتماع غير صالح. يجب أن يبدأ بـ ‎https://‎.",
+    en: "The meeting link isn't valid. It must start with https://.",
+  },
   INTERVIEW_URL_TOO_LONG: { ar: "رابط الاجتماع طويل جداً.", en: "The meeting link is too long." },
   INTERVIEW_NOTES_TOO_LONG: { ar: "الملاحظات طويلة جداً.", en: "The notes are too long." },
   APPLICATION_NOT_INTERVIEWABLE: {
@@ -333,8 +352,8 @@ export function FacilityInterviewBlock({
         _scheduled_at: iso,
         _duration_minutes: Math.min(Math.max(Number(duration) || 30, 10), 240),
         _mode: mode,
-        ...(mode === "onsite" && place ? { _location: place } : {}),
-        ...(mode !== "onsite" && link ? { _meeting_url: link } : {}),
+        ...(mode === "onsite" && place.trim() ? { _location: place.trim() } : {}),
+        ...(mode === "video" && link.trim() ? { _meeting_url: link.trim() } : {}),
         ...(notes ? { _notes: notes } : {}),
       });
       if (error) throw error;
@@ -475,7 +494,14 @@ export function FacilityInterviewBlock({
                   </div>
                   <div>
                     <Label>{c.mode}</Label>
-                    <Select value={mode} onValueChange={setMode}>
+                    <Select
+                      value={mode}
+                      onValueChange={(v) => {
+                        setMode(v);
+                        if (v !== "onsite") setPlace("");
+                        if (v !== "video") setLink("");
+                      }}
+                    >
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="video">{c.video}</SelectItem>
@@ -485,16 +511,39 @@ export function FacilityInterviewBlock({
                     </Select>
                   </div>
                 </div>
-                {mode === "onsite" ? (
+                {mode === "onsite" && (
                   <div>
-                    <Label htmlFor="iv-place">{c.place}</Label>
-                    <Input id="iv-place" value={place} onChange={(e) => setPlace(e.target.value)} />
+                    <Label htmlFor="iv-place">
+                      {c.place} <span className="text-destructive">({c.required})</span>
+                    </Label>
+                    <Input
+                      id="iv-place"
+                      required
+                      placeholder={c.placePh}
+                      value={place}
+                      onChange={(e) => setPlace(e.target.value)}
+                    />
                   </div>
-                ) : (
+                )}
+                {mode === "video" && (
                   <div>
-                    <Label htmlFor="iv-link">{c.link}</Label>
-                    <Input id="iv-link" dir="ltr" value={link} onChange={(e) => setLink(e.target.value)} />
+                    <Label htmlFor="iv-link">
+                      {c.link} <span className="text-destructive">({c.required})</span>
+                    </Label>
+                    <Input
+                      id="iv-link"
+                      required
+                      dir="ltr"
+                      type="url"
+                      inputMode="url"
+                      placeholder={c.linkPh}
+                      value={link}
+                      onChange={(e) => setLink(e.target.value)}
+                    />
                   </div>
+                )}
+                {mode === "phone" && (
+                  <p className="rounded-md bg-muted/60 p-3 text-sm text-muted-foreground">{c.phoneHint}</p>
                 )}
               </>
             )}
@@ -511,9 +560,19 @@ export function FacilityInterviewBlock({
                   toast.error(c.needWhen);
                   return;
                 }
-                if (mode === "onsite" && !place.trim()) {
+                if (!isReschedule && mode === "onsite" && !place.trim()) {
                   toast.error(c.needPlace);
                   return;
+                }
+                if (!isReschedule && mode === "video") {
+                  if (!link.trim()) {
+                    toast.error(c.needLink);
+                    return;
+                  }
+                  if (!/^https?:\/\/\S+/i.test(link.trim())) {
+                    toast.error(c.badLink);
+                    return;
+                  }
                 }
                 save.mutate();
               }}
