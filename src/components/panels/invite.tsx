@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/empty-state";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { countryLabel, specialtyName } from "@/lib/format";
+import { countryLabel, specialtyName, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
@@ -61,7 +61,7 @@ export const INVITE_TXT = {
     failed: "تعذّر إرسال الدعوة",
     duplicate: "سبق أن دعوت هذا المختص لهذه الفرصة",
     verified: "موثّق",
-    experience: (n: number) => `خبرة ${n} سنة`,
+    experience: (n: number) => experienceLabel(n, "ar"),
     sentTitle: "الدعوات المُرسلة",
     statuses: { pending: "بانتظار الرد", accepted: "مقبولة", declined: "مرفوضة", cancelled: "ملغاة" },
     errors: {
@@ -101,7 +101,7 @@ export const INVITE_TXT = {
     failed: "Could not send the invitation",
     duplicate: "You already invited this professional to this opportunity",
     verified: "Verified",
-    experience: (n: number) => `${n} years experience`,
+    experience: (n: number) => experienceLabel(n, "en"),
     sentTitle: "Sent invitations",
     statuses: { pending: "Pending", accepted: "Accepted", declined: "Declined", cancelled: "Cancelled" },
     errors: {
@@ -430,14 +430,14 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
               >
                 <RemoteAvatar value={null} icon={UserRound} className="size-10 rounded-lg" />
                 <div className="min-w-0">
-                  <p className="flex items-center gap-2 font-bold">
+                  <div className="flex items-center gap-2 font-bold">
                     {specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang)}
                     {cand.is_verified && (
                       <Badge variant="secondary" className="gap-1">
                         <ShieldCheck className="size-3" /> {c.verified}
                       </Badge>
                     )}
-                  </p>
+                  </div>
                   {cand.headline && <p className="truncate text-sm text-muted-foreground">{cand.headline}</p>}
                   <p className="truncate text-xs text-muted-foreground">
                     {c.experience(cand.years_experience)} ·{" "}

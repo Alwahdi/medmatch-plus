@@ -72,7 +72,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { TXT, shiftErrorText, type FacilitySearch, type PlanRow, type SubRow } from "@/components/panels/facility.shared";
 import { ErrorState } from "@/components/error-state";
-import { friendlyError } from "@/lib/user-errors";
+import { friendlyError, userError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/facility/")({
   validateSearch: (search: Record<string, unknown>): FacilitySearch => {
@@ -745,7 +745,7 @@ function FacilityForm() {
           city: z.string().trim().min(2, c.cityRequired).max(60),
         })
         .safeParse(form);
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+      if (!parsed.success) userError(parsed.error.issues[0]!.message);
       const { error } = await supabase.from("facilities").insert({
         user_id: user!.id,
         name_ar: form.name_ar.trim(),
@@ -901,8 +901,8 @@ function JobForm({
 
   /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
   function validate() {
-    if (expired) throw new Error(c.subExpiredJob);
-    if (quotaReached) throw new Error(c.quotaReachedJob);
+    if (expired) userError(c.subExpiredJob);
+    if (quotaReached) userError(c.quotaReachedJob);
     const parsed = z
       .object({
         title: z.string().trim().min(3, c.titleMin).max(120),
@@ -916,10 +916,10 @@ function JobForm({
         salary_min: Number(form.salary_min),
         salary_max: Number(form.salary_max),
       });
-    if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
-    if (parsed.data.salary_max < parsed.data.salary_min) throw new Error(c.salaryMaxGt);
-    if (!form.country) throw new Error(c.countryRequired);
-    if (!form.city.trim()) throw new Error(c.cityRequired);
+    if (!parsed.success) userError(parsed.error.issues[0]!.message);
+    if (parsed.data.salary_max < parsed.data.salary_min) userError(c.salaryMaxGt);
+    if (!form.country) userError(c.countryRequired);
+    if (!form.city.trim()) userError(c.cityRequired);
     return parsed.data;
   }
 
@@ -1183,18 +1183,18 @@ function ShiftForm({
 
   /** تحقق كامل قبل عرض شاشة المراجعة أو النشر. */
   function validate() {
-    if (expired) throw new Error(c.subExpiredShift);
-    if (quotaReached) throw new Error(c.quotaReachedShift);
-    if (form.title.trim().length < 3) throw new Error(c.shiftTitleMin);
-    if (!form.starts_at || !form.ends_at) throw new Error(c.setTimes);
+    if (expired) userError(c.subExpiredShift);
+    if (quotaReached) userError(c.quotaReachedShift);
+    if (form.title.trim().length < 3) userError(c.shiftTitleMin);
+    if (!form.starts_at || !form.ends_at) userError(c.setTimes);
     const startMs = new Date(form.starts_at).getTime();
     const endMs = new Date(form.ends_at).getTime();
-    if (endMs <= startMs) throw new Error(c.endAfterStart);
-    if (startMs <= Date.now()) throw new Error(c.startInPast);
-    if (endMs - startMs > 24 * 60 * 60 * 1000) throw new Error(c.tooLong);
-    if (!Number(form.hourly_rate)) throw new Error(c.hourlyRateRequired);
-    if (!form.country) throw new Error(c.countryRequired);
-    if (!form.city.trim()) throw new Error(c.cityRequired);
+    if (endMs <= startMs) userError(c.endAfterStart);
+    if (startMs <= Date.now()) userError(c.startInPast);
+    if (endMs - startMs > 24 * 60 * 60 * 1000) userError(c.tooLong);
+    if (!Number(form.hourly_rate)) userError(c.hourlyRateRequired);
+    if (!form.country) userError(c.countryRequired);
+    if (!form.city.trim()) userError(c.cityRequired);
     return { startMs, endMs };
   }
 

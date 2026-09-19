@@ -141,14 +141,14 @@ function InvitationsPage() {
                     className="size-12 rounded-lg"
                   />
                   <div className="min-w-0">
-                    <p className="flex items-center gap-2 font-bold">
+                    <div className="flex items-center gap-2 font-bold">
                       {f?.name_ar}
                       {f?.is_verified && (
                         <Badge variant="secondary" className="gap-1">
                           <ShieldCheck className="size-3" /> {c.verified}
                         </Badge>
                       )}
-                    </p>
+                    </div>
                     <p className="mt-1 flex items-center gap-2 text-sm">
                       {isJob ? (
                         <Briefcase className="size-4 text-primary" />

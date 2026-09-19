@@ -40,7 +40,7 @@ import {
 } from "@/lib/format";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
-import { friendlyError } from "@/lib/user-errors";
+import { friendlyError, userError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ErrorState } from "@/components/error-state";
 
@@ -203,15 +203,15 @@ export function FacilityVerificationPanel() {
   const add = useMutation({
     mutationFn: async () => {
       const parsed = schema.safeParse(form);
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
-      if (!file) throw new Error(c.fileReq);
+      if (!parsed.success) userError(parsed.error.issues[0]!.message);
+      if (!file) userError(c.fileReq);
       const invalid = checkUpload(file, "document", lang);
-      if (invalid) throw new Error(invalid);
+      if (invalid) userError(invalid);
 
       const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
       const filePath = `${facility!.id}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("facility-docs").upload(filePath, file);
-      if (upErr) throw new Error(c.uploadFailed);
+      if (upErr) userError(c.uploadFailed);
 
       const { error } = await supabase.from("facility_documents").insert({
         facility_id: facility!.id,

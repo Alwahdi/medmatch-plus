@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { countryLabel, specialtyName } from "@/lib/format";
+import { countryLabel, specialtyName, experienceLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
@@ -90,7 +90,7 @@ const TXT = {
     candidateIn: (spec: string) => `مرشح في ${spec}`,
     genericSpecialty: "تخصص طبي",
     verified: "موثّق",
-    experience: (n: number) => `خبرة ${n} سنة`,
+    experience: (n: number) => experienceLabel(n, "ar"),
     openToShifts: " · متاح للمناوبات",
     contact: "تواصل",
     chatOpened: "تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح",
@@ -122,7 +122,7 @@ const TXT = {
     candidateIn: (spec: string) => `Candidate in ${spec}`,
     genericSpecialty: "medical specialty",
     verified: "Verified",
-    experience: (n: number) => `${n} years experience`,
+    experience: (n: number) => experienceLabel(n, "en"),
     openToShifts: " · Available for shifts",
     contact: "Contact",
     chatOpened: "Conversation opened — your facility name is now visible to the candidate",
@@ -348,14 +348,14 @@ function Candidates() {
             <li key={cand.id} className="card-lift rounded-lg border border-border bg-card p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <p className="flex flex-wrap items-center gap-2 font-bold">
+                  <div className="flex flex-wrap items-center gap-2 font-bold">
                     {c.candidateIn(specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang) || c.genericSpecialty)}
                     {cand.is_verified && (
                       <Badge variant="secondary" className="gap-1">
                         <ShieldCheck className="size-3" /> {c.verified}
                       </Badge>
                     )}
-                  </p>
+                  </div>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {cand.headline ?? "—"} · {c.experience(cand.years_experience)} ·{" "}
                     {[cand.city, countryLabel(cand.country, lang)].filter(Boolean).join("، ")}

@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
-import { friendlyError, UserFacingError } from "@/lib/user-errors";
+import { friendlyError, UserFacingError, userError } from "@/lib/user-errors";
 
 export type ChangeTarget = "professional" | "facility" | "account";
 
@@ -151,11 +151,11 @@ export function LockedField({
 
   const submit = useMutation({
     mutationFn: async () => {
-      if (!next.trim()) throw new Error(c.need);
+      if (!next.trim()) userError(c.need);
       let attachment: string | null = null;
       if (file) {
         const invalid = checkUpload(file, "document", lang);
-        if (invalid) throw new Error(invalid);
+        if (invalid) userError(invalid);
         const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().slice(0, 5);
         const path = `${user!.id}/change-${field}-${Date.now()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("credentials").upload(path, file);

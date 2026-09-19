@@ -30,7 +30,7 @@ import { countryLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
-import { friendlyError } from "@/lib/user-errors";
+import { friendlyError, userError } from "@/lib/user-errors";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 import { ErrorState } from "@/components/error-state";
 
@@ -233,7 +233,7 @@ function ProfileOverview() {
         bio: form.bio,
         license_number: form.license_number,
       });
-      if (!parsed.success) throw new Error(parsed.error.issues[0]!.message);
+      if (!parsed.success) userError(parsed.error.issues[0]!.message);
 
       const payload = {
         user_id: user!.id,

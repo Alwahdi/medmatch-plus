@@ -31,7 +31,7 @@ import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
-import { friendlyError } from "@/lib/user-errors";
+import { friendlyError, userError } from "@/lib/user-errors";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { ErrorState } from "@/components/error-state";
 import {
@@ -247,8 +247,8 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
 
   const changePassword = useMutation({
     mutationFn: async () => {
-      if (newPw.length < 8) throw new Error(c.pwShort);
-      if (newPw !== confirmPw) throw new Error(c.pwMismatch);
+      if (newPw.length < 8) userError(c.pwShort);
+      if (newPw !== confirmPw) userError(c.pwMismatch);
       const { error } = await supabase.auth.updateUser({
         password: newPw,
         ...(currentPw ? ({ current_password: currentPw } as Record<string, string>) : {}),
@@ -873,14 +873,14 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
                     <Icon className="size-4" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+                    <div className="flex flex-wrap items-center gap-2 text-sm font-semibold">
                       {describeAgent(s.user_agent, c.unknownDevice)}
                       {isCurrent && (
                         <Badge variant="secondary" className="text-[11px]">
                           {c.thisDevice}
                         </Badge>
                       )}
-                    </p>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {s.ip ? `${s.ip} · ` : ""}
                       {c.lastActive} {relativeTime(s.updated_at ?? s.created_at, lang)}

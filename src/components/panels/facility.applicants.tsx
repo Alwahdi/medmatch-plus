@@ -26,6 +26,7 @@ import {
   applicationStage,
   countryLabel,
   relativeTime,
+  experienceLabel,
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -39,7 +40,7 @@ const TXT = {
     back: "رجوع للوحة",
     healthcarePro: "كادر صحي",
     verified: "موثّق",
-    experience: (n: number) => `خبرة ${n} سنة`,
+    experience: (n: number) => experienceLabel(n, "ar"),
     appliedFor: (title: string, time: string) => `تقدّم لوظيفة: ${title} · ${time}`,
     message: "مراسلة",
     updated: "تم تحديث مرحلة الطلب",
@@ -80,7 +81,7 @@ const TXT = {
     back: "Back to dashboard",
     healthcarePro: "Healthcare professional",
     verified: "Verified",
-    experience: (n: number) => `${n} years experience`,
+    experience: (n: number) => experienceLabel(n, "en"),
     appliedFor: (title: string, time: string) => `Applied for: ${title} · ${time}`,
     message: "Message",
     updated: "Application stage updated",
@@ -304,15 +305,15 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
               <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                   <div className="min-w-0">
-                    <p className="font-bold">
-                      {a.pro?.full_name ?? c.healthcarePro}
-                      {a.pro?.is_verified && <Badge className="ms-2" variant="secondary">{c.verified}</Badge>}
+                    <div className="flex flex-wrap items-center gap-2 font-bold">
+                      <span className="min-w-0 truncate">{a.pro?.full_name ?? c.healthcarePro}</span>
+                      {a.pro?.is_verified && <Badge variant="secondary">{c.verified}</Badge>}
                       {isHired && (
-                        <Badge className="ms-2 gap-1 bg-success text-success-foreground">
+                        <Badge className="gap-1 bg-success text-success-foreground">
                           <CheckCircle2 className="size-3.5" /> {c.selected}
                         </Badge>
                       )}
-                    </p>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {a.pro?.headline ?? "—"} · {c.experience(a.pro?.years_experience ?? 0)} ·{" "}
                       {[a.pro?.city, countryLabel(a.pro?.country, lang)].filter(Boolean).join("، ")}

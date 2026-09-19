@@ -41,7 +41,7 @@ const TXT = {
     licenseReq: (l: string) => `ترخيص مزاولة مهنة سارٍ من ${l}`,
     teamworkReq: "إجادة العمل ضمن فريق متعدد التخصصات",
     privacyNote:
-      "هوية المنشأة الناشرة تظهر لك مباشرة بعد قبول طلبك أو بدء التواصل معك — كل ناشر على SyndeoCare تُراجَع اعتماداته قبل النشر.",
+      "هوية المنشأة الناشرة تظهر لك مباشرة بعد قبول طلبك أو بدء التواصل معك، وتظهر حالة توثيق الناشر على صفحة الفرصة.",
     applyTitle: "التقديم على الوظيفة",
     signInPrompt: "سجّل دخولك كي تتقدم وتتابع حالة طلبك خطوة بخطوة.",
     signInCta: "تسجيل الدخول للتقديم",
@@ -97,7 +97,7 @@ const TXT = {
     licenseReq: (l: string) => `Valid professional license from ${l}`,
     teamworkReq: "Ability to work well within a multidisciplinary team",
     privacyNote:
-      "The employer's identity will be revealed to you once your application is accepted or they reach out to you — every employer on SyndeoCare has their credentials reviewed before posting.",
+      "The employer's identity is revealed once your application is accepted or they reach out to you, and each employer's verification status is shown on the listing.",
     applyTitle: "Apply for this job",
     signInPrompt: "Sign in to apply and track your application status step by step.",
     signInCta: "Sign in to apply",
@@ -498,7 +498,7 @@ function JobDetail() {
 
       {/* Sticky mobile apply bar */}
       {!isOwner && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        <div className="fixed inset-x-0 bottom-[var(--app-bottom-nav)] z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+var(--app-safe-bottom))] backdrop-blur lg:hidden">
            {existing ? (
              <Button className="w-full" asChild>
                <Link to="/activity" search={{ tab: "applications" }}>{c.trackApplication}</Link>

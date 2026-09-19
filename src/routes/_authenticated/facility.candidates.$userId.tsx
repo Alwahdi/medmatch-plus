@@ -19,7 +19,7 @@ import { RemoteAvatar } from "@/components/remote-avatar";
 import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime } from "@/lib/format";
+import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -45,7 +45,7 @@ const TXT = {
     back: "رجوع",
     verified: "موثّق",
     openToShifts: "متاح للمناوبات",
-    experience: (n: number) => `خبرة ${n} سنة`,
+    experience: (n: number) => experienceLabel(n, "ar"),
     about: "نبذة",
     history: "سجل التعامل مع منشأتك",
     applications: "الطلبات",
@@ -71,7 +71,7 @@ const TXT = {
     back: "Back",
     verified: "Verified",
     openToShifts: "Open to shifts",
-    experience: (n: number) => `${n} years experience`,
+    experience: (n: number) => experienceLabel(n, "en"),
     about: "About",
     history: "History with your facility",
     applications: "Applications",
