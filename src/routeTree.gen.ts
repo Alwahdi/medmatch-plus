@@ -35,6 +35,7 @@ import { Route as PublicAuthRouteImport } from './routes/_public.auth'
 import { Route as PublicContactRouteImport } from './routes/_public.contact'
 import { Route as PublicCookiesRouteImport } from './routes/_public.cookies'
 import { Route as PublicForFacilitiesRouteImport } from './routes/_public.for-facilities'
+import { Route as PublicMfaChallengeRouteImport } from './routes/_public.mfa-challenge'
 import { Route as PublicPricingRouteImport } from './routes/_public.pricing'
 import { Route as PublicPrivacyRouteImport } from './routes/_public.privacy'
 import { Route as PublicResetPasswordRouteImport } from './routes/_public.reset-password'
@@ -194,6 +195,11 @@ const PublicCookiesRoute = PublicCookiesRouteImport.update({
 const PublicForFacilitiesRoute = PublicForFacilitiesRouteImport.update({
   id: '/for-facilities',
   path: '/for-facilities',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicMfaChallengeRoute = PublicMfaChallengeRouteImport.update({
+  id: '/mfa-challenge',
+  path: '/mfa-challenge',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicPricingRoute = PublicPricingRouteImport.update({
@@ -367,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof PublicContactRoute
   '/cookies': typeof PublicCookiesRoute
   '/for-facilities': typeof PublicForFacilitiesRoute
+  '/mfa-challenge': typeof PublicMfaChallengeRoute
   '/pricing': typeof PublicPricingRoute
   '/privacy': typeof PublicPrivacyRoute
   '/reset-password': typeof PublicResetPasswordRoute
@@ -420,6 +427,7 @@ export interface FileRoutesByTo {
   '/contact': typeof PublicContactRoute
   '/cookies': typeof PublicCookiesRoute
   '/for-facilities': typeof PublicForFacilitiesRoute
+  '/mfa-challenge': typeof PublicMfaChallengeRoute
   '/pricing': typeof PublicPricingRoute
   '/privacy': typeof PublicPrivacyRoute
   '/reset-password': typeof PublicResetPasswordRoute
@@ -475,6 +483,7 @@ export interface FileRoutesById {
   '/_public/contact': typeof PublicContactRoute
   '/_public/cookies': typeof PublicCookiesRoute
   '/_public/for-facilities': typeof PublicForFacilitiesRoute
+  '/_public/mfa-challenge': typeof PublicMfaChallengeRoute
   '/_public/pricing': typeof PublicPricingRoute
   '/_public/privacy': typeof PublicPrivacyRoute
   '/_public/reset-password': typeof PublicResetPasswordRoute
@@ -531,6 +540,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/for-facilities'
+    | '/mfa-challenge'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -584,6 +594,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/for-facilities'
+    | '/mfa-challenge'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -638,6 +649,7 @@ export interface FileRouteTypes {
     | '/_public/contact'
     | '/_public/cookies'
     | '/_public/for-facilities'
+    | '/_public/mfa-challenge'
     | '/_public/pricing'
     | '/_public/privacy'
     | '/_public/reset-password'
@@ -856,6 +868,13 @@ declare module '@tanstack/react-router' {
       path: '/for-facilities'
       fullPath: '/for-facilities'
       preLoaderRoute: typeof PublicForFacilitiesRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/mfa-challenge': {
+      id: '/_public/mfa-challenge'
+      path: '/mfa-challenge'
+      fullPath: '/mfa-challenge'
+      preLoaderRoute: typeof PublicMfaChallengeRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/pricing': {
@@ -1130,6 +1149,7 @@ interface PublicRouteChildren {
   PublicContactRoute: typeof PublicContactRoute
   PublicCookiesRoute: typeof PublicCookiesRoute
   PublicForFacilitiesRoute: typeof PublicForFacilitiesRoute
+  PublicMfaChallengeRoute: typeof PublicMfaChallengeRoute
   PublicPricingRoute: typeof PublicPricingRoute
   PublicPrivacyRoute: typeof PublicPrivacyRoute
   PublicResetPasswordRoute: typeof PublicResetPasswordRoute
@@ -1158,6 +1178,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicContactRoute: PublicContactRoute,
   PublicCookiesRoute: PublicCookiesRoute,
   PublicForFacilitiesRoute: PublicForFacilitiesRoute,
+  PublicMfaChallengeRoute: PublicMfaChallengeRoute,
   PublicPricingRoute: PublicPricingRoute,
   PublicPrivacyRoute: PublicPrivacyRoute,
   PublicResetPasswordRoute: PublicResetPasswordRoute,
