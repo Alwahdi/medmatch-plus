@@ -152,8 +152,8 @@ export const DICT: Dict = {
   },
   "home.steps.employer2.title": { ar: "استقبل الطلبات", en: "Receive applications" },
   "home.steps.employer2.text": {
-    ar: "الكوادر المؤهّلة، بعد تدقيق تراخيصها، تبدأ بالتقديم خلال دقائق من النشر.",
-    en: "Qualified candidates, after license verification, start applying within minutes of posting.",
+    ar: "الكوادر المؤهّلة تبدأ بالتقديم خلال دقائق من النشر، وترى حالة توثيق كل ملف.",
+    en: "Qualified candidates start applying within minutes, and you see each profile's verification status.",
   },
   "home.steps.employer3.title": { ar: "تنبيهات فورية عند كل طلب", en: "Instant application alerts" },
   "home.steps.employer3.text": {
