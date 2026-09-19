@@ -13,7 +13,9 @@
  * WhatsApp (Meta Cloud API compatible):
  *   WHATSAPP_TOKEN            - permanent access token
  *   WHATSAPP_PHONE_NUMBER_ID  - sender phone number id
- *   WHATSAPP_TEMPLATE_NAME    - optional approved template name (defaults to plain text)
+ *   WHATSAPP_TEMPLATE_NAME    - approved template name; REQUIRED for proactive
+ *                               job/shift alerts (plain text is only deliverable
+ *                               inside the 24h service window)
  */
 
 export type SendStatus = "sent" | "failed" | "not_configured";
