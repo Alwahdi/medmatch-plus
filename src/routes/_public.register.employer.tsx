@@ -15,6 +15,7 @@ import { ConsentNote } from "@/components/consent-note";
 import { friendlyError } from "@/lib/user-errors";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
 import { Combobox, comboText } from "@/components/ui/combobox";
+import { PHONE_PLACEHOLDER_AR, PHONE_PLACEHOLDER_EN, isValidPhone, normalizePhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_public/register/employer")({
   head: () => ({
@@ -64,6 +65,8 @@ const AR = {
   location: "الموقع",
   country: "الدولة",
   region: "المحافظة",
+  regionHint: "لاختيار المدينة فقط.",
+  phonePh: PHONE_PLACEHOLDER_AR,
   city: "المدينة",
   password: "كلمة المرور",
   passwordHint: "8 أحرف فأكثر. استخدم مزيج من الأحرف والأرقام والرموز.",
@@ -118,6 +121,8 @@ const EN: typeof AR = {
   location: "Location",
   country: "Country",
   region: "Governorate",
+  regionHint: "Used only to pick the city.",
+  phonePh: PHONE_PLACEHOLDER_EN,
   city: "City",
   password: "Password",
   passwordHint: "8+ characters. Use a mix of letters, numbers and symbols.",
@@ -208,7 +213,7 @@ function RegisterEmployer() {
       .object({
         name: z.string().trim().min(2).max(120),
         email: z.string().trim().email().max(255),
-        phone: z.string().trim().min(6).max(20),
+        phone: z.string().trim().min(6).max(20).refine(isValidPhone),
         type: z.string().min(1),
         country: z.string().min(1),
         region: z.string().min(1),
@@ -229,12 +234,13 @@ function RegisterEmployer() {
         emailRedirectTo: `${window.location.origin}/onboarding`,
         data: {
           full_name: parsed.data.name,
-          phone: parsed.data.phone,
+          // الجوال يُحفظ في ملف الحساب عبر قاعدة البيانات ويبقى خاصاً.
+          phone: normalizePhone(parsed.data.phone),
           role: "facility",
+          // تُستخدم لتعبئة خطوات الإعداد بعد تأكيد البريد فقط (المحافظة لا تُخزَّن لعدم استخدامها).
           facility_name: parsed.data.name,
           facility_type: parsed.data.type,
           country: countryName,
-          region: parsed.data.region,
           city: parsed.data.city,
         },
       },
@@ -370,6 +376,7 @@ function RegisterEmployer() {
                         type="tel"
                         dir="ltr"
                         value={phone}
+                        placeholder={L.phonePh}
                         onChange={(e) => setPhone(e.target.value)}
                         maxLength={20}
                       />
@@ -419,6 +426,7 @@ function RegisterEmployer() {
                       </div>
                       <div>
                         <Label>{L.region} *</Label>
+                        <p className="text-xs text-muted-foreground">{L.regionHint}</p>
                         <div className="mt-1">
                           <Combobox
                             options={(countryObj?.regions ?? []).map((rg) => ({

@@ -42,6 +42,11 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 
 type Path = "professional" | "facility" | null;
 
+/** قراءة آمنة لقيمة نصية من مدخلات التسجيل. */
+function readMeta(value: unknown, max: number): string {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
 /** تفعيل الدور ثم تحديث ذاكرة الصلاحيات قبل الانتقال — يمنع الارتداد إلى الإعداد. */
 async function activateRole(
   rpc: "claim_professional_role" | "claim_facility_role",
@@ -66,6 +71,20 @@ function Onboarding() {
 
   const metaRole = (user?.user_metadata?.["role"] as Path) ?? null;
   const metaName = (user?.user_metadata?.["full_name"] as string | undefined) ?? "";
+  // مدخلات التسجيل تُستخدم كقيم أولية للنموذج فقط — لا صلاحيات ولا بيانات موثوقة.
+  const metaFacility = useMemo(
+    () => ({
+      name_ar: readMeta(user?.user_metadata?.["facility_name"], 120),
+      facility_type: FACILITY_TYPES.some(
+        (f) => f.value === user?.user_metadata?.["facility_type"],
+      )
+        ? (user!.user_metadata!["facility_type"] as string)
+        : "hospital",
+      country: readMeta(user?.user_metadata?.["country"], 60),
+      city: readMeta(user?.user_metadata?.["city"], 60),
+    }),
+    [user],
+  );
 
   const [path, setPath] = useState<Path>(null);
   const [ready, setReady] = useState(false);
@@ -218,7 +237,7 @@ function Onboarding() {
         ) : path === "professional" ? (
           <ProfessionalSteps defaultName={metaName} onChangePath={() => setPath(null)} />
         ) : (
-          <FacilitySteps onChangePath={() => setPath(null)} />
+          <FacilitySteps defaults={metaFacility} onChangePath={() => setPath(null)} />
         )}
       </div>
     </div>
@@ -548,7 +567,15 @@ const FACILITY_TYPES = [
   { value: "center", ar: "مركز طبي", en: "Medical center" },
 ];
 
-function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
+type FacilityDefaults = { name_ar: string; facility_type: string; country: string; city: string };
+
+function FacilitySteps({
+  defaults,
+  onChangePath,
+}: {
+  defaults: FacilityDefaults;
+  onChangePath: () => void;
+}) {
   const { user } = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -558,10 +585,10 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
   const [busy, setBusy] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const [form, setForm] = useState({
-    name_ar: "",
-    facility_type: "hospital",
-    country: "",
-    city: "",
+    name_ar: defaults.name_ar,
+    facility_type: defaults.facility_type,
+    country: defaults.country,
+    city: defaults.city,
     website: "",
     description: "",
   });
