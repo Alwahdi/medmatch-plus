@@ -11,6 +11,8 @@ import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
+import { ConsentNote } from "@/components/consent-note";
+import { friendlyError } from "@/lib/user-errors";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
 import { Combobox, comboText } from "@/components/ui/combobox";
 
