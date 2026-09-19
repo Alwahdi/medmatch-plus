@@ -38,6 +38,17 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+const READINESS_LABEL: Record<string, { ar: string; en: string }> = {
+  live_admin_count: { ar: "حسابات إدارة فعّالة", en: "Live admin accounts" },
+  orphan_roles: { ar: "صلاحيات لحسابات محذوفة", en: "Roles for deleted accounts" },
+  orphan_profiles: { ar: "ملفات بلا حساب (محفوظة لسجل العمل)", en: "Profiles without an account (kept for history)" },
+  orphan_professionals: { ar: "ملفات كوادر بلا حساب (مخفية عن البحث)", en: "Professional profiles without an account (hidden)" },
+  professional_role_without_profile: { ar: "صلاحية كادر بلا ملف", en: "Professional role without a profile" },
+  facility_role_without_profile: { ar: "صلاحية منشأة بلا ملف", en: "Facility role without a profile" },
+  unclaimed_facilities: { ar: "منشآت بلا مالك (إدراج عام مقصود)", en: "Facilities with no owner (intentional listings)" },
+  test_accounts: { ar: "حسابات اختبار متبقية", en: "Remaining test accounts" },
+};
+
 const TXT = {
   ar: {
     loading: "جارٍ التحميل...",
