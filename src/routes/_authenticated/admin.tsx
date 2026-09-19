@@ -326,7 +326,7 @@ function AdminPage() {
 
   const verifyFacility = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.from("facilities").update({ is_verified: value }).eq("id", id);
+      const { error } = await supabase.rpc("admin_set_facility_verified", { _facility_id: id, _value: value });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -338,7 +338,7 @@ function AdminPage() {
 
   const verifyPro = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.from("healthcare_professionals").update({ is_verified: value }).eq("id", id);
+      const { error } = await supabase.rpc("admin_set_professional_verified", { _professional_id: id, _value: value });
       if (error) throw error;
     },
     onSuccess: () => {
