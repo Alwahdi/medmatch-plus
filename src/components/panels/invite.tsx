@@ -2,12 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Briefcase, CalendarClock, History, Search, Send, ShieldCheck, UserRound } from "lucide-react";
+import { Briefcase, CalendarClock, History, Search, Send, ShieldCheck, UserRound, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/empty-state";
+import { useConfirm } from "@/components/confirm-dialog";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -64,6 +65,11 @@ export const INVITE_TXT = {
     experience: (n: number) => experienceLabel(n, "ar"),
     sentTitle: "الدعوات المُرسلة",
     statuses: { pending: "بانتظار الرد", accepted: "مقبولة", declined: "مرفوضة", cancelled: "ملغاة" },
+    cancel: "سحب الدعوة",
+    cancelConfirmTitle: "سحب الدعوة؟",
+    cancelConfirmBody: "سيتم إبلاغ المختص بأن الدعوة لم تعد متاحة، ولا يمكن التراجع عن السحب.",
+    cancelled: "تم سحب الدعوة",
+    cancelFailed: "تعذّر سحب الدعوة",
     errors: {
       NOT_A_FACILITY: "هذه الميزة متاحة لحسابات المنشآت فقط.",
       NO_ACTIVE_SUBSCRIPTION: "البحث متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة.",
@@ -104,6 +110,11 @@ export const INVITE_TXT = {
     experience: (n: number) => experienceLabel(n, "en"),
     sentTitle: "Sent invitations",
     statuses: { pending: "Pending", accepted: "Accepted", declined: "Declined", cancelled: "Cancelled" },
+    cancel: "Withdraw invitation",
+    cancelConfirmTitle: "Withdraw this invitation?",
+    cancelConfirmBody: "The professional will be told the invitation is no longer available. This can't be undone.",
+    cancelled: "Invitation withdrawn",
+    cancelFailed: "Could not withdraw the invitation",
     errors: {
       NOT_A_FACILITY: "This feature is available for facility accounts only.",
       NO_ACTIVE_SUBSCRIPTION: "Search is temporarily paused for this account — contact support for help.",
@@ -120,6 +131,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
   const cbx = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const { confirm, confirmDialog } = useConfirm();
   const [message, setMessage] = useState("");
   const [specialty, setSpecialty] = useState(ANY);
   const [country, setCountry] = useState(ANY);
@@ -275,10 +287,34 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
+  /** سحب دعوة معلّقة — الحالة فقط، والباقي يفرضه الخادم. */
+  const cancelInvite = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("invitations").update({ status: "cancelled" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.cancelled);
+      queryClient.invalidateQueries({ queryKey: ["invitations-sent"] });
+    },
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.cancelFailed)),
+  });
+
+  async function askCancel(id: string) {
+    const ok = await confirm({
+      title: c.cancelConfirmTitle,
+      description: c.cancelConfirmBody,
+      confirmLabel: c.cancel,
+      destructive: true,
+    });
+    if (ok) cancelInvite.mutate(id);
+  }
+
   function InviteButton({ userId }: { userId: string }) {
     const st = statusOf(userId);
     if (st === "accepted") return <Badge className="bg-success text-success-foreground">{c.accepted}</Badge>;
     if (st === "declined") return <Badge variant="secondary">{c.declined}</Badge>;
+    if (st === "cancelled") return <Badge variant="secondary">{c.statuses.cancelled}</Badge>;
     if (st === "pending") return <Badge variant="secondary">{c.invited}</Badge>;
     return (
       <Button
@@ -460,23 +496,38 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             {sentInvites.map((i) => (
               <li
                 key={i.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
+                className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
               >
                 <Link
                   to="/facility/candidates/$userId"
                   params={{ userId: i.professional_user_id }}
-                  className="text-primary underline underline-offset-4"
+                  className="inline-flex min-h-11 items-center text-primary underline underline-offset-4"
                 >
                   {i.professional_user_id.slice(0, 8)}…
                 </Link>
-                <Badge variant={i.status === "accepted" ? "default" : "secondary"}>
+                <Badge
+                  className="ms-auto"
+                  variant={i.status === "accepted" ? "default" : "secondary"}
+                >
                   {c.statuses[i.status as keyof typeof c.statuses]}
                 </Badge>
+                {i.status === "pending" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="min-h-11"
+                    disabled={cancelInvite.isPending}
+                    onClick={() => void askCancel(i.id)}
+                  >
+                    <X className="size-4" /> {c.cancel}
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
         </section>
       ) : null}
+      {confirmDialog}
     </div>
   );
 }

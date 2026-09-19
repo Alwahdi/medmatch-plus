@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/invitations")({
   head: () => ({
@@ -109,7 +110,7 @@ function InvitationsPage() {
       queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: () => toast.error(c.failed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   async function act(id: string, status: "accepted" | "declined") {
