@@ -271,7 +271,23 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   const googleIdentity = identities?.find((i) => i.provider === "google");
   const emailIdentity = identities?.find((i) => i.provider === "email");
 
+  const hasPasswordIdentity = !!emailIdentity;
   const [linking, setLinking] = useState(false);
+  const [sendingSetLink, setSendingSetLink] = useState(false);
+
+  async function sendSetPasswordLink() {
+    const email = user?.email;
+    if (!email) return;
+    setSendingSetLink(true);
+    try {
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+    } finally {
+      setSendingSetLink(false);
+      toast.success(c.pwOauthSent);
+    }
+  }
 
   async function linkGoogle() {
     setLinking(true);
@@ -489,6 +505,21 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
           <h2 className="font-bold">{c.pwTitle}</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">{c.pwBody}</p>
+        {identities && !hasPasswordIdentity ? (
+          <div className="mt-4 rounded-lg border border-border bg-muted/40 p-4">
+            <p className="text-sm font-semibold">{c.pwOauthTitle}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{c.pwOauthBody}</p>
+            <Button
+              className="mt-3"
+              variant="outline"
+              onClick={sendSetPasswordLink}
+              disabled={sendingSetLink}
+            >
+              {sendingSetLink ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
+              {c.pwOauthSend}
+            </Button>
+          </div>
+        ) : (
         <form
           className="mt-4 grid gap-3"
           onSubmit={(e) => {
@@ -562,6 +593,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
             </Button>
           </div>
         </form>
+        )}
       </section>
 
       {/* linked accounts */}
