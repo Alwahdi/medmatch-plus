@@ -147,8 +147,8 @@ export const DICT: Dict = {
   "home.steps.tabSeekers": { ar: "للباحثين عن عمل", en: "For job seekers" },
   "home.steps.employer1.title": { ar: "انشر وظيفة أو شيفت", en: "Post a job or shift" },
   "home.steps.employer1.text": {
-    ar: "انشر وظيفة دائمة أو شيفتاً عاجلاً خلال دقائق — ليظهر فوراً للكوادر الموثّقة.",
-    en: "Post a permanent job or urgent shift in minutes — instantly visible to verified candidates.",
+    ar: "انشر وظيفة دائمة أو شيفتاً عاجلاً خلال دقائق — ليظهر فوراً للكوادر الصحية المسجّلة.",
+    en: "Post a permanent job or urgent shift in minutes — instantly visible to registered healthcare candidates.",
   },
   "home.steps.employer2.title": { ar: "استقبل الطلبات", en: "Receive applications" },
   "home.steps.employer2.text": {
