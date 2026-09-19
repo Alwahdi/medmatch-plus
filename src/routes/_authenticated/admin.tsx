@@ -944,8 +944,6 @@ function AdminPage() {
             </ul>
           )}
         </TabsContent>
-      </Tabs>
-        </TabsContent>
 
         <TabsContent value="readiness" className="mt-6">
           {readinessErr ? (
