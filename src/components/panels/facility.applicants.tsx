@@ -364,7 +364,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       </Button>
                     )}
 
-                    {isHired && jobOpen && (
+                    {isHired && canUndoHire && (
                       <Button
                         size="sm"
                         variant="outline"
