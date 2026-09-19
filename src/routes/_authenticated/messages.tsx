@@ -56,6 +56,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { formatDateTime, relativeTime } from "@/lib/format";
+import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { useOnlineUsers } from "@/lib/presence";
 import { markConversationRead, useUnread } from "@/lib/unread";

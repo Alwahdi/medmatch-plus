@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 
 export type ChangeTarget = "professional" | "facility" | "account";
