@@ -87,15 +87,27 @@ function Contact() {
 
   const send = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("contact_messages").insert({
-        name: name.trim(),
-        email: email.trim(),
-        subject: subject.trim() || null,
-        message: message.trim(),
+      const { data, error } = await supabase.rpc("submit_contact_message", {
+        _name: name.trim(),
+        _email: email.trim(),
+        _message: message.trim(),
+        _subject: subject.trim() || "",
       });
-      if (error) throw error;
+      if (error) {
+        console.error("[contact] submit failed", error);
+        throw new Error("failed");
+      }
+      return data as string;
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (result === "rate_limited") {
+        toast.error(c.rateLimited);
+        return;
+      }
+      if (result === "invalid_name" || result === "invalid_email" || result === "invalid_message") {
+        toast.error(c.invalid);
+        return;
+      }
       toast.success(c.success);
       setName("");
       setEmail("");
@@ -104,6 +116,7 @@ function Contact() {
     },
     onError: () => toast.error(c.failure),
   });
+
 
   const valid = name.trim().length > 1 && /.+@.+\..+/.test(email) && message.trim().length > 9;
 
