@@ -240,6 +240,10 @@ function Dashboard() {
     })
     .slice(0, 3);
 
+  // لا نعرض "الخطوة التالية" قبل وصول البيانات التي تحدّدها — تجنباً لوميض رسالة خاطئة.
+  const nextStepPending =
+    !user || profilePending || appsPending || bookingsPending || pendingInvitesPending || pendingInterviewsPending;
+
   const loadErrors = [
     { err: profileErr, retry: profileRefetch },
     { err: appsErr, retry: appsRefetch },
