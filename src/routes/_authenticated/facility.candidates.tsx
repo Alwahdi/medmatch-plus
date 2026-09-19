@@ -95,6 +95,7 @@ const TXT = {
     chatFailed: "تعذّر بدء المحادثة",
     completeFacility: "أكمل بيانات المنشأة أولاً",
     initialContact: "تواصل مبدئي",
+    anonymousNote: "الاسم والصورة والنبذة تظهر بعد بدء المحادثة.",
   },
   en: {
     errors: {
