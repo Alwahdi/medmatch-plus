@@ -56,7 +56,7 @@ describe("html safety", () => {
     const evil = `<img src=x onerror="alert('x')">`;
     const out = html(evil, evil, "https://syndeocare.ai/jobs/abc");
     expect(out).not.toContain("<img");
-    expect(out).not.toContain("onerror=");
+    expect(out).not.toContain(`onerror="`);
     expect(out).toContain("&lt;img");
     expect(escapeHtml(`"&'`)).toBe("&quot;&amp;&#39;");
   });
