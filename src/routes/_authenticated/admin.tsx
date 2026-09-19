@@ -266,7 +266,10 @@ function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-change-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-change-log"] });
     },
-    onError: (e: Error) => toast.error(e.message || c.updateFailed),
+    onError: (e: Error) => {
+      console.error("[admin] review change request failed", e);
+      toast.error(c.updateFailed);
+    },
   });
 
 
@@ -280,10 +283,11 @@ function AdminPage() {
       status: "approved" | "rejected";
       reviewNote?: string;
     }) => {
-      const { error } = await supabase
-        .from("credentials")
-        .update({ status, review_note: reviewNote ?? null })
-        .eq("id", id);
+      const { error } = await supabase.rpc("admin_review_credential", {
+        _id: id,
+        _status: status,
+        ...(reviewNote ? { _note: reviewNote } : {}),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -306,10 +310,11 @@ function AdminPage() {
       status: "approved" | "rejected";
       reviewNote?: string;
     }) => {
-      const { error } = await supabase
-        .from("facility_documents")
-        .update({ status, review_note: reviewNote ?? null })
-        .eq("id", id);
+      const { error } = await supabase.rpc("admin_review_facility_document", {
+        _id: id,
+        _status: status,
+        ...(reviewNote ? { _note: reviewNote } : {}),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -324,7 +329,7 @@ function AdminPage() {
 
   const verifyFacility = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.from("facilities").update({ is_verified: value }).eq("id", id);
+      const { error } = await supabase.rpc("admin_set_facility_verified", { _facility_id: id, _value: value });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -336,7 +341,7 @@ function AdminPage() {
 
   const verifyPro = useMutation({
     mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.from("healthcare_professionals").update({ is_verified: value }).eq("id", id);
+      const { error } = await supabase.rpc("admin_set_professional_verified", { _professional_id: id, _value: value });
       if (error) throw error;
     },
     onSuccess: () => {

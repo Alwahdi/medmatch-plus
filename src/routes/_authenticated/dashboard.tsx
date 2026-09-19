@@ -124,7 +124,7 @@ function Dashboard() {
     if (roles?.includes("facility")) navigate({ to: "/facility", replace: true });
   }, [roles, navigate]);
 
-  const { data: profile, isError: profileErr, refetch: profileRefetch } = useQuery({
+  const { data: profile, isError: profileErr, isPending: profilePending, refetch: profileRefetch } = useQuery({
     queryKey: ["my-pro", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -138,7 +138,7 @@ function Dashboard() {
     },
   });
 
-  const { data: apps, isError: appsErr, refetch: appsRefetch } = useQuery({
+  const { data: apps, isError: appsErr, isPending: appsPending, refetch: appsRefetch } = useQuery({
     queryKey: ["my-apps", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -162,7 +162,7 @@ function Dashboard() {
     },
   });
 
-  const { data: bookings, isError: bookingsErr, refetch: bookingsRefetch } = useQuery({
+  const { data: bookings, isError: bookingsErr, isPending: bookingsPending, refetch: bookingsRefetch } = useQuery({
     queryKey: ["my-shifts", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -172,25 +172,26 @@ function Dashboard() {
         .eq("user_id", user!.id)
         .neq("status", "cancelled")
         .order("created_at", { ascending: false })
-      return data ?? [];
       if (error) throw error;
+      return data ?? [];
     },
   });
 
-  const { data: pendingInvites, isError: pendingInvitesErr, refetch: pendingInvitesRefetch } = useQuery({
+  const { data: pendingInvites, isError: pendingInvitesErr, isPending: pendingInvitesPending, refetch: pendingInvitesRefetch } = useQuery({
     queryKey: ["pending-invitations", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from("invitations")
         .select("id", { count: "exact", head: true })
         .eq("professional_user_id", user!.id)
         .eq("status", "pending");
+      if (error) throw error;
       return count ?? 0;
     },
   });
 
-  const { data: pendingInterviews, isError: pendingInterviewsErr, refetch: pendingInterviewsRefetch } = useQuery({
+  const { data: pendingInterviews, isError: pendingInterviewsErr, isPending: pendingInterviewsPending, refetch: pendingInterviewsRefetch } = useQuery({
     queryKey: ["pending-interviews", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -239,6 +240,10 @@ function Dashboard() {
     })
     .slice(0, 3);
 
+  // لا نعرض "الخطوة التالية" قبل وصول البيانات التي تحدّدها — تجنباً لوميض رسالة خاطئة.
+  const nextStepPending =
+    !user || profilePending || appsPending || bookingsPending || pendingInvitesPending || pendingInterviewsPending;
+
   const loadErrors = [
     { err: profileErr, retry: profileRefetch },
     { err: appsErr, retry: appsRefetch },
@@ -265,7 +270,12 @@ function Dashboard() {
       <WorkspaceHeading eyebrow={c.workspace} title={c.hello(profile?.full_name || c.you)} description={c.sub} />
 
       <div className="mt-6">
-        {!profile ? (
+        {nextStepPending ? (
+          <div
+            className="h-28 animate-pulse rounded-lg border border-border bg-muted/40"
+            aria-hidden="true"
+          />
+        ) : !profile ? (
           <NextStepCard
             icon={UserRound}
             label={c.nextStep}
