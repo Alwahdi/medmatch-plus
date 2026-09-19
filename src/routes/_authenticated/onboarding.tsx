@@ -21,6 +21,7 @@ import { useRoles, useSession } from "@/lib/auth";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
+import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -374,7 +375,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
     }, { onConflict: "user_id" });
     if (error) {
       setBusy(false);
-      toast.error(t("ob.error"), { description: error.message });
+      toast.error(t("ob.error"), { description: friendlyError(error, lang, t("ob.error")) });
       return;
     }
     try {
@@ -612,7 +613,7 @@ function FacilitySteps({ onChangePath }: { onChangePath: () => void }) {
     }, { onConflict: "user_id" });
     if (error) {
       setBusy(false);
-      toast.error(t("ob.error"), { description: error.message });
+      toast.error(t("ob.error"), { description: friendlyError(error, lang, t("ob.error")) });
       return;
     }
     try {
