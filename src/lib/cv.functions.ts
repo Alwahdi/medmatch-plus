@@ -19,12 +19,33 @@ export type ParsedCv = {
   specialty_hint: string | null;
 };
 
+// حدود الاستخدام مطبّقة في قاعدة البيانات (consume_ai_quota): 5/ساعة و20/يوم لكل مستخدم.
+const AI_FEATURE = "cv_parse";
+
 export const parseCv = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<{ profile: ParsedCv | null; error?: string }> => {
+  .handler(async ({
+    data,
+    context,
+  }): Promise<{ profile: ParsedCv | null; error?: string; retryAfterSeconds?: number }> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { profile: null, error: "AI_UNAVAILABLE" };
+
+    // احتساب المحاولة قبل الوصول لمزود الذكاء الاصطناعي — الفشل لاحقاً يبقى محتسباً.
+    const { data: quota, error: quotaError } = await context.supabase.rpc("consume_ai_quota", {
+      _feature: AI_FEATURE,
+    });
+    if (quotaError) return { profile: null, error: "AI_UNAVAILABLE" };
+    const q = (quota ?? {}) as { allowed?: boolean; retry_after_seconds?: number };
+    if (!q.allowed) {
+      return {
+        profile: null,
+        error: "AI_RATE_LIMIT",
+        retryAfterSeconds:
+          typeof q.retry_after_seconds === "number" ? Math.max(1, q.retry_after_seconds) : 3600,
+      };
+    }
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
