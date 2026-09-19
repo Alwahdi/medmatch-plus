@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const CHAT_BUCKET = "chat-attachments";
@@ -30,6 +31,41 @@ function chatPath(conversationId: string, file: File) {
   return `${conversationId}/${Date.now()}-${safe}`;
 }
 
+/** MIME types we can infer from a known extension when the browser reports none. */
+const EXT_MIME: Record<string, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  mov: "video/quicktime",
+  m4a: "audio/mp4",
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  ogg: "audio/ogg",
+  oga: "audio/ogg",
+  txt: "text/plain",
+  csv: "text/csv",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+};
+
+/**
+ * MediaRecorder reports values like `audio/webm;codecs=opus`, while the storage
+ * bucket only allows base MIME types — so the parameters are stripped here.
+ */
+export function baseMime(file: File): string | null {
+  const raw = (file.type || "").split(";")[0]?.trim().toLowerCase();
+  if (raw) return raw;
+  const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+  return EXT_MIME[ext] ?? null;
+}
+
 /**
  * Uploads a chat attachment. When `onProgress` is provided the upload goes through
  * XHR so the UI can show a WhatsApp-style percentage ring; `signal` aborts it.
@@ -40,7 +76,8 @@ export async function uploadChatFile(
   options?: { onProgress?: (percent: number) => void; signal?: AbortSignal },
 ) {
   const path = chatPath(conversationId, file);
-  const contentType = file.type || "application/octet-stream";
+  const contentType = baseMime(file);
+  if (!contentType) throw new Error("unsupported_file_type");
 
   const baseUrl = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
   const apiKey = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] as string | undefined;
@@ -95,6 +132,8 @@ const SPEEDS = [1, 1.5, 2] as const;
 
 /** WhatsApp-style voice note player with a waveform scrubber and speed control. */
 export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined }) {
+  const { lang } = useLang();
+  const ar = lang === "ar";
   const ref = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -128,6 +167,7 @@ export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undef
       />
       <button
         type="button"
+        aria-label={playing ? (ar ? "إيقاف مؤقت" : "Pause") : ar ? "تشغيل الرسالة الصوتية" : "Play voice note"}
         onClick={() => {
           const el = ref.current;
           if (!el) return;
@@ -140,16 +180,21 @@ export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undef
             setPlaying(false);
           }
         }}
-        className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-full transition",
-          mine ? "bg-white/20 hover:bg-white/30" : "bg-primary/10 text-primary hover:bg-primary/20",
-        )}
+        className="-m-1 flex size-11 shrink-0 items-center justify-center rounded-full"
       >
-        {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+        <span
+          className={cn(
+            "flex size-9 items-center justify-center rounded-full transition",
+            mine ? "bg-white/20 hover:bg-white/30" : "bg-primary/10 text-primary hover:bg-primary/20",
+          )}
+        >
+          {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+        </span>
       </button>
       <button
         type="button"
-        className="flex h-8 flex-1 items-end gap-[2px]"
+        aria-label={ar ? "شريط تقدّم الصوت" : "Audio scrubber"}
+        className="flex h-11 flex-1 items-end gap-[2px] pb-1.5"
         onClick={(e) => {
           const el = ref.current;
           if (!el || !duration) return;
@@ -187,13 +232,18 @@ export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undef
       </span>
       <button
         type="button"
+        aria-label={ar ? `سرعة التشغيل ${speed}x` : `Playback speed ${speed}x`}
         onClick={() => setSpeedIndex((i) => (i + 1) % SPEEDS.length)}
-        className={cn(
-          "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums transition",
-          mine ? "bg-white/20 hover:bg-white/30" : "bg-secondary text-foreground hover:bg-secondary/70",
-        )}
+        className="-me-1 flex size-11 shrink-0 items-center justify-center"
       >
-        {speed}x
+        <span
+          className={cn(
+            "rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums transition",
+            mine ? "bg-white/20 hover:bg-white/30" : "bg-secondary text-foreground hover:bg-secondary/70",
+          )}
+        >
+          {speed}x
+        </span>
       </button>
     </div>
   );
@@ -211,6 +261,8 @@ function Lightbox({
   video?: boolean;
   onClose: () => void;
 }) {
+  const { lang } = useLang();
+  const ar = lang === "ar";
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -228,14 +280,16 @@ function Lightbox({
           download={name ?? undefined}
           target="_blank"
           rel="noreferrer"
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
+          aria-label={ar ? "تنزيل الملف" : "Download file"}
+          className="flex size-11 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
         >
           <Download className="size-5" />
         </a>
         <button
           type="button"
           onClick={onClose}
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
+          aria-label={ar ? "إغلاق العارض" : "Close viewer"}
+          className="flex size-11 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
         >
           <X className="size-5" />
         </button>
@@ -289,6 +343,8 @@ type Props = {
 };
 
 export function ChatAttachment({ path, name, type, size, mine }: Props) {
+  const { lang } = useLang();
+  const ar = lang === "ar";
   const [open, setOpen] = useState(false);
   const { data: url, isLoading } = useQuery({
     queryKey: ["chat-file", path],
@@ -321,6 +377,7 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
+          aria-label={ar ? `تشغيل الفيديو ${name ?? ""}`.trim() : `Play video ${name ?? ""}`.trim()}
           className="relative block w-64 max-w-full overflow-hidden rounded-lg"
         >
           <video
@@ -347,7 +404,12 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
   if (isImage) {
     return (
       <>
-        <button type="button" onClick={() => setOpen(true)} className="relative block w-full">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={ar ? `عرض الصورة ${name ?? ""}`.trim() : `Open image ${name ?? ""}`.trim()}
+          className="relative block w-full"
+        >
           <img
             src={url}
             alt={name ?? ""}
@@ -372,8 +434,9 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
       href={url}
       target="_blank"
       rel="noreferrer"
+      aria-label={ar ? `تنزيل ${name ?? "ملف"}` : `Download ${name ?? "file"}`}
       className={cn(
-        "flex w-60 max-w-full items-center gap-3 rounded-lg border p-2.5 transition",
+        "flex min-h-11 w-60 max-w-full items-center gap-3 rounded-lg border p-2.5 transition",
         mine ? "border-white/25 hover:bg-white/10" : "border-border bg-card hover:bg-secondary",
       )}
     >

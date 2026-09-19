@@ -23,6 +23,7 @@ import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
 import { WorkspaceHeading } from "@/components/workspace-ui";
+import { UserFacingError } from "@/lib/user-errors";
 
 type CandidatesSearch = { specialty?: string; country?: string; city?: string; minExp?: string };
 
@@ -208,7 +209,7 @@ function Candidates() {
       const { data, error } = await supabase.rpc("search_candidates_idempotent", args);
       if (error) {
         const key = error.message.replace(/.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s, "$1") as keyof typeof c.errors;
-        throw new Error(c.errors[key] ?? c.searchFailed);
+        throw new UserFacingError(c.errors[key] ?? c.searchFailed);
       }
       return (data ?? []) as Candidate[];
     },
@@ -222,7 +223,7 @@ function Candidates() {
 
   const startChat = useMutation({
     mutationFn: async (candidateUserId: string) => {
-      if (!facility) throw new Error(c.completeFacility);
+      if (!facility) throw new UserFacingError(c.completeFacility);
       const { error } = await supabase.rpc("start_candidate_conversation", {
         _professional_user_id: candidateUserId,
         _subject: c.initialContact,

@@ -85,27 +85,40 @@ const RULES: Rule[] = [
   },
 ];
 
-/** يبدو تقنياً بحتاً؟ عندها نخفيه خلف نص عام. */
-const TECHNICAL =
-  /pgrst|violates|constraint|relation\s|column\s|syntax|stack|undefined is not|cannot read|typeerror|\bsql\b|supabase|postgres|fetch\b/i;
-
 const GENERIC = {
   ar: "تعذّر إتمام العملية. أعد المحاولة، ولم يُفقد أي شيء.",
   en: "We couldn't complete that. Please try again — nothing was lost.",
 } as const;
 
 /**
- * رسالة مفهومة للمستخدم. الرسائل المكتوبة داخل التطبيق (مثل نتائج التحقق)
- * تُعاد كما هي؛ الأخطاء التقنية تُستبدل بنص واضح.
+ * خطأ نصّه مكتوب داخل التطبيق ومقصود لعين المستخدم (نتيجة تحقق، رسالة مترجمة).
+ * أي خطأ آخر يُعتبر تقنياً ولا يُعرض نصّه الخام.
+ */
+export class UserFacingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UserFacingError";
+  }
+}
+
+/** اختصار لرمي رسالة مترجمة جاهزة للعرض. */
+export function userError(message: string): never {
+  throw new UserFacingError(message);
+}
+
+/**
+ * رسالة مفهومة للمستخدم. رسائل `UserFacingError` تُعاد كما هي؛ الأخطاء المعروفة
+ * تُترجم؛ وأي خطأ آخر (Supabase/RPC/تخزين) يُسجَّل تقنياً ويُعرض بنص عام.
  */
 export function friendlyError(error: unknown, lang: Lang, fallback?: string): string {
-  const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   if (error) console.error("[error]", error);
+  if (error instanceof UserFacingError && error.message.trim()) return error.message;
+
+  const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   if (!raw.trim()) return fallback ?? GENERIC[lang];
 
   for (const rule of RULES) {
     if (rule.test.test(raw)) return rule[lang];
   }
-  if (TECHNICAL.test(raw)) return fallback ?? GENERIC[lang];
-  return raw;
+  return fallback ?? GENERIC[lang];
 }

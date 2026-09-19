@@ -87,8 +87,8 @@ export const DICT: Dict = {
     en: "SyndeoCare | Trusted medical jobs & shifts across the Arab world",
   },
   "home.metaDescription": {
-    ar: "كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد. وظائف دائمة، مناوبات فورية، وناشرو وظائف موثّقون.",
-    en: "All the medical talent you need — doctors, pharmacists, nurses, and technicians — in one place. Permanent jobs, instant shifts, verified employers.",
+    ar: "كل الكفاءات الطبية التي تحتاجها — أطباء، صيادلة، تمريض، وفنيون — في مكان واحد. وظائف دائمة، مناوبات فورية، وشارة توثيق واضحة للحسابات المراجَعة.",
+    en: "All the medical talent you need — doctors, pharmacists, nurses, and technicians — in one place. Permanent jobs, instant shifts, and a clear verification badge on reviewed accounts.",
   },
   "home.hero.badge": { ar: "منصة عربية للتوظيف الطبي", en: "Arab healthcare hiring platform" },
   "home.hero.title": { ar: "نبني مستقبل التوظيف الطبي", en: "Building the future of medical hiring" },
@@ -102,10 +102,10 @@ export const DICT: Dict = {
   "home.search.placeholderLoc": { ar: "المدينة أو الموقع", en: "City or location" },
   "home.search.button": { ar: "تصفّح الوظائف", en: "Browse jobs" },
   "home.why.label": { ar: "لماذا SyndeoCare", en: "Why SyndeoCare" },
-  "home.why.verified.title": { ar: "ناشرو الوظائف موثّقون", en: "Verified employers" },
+  "home.why.verified.title": { ar: "توثيق واضح للناشرين", en: "Clear employer verification" },
   "home.why.verified.text": {
-    ar: "كل مستشفى وعيادة ومعمل وصيدلية تم التحقق من اعتماداتها قبل النشر.",
-    en: "Every hospital, clinic, lab, and pharmacy is verified before posting.",
+    ar: "المستشفيات والعيادات والمعامل والصيدليات ترفع وثائقها للمراجعة، وتظهر الشارة لمن تم اعتماده.",
+    en: "Hospitals, clinics, labs, and pharmacies submit documents for review, and the badge appears only once approved.",
   },
   "home.why.oneclick.title": { ar: "قدّم بنقرة واحدة", en: "One-click apply" },
   "home.why.oneclick.text": {
@@ -126,12 +126,12 @@ export const DICT: Dict = {
   "home.sides.pros.label": { ar: "للباحثين عن عمل", en: "For job seekers" },
   "home.sides.pros.title": { ar: "اعثر على شيفتك أو وظيفتك القادمة", en: "Find your next shift or job" },
   "home.sides.pros.text": {
-    ar: "ارفع سيرتك الذاتية ويبني الذكاء الاصطناعي ملفك في ثوانٍ، ثم تصفّح وظائف وشيفتات موثوقة لدى ناشري وظائف طبية معتمدين وتقدّم فوراً.",
-    en: "Upload your CV and AI builds your profile in seconds, then browse verified medical jobs and shifts and apply instantly.",
+    ar: "ارفع سيرتك الذاتية ويبني الذكاء الاصطناعي ملفك في ثوانٍ، ثم تصفّح الوظائف والشيفتات مع ظهور حالة توثيق كل ناشر، وتقدّم فوراً.",
+    en: "Upload your CV and AI builds your profile in seconds, then browse medical jobs and shifts with each employer's verification status shown, and apply instantly.",
   },
   "home.sides.pros.cta": { ar: "تصفّح الوظائف", en: "Browse jobs" },
   "home.sides.employers.label": { ar: "لناشري الوظائف", en: "For employers" },
-  "home.sides.employers.title": { ar: "وظّف كوادر موثوقة بسرعة", en: "Hire verified staff fast" },
+  "home.sides.employers.title": { ar: "وظّف كوادر مؤهّلة بسرعة", en: "Hire qualified staff fast" },
   "home.sides.employers.text": {
     ar: "انشر وظيفة أو شيفتاً، واستلم تنبيهاً فور تقدّم كادر مؤهّل — فلا يفوتك أي مرشّح مناسب.",
     en: "Post a job or shift and get notified the moment a qualified candidate applies — never miss a match.",
@@ -147,13 +147,13 @@ export const DICT: Dict = {
   "home.steps.tabSeekers": { ar: "للباحثين عن عمل", en: "For job seekers" },
   "home.steps.employer1.title": { ar: "انشر وظيفة أو شيفت", en: "Post a job or shift" },
   "home.steps.employer1.text": {
-    ar: "انشر وظيفة دائمة أو شيفتاً عاجلاً خلال دقائق — ليظهر فوراً للكوادر الموثّقة.",
-    en: "Post a permanent job or urgent shift in minutes — instantly visible to verified candidates.",
+    ar: "انشر وظيفة دائمة أو شيفتاً عاجلاً خلال دقائق — ليظهر فوراً للكوادر الصحية المسجّلة.",
+    en: "Post a permanent job or urgent shift in minutes — instantly visible to registered healthcare candidates.",
   },
   "home.steps.employer2.title": { ar: "استقبل الطلبات", en: "Receive applications" },
   "home.steps.employer2.text": {
-    ar: "الكوادر المؤهّلة، بعد تدقيق تراخيصها، تبدأ بالتقديم خلال دقائق من النشر.",
-    en: "Qualified candidates, after license verification, start applying within minutes of posting.",
+    ar: "الكوادر المؤهّلة تبدأ بالتقديم خلال دقائق من النشر، وترى حالة توثيق كل ملف.",
+    en: "Qualified candidates start applying within minutes, and you see each profile's verification status.",
   },
   "home.steps.employer3.title": { ar: "تنبيهات فورية عند كل طلب", en: "Instant application alerts" },
   "home.steps.employer3.text": {
@@ -180,8 +180,8 @@ export const DICT: Dict = {
   "home.steps.seeker2.highlight": { ar: "ميزة SyndeoCare", en: "SyndeoCare feature" },
   "home.steps.seeker3.title": { ar: "تصفّح وقدّم بنقرة", en: "Browse and apply in one click" },
   "home.steps.seeker3.text": {
-    ar: "وظائف دائمة وشيفتات فورية بأجر معلن لدى ناشري وظائف موثّقين.",
-    en: "Permanent jobs and instant shifts with published pay from verified employers.",
+    ar: "وظائف دائمة وشيفتات فورية بأجر معلن، مع ظهور حالة توثيق الناشر.",
+    en: "Permanent jobs and instant shifts with published pay, and each employer's verification status shown.",
   },
   "home.steps.seeker4.title": { ar: "تابع طلبك حتى التعيين", en: "Track until hired" },
   "home.steps.seeker4.text": {
@@ -217,15 +217,15 @@ export const DICT: Dict = {
   "home.jobs.label": { ar: "وظائف دائمة", en: "Permanent jobs" },
   "home.jobs.title": { ar: "أحدث الوظائف الطبية", en: "Latest medical jobs" },
   "home.jobs.subtitle": {
-    ar: "فرص جديدة منشورة من مستشفيات وعيادات ومنشآت متخصصة موثّقة.",
-    en: "New opportunities posted by verified hospitals, clinics, and specialized facilities.",
+    ar: "فرص جديدة منشورة من مستشفيات وعيادات ومنشآت متخصصة، مع بيان حالة التوثيق.",
+    en: "New opportunities from hospitals, clinics, and specialized facilities, with verification status shown.",
   },
   "home.jobs.cta": { ar: "عرض كل الوظائف", en: "View all jobs" },
   "home.shifts.label": { ar: "عمل مرن", en: "Flexible work" },
   "home.shifts.title": { ar: "شيفتات متاحة الآن", en: "Shifts available now" },
   "home.shifts.subtitle": {
-    ar: "احصل على دخل إضافي مع شيفتات حسب الطلب لدى ناشري وظائف موثّقين.",
-    en: "Earn extra income with on-demand shifts from verified employers.",
+    ar: "احصل على دخل إضافي مع شيفتات حسب الطلب، مع بيان حالة توثيق الناشر.",
+    en: "Earn extra income with on-demand shifts, with each employer's verification status shown.",
   },
   "home.shifts.cta": { ar: "عرض كل الشيفتات", en: "View all shifts" },
   "home.specialties.label": { ar: "حسب التخصص", en: "By specialty" },

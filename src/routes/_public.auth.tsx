@@ -26,7 +26,17 @@ import { DICT, useLang } from "@/lib/i18n";
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
   role: z.enum(["professional", "facility"]).optional(),
+  /** المسار الذي حاول المستخدم فتحه قبل تسجيل الدخول (داخلي فقط). */
+  next: z.string().optional(),
 });
+
+/** يقبل المسارات الداخلية فقط، ويرفض أي رابط خارجي. */
+function safeNext(value: string | undefined) {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  if (value.startsWith("/auth")) return null;
+  return value;
+}
 
 export const Route = createFileRoute("/_public/auth")({
   validateSearch: searchSchema,
@@ -101,7 +111,7 @@ const TXT = {
 } as const;
 
 function AuthPage() {
-  const { mode, role: roleParam } = Route.useSearch();
+  const { mode, role: roleParam, next } = Route.useSearch();
   const navigate = useNavigate();
   const { user } = useSession();
   const { lang } = useLang();
@@ -110,13 +120,18 @@ function AuthPage() {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
+    const back = safeNext(next);
+    if (back) {
+      navigate({ href: back, replace: true });
+      return;
+    }
     resolveLanding(user.id).then((to) => {
       if (!cancelled) navigate({ to, replace: true });
     });
     return () => {
       cancelled = true;
     };
-  }, [user, navigate]);
+  }, [user, navigate, next]);
 
   useEffect(() => {
     if (mode !== "signup") return;

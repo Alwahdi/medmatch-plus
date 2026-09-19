@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
+import { friendlyError, UserFacingError } from "@/lib/user-errors";
 
 export type ChangeTarget = "professional" | "facility" | "account";
 
@@ -171,7 +172,7 @@ export function LockedField({
         reason: reason.trim() || null,
         attachment_path: attachment,
       });
-      if (error) throw new Error(error.code === "23505" ? c.dupe : error.message);
+      if (error) throw error.code === "23505" ? new UserFacingError(c.dupe) : error;
     },
     onSuccess: () => {
       toast.success(c.sent);
@@ -181,7 +182,7 @@ export function LockedField({
       setFile(null);
       queryClient.invalidateQueries({ queryKey: ["my-change-requests"] });
     },
-    onError: (e: Error) => toast.error(e.message || c.failed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   return (
