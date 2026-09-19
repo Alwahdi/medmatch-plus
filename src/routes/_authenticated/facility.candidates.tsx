@@ -365,7 +365,7 @@ function Candidates() {
                 </Button>
               </div>
 
-              {cand.bio && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{cand.bio}</p>}
+              <p className="mt-3 text-xs text-muted-foreground">{c.anonymousNote}</p>
             </li>
           ))}
         </ul>
