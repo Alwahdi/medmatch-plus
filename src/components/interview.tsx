@@ -511,16 +511,39 @@ export function FacilityInterviewBlock({
                     </Select>
                   </div>
                 </div>
-                {mode === "onsite" ? (
+                {mode === "onsite" && (
                   <div>
-                    <Label htmlFor="iv-place">{c.place}</Label>
-                    <Input id="iv-place" value={place} onChange={(e) => setPlace(e.target.value)} />
+                    <Label htmlFor="iv-place">
+                      {c.place} <span className="text-destructive">({c.required})</span>
+                    </Label>
+                    <Input
+                      id="iv-place"
+                      required
+                      placeholder={c.placePh}
+                      value={place}
+                      onChange={(e) => setPlace(e.target.value)}
+                    />
                   </div>
-                ) : (
+                )}
+                {mode === "video" && (
                   <div>
-                    <Label htmlFor="iv-link">{c.link}</Label>
-                    <Input id="iv-link" dir="ltr" value={link} onChange={(e) => setLink(e.target.value)} />
+                    <Label htmlFor="iv-link">
+                      {c.link} <span className="text-destructive">({c.required})</span>
+                    </Label>
+                    <Input
+                      id="iv-link"
+                      required
+                      dir="ltr"
+                      type="url"
+                      inputMode="url"
+                      placeholder={c.linkPh}
+                      value={link}
+                      onChange={(e) => setLink(e.target.value)}
+                    />
                   </div>
+                )}
+                {mode === "phone" && (
+                  <p className="rounded-md bg-muted/60 p-3 text-sm text-muted-foreground">{c.phoneHint}</p>
                 )}
               </>
             )}
