@@ -396,3 +396,10 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - `src/lib/storage.ts`: signed-URL resolution now fails soft (returns null, `retry:false`) so unauthorized viewers and guests render the existing neutral icon/initial fallback instead of a storage error; no error text, no leaked path.
 - No public marketing screen restored to a public policy: the guest facility page already hides identity and falls back to the brand icon. No professional UUIDs or storage paths rendered in public UI.
 - Guest sweep of the public facility page at 320/390/1440: no horizontal overflow, zero broken images. Build/typecheck clean.
+
+## Phase 40 — owned media path integrity (done)
+- Tracked idempotent migration matching the live hotfix: `public.guard_owned_media_path()` (plpgsql, `search_path=public`, EXECUTE revoked from PUBLIC/anon/authenticated) with BEFORE INSERT OR UPDATE OF triggers on `profiles.avatar_url`, `healthcare_professionals.avatar_url`, `facilities.logo_url`.
+- Rule: NULL/empty allowed; otherwise the value must start with the owning user's UUID + `/`. Any `http(s)://` value or owner mismatch raises `INVALID_MEDIA_PATH`. Remote image URLs stay unsupported — a future Google avatar would be imported/proxied into Storage, never stored as a tracking URL.
+- Upload flows unchanged: `uploadImage()` writes `${userId}/${prefix}-${ts}.${ext}` in the private avatars bucket, so profile avatars and facility logos satisfy the trigger as-is.
+- `src/lib/user-errors.ts`: friendly AR/EN mapping for `INVALID_MEDIA_PATH` in case of a race or manual call, so no raw Postgres error reaches the UI.
+- Verified: existing rows all compatible; authenticated update to `https://example.com/tracker.png` rejected; trigger function not executable by anon/authenticated. Typecheck/build clean.
