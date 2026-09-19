@@ -352,8 +352,8 @@ export function FacilityInterviewBlock({
         _scheduled_at: iso,
         _duration_minutes: Math.min(Math.max(Number(duration) || 30, 10), 240),
         _mode: mode,
-        ...(mode === "onsite" && place ? { _location: place } : {}),
-        ...(mode !== "onsite" && link ? { _meeting_url: link } : {}),
+        ...(mode === "onsite" && place.trim() ? { _location: place.trim() } : {}),
+        ...(mode === "video" && link.trim() ? { _meeting_url: link.trim() } : {}),
         ...(notes ? { _notes: notes } : {}),
       });
       if (error) throw error;
