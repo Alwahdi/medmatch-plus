@@ -7,14 +7,14 @@ import { useMyFacility, useSession } from "@/lib/auth";
 export const Route = createFileRoute("/_public/for-facilities")({
   head: () => ({
     meta: [
-      { title: "للمنشآت الصحية | وظّف كوادر موثّقة | SyndeoCare" },
+      { title: "للمنشآت الصحية | وظّف كوادر بحالة توثيق واضحة | SyndeoCare" },
       {
         name: "description",
         content:
-          "انشر وظائفك ومناوباتك على SyndeoCare، واستقبل كوادر صحية موثّقة التراخيص مع لوحة فرز واضحة للمتقدمين.",
+          "انشر وظائفك ومناوباتك على SyndeoCare، وشاهد حالة توثيق ترخيص كل متقدم مع لوحة فرز واضحة.",
       },
       { property: "og:title", content: "للمنشآت الصحية | SyndeoCare" },
-      { property: "og:description", content: "وظّف كوادر صحية موثّقة وغطِّ مناوباتك خلال ساعات." },
+      { property: "og:description", content: "غطِّ مناوباتك خلال ساعات مع حالة توثيق ظاهرة لكل مرشح." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -26,20 +26,20 @@ const TXT = {
   ar: {
     badge: "للمستشفيات والعيادات والمجمعات الطبية",
     title: "غطِّ نقص الكوادر خلال ساعات، لا أسابيع",
-    sub: "SyndeoCare يمنح المستشفيات والعيادات والمجمعات الطبية قناة مباشرة إلى كوادر صحية موثّقة — للوظائف الدائمة وللمناوبات العاجلة معاً.",
+    sub: "SyndeoCare يمنح المستشفيات والعيادات والمجمعات الطبية قناة مباشرة إلى الكوادر الصحية، مع حالة توثيق ظاهرة لكل مرشح — للوظائف الدائمة وللمناوبات العاجلة معاً.",
     registerFree: "سجّل منشأتك مجاناً",
     stepsLabel: "كيف تعمل المنصة",
     stepsTitle: "أربع خطوات للتوظيف السريع",
     steps: [
       { title: "سجّل منشأتك", text: "أنشئ ملف المنشأة: النوع، المدينة، ونبذة تعريفية." },
       { title: "انشر وظيفة أو مناوبة", text: "حدّد التخصص ونطاق الراتب أو الأجر بالساعة." },
-      { title: "استقبل كوادر موثّقة", text: "كل متقدم يعرض تخصصه وخبرته وحالة توثيق ترخيصه." },
+      { title: "اطّلع على حالة كل متقدم", text: "كل متقدم يعرض تخصصه وخبرته وحالة توثيق ترخيصه بوضوح." },
       { title: "أدر الفرز حتى التعيين", text: "حرّك الطلب بين المراحل: مراجعة، مقابلة، عرض، تعيين." },
     ],
     whyLabel: "ما الذي يميّزنا",
     whyTitle: "لماذا تنشر على SyndeoCare؟",
     benefits: [
-      ["تراخيص موثّقة مسبقاً", "لا تضيّع وقتك في ملاحقة الوثائق: ملف الاعتماد يُراجع قبل التقديم."],
+      ["حالة توثيق واضحة", "الوثائق المرفوعة يراجعها فريقنا، وشارة «موثّق» لا تظهر إلا بعد الاعتماد الفعلي."],
       ["تغطية مناوبات فورية", "انشر المناوبة الليلة، واحصل على حجز خلال دقائق."],
       ["تكلفة أقل من الوساطة", "بدون عمولات وكالات التوظيف التقليدية."],
       ["تنبيهات فورية", "يصلك تنبيه لحظة تقدّم أي مرشّح مناسب."],
@@ -52,20 +52,20 @@ const TXT = {
   en: {
     badge: "For hospitals, clinics, and medical complexes",
     title: "Cover staffing shortages in hours, not weeks",
-    sub: "SyndeoCare gives hospitals, clinics, and medical complexes a direct channel to verified healthcare professionals — for permanent jobs and urgent shifts alike.",
+    sub: "SyndeoCare gives hospitals, clinics, and medical complexes a direct channel to healthcare professionals, with each candidate's verification status shown up front — for permanent jobs and urgent shifts alike.",
     registerFree: "Register your facility for free",
     stepsLabel: "How it works",
     stepsTitle: "Four steps to fast hiring",
     steps: [
       { title: "Register your facility", text: "Create your facility profile: type, city, and a short description." },
       { title: "Post a job or shift", text: "Set the specialty and the salary range or hourly pay." },
-      { title: "Receive verified candidates", text: "Every applicant shows their specialty, experience, and license verification status." },
+      { title: "See each candidate's status", text: "Every applicant clearly shows their specialty, experience, and license verification status." },
       { title: "Manage screening to hire", text: "Move applications through stages: review, interview, offer, hired." },
     ],
     whyLabel: "What sets us apart",
     whyTitle: "Why post on SyndeoCare?",
     benefits: [
-      ["Pre-verified licenses", "Don't waste time chasing documents: credential files are reviewed before applying."],
+      ["Clear verification status", "Uploaded documents are reviewed by our team, and the “verified” badge only appears after actual approval."],
       ["Instant shift coverage", "Post tonight's shift and get it booked within minutes."],
       ["Lower cost than agencies", "No traditional recruitment agency commissions."],
       ["Instant alerts", "Get notified the moment a qualified candidate applies."],
