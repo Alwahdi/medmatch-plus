@@ -88,11 +88,16 @@ function ResetPasswordPage() {
   const { lang } = useLang();
   const t = (k: keyof typeof T) => T[k][lang === "en" ? "en" : "ar"];
   // نحفظ نجاح العملية خارج حالة المكوّن لأن تسجيل الخروج بعد التغيير يعيد بناء الصفحة.
-  const [phase, setPhase] = useState<Phase>(() =>
-    typeof window !== "undefined" && window.sessionStorage.getItem(DONE_KEY) === "1"
-      ? "done"
-      : "checking",
-  );
+  const [phase, setPhase] = useState<Phase>(() => {
+    if (typeof window === "undefined") return "checking";
+    const params = readLinkParams();
+    // رابط استعادة جديد يلغي أي نجاح سابق محفوظ.
+    if (params && (params.code || params.tokenHash || params.error)) {
+      window.sessionStorage.removeItem(DONE_KEY);
+      return "checking";
+    }
+    return window.sessionStorage.getItem(DONE_KEY) === "1" ? "done" : "checking";
+  });
 
   useEffect(() => {
     let cancelled = false;
