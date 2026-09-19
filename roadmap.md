@@ -330,3 +330,18 @@
 
 ### 🚩 مانع إطلاق واحد متبقٍ
 **لا يوجد حالياً أي حساب إدارة فعّال (0).** هذا الإجراء الوحيد الذي يحتاج قرارك: اختر الحساب الذي سيكون أول مسؤول، ويُعيَّن عندها عبر الإجراء الموثوق المذكور في README. لن يُمنح لأي حساب تلقائياً.
+
+## Phase 30 — Visual product design & mobile UX acceptance (done)
+Screens audited by screenshot at 390x844 and 1440x900 (public, professional, facility, admin) plus a 7-viewport AR/EN sweep.
+
+Changes:
+- `_public.index.tsx` — hero search bar no longer clipped on desktop (removed half-overlap positioning); section spacing rebalanced.
+- `i18n.tsx` — home search CTA is now "ابحث / Search" (was a duplicate of "تصفح الوظائف").
+- `_public.jobs.index.tsx` — badge no longer claims all employers are verified.
+- `_public.auth.tsx` — sign-in form is first on phones; marketing panel is desktop-only.
+- `dashboard.tsx` (professional) — quick-access no longer repeats the current "next step" destination.
+- `profile.tsx` — page heading now sits above the tab bar; tab panel keeps only its action.
+- `admin.tsx` — stat cards are 2-up on phones instead of one tall column.
+- `panels/facility.verification.tsx`, `panels/credentials.tsx` — removed the 24–48h review-time promise; copy now describes the "Under review" state.
+
+Verified: 7 viewports x AR/EN on public routes — no horizontal overflow, no console errors; professional/facility/admin screens at 390 and 1440 clean; typecheck and build clean. QA fixtures (2 accounts + profiles + temporary admin role) created and fully deleted.
