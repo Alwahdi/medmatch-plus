@@ -120,13 +120,15 @@ function FacilityProfilePage() {
     enabled: !!facility,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("jobs")
-        .select("id,slug,title,city,country,salary_min,salary_max,currency,is_active")
+        .from("public_jobs")
+        .select("id,slug,title,city,country,salary_min,salary_max,currency")
         .eq("facility_id", facilityId)
-        .eq("is_active", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as {
+        id: string; slug: string | null; title: string; city: string; country: string;
+        salary_min: number; salary_max: number; currency: string;
+      }[];
     },
   });
 
@@ -135,13 +137,15 @@ function FacilityProfilePage() {
     enabled: !!facility,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("shifts")
+        .from("public_shifts")
         .select("id,title,starts_at,hourly_rate,currency,city,country,status")
         .eq("facility_id", facilityId)
-        .eq("status", "open")
         .order("starts_at", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as {
+        id: string; title: string; starts_at: string; hourly_rate: number; currency: string;
+        city: string; country: string; status: string;
+      }[];
     },
   });
 

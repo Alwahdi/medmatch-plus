@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, toPublicJob, OWNER_JOB_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, experienceLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
@@ -61,7 +62,6 @@ const TXT = {
     open: "مفتوحة",
     closed: "مغلقة",
     notAccepting: "لم تعد تستقبل طلبات",
-    publishedBy: "نُشرت بواسطة",
     saved: "محفوظة",
     saveJob: "حفظ الوظيفة",
     savedToast: "تم حفظ الوظيفة",
@@ -117,7 +117,6 @@ const TXT = {
     open: "Open",
     closed: "Closed",
     notAccepting: "No longer accepting applications",
-    publishedBy: "Published by",
     saved: "Saved",
     saveJob: "Save job",
     savedToast: "Job saved",
@@ -176,14 +175,25 @@ function JobDetail() {
   const { data: job, isLoading, isError: jobErr, error: jobErrObj, refetch: jobRefetch } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
-      const query = supabase.from("jobs").select("*,specialties(name_ar,name_en)");
-      const { data, error } = await (isUuid ? query.eq("id", jobId) : query.eq("slug", jobId))
+      // Public browsing goes through the sanitized view (no publisher/owner data).
+      const pub = publicJobsQuery();
+      const { data: publicRow, error: publicError } = await (
+        isUuid ? pub.eq("id", jobId) : pub.eq("slug", jobId)
+      ).maybeSingle();
+      if (publicError) throw publicError;
+      if (publicRow) return { ...toPublicJob(publicRow), is_active: true };
+
+      // Closed/expired listings stay reachable for the owner, admin, or engaged users
+      // through the base table policy — with explicit columns only.
+      const owned = supabase.from("jobs").select(OWNER_JOB_COLUMNS);
+      const { data, error } = await (isUuid ? owned.eq("id", jobId) : owned.eq("slug", jobId))
         .maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
       return data;
     },
   });
+
 
   const realJobId = job?.id;
   const isOwner = !!myFacility && !!job && job.facility_id === myFacility.id;
@@ -413,12 +423,6 @@ function JobDetail() {
                     {job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}
                   </span>
                 </div>
-                {job.publisher_name && (
-                  <div className="flex justify-between">
-                    <span>{c.publishedBy}</span>
-                    <span className="font-medium text-foreground">{job.publisher_name}</span>
-                  </div>
-                )}
               </div>
             </div>
 

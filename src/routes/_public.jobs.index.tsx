@@ -11,6 +11,7 @@ import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { useSession } from "@/lib/auth";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
@@ -196,15 +197,9 @@ function JobsPage() {
   const { data: jobs, isLoading, isError: jobsErr, error: jobsErrObj, refetch: jobsRefetch } = useQuery({
     queryKey: ["jobs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select(
-          "id,slug,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar,name_en)",
-        )
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
+      const { data, error } = await publicJobsQuery().order("created_at", { ascending: false });
       if (error) throw error;
-      return data as unknown as (JobRow & {
+      return withSpecialties(data) as unknown as (JobRow & {
         specialty_id: string | null;
         required_license: string | null;
       })[];
@@ -214,14 +209,9 @@ function JobsPage() {
   const { data: shifts, isLoading: shiftsLoading, isError: shiftsErr, error: shiftsErrObj, refetch: shiftsRefetch } = useQuery({
     queryKey: ["shifts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("shifts")
-        .select(
-          "id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,specialty_id,specialties(name_ar,name_en)",
-        )
-        .order("starts_at", { ascending: true });
+      const { data, error } = await publicShiftsQuery().order("starts_at", { ascending: true });
       if (error) throw error;
-      return data as unknown as (ShiftRow & { specialty_id: string | null })[];
+      return withSpecialties(data) as unknown as (ShiftRow & { specialty_id: string | null })[];
     },
   });
 

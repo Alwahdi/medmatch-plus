@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ErrorState } from "@/components/error-state";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, withSpecialties } from "@/lib/public-listings";
 import { useRoles, useSession } from "@/lib/auth";
 import { applicationLabel, formatDateTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
@@ -209,15 +210,12 @@ function Dashboard() {
   const { data: jobs, isError: jobsErr, refetch: jobsRefetch } = useQuery({
     queryKey: ["recommended-jobs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select(
-          "id,slug,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialty_id,required_license,specialties(name_ar,name_en)",
-        )
-        .eq("is_active", true)
-        .limit(20);
+      const { data, error } = await publicJobsQuery().limit(20);
       if (error) throw error;
-      return data as unknown as (JobRow & { specialty_id: string | null; required_license: string | null })[];
+      return withSpecialties(data) as unknown as (JobRow & {
+        specialty_id: string | null;
+        required_license: string | null;
+      })[];
     },
   });
 

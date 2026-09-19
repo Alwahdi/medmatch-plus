@@ -6,6 +6,7 @@ import { ListSkeleton } from "@/components/list-skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
+import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 
@@ -82,30 +83,20 @@ function SpecialtyPage() {
       if (!specialty) throw notFound();
 
       const [{ data: jobs }, { data: shifts }] = await Promise.all([
-        supabase
-          .from("jobs")
-          .select(
-            "id,slug,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialties(name_ar,name_en)",
-          )
+        publicJobsQuery()
           .eq("specialty_id", specialty.id)
-          .eq("is_active", true)
           .order("created_at", { ascending: false })
           .limit(12),
-        supabase
-          .from("shifts")
-          .select(
-            "id,title,notes,country,city,starts_at,ends_at,hourly_rate,currency,status,is_urgent,facility_verified,applications_count,specialties(name_ar,name_en)",
-          )
+        publicShiftsQuery()
           .eq("specialty_id", specialty.id)
-          .eq("status", "open")
           .order("starts_at", { ascending: true })
           .limit(6),
       ]);
 
       return {
         specialty,
-        jobs: (jobs ?? []) as unknown as JobRow[],
-        shifts: (shifts ?? []) as unknown as ShiftRow[],
+        jobs: withSpecialties(jobs) as unknown as JobRow[],
+        shifts: withSpecialties(shifts) as unknown as ShiftRow[],
       };
     },
   });
