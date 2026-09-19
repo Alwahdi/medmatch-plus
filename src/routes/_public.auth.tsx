@@ -286,6 +286,7 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   async function submit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
