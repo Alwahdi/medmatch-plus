@@ -192,9 +192,10 @@ function ResetPasswordPage() {
                 onDone={async () => {
                   // نُنهي جلسة الاستعادة بعد نجاح التغيير حتى لا تبقى مفتوحة من الرابط،
                   // ونمسح معاملات الرابط من العنوان دون إعادة تحميل الصفحة.
-                  await supabase.auth.signOut();
-                  window.history.replaceState(null, "", "/reset-password");
+                  window.sessionStorage.setItem(DONE_KEY, "1");
                   setPhase("done");
+                  window.history.replaceState(null, "", "/reset-password");
+                  await supabase.auth.signOut();
                 }}
               />
             )}
