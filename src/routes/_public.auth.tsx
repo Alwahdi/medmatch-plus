@@ -111,7 +111,7 @@ const TXT = {
 } as const;
 
 function AuthPage() {
-  const { mode, role: roleParam } = Route.useSearch();
+  const { mode, role: roleParam, next } = Route.useSearch();
   const navigate = useNavigate();
   const { user } = useSession();
   const { lang } = useLang();
@@ -120,13 +120,18 @@ function AuthPage() {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
+    const back = safeNext(next);
+    if (back) {
+      navigate({ href: back, replace: true });
+      return;
+    }
     resolveLanding(user.id).then((to) => {
       if (!cancelled) navigate({ to, replace: true });
     });
     return () => {
       cancelled = true;
     };
-  }, [user, navigate]);
+  }, [user, navigate, next]);
 
   useEffect(() => {
     if (mode !== "signup") return;
