@@ -560,9 +560,19 @@ export function FacilityInterviewBlock({
                   toast.error(c.needWhen);
                   return;
                 }
-                if (mode === "onsite" && !place.trim()) {
+                if (!isReschedule && mode === "onsite" && !place.trim()) {
                   toast.error(c.needPlace);
                   return;
+                }
+                if (!isReschedule && mode === "video") {
+                  if (!link.trim()) {
+                    toast.error(c.needLink);
+                    return;
+                  }
+                  if (!/^https?:\/\/\S+/i.test(link.trim())) {
+                    toast.error(c.badLink);
+                    return;
+                  }
                 }
                 save.mutate();
               }}
