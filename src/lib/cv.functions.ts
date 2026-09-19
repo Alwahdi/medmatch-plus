@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 const inputSchema = z.object({
   text: z.string().trim().min(50, "النص قصير جداً").max(20000, "النص طويل جداً"),
 });
@@ -18,6 +20,7 @@ export type ParsedCv = {
 };
 
 export const parseCv = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<{ profile: ParsedCv | null; error?: string }> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
