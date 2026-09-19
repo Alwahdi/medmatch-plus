@@ -72,6 +72,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { TXT, shiftErrorText, type FacilitySearch, type PlanRow, type SubRow } from "@/components/panels/facility.shared";
 import { ErrorState } from "@/components/error-state";
+import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/facility/")({
   validateSearch: (search: Record<string, unknown>): FacilitySearch => {
@@ -762,7 +763,7 @@ function FacilityForm() {
       queryClient.invalidateQueries({ queryKey: ["my-facility"] });
       queryClient.invalidateQueries({ queryKey: ["roles"] });
     },
-    onError: (e: Error) => toast.error(e.message || c.saveFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
 
   return (
@@ -966,7 +967,7 @@ function JobForm({
       onCreated?.(id);
       void navigate({ to: "/facility", search: { tab: "jobs" }, replace: true });
     },
-    onError: (e: Error) => toast.error(e.message || c.publishFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.publishFailed)),
   });
 
   if (step === "review") {
@@ -1238,7 +1239,7 @@ function ShiftForm({
       onCreated?.(id);
       void navigate({ to: "/facility", search: { tab: "shifts" }, replace: true });
     },
-    onError: (e: Error) => toast.error(e.message || c.publishFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.publishFailed)),
   });
 
   if (step === "review") {

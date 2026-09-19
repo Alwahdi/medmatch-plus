@@ -49,7 +49,7 @@ async function activateRole(
   userId: string,
 ) {
   const { error } = await supabase.rpc(rpc);
-  if (error) throw new Error(error.message);
+  if (error) throw error;
   await queryClient.invalidateQueries({ queryKey: ["roles", userId] });
   await queryClient.refetchQueries({ queryKey: ["roles", userId] });
   await queryClient.invalidateQueries({ queryKey: ["my-facility-lite", userId] });

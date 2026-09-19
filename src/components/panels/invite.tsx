@@ -16,6 +16,7 @@ import { useLang } from "@/lib/i18n";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { ErrorState } from "@/components/error-state";
+import { friendlyError, UserFacingError } from "@/lib/user-errors";
 
 const ANY = "any";
 
@@ -239,7 +240,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
           /.*?(NOT_A_FACILITY|NO_ACTIVE_SUBSCRIPTION|SEARCH_QUOTA_EXCEEDED).*/s,
           "$1",
         ) as keyof typeof c.errors;
-        throw new Error(c.errors[key] ?? c.searchFailed);
+        throw new UserFacingError(c.errors[key] ?? c.searchFailed);
       }
       return (data ?? []) as Candidate[];
     },
@@ -247,12 +248,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       setResults(rows);
       if (rows.length === 0) toast.info(c.noResults);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   const invite = useMutation({
     mutationFn: async (professionalUserId: string) => {
-      if (!facility || (!jobId && !shiftId)) throw new Error(c.noTarget);
+      if (!facility || (!jobId && !shiftId)) throw new UserFacingError(c.noTarget);
       const args: {
         _professional_user_id: string;
         _job_id?: string;
@@ -265,13 +266,13 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       if (shiftId) args._shift_id = shiftId;
       if (message.trim()) args._message = message.trim();
       const { error } = await supabase.rpc("send_candidate_invitation", args);
-      if (error) throw new Error(error.message.includes("INVITATION_EXISTS") ? c.duplicate : c.failed);
+      if (error) throw new UserFacingError(error.message.includes("INVITATION_EXISTS") ? c.duplicate : c.failed);
     },
     onSuccess: () => {
       toast.success(c.sent);
       queryClient.invalidateQueries({ queryKey: ["invitations-sent"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   function InviteButton({ userId }: { userId: string }) {

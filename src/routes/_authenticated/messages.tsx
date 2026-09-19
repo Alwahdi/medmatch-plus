@@ -63,6 +63,7 @@ import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { dayKey, dayLabel, timeLabel, EMOJIS, PICKER_EMOJIS, TXT, type Conversation, type Msg } from "@/components/panels/messages.shared";
+import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({
@@ -384,7 +385,7 @@ function MessagesPage() {
     },
     onError: (e: Error) => {
       if (e.name === "AbortError") return;
-      toast.error(e.message || c.failed);
+      toast.error(friendlyError(e, lang, c.failed));
     },
   });
 

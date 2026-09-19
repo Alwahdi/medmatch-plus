@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { parseCv, type ParsedCv } from "@/lib/cv.functions";
 import { useLang } from "@/lib/i18n";
+import { friendlyError, UserFacingError } from "@/lib/user-errors";
 
 
 const TXT = {
@@ -97,13 +98,13 @@ export function CvImportPanel() {
 
   const analyze = useMutation({
     mutationFn: async () => {
-      if (text.trim().length < 50) throw new Error(c.tooShort);
+      if (text.trim().length < 50) throw new UserFacingError(c.tooShort);
       const res = await runParse({ data: { text: text.trim() } });
-      if (!res.profile) throw new Error(AI_ERRORS[res.error ?? "AI_FAILED"] ?? c.failed);
+      if (!res.profile) throw new UserFacingError(AI_ERRORS[res.error ?? "AI_FAILED"] ?? c.failed);
       return res.profile;
     },
     onSuccess: (p) => setResult(p),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
   const save = useMutation({

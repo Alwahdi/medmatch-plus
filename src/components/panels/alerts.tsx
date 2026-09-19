@@ -26,6 +26,7 @@ import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
+import { friendlyError, UserFacingError } from "@/lib/user-errors";
 
 
 const ANY = "any";
@@ -130,7 +131,7 @@ export function AlertsPanel() {
   const create = useMutation({
     mutationFn: async () => {
       if (channel === "whatsapp" && !/^\+?\d{8,15}$/.test(phone.trim())) {
-        throw new Error(c.invalidPhone);
+        throw new UserFacingError(c.invalidPhone);
       }
       const { error } = await supabase.from("job_alerts").insert({
         user_id: user!.id,
@@ -149,7 +150,7 @@ export function AlertsPanel() {
       setPhone("");
       queryClient.invalidateQueries({ queryKey: ["job-alerts"] });
     },
-    onError: (e: Error) => toast.error(e.message || c.createFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.createFailed)),
   });
 
   const toggle = useMutation({
