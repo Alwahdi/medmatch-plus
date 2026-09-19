@@ -54,18 +54,24 @@ function AuthenticatedLayout() {
       .getUser()
       .then(({ data, error }) => {
         if (!active) return;
-        if (error) {
-          setAuthError(true);
-          return;
-        }
+        // لا توجد جلسة أصلاً (زائر) — إلى صفحة الدخول، وليست رسالة عطل.
         if (!data.user) {
           void navigate({ to: "/auth", replace: true });
           return;
         }
+        if (error) {
+          setAuthError(true);
+          return;
+        }
         setReady(true);
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (!active) return;
+        const message = error instanceof Error ? error.message.toLowerCase() : "";
+        if (message.includes("session") || message.includes("jwt") || message.includes("not authenticated")) {
+          void navigate({ to: "/auth", replace: true });
+          return;
+        }
         setAuthError(true);
       });
     return () => {
