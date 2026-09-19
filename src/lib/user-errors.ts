@@ -8,6 +8,17 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // طلبات تعديل البيانات
+  {
+    test: /INVALID_ATTACHMENT_PATH/i,
+    ar: "المرفق غير صالح. أعد رفع الملف من جهازك ثم أرسل الطلب.",
+    en: "The attachment isn't valid. Upload the file again, then submit the request.",
+  },
+  {
+    test: /INVALID_REQUEST_TARGET/i,
+    ar: "لا يمكن طلب تعديل هذا الحقل. اختر حقلاً من القائمة المتاحة.",
+    en: "This field can't be changed by request. Pick one from the available list.",
+  },
   // شبكة
   {
     test: /failed to fetch|networkerror|load failed|err_network|timeout/i,

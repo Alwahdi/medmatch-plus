@@ -370,3 +370,6 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 
 ## Phase 34 — revoke non-client table privileges (done)
 - Tracked idempotent migration loops over every public base table revoking TRUNCATE/REFERENCES/TRIGGER from anon + authenticated (SELECT/INSERT/UPDATE/DELETE untouched). Verified via information_schema.role_table_grants: zero remaining rows for those privileges. Build clean.
+
+## Phase 35 — change request canonicalization & attachment ownership (done)
+- Tracked idempotent migration for BEFORE INSERT trigger `normalize_profile_change_request()`: derives `old_value` server-side from profiles/healthcare_professionals/facilities per target+field, enforces user_id=auth.uid(), facility ownership, facility_id/target coherence, an unchanged field allowlist, and `attachment_path` starting with `auth.uid()/`; EXECUTE revoked from anon/authenticated. Admin review reads only DB-derived old_value. UI unchanged functionally; added AR/EN messages for INVALID_ATTACHMENT_PATH and INVALID_REQUEST_TARGET.
