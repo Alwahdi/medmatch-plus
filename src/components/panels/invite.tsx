@@ -131,6 +131,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
   const cbx = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const { confirm, confirmDialog } = useConfirm();
   const [message, setMessage] = useState("");
   const [specialty, setSpecialty] = useState(ANY);
   const [country, setCountry] = useState(ANY);
