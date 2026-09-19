@@ -88,9 +88,10 @@ const TXT = {
   signIn: { ar: "تسجيل الدخول", en: "Sign in" },
   signingIn: { ar: "جارٍ تسجيل الدخول...", en: "Signing in..." },
   forgot: { ar: "نسيت كلمة المرور؟", en: "Forgot your password?" },
+  resetSending: { ar: "جارٍ الإرسال...", en: "Sending..." },
   resetSent: {
-    ar: "أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك.",
-    en: "We sent a password reset link to your email.",
+    ar: "إذا كان هذا البريد مسجلاً لدينا فسيصلك رابط لتعيين كلمة مرور جديدة.",
+    en: "If this email is registered with us, a link to set a new password is on its way.",
   },
   resetNeedEmail: {
     ar: "اكتب بريدك الإلكتروني أولاً ثم اضغط نسيت كلمة المرور.",
@@ -237,15 +238,13 @@ function GoogleButton({ label, errorText, next }: { label: string; errorText: st
   const [busy, setBusy] = useState(false);
   async function signIn() {
     setBusy(true);
-    let redirectUri = window.location.origin;
+    // نعود دائماً إلى /auth حتى يعمل توجيه الدور (resolveLanding) بعد نجاح الدخول،
+    // ومع وجهة داخلية آمنة نمرّرها كـ next فقط.
+    const url = new URL("/auth", window.location.origin);
     const back = safeNext(next);
-    if (back) {
-      const url = new URL("/auth", window.location.origin);
-      url.searchParams.set("next", back);
-      redirectUri = url.toString();
-    }
+    if (back) url.searchParams.set("next", back);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: redirectUri,
+      redirect_uri: url.toString(),
     });
     if (result.error) {
       toast.error(errorText);
@@ -288,6 +287,7 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   async function submit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
@@ -309,14 +309,20 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
   }
 
   async function reset(): Promise<void> {
+    if (resetting) return;
     const parsed = emailSchema.safeParse(email);
     if (!parsed.success) {
       toast.error(tx("resetNeedEmail"));
       return;
     }
-    await supabase.auth.resetPasswordForEmail(parsed.data, {
-      redirectTo: `${window.location.origin}/auth`,
-    });
+    setResetting(true);
+    // نفس الرسالة في كل الحالات حتى لا نكشف ما إذا كان البريد مسجّلاً لدينا.
+    await supabase.auth
+      .resetPasswordForEmail(parsed.data, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      .catch(() => undefined);
+    setResetting(false);
     toast.success(tx("resetSent"));
   }
 
@@ -371,9 +377,10 @@ function SignInForm({ tx }: { tx: (k: keyof typeof TXT) => string }) {
         type="button"
         variant="link"
         onClick={reset}
+        disabled={resetting}
         className="w-full text-center"
       >
-        {tx("forgot")}
+        {resetting ? tx("resetSending") : tx("forgot")}
       </Button>
     </form>
   );
