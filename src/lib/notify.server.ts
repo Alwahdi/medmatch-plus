@@ -90,13 +90,19 @@ export async function sendEmail(input: {
   }
 }
 
-export async function sendWhatsApp(input: { to: string; text: string }): Promise<SendResult> {
+export async function sendWhatsApp(input: {
+  to: string;
+  text: string;
+  /** Proactive (business-initiated) sends require an approved template. */
+  requireTemplate?: boolean;
+}): Promise<SendResult> {
   const token = env("WHATSAPP_TOKEN");
   const phoneId = env("WHATSAPP_PHONE_NUMBER_ID");
   if (!token || !phoneId) return { status: "not_configured" };
 
   const to = input.to.replace(/[^\d]/g, "");
   const templateName = env("WHATSAPP_TEMPLATE_NAME");
+  if (input.requireTemplate && !templateName) return { status: "not_configured" };
   const payload = templateName
     ? {
         messaging_product: "whatsapp",
