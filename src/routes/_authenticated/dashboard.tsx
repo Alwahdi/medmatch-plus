@@ -162,7 +162,7 @@ function Dashboard() {
     },
   });
 
-  const { data: bookings, isError: bookingsErr, refetch: bookingsRefetch } = useQuery({
+  const { data: bookings, isError: bookingsErr, isPending: bookingsPending, refetch: bookingsRefetch } = useQuery({
     queryKey: ["my-shifts", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -172,20 +172,21 @@ function Dashboard() {
         .eq("user_id", user!.id)
         .neq("status", "cancelled")
         .order("created_at", { ascending: false })
-      return data ?? [];
       if (error) throw error;
+      return data ?? [];
     },
   });
 
-  const { data: pendingInvites, isError: pendingInvitesErr, refetch: pendingInvitesRefetch } = useQuery({
+  const { data: pendingInvites, isError: pendingInvitesErr, isPending: pendingInvitesPending, refetch: pendingInvitesRefetch } = useQuery({
     queryKey: ["pending-invitations", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from("invitations")
         .select("id", { count: "exact", head: true })
         .eq("professional_user_id", user!.id)
         .eq("status", "pending");
+      if (error) throw error;
       return count ?? 0;
     },
   });
