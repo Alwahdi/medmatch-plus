@@ -51,6 +51,8 @@ const TXT = {
     send: "إرسال الرسالة",
     success: "وصلتنا رسالتك، وسنرد عليك قريباً",
     failure: "تعذّر إرسال الرسالة، حاول مرة أخرى",
+    rateLimited: "أرسلت عدة رسائل خلال وقت قصير. انتظر قليلاً ثم حاول مرة أخرى.",
+    invalid: "تحقق من الاسم والبريد الإلكتروني ونص الرسالة ثم أعد الإرسال.",
   },
   en: {
     badge: "Support team ready to help",
@@ -74,6 +76,8 @@ const TXT = {
     send: "Send message",
     success: "We received your message and will get back to you soon",
     failure: "Couldn't send the message, please try again",
+    rateLimited: "You've sent several messages in a short time. Please wait a moment and try again.",
+    invalid: "Please check your name, email and message, then send again.",
   },
 } as const;
 
