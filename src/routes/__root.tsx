@@ -18,16 +18,18 @@ import { LanguageProvider, useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 function NotFoundComponent() {
+  const { lang } = useLang();
+  const ar = lang === "ar";
   return (
     <div className="flex min-h-[60vh] items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-primary">404</h1>
-        <h2 className="mt-4 text-xl font-semibold">الصفحة غير موجودة</h2>
+        <h2 className="mt-4 text-xl font-semibold">{ar ? "الصفحة غير موجودة" : "Page not found"}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          الرابط الذي فتحته غير صحيح أو تم نقل الصفحة.
+          {ar ? "الرابط الذي فتحته غير صحيح أو تم نقل الصفحة." : "That link is wrong or the page has moved."}
         </p>
         <div className="mt-6">
-          <Link to="/" className={buttonVariants()}>العودة للرئيسية</Link>
+          <Link to="/" className={buttonVariants()}>{ar ? "العودة للرئيسية" : "Back home"}</Link>
         </div>
       </div>
     </div>
@@ -37,6 +39,8 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { lang } = useLang();
+  const ar = lang === "ar";
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -44,8 +48,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold">تعذّر تحميل هذه الصفحة</h1>
-        <p className="mt-2 text-sm text-muted-foreground">حدث خطأ غير متوقع. جرّب التحديث.</p>
+        <h1 className="text-xl font-semibold">{ar ? "تعذّر تحميل هذه الصفحة" : "This page didn't load"}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {ar ? "حدث خطأ غير متوقع. جرّب التحديث." : "Something unexpected happened. Try refreshing."}
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button
             onClick={() => {
@@ -53,13 +59,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               reset();
             }}
           >
-            إعادة المحاولة
+            {ar ? "إعادة المحاولة" : "Try again"}
           </Button>
           <a
             href="/"
             className={cn(buttonVariants({ variant: "outline" }))}
           >
-            الرئيسية
+            {ar ? "الرئيسية" : "Home"}
           </a>
         </div>
       </div>
@@ -116,12 +122,6 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <a
-          href="#main-content"
-          className="fixed start-4 top-3 z-[100] -translate-y-20 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform focus:translate-y-0"
-        >
-          تخطي إلى المحتوى
-        </a>
         {children}
         <Scripts />
       </body>
@@ -135,12 +135,25 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        <SkipLink />
         <LanguageDocumentSync />
         <AuthSync />
         <Outlet />
         <Toaster position="top-center" />
       </LanguageProvider>
     </QueryClientProvider>
+  );
+}
+
+function SkipLink() {
+  const { lang } = useLang();
+  return (
+    <a
+      href="#main-content"
+      className="fixed start-4 top-3 z-[100] -translate-y-20 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform focus:translate-y-0"
+    >
+      {lang === "ar" ? "تخطي إلى المحتوى" : "Skip to content"}
+    </a>
   );
 }
 
