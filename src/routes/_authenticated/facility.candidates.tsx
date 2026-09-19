@@ -55,7 +55,6 @@ const ANY = "any";
 type Candidate = {
   id: string;
   user_id: string;
-  headline: string | null;
   specialty_id: string | null;
   years_experience: number;
   country: string | null;
