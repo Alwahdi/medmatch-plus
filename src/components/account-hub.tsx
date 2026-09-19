@@ -119,7 +119,7 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
           value={image}
           alt={name}
           fallbackText={name}
-          className="size-10 shrink-0 rounded-full text-sm"
+          className="size-11 shrink-0 rounded-full text-sm"
         />
         <div className="min-w-0">
           <p className="truncate text-sm font-bold">{name}</p>
@@ -213,7 +213,7 @@ export function AccountHub({ trigger }: { trigger?: ReactNode }) {
         value={image}
         alt={name}
         fallbackText={name}
-        className="size-9 shrink-0 rounded-full text-sm"
+        className="size-11 shrink-0 rounded-full text-sm"
       />
     </button>
   );
@@ -260,7 +260,7 @@ export function AccountHubSidebarTrigger() {
             value={image}
             alt={name}
             fallbackText={name}
-            className="size-9 shrink-0 rounded-full text-sm"
+            className="size-11 shrink-0 rounded-full text-sm"
           />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold">{name}</span>

@@ -542,7 +542,7 @@ function FacilityDashboard() {
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="ghost" className="size-9 p-0" aria-label={c.moreActions}>
+                          <Button size="sm" variant="ghost" className="size-11 p-0" aria-label={c.moreActions}>
                             <MoreHorizontal className="size-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -628,7 +628,7 @@ function FacilityDashboard() {
                       {(s.status === "open" || s.status === "booked") && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="ghost" className="size-9 p-0" aria-label={c.moreActions}>
+                            <Button size="sm" variant="ghost" className="size-11 p-0" aria-label={c.moreActions}>
                               <MoreHorizontal className="size-4" />
                             </Button>
                           </DropdownMenuTrigger>

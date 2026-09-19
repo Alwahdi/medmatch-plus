@@ -605,7 +605,7 @@ function MessagesPage() {
                   size="icon"
                   variant="ghost"
                   aria-label={c.back}
-                  className="size-9 shrink-0 rounded-full md:hidden"
+                  className="size-11 shrink-0 rounded-full md:hidden"
                   onClick={() => setMobileOpen(false)}
                 >
                   <ChevronRight className="size-5 rtl:hidden" />
@@ -792,7 +792,7 @@ function MessagesPage() {
                     onClick={scrollToBottom}
                     title={c.jumpLatest}
                     aria-label={c.jumpLatest}
-                    className="absolute bottom-3 end-3 flex size-10 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg transition hover:bg-secondary"
+                    className="absolute bottom-3 end-3 flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg transition hover:bg-secondary"
                   >
                     <ArrowDown className="size-5" />
                   </button>
@@ -868,7 +868,7 @@ function MessagesPage() {
                             variant="ghost"
                             title={c.cancelRec}
                             aria-label={c.cancelRec}
-                            className="size-9 rounded-full text-muted-foreground hover:text-destructive"
+                            className="size-11 rounded-full text-muted-foreground hover:text-destructive"
                             onClick={() => {
                               setFile(null);
                               if (fileRef.current) fileRef.current.value = "";
@@ -883,7 +883,7 @@ function MessagesPage() {
                             size="icon"
                             title={c.confirmSend}
                             aria-label={c.confirmSend}
-                            className="size-9 rounded-full"
+                            className="size-11 rounded-full"
                             loading={send.isPending}
                             onClick={() => send.mutate(undefined)}
                           >
@@ -905,7 +905,7 @@ function MessagesPage() {
                         variant="ghost"
                         title={c.emoji}
                         aria-label={c.emoji}
-                        className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                        className="size-11 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
                       >
                         <Smile className="size-5" />
                       </Button>
@@ -936,7 +936,7 @@ function MessagesPage() {
                         title={c.attach}
                         aria-label={c.attach}
                         loading={send.isPending}
-                        className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                        className="size-11 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
                       >
                         <Paperclip className="size-5" />
                       </Button>
@@ -977,7 +977,7 @@ function MessagesPage() {
                       aria-label={c.send}
                       onClick={() => send.mutate(undefined)}
                       loading={send.isPending}
-                      className="size-10 shrink-0 rounded-full"
+                      className="size-11 shrink-0 rounded-full"
                     >
                       {send.isPending ? (
                         <Loader2 className="size-4 animate-spin" />

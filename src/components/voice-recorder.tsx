@@ -117,7 +117,7 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
           onClick={clearPreview}
           title={labels.cancel}
           aria-label={labels.cancel}
-          className="shrink-0 text-muted-foreground transition hover:text-destructive"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:text-destructive"
         >
           <Trash2 className="size-4" />
         </button>
@@ -134,7 +134,7 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
             onRecorded(preview.file);
             clearPreview();
           }}
-          className="size-9 shrink-0 rounded-full"
+          className="size-11 shrink-0 rounded-full"
         >
           <Send className="size-4" />
         </Button>
@@ -153,7 +153,7 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
           aria-label={labels.record}
           onClick={start}
           disabled={disabled}
-          className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+          className="size-11 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
         >
           <Mic className="size-5" />
         </Button>
@@ -177,7 +177,7 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
         onClick={() => stop(true)}
         title={labels.cancel}
         aria-label={labels.cancel}
-        className="shrink-0 text-muted-foreground transition hover:text-destructive"
+        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:text-destructive"
       >
         <Trash2 className="size-4" />
       </button>
@@ -195,7 +195,7 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
         onClick={togglePause}
         title={pauseLabel}
         aria-label={pauseLabel}
-        className="ms-auto size-9 shrink-0 rounded-full"
+        className="ms-auto size-11 shrink-0 rounded-full"
       >
         {paused ? <Play className="size-4" /> : <Pause className="size-4" />}
       </Button>
@@ -205,7 +205,7 @@ export function VoiceRecorder({ disabled, compact, labels, onRecorded }: Props) 
         onClick={() => stop(false)}
         title={labels.stop}
         aria-label={labels.stop}
-        className="size-9 shrink-0 rounded-full"
+        className="size-11 shrink-0 rounded-full"
       >
         <Square className="size-4" />
       </Button>
