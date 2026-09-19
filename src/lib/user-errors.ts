@@ -19,6 +19,37 @@ const RULES: Rule[] = [
     ar: "رابط الموقع غير صالح. اكتبه بصيغة example.com أو https://example.com.",
     en: "That website link isn't valid. Enter it like example.com or https://example.com.",
   },
+  // الرسائل والمرفقات
+  {
+    test: /MESSAGE_TOO_LONG/i,
+    ar: "الرسالة طويلة جداً. اختصرها إلى 2000 حرف أو أقل.",
+    en: "This message is too long. Shorten it to 2000 characters or fewer.",
+  },
+  {
+    test: /MESSAGE_EMPTY/i,
+    ar: "اكتب رسالة أو أرفق ملفاً قبل الإرسال.",
+    en: "Write a message or attach a file before sending.",
+  },
+  {
+    test: /ATTACHMENT_PATH_TOO_LONG|INVALID_ATTACHMENT_NAME/i,
+    ar: "اسم الملف طويل جداً. أعد تسميته ثم أرفقه مرة أخرى.",
+    en: "The file name is too long. Rename it and attach it again.",
+  },
+  {
+    test: /INVALID_ATTACHMENT_TYPE/i,
+    ar: "نوع الملف غير مدعوم. أرفق صورة أو مستنداً أو تسجيلاً صوتياً.",
+    en: "This file type isn't supported. Attach an image, a document, or a voice note.",
+  },
+  {
+    test: /INVALID_ATTACHMENT_SIZE/i,
+    ar: "حجم الملف يجب أن يكون أكبر من صفر ولا يتجاوز 10 ميغابايت.",
+    en: "The file must be larger than zero and no more than 10 MB.",
+  },
+  {
+    test: /INVALID_REACTION/i,
+    ar: "هذا التفاعل غير صالح. اختر رمزاً من القائمة.",
+    en: "That reaction isn't valid. Pick one from the list.",
+  },
   // طلبات تعديل البيانات
   {
     test: /INVALID_MEDIA_PATH/i,
