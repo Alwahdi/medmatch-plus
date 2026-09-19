@@ -520,3 +520,9 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - Data minimization: gender removed from professional registration UI and metadata (no schema added). Employer governorate stays a UI-only helper for city selection and is no longer sent as permanent metadata.
 - Phone UX: neutral placeholder (`771234567` / `+967771234567`), shared `normalizePhone`/`isValidPhone` used by both forms; phone stays private account data, never part of public candidate/facility identity.
 - Verified: normalization/validation cases in SQL, `on_auth_user_created` trigger intact, both signup pages at 390px AR with no gender field, no overflow, no console errors. Typecheck and build clean.
+
+## Phase 50 — Security page truthfulness + real MFA enforcement (تم)
+- قاعدة البيانات: `mfa_access_ok()` (self-scoped) و`require_mfa()`؛ سياسة RESTRICTIVE "mfa level required" على 26 جدولاً خاصاً؛ `my_sessions` مقيّدة؛ إضافة `PERFORM public.require_mfa()` إلى 32 دالة أعمال SECURITY DEFINER. الجداول العامة المنقّحة والتخصصات والباقات والأدوار مستثناة.
+- واجهة: مسار عام جديد `/mfa-challenge` (تحدي TOTP بـ6 أرقام، AR/EN، جوال)، وحارس `_authenticated` يوجّه الجلسة aal1 إليه عند وجود عامل موثّق.
+- صفحة الأمان: حُذف قسم البصمة/WebAuthn غير الحقيقي و`src/lib/webauthn.ts` (لم تُحذف صفوف trusted_devices التاريخية)؛ تغيير كلمة المرور صار يعيد المصادقة فعلياً بكلمة المرور الحالية ثم يُنهي الجلسات الأخرى؛ الحسابات بجوجل فقط تحصل على رابط تعيين كلمة مرور بدل حقل وهمي؛ ربط جوجل عبر linkIdentity فقط بلا بديل قد يبدّل الحساب.
+- ملاحظات linter: `ai_usage_events` بلا سياسة عمداً (مغلق)، والviews المنقّحة ودوال الأعمال قابلة للتنفيذ عمداً حسب التصميم.

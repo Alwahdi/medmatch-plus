@@ -1,11 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Eye,
   EyeOff,
-  Fingerprint,
   KeyRound,
   Loader2,
   Lock,
@@ -26,7 +25,6 @@ import { Separator } from "@/components/ui/separator";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { EmptyState } from "@/components/empty-state";
 import { GoogleIcon } from "@/components/google-icon";
-import { lovable } from "@/integrations/lovable/index";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -34,17 +32,11 @@ import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { ErrorState } from "@/components/error-state";
-import {
-  deviceLabel,
-  platformAuthenticatorAvailable,
-  registerBiometric,
-  verifyBiometric,
-} from "@/lib/webauthn";
 
 const TXT = {
   ar: {
     title: "الأمان وتسجيل الدخول",
-    sub: "كلمة المرور، الحسابات المرتبطة، التحقق بخطوتين، البصمة، والجلسات النشطة",
+    sub: "كلمة المرور، الحسابات المرتبطة، التحقق بخطوتين، والجلسات النشطة",
     pwTitle: "كلمة المرور",
     pwBody: "استخدم كلمة مرور قوية لا تقل عن 8 أحرف ولا تستخدمها في مواقع أخرى.",
     current: "كلمة المرور الحالية",
@@ -65,7 +57,7 @@ const TXT = {
     unlinkDesc: "لن تتمكن من الدخول بهذه الطريقة بعد الآن. تأكد أن لديك كلمة مرور.",
     unlinkDone: "تم فك الربط",
     linkLast: "لا يمكن فك ربط طريقة الدخول الوحيدة",
-    linkHint: "اختر نفس بريدك الحالي في جوجل ليُربط بحسابك",
+    linkUnavailable: "ربط جوجل غير متاح حالياً. سجّل الدخول بجوجل بنفس البريد لاحقاً أو تواصل معنا.",
     linkDone: "تم ربط حساب جوجل",
     mfaTitle: "التحقق بخطوتين (2FA)",
     mfaBody: "أضف طبقة حماية إضافية عبر تطبيق مصادقة مثل Google Authenticator أو Authy.",
@@ -82,18 +74,14 @@ const TXT = {
     mfaDisableConfirm: "إيقاف التحقق بخطوتين؟",
     mfaDisableDesc: "سيقل مستوى حماية حسابك.",
     mfaAdded: "أُضيف",
-    bioTitle: "الدخول بالبصمة",
-    bioBody: "استخدم بصمة الإصبع أو التعرف على الوجه على هذا الجهاز كتحقق إضافي سريع.",
-    bioAdd: "تفعيل البصمة على هذا الجهاز",
-    bioTest: "اختبار البصمة",
-    bioUnsupported: "هذا الجهاز أو المتصفح لا يدعم البصمة.",
-    bioAdded: "تم تفعيل البصمة على هذا الجهاز",
-    bioOk: "تم التحقق من بصمتك",
-    bioFail: "تعذّر التحقق من البصمة",
-    bioRemove: "إزالة الجهاز؟",
-    bioRemoveDesc: "لن يعود بإمكانك استخدام البصمة من هذا الجهاز.",
-    bioRemoved: "تمت إزالة الجهاز",
-    bioNone: "لا توجد أجهزة بصمة مفعّلة",
+    pwLong: "كلمة المرور يجب ألا تزيد عن ٧٢ حرفاً",
+    pwCurrentRequired: "أدخل كلمة المرور الحالية للتأكيد",
+    pwCurrentWrong: "كلمة المرور الحالية غير صحيحة",
+    pwOthersOut: "تم تحديث كلمة المرور وإنهاء الجلسات الأخرى",
+    pwOauthTitle: "لا توجد كلمة مرور لهذا الحساب",
+    pwOauthBody: "تدخل حالياً عبر جوجل. لتعيين كلمة مرور، أرسل رابطاً آمناً إلى بريدك.",
+    pwOauthSend: "إرسال رابط تعيين كلمة مرور",
+    pwOauthSent: "إن كان البريد مسجّلاً لدينا فسيصلك رابط خلال دقائق.",
     lastUsed: "آخر استخدام",
     never: "لم يُستخدم بعد",
     sessTitle: "جلسات الدخول النشطة",
@@ -113,7 +101,7 @@ const TXT = {
   },
   en: {
     title: "Security & sign-in",
-    sub: "Password, linked accounts, two-factor, biometrics and active sessions",
+    sub: "Password, linked accounts, two-factor and active sessions",
     pwTitle: "Password",
     pwBody: "Use a strong password of at least 8 characters, unique to this platform.",
     current: "Current password",
@@ -134,7 +122,7 @@ const TXT = {
     unlinkDesc: "You will no longer be able to sign in this way. Make sure you have a password.",
     unlinkDone: "Account unlinked",
     linkLast: "You cannot unlink your only sign-in method",
-    linkHint: "Pick the same email in Google so it links to this account",
+    linkUnavailable: "Linking Google isn't available right now. Sign in with Google using the same email later, or contact us.",
     linkDone: "Google account linked",
     mfaTitle: "Two-factor authentication (2FA)",
     mfaBody: "Add an extra layer with an authenticator app such as Google Authenticator or Authy.",
@@ -151,18 +139,14 @@ const TXT = {
     mfaDisableConfirm: "Disable two-factor?",
     mfaDisableDesc: "Your account will be less protected.",
     mfaAdded: "Added",
-    bioTitle: "Biometric sign-in",
-    bioBody: "Use fingerprint or face unlock on this device as a fast extra check.",
-    bioAdd: "Enable biometrics on this device",
-    bioTest: "Test biometrics",
-    bioUnsupported: "This device or browser does not support biometrics.",
-    bioAdded: "Biometrics enabled on this device",
-    bioOk: "Biometrics verified",
-    bioFail: "Biometric verification failed",
-    bioRemove: "Remove device?",
-    bioRemoveDesc: "Biometric unlock from this device will stop working.",
-    bioRemoved: "Device removed",
-    bioNone: "No biometric devices yet",
+    pwLong: "Password must be 72 characters or fewer",
+    pwCurrentRequired: "Enter your current password to confirm",
+    pwCurrentWrong: "Your current password is incorrect",
+    pwOthersOut: "Password updated and other sessions signed out",
+    pwOauthTitle: "This account has no password",
+    pwOauthBody: "You currently sign in with Google. To set a password, send a secure link to your email.",
+    pwOauthSend: "Send a set-password link",
+    pwOauthSent: "If that email is registered, a link is on its way.",
     lastUsed: "Last used",
     never: "Never used",
     sessTitle: "Active sessions",
@@ -248,18 +232,27 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   const changePassword = useMutation({
     mutationFn: async () => {
       if (newPw.length < 8) userError(c.pwShort);
+      if (newPw.length > 72) userError(c.pwLong);
       if (newPw !== confirmPw) userError(c.pwMismatch);
-      const { error } = await supabase.auth.updateUser({
-        password: newPw,
-        ...(currentPw ? ({ current_password: currentPw } as Record<string, string>) : {}),
-      });
+      const email = user?.email;
+      const { data: idents } = await supabase.auth.getUserIdentities();
+      const hasPassword = !!idents?.identities?.some((i) => i.provider === "email");
+      if (!hasPassword || !email) userError(c.pwOauthBody);
+      if (!currentPw) userError(c.pwCurrentRequired);
+      const reauth = await supabase.auth.signInWithPassword({ email, password: currentPw });
+      if (reauth.error || !reauth.data.user || reauth.data.user.id !== user?.id) {
+        userError(c.pwCurrentWrong);
+      }
+      const { error } = await supabase.auth.updateUser({ password: newPw });
       if (error) throw error;
+      await supabase.auth.signOut({ scope: "others" });
     },
     onSuccess: () => {
       setCurrentPw("");
       setNewPw("");
       setConfirmPw("");
-      toast.success(c.pwDone);
+      toast.success(c.pwOthersOut);
+      void refetchSessions();
     },
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
@@ -278,7 +271,23 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   const googleIdentity = identities?.find((i) => i.provider === "google");
   const emailIdentity = identities?.find((i) => i.provider === "email");
 
+  const hasPasswordIdentity = !!emailIdentity;
   const [linking, setLinking] = useState(false);
+  const [sendingSetLink, setSendingSetLink] = useState(false);
+
+  async function sendSetPasswordLink() {
+    const email = user?.email;
+    if (!email) return;
+    setSendingSetLink(true);
+    try {
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+    } finally {
+      setSendingSetLink(false);
+      toast.success(c.pwOauthSent);
+    }
+  }
 
   async function linkGoogle() {
     setLinking(true);
@@ -287,28 +296,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
         provider: "google",
         options: { redirectTo: `${window.location.origin}/security` },
       });
-      if (!error) return;
-      // بعض المشاريع تعطّل الربط اليدوي؛ نستخدم تسجيل الدخول بجوجل بنفس البريد فيتم الربط تلقائياً.
-      const msg = (error.message || "").toLowerCase();
-      const disabled = msg.includes("manual link") || msg.includes("disabled") || msg.includes("422");
-      if (!disabled) {
-        toast.error(friendlyError(error, lang, c.failed));
-        return;
-      }
-      toast.info(c.linkHint);
-      const extraParams: Record<string, string> = { prompt: "select_account" };
-      if (user?.email) extraParams["login_hint"] = user.email;
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/security`,
-        extraParams,
-      });
-      if (result.error) {
-        toast.error(c.failed);
-        return;
-      }
-      if (result.redirected) return;
-      toast.success(c.linkDone);
-      void refetchIdentities();
+      if (error) toast.error(friendlyError(error, lang, c.linkUnavailable));
     } finally {
       setLinking(false);
     }
@@ -409,77 +397,6 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
     void refetchFactors();
   }
 
-  /* ---------------- biometrics ---------------- */
-  const [bioSupported, setBioSupported] = useState(true);
-  useEffect(() => {
-    void platformAuthenticatorAvailable().then(setBioSupported);
-  }, []);
-
-  const { data: devices, isError: devicesErr, refetch: devicesRefetch } = useQuery({
-    queryKey: ["trusted-devices", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("trusted_devices")
-        .select("id, label, credential_id, created_at, last_used_at")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
-  const addDevice = useMutation({
-    mutationFn: async () => {
-      if (!user) return;
-      const credentialId = await registerBiometric(user.id, user.email ?? user.id);
-      const { error } = await supabase.from("trusted_devices").insert({
-        user_id: user.id,
-        label: deviceLabel(),
-        credential_id: credentialId,
-        user_agent: navigator.userAgent,
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success(c.bioAdded);
-      void qc.invalidateQueries({ queryKey: ["trusted-devices", user?.id] });
-    },
-    onError: () => toast.error(c.bioFail),
-  });
-
-  const testDevice = useMutation({
-    mutationFn: async () => {
-      const ids = (devices ?? []).map((d) => d.credential_id);
-      if (!ids.length) throw new Error("none");
-      const used = await verifyBiometric(ids);
-      await supabase
-        .from("trusted_devices")
-        .update({ last_used_at: new Date().toISOString() })
-        .eq("credential_id", used);
-    },
-    onSuccess: () => {
-      toast.success(c.bioOk);
-      void qc.invalidateQueries({ queryKey: ["trusted-devices", user?.id] });
-    },
-    onError: () => toast.error(c.bioFail),
-  });
-
-  async function removeDevice(id: string) {
-    const ok = await confirm({
-      title: c.bioRemove,
-      description: c.bioRemoveDesc,
-      destructive: true,
-    });
-    if (!ok) return;
-    const { error } = await supabase.from("trusted_devices").delete().eq("id", id);
-    if (error) {
-      toast.error(friendlyError(error, lang, c.failed));
-      return;
-    }
-    toast.success(c.bioRemoved);
-    void qc.invalidateQueries({ queryKey: ["trusted-devices", user?.id] });
-  }
-
   /* ---------------- sessions ---------------- */
   const { data: sessions, isError: sessionsErr, refetch: refetchSessions } = useQuery({
     queryKey: ["my-sessions", user?.id],
@@ -544,7 +461,6 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   const loadErrors = [
     { err: identitiesErr, retry: refetchIdentities },
     { err: factorsErr, retry: refetchFactors },
-    { err: devicesErr, retry: devicesRefetch },
     { err: sessionsErr, retry: refetchSessions },
   ].filter((q) => q.err);
   if (loadErrors.length > 0)
@@ -574,7 +490,6 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
           ["security-password", c.pwTitle],
           ["security-linked", c.linkedTitle],
           ["security-mfa", c.mfaTitle],
-          ["security-biometric", c.bioTitle],
           ["security-sessions", c.sessTitle],
         ].map(([id, label]) => (
           <a key={id} href={`#${id}`} className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border bg-card px-3 text-xs font-semibold hover:border-primary/40 hover:text-primary">
@@ -590,6 +505,21 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
           <h2 className="font-bold">{c.pwTitle}</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">{c.pwBody}</p>
+        {identities && !hasPasswordIdentity ? (
+          <div className="mt-4 rounded-lg border border-border bg-muted/40 p-4">
+            <p className="text-sm font-semibold">{c.pwOauthTitle}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{c.pwOauthBody}</p>
+            <Button
+              className="mt-3"
+              variant="outline"
+              onClick={sendSetPasswordLink}
+              disabled={sendingSetLink}
+            >
+              {sendingSetLink ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
+              {c.pwOauthSend}
+            </Button>
+          </div>
+        ) : (
         <form
           className="mt-4 grid gap-3"
           onSubmit={(e) => {
@@ -663,6 +593,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
             </Button>
           </div>
         </form>
+        )}
       </section>
 
       {/* linked accounts */}
@@ -787,68 +718,6 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
             {c.mfaEnable}
           </Button>
         )}
-      </section>
-
-      {/* biometrics */}
-      <section id="security-biometric" className="mt-4 scroll-mt-24 rounded-lg border border-border bg-card p-5">
-        <div className="flex items-center gap-2">
-          <Fingerprint className="size-5 text-primary" />
-          <h2 className="font-bold">{c.bioTitle}</h2>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">{c.bioBody}</p>
-
-        {!bioSupported && (
-          <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-            {c.bioUnsupported}
-          </p>
-        )}
-
-        <div className="mt-4 space-y-2">
-          {(devices ?? []).map((d) => (
-            <div key={d.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
-              <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Fingerprint className="size-4" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{d.label}</p>
-                <p className="text-xs text-muted-foreground">
-                  {d.last_used_at ? `${c.lastUsed} · ${relativeTime(d.last_used_at, lang)}` : c.never}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={lang === "ar" ? "إزالة الجهاز" : "Remove device"}
-                onClick={() => removeDevice(d.id)}
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            </div>
-          ))}
-          {!devices?.length && (
-            <p className="text-sm text-muted-foreground">{c.bioNone}</p>
-          )}
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            disabled={!bioSupported || addDevice.isPending}
-            onClick={() => addDevice.mutate()}
-          >
-            {addDevice.isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Fingerprint className="size-4" />
-            )}
-            {c.bioAdd}
-          </Button>
-          {!!devices?.length && (
-            <Button variant="ghost" onClick={() => testDevice.mutate()} loading={testDevice.isPending}>
-              {c.bioTest}
-            </Button>
-          )}
-        </div>
       </section>
 
       {/* sessions */}

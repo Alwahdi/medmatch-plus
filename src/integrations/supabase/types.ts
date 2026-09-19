@@ -1760,6 +1760,7 @@ export type Database = {
         Args: { _city: string; _country: string }
         Returns: boolean
       }
+      mfa_access_ok: { Args: never; Returns: boolean }
       my_sessions: {
         Args: never
         Returns: {
@@ -1792,6 +1793,7 @@ export type Database = {
           value: number
         }[]
       }
+      require_mfa: { Args: never; Returns: undefined }
       reschedule_interview: {
         Args: { _interview_id: string; _notes?: string; _scheduled_at: string }
         Returns: undefined
