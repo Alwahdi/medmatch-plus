@@ -367,7 +367,7 @@ function JobDetail() {
 
             <h2 className="mt-6 text-lg font-bold">{c.requirements}</h2>
             <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-              <li>{c.expReq(job.min_experience, specialty || c.defaultSpecialty)}</li>
+              {job.min_experience > 0 && <li>{c.expReq(job.min_experience, specialty || c.defaultSpecialty)}</li>}
               {job.required_license && <li>{c.licenseReq(job.required_license)}</li>}
               <li>{c.teamworkReq}</li>
             </ul>
