@@ -59,7 +59,6 @@ type Candidate = {
   years_experience: number;
   country: string | null;
   city: string | null;
-  bio: string | null;
   is_open_to_shifts: boolean;
   is_verified: boolean;
 };
