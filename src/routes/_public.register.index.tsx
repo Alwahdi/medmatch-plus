@@ -324,23 +324,6 @@ function RegisterSeeker() {
                   toggle={() => setShowConfirm((v) => !v)}
                   toggleLabel={L.show}
                 />
-                <div>
-                  <Label>{L.gender}</Label>
-                  <RadioGroup value={gender} onValueChange={setGender} className="mt-2 flex gap-6">
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="male" id="rs-male" />
-                      <Label htmlFor="rs-male" className="font-normal">
-                        {L.male}
-                      </Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="female" id="rs-female" />
-                      <Label htmlFor="rs-female" className="font-normal">
-                        {L.female}
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
                 <Button type="submit" className="w-full" disabled={busy}>
                   {busy ? L.submitting : L.submit}
                 </Button>
