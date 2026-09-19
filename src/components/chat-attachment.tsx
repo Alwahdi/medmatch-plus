@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const CHAT_BUCKET = "chat-attachments";
@@ -131,6 +132,8 @@ const SPEEDS = [1, 1.5, 2] as const;
 
 /** WhatsApp-style voice note player with a waveform scrubber and speed control. */
 export function VoicePlayer({ url, mine }: { url: string; mine?: boolean | undefined }) {
+  const { lang } = useLang();
+  const ar = lang === "ar";
   const ref = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -258,6 +261,8 @@ function Lightbox({
   video?: boolean;
   onClose: () => void;
 }) {
+  const { lang } = useLang();
+  const ar = lang === "ar";
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -275,14 +280,16 @@ function Lightbox({
           download={name ?? undefined}
           target="_blank"
           rel="noreferrer"
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
+          aria-label={ar ? "تنزيل الملف" : "Download file"}
+          className="flex size-11 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
         >
           <Download className="size-5" />
         </a>
         <button
           type="button"
           onClick={onClose}
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
+          aria-label={ar ? "إغلاق العارض" : "Close viewer"}
+          className="flex size-11 items-center justify-center rounded-full bg-white/15 text-on-hero transition hover:bg-white/25"
         >
           <X className="size-5" />
         </button>
@@ -336,6 +343,8 @@ type Props = {
 };
 
 export function ChatAttachment({ path, name, type, size, mine }: Props) {
+  const { lang } = useLang();
+  const ar = lang === "ar";
   const [open, setOpen] = useState(false);
   const { data: url, isLoading } = useQuery({
     queryKey: ["chat-file", path],
@@ -368,6 +377,7 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
+          aria-label={ar ? `تشغيل الفيديو ${name ?? ""}`.trim() : `Play video ${name ?? ""}`.trim()}
           className="relative block w-64 max-w-full overflow-hidden rounded-lg"
         >
           <video
@@ -394,7 +404,12 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
   if (isImage) {
     return (
       <>
-        <button type="button" onClick={() => setOpen(true)} className="relative block w-full">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={ar ? `عرض الصورة ${name ?? ""}`.trim() : `Open image ${name ?? ""}`.trim()}
+          className="relative block w-full"
+        >
           <img
             src={url}
             alt={name ?? ""}
@@ -419,8 +434,9 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
       href={url}
       target="_blank"
       rel="noreferrer"
+      aria-label={ar ? `تنزيل ${name ?? "ملف"}` : `Download ${name ?? "file"}`}
       className={cn(
-        "flex w-60 max-w-full items-center gap-3 rounded-lg border p-2.5 transition",
+        "flex min-h-11 w-60 max-w-full items-center gap-3 rounded-lg border p-2.5 transition",
         mine ? "border-white/25 hover:bg-white/10" : "border-border bg-card hover:bg-secondary",
       )}
     >
