@@ -352,7 +352,9 @@ export function AlertsPanel() {
       )}
 
       <ul className="mt-6 space-y-3">
-        {alerts.map((a) => (
+        {alerts.map((a) => {
+          const rowReady = a.channel === "whatsapp" ? ready.whatsapp : ready.email;
+          return (
           <li
             key={a.id}
             className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4"
@@ -365,10 +367,19 @@ export function AlertsPanel() {
               {a.city && <Badge variant="outline">{a.city}</Badge>}
               {a.employment_type && <Badge variant="outline">{employmentLabel(a.employment_type, lang)}</Badge>}
               <Badge variant="secondary">{a.channel === "whatsapp" ? c.channelWhatsapp : c.channelEmail}</Badge>
+              {!rowReady && (
+                <Badge variant="outline" className="text-muted-foreground">
+                  {a.is_active ? c.activeUndeliverable : c.savedUnavailable}
+                </Badge>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <Switch
                 checked={a.is_active}
+                // Off and delete always work; on is blocked while the channel
+                // cannot deliver.
+                disabled={!rowReady && !a.is_active}
+                aria-label={!rowReady && !a.is_active ? c.cannotEnable : undefined}
                 onCheckedChange={(v) => toggle.mutate({ id: a.id, is_active: v })}
               />
               <Button
