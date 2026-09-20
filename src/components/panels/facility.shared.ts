@@ -45,6 +45,7 @@ export const TXT = {
     republish: "إعادة نشر",
     noJobs: "لم تنشر وظائف بعد.",
     perHour: "/ساعة",
+    lockedTerms: "تم تثبيت تفاصيل المناوبة بعد الحجز",
     open: "متاحة",
     bookedStatus: "محجوزة",
     noShifts: "لا مناوبات منشورة.",
