@@ -44,6 +44,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { hasIdentityDisclosure } from "@/lib/listing-privacy";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -376,6 +377,7 @@ function FacilityDashboard() {
               {createMode === "job" && (
                 <JobForm
                   facilityId={facility.id}
+                  facilityNames={[facility.name_ar, facility.name_en]}
                   specialties={specialties ?? []}
                   defaults={{ country: facility.country, city: facility.city }}
                   quotaReached={!!plan && activeJobs >= plan.active_jobs}
@@ -386,6 +388,7 @@ function FacilityDashboard() {
               {createMode === "shift" && (
                 <ShiftForm
                   facilityId={facility.id}
+                  facilityNames={[facility.name_ar, facility.name_en]}
                   specialties={specialties ?? []}
                   defaults={{ country: facility.country, city: facility.city }}
                   quotaReached={!!plan && activeShifts >= plan.active_shifts}
@@ -848,6 +851,7 @@ type Spec = { id: string; name_ar: string; name_en?: string | null };
 
 function JobForm({
   facilityId,
+  facilityNames,
   specialties,
   defaults,
   quotaReached,
@@ -855,6 +859,7 @@ function JobForm({
   onCreated,
 }: {
   facilityId: string;
+  facilityNames?: (string | null | undefined)[];
   specialties: Spec[];
   defaults: { country: string; city: string };
   quotaReached?: boolean;
@@ -923,6 +928,9 @@ function JobForm({
       });
     if (!parsed.success) userError(parsed.error.issues[0]!.message);
     if (parsed.data.salary_max < parsed.data.salary_min) userError(c.salaryMaxGt);
+    if (hasIdentityDisclosure(`${parsed.data.title} ${parsed.data.description}`, facilityNames ?? [])) {
+      userError(c.privacyBlocked);
+    }
     if (!form.country) userError(c.countryRequired);
     if (!form.city.trim()) userError(c.cityRequired);
     return parsed.data;
@@ -1120,7 +1128,9 @@ function JobForm({
       <div>
         <Label htmlFor="jdesc">{c.jobDesc}</Label>
         <Textarea id="jdesc" rows={6} maxLength={5000} value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          aria-describedby="jdesc-privacy" />
+        <p id="jdesc-privacy" className="mt-1.5 text-xs text-muted-foreground">{c.privacyHint}</p>
       </div>
       <p className="text-xs text-muted-foreground">{c.draftSaved}</p>
       {(expired || quotaReached) && (
@@ -1137,6 +1147,7 @@ function JobForm({
 
 function ShiftForm({
   facilityId,
+  facilityNames,
   specialties,
   defaults,
   quotaReached,
@@ -1144,6 +1155,7 @@ function ShiftForm({
   onCreated,
 }: {
   facilityId: string;
+  facilityNames?: (string | null | undefined)[];
   specialties: Spec[];
   defaults: { country: string; city: string };
   quotaReached?: boolean;
@@ -1198,6 +1210,9 @@ function ShiftForm({
     if (startMs <= Date.now()) userError(c.startInPast);
     if (endMs - startMs > 24 * 60 * 60 * 1000) userError(c.tooLong);
     if (!Number(form.hourly_rate)) userError(c.hourlyRateRequired);
+    if (hasIdentityDisclosure(`${form.title} ${form.notes}`, facilityNames ?? [])) {
+      userError(c.privacyBlocked);
+    }
     if (!form.country) userError(c.countryRequired);
     if (!form.city.trim()) userError(c.cityRequired);
     return { startMs, endMs };
@@ -1369,7 +1384,9 @@ function ShiftForm({
       <div>
         <Label htmlFor="snotes">{c.notes}</Label>
         <Textarea id="snotes" rows={3} maxLength={1000} value={form.notes}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          aria-describedby="snotes-privacy" />
+        <p id="snotes-privacy" className="mt-1.5 text-xs text-muted-foreground">{c.privacyHint}</p>
       </div>
       <p className="text-xs text-muted-foreground">{c.draftSaved}</p>
       {(expired || quotaReached) && (
