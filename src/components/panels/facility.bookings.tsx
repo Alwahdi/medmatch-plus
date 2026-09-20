@@ -64,10 +64,14 @@ export function FacilityBookingsPanel({
   shiftId,
   facilityId,
   shiftCompleted = false,
+  shiftStartsAt,
+  shiftStatus,
 }: {
   shiftId: string;
   facilityId: string;
   shiftCompleted?: boolean;
+  shiftStartsAt?: string;
+  shiftStatus?: string;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
