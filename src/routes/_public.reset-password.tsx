@@ -9,6 +9,11 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { NOINDEX } from "@/lib/seo";
+import {
+  clearRecoveryProof,
+  markRecoveryProof,
+  waitForRecoveryProof,
+} from "@/lib/recovery-proof";
 
 export const Route = createFileRoute("/_public/reset-password")({
   head: () => ({
