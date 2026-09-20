@@ -20,18 +20,27 @@ const TXT = {
     noReason: "بدون سبب",
     note: "ملاحظة الإدارة (اختيارية)",
     start: "بدء المعالجة",
-    complete: "تمت المعالجة",
     reject: "رفض",
     updated: "تم تحديث حالة الطلب",
     failed: "تعذّر تحديث الطلب",
     statuses: {
       pending: "قيد الانتظار",
       processing: "قيد المعالجة",
-      completed: "تمت المعالجة",
+      completed: "مكتمل",
       rejected: "مرفوض",
       cancelled: "ملغى",
     } as Record<string, string>,
-    hint: "الحذف الفعلي يتم عبر إجراء تشغيلي موثوق خارج هذه الشاشة؛ هنا تُسجَّل حالة الطلب فقط.",
+    hint: "هذه الشاشة تسجّل حالة الطلب فقط. لا يُعتبر الحساب محذوفاً حتى تُنفَّذ عملية الحذف/إخفاء الهوية الموثوقة، ولذلك لا توجد هنا علامة «تم الحذف».",
+    checklistTitle: "ما الذي يجب أن يغطيه الحذف الموثوق قبل اعتباره مكتملاً:",
+    checklist: [
+      "إزالة حساب الدخول نفسه.",
+      "حذف الملفات الخاصة (المستندات والصورة الشخصية) من التخزين.",
+      "إيقاف ظهور الملف في البحث والإعلانات.",
+      "إخفاء هوية البيانات الشخصية مع الإبقاء على سجل التعاملات المطلوب.",
+      "عدم المساس بسجلات الطرف الآخر.",
+    ],
+    processingNote:
+      "قيد المعالجة — لا يتم اعتبار الحساب محذوفاً حتى تُنفَّذ عملية الحذف/إخفاء الهوية الموثوقة.",
   },
   en: {
     empty: "No account deletion requests.",
@@ -39,20 +48,30 @@ const TXT = {
     noReason: "No reason given",
     note: "Admin note (optional)",
     start: "Start processing",
-    complete: "Mark processed",
     reject: "Reject",
     updated: "Request updated",
     failed: "Couldn't update the request",
     statuses: {
       pending: "Pending",
       processing: "Processing",
-      completed: "Processed",
+      completed: "Completed",
       rejected: "Rejected",
       cancelled: "Cancelled",
     } as Record<string, string>,
-    hint: "Actual deletion is carried out through a trusted operational process outside this screen; here you only record the request state.",
+    hint: "This screen only records the request state. An account is not deleted until the trusted deletion/anonymisation process runs, so there is no “mark deleted” action here.",
+    checklistTitle: "What trusted deletion must cover before it counts as completed:",
+    checklist: [
+      "Remove the sign-in account itself.",
+      "Delete private files (documents and avatar) from storage.",
+      "Stop the profile from appearing in search and listings.",
+      "Anonymise personal data while keeping required transactional history.",
+      "Leave counterparty records untouched.",
+    ],
+    processingNote:
+      "Processing — the account is not considered deleted until the trusted deletion/anonymisation process runs.",
   },
 } as const;
+
 
 export function AdminDeletionQueue() {
   const { lang } = useLang();
@@ -70,7 +89,7 @@ export function AdminDeletionQueue() {
   });
 
   const update = useMutation({
-    mutationFn: async (v: { id: string; status: "processing" | "completed" | "rejected" }) => {
+    mutationFn: async (v: { id: string; status: "processing" | "rejected" }) => {
       const note = notes[v.id]?.trim();
       const { error } = await supabase.rpc("admin_update_account_deletion", {
         _request_id: v.id,
@@ -97,7 +116,16 @@ export function AdminDeletionQueue() {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">{c.hint}</p>
+      <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+        <p>{c.hint}</p>
+        <p className="mt-2 font-bold text-foreground">{c.checklistTitle}</p>
+        <ul className="mt-1 list-disc space-y-1 ps-5">
+          {c.checklist.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </div>
+
       {data.map((r) => (
         <div key={r.id} className="rounded-lg border border-border bg-card p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -121,8 +149,11 @@ export function AdminDeletionQueue() {
             value={notes[r.id] ?? ""}
             onChange={(e) => setNotes((n) => ({ ...n, [r.id]: e.target.value }))}
           />
-          <div className="mt-3 flex flex-wrap gap-2">
-            {r.status === "pending" && (
+          {r.status === "processing" && (
+            <p className="mt-3 text-xs text-muted-foreground">{c.processingNote}</p>
+          )}
+          {r.status === "pending" && (
+            <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="outline"
@@ -132,26 +163,17 @@ export function AdminDeletionQueue() {
                 {update.isPending && <Loader2 className="size-4 animate-spin" />}
                 {c.start}
               </Button>
-            )}
-            {r.status === "processing" && (
               <Button
                 size="sm"
+                variant="ghost"
                 disabled={update.isPending}
-                onClick={() => update.mutate({ id: r.id, status: "completed" })}
+                onClick={() => update.mutate({ id: r.id, status: "rejected" })}
               >
-                {update.isPending && <Loader2 className="size-4 animate-spin" />}
-                {c.complete}
+                {c.reject}
               </Button>
-            )}
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={update.isPending}
-              onClick={() => update.mutate({ id: r.id, status: "rejected" })}
-            >
-              {c.reject}
-            </Button>
-          </div>
+            </div>
+          )}
+
         </div>
       ))}
     </div>

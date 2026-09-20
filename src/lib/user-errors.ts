@@ -143,6 +143,12 @@ const RULES: Rule[] = [
     en: "The request can't move to that status from its current state.",
   },
   {
+    test: /DELETION_FINALIZER_REQUIRED/i,
+    ar: "لا يمكن اعتبار الطلب مكتملاً من هنا؛ الاكتمال يُسجَّل فقط بعد تنفيذ عملية الحذف وإخفاء الهوية الموثوقة.",
+    en: "Completion can't be recorded here; it is only set after the trusted deletion and anonymisation process runs.",
+  },
+
+  {
     test: /REQUEST_NOT_FOUND/i,
     ar: "لم نعثر على هذا الطلب. حدّث الصفحة ثم حاول مجدداً.",
     en: "We couldn't find that request. Refresh the page and try again.",

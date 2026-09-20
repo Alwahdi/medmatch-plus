@@ -52,7 +52,10 @@ const TXT = {
     statusTitle: "حالة طلبك",
     pending: "قيد الانتظار",
     processing: "قيد المعالجة",
-    completed: "تمت المعالجة",
+    completed: "مكتمل",
+    processingNote:
+      "طلبك قيد المعالجة. حسابك ما زال موجوداً ويمكنك الدخول إليه حتى تُنفَّذ عملية الحذف وإخفاء الهوية، وسنُعلمك عند اكتمالها.",
+
     rejected: "مرفوض",
     cancelledS: "ملغى",
     requestedOn: (d: string) => `تاريخ الطلب: ${d}`,
@@ -93,7 +96,10 @@ const TXT = {
     statusTitle: "Your request",
     pending: "Pending",
     processing: "Processing",
-    completed: "Processed",
+    completed: "Completed",
+    processingNote:
+      "Your request is being processed. Your account still exists and you can sign in until the deletion and anonymisation are carried out; we'll let you know once it's done.",
+
     rejected: "Rejected",
     cancelledS: "Cancelled",
     requestedOn: (d: string) => `Requested on: ${d}`,
@@ -283,7 +289,11 @@ export function AccountPrivacyPanel() {
             <p className="mt-1 text-sm text-muted-foreground">
               {c.requestedOn(formatDate(active.requested_at, lang))}
             </p>
+            {active.status === "processing" && (
+              <p className="mt-2 text-sm text-muted-foreground">{c.processingNote}</p>
+            )}
             {/* Internal review notes stay internal: the safe read model excludes them. */}
+
 
             {active.status === "pending" ? (
               <Button
