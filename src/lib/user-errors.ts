@@ -9,6 +9,17 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // المرحلة 82: شارة التوثيق مبنية على أدلة
+  {
+    test: /VERIFICATION_REQUIREMENTS_NOT_MET/i,
+    ar: "لا يمكن منح التوثيق: المستندات المطلوبة غير معتمدة بالكامل. راجع المستندات واعتمدها أولاً.",
+    en: "Verification can't be granted: the required documents are not all approved. Review and approve them first.",
+  },
+  {
+    test: /VERIFICATION_SUSPENSION_REASON_REQUIRED/i,
+    ar: "اذكر سبب سحب التوثيق (٣ أحرف على الأقل).",
+    en: "Give a reason for removing verification (at least 3 characters).",
+  },
   // المرحلة 79: بوابة التوثيق للبحث عن المرشحين وإلغاء الظهور
   {
     test: /FACILITY_VERIFICATION_REQUIRED/i,

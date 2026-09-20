@@ -28,6 +28,8 @@ import { ErrorState } from "@/components/error-state";
 import { AdminDeletionQueue } from "@/components/admin-deletion-queue";
 import { AdminSafetyReports } from "@/components/admin-safety-reports";
 import { AdminReadiness } from "@/components/admin-readiness";
+import { VerificationPanel, type DocState, type RequiredDoc } from "@/components/admin-verification";
+import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -164,6 +166,7 @@ function AdminPage() {
   const [changeNote, setChangeNote] = useState("");
   const [changeRejectId, setChangeRejectId] = useState<string | null>(null);
   const [logQuery, setLogQuery] = useState("");
+  const [tab, setTab] = useState("docs");
 
   const { data: creds, isError: credsErr, refetch: credsRefetch, isLoading: credsLoading } = useQuery({
     queryKey: ["admin-creds"],
@@ -184,7 +187,9 @@ function AdminPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facilities")
-        .select("id,name_ar,country,city,is_verified,rating_avg,rating_count,facility_type")
+        .select(
+          "id,name_ar,country,city,is_verified,rating_avg,rating_count,facility_type,verification_suspended_at,verification_suspension_reason",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -197,7 +202,9 @@ function AdminPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("healthcare_professionals")
-        .select("id,user_id,full_name,headline,years_experience,country,city,is_verified,rating_avg,rating_count")
+        .select(
+          "id,user_id,full_name,headline,years_experience,country,city,is_verified,rating_avg,rating_count,verification_suspended_at,verification_suspension_reason",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -344,27 +351,35 @@ function AdminPage() {
   });
 
   const verifyFacility = useMutation({
-    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.rpc("admin_set_facility_verified", { _facility_id: id, _value: value });
+    mutationFn: async ({ id, value, reason }: { id: string; value: boolean; reason?: string }) => {
+      const { error } = await supabase.rpc("admin_set_facility_verified", {
+        _facility_id: id,
+        _value: value,
+        ...(reason ? { _reason: reason } : {}),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.facilityUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   const verifyPro = useMutation({
-    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.rpc("admin_set_professional_verified", { _professional_id: id, _value: value });
+    mutationFn: async ({ id, value, reason }: { id: string; value: boolean; reason?: string }) => {
+      const { error } = await supabase.rpc("admin_set_professional_verified", {
+        _professional_id: id,
+        _value: value,
+        ...(reason ? { _reason: reason } : {}),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.proUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-pros"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   const handleMsg = useMutation({
@@ -429,6 +444,35 @@ function AdminPage() {
     facQuery.trim() ? f.name_ar.includes(facQuery.trim()) : true,
   );
   const shownPros = (pros ?? []).filter((p) => (proQuery.trim() ? p.full_name.includes(proQuery.trim()) : true));
+
+  // Evidence checklists mirror the DB rule: verification is granted only when
+  // every required document is approved (see sync_pro/facility_verification).
+  const PRO_REQUIRED_DOCS = ["ترخيص مزاولة المهنة", "بطاقة الهوية / الجواز"];
+  const FACILITY_REQUIRED_DOCS = ["رخصة مزاولة المنشأة", "السجل التجاري"];
+
+  function docState(rows: { doc_type: string; status: string }[], docType: string): DocState {
+    const matches = rows.filter((r) => r.doc_type === docType);
+    if (matches.length === 0) return "missing";
+    if (matches.some((r) => r.status === "approved")) return "approved";
+    if (matches.some((r) => r.status === "pending")) return "pending";
+    return "rejected";
+  }
+
+  function proRequiredDocs(userId: string): RequiredDoc[] {
+    const rows = (creds ?? []).filter((r) => r.user_id === userId);
+    return PRO_REQUIRED_DOCS.map((t) => ({
+      label: credentialLabel(t, lang),
+      state: docState(rows, t),
+    }));
+  }
+
+  function facilityRequiredDocs(facilityId: string): RequiredDoc[] {
+    const rows = (facDocs ?? []).filter((r) => r.facility_id === facilityId);
+    return FACILITY_REQUIRED_DOCS.map((t) => ({
+      label: facilityDocTypeLabel(t, lang),
+      state: docState(rows, t),
+    }));
+  }
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
   const pendingFacDocs = (facDocs ?? []).filter((d) => d.status === "pending");
   const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
@@ -471,7 +515,7 @@ function AdminPage() {
         <StatCard label={c.statInbox} value={newMsgs.length} icon={Inbox} />
       </div>
 
-      <Tabs defaultValue="docs" className="mt-8">
+      <Tabs value={tab} onValueChange={setTab} className="mt-8">
         <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <TabsList className="w-max justify-start">
             <TabsTrigger value="docs" className="shrink-0">
@@ -746,13 +790,17 @@ function AdminPage() {
                     {f.rating_count > 0 ? ` · ${c.rating(Number(f.rating_avg), f.rating_count)}` : ""}
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  variant={f.is_verified ? "outline" : "default"}
-                  onClick={() => verifyFacility.mutate({ id: f.id, value: !f.is_verified })}
-                >
-                  {f.is_verified ? c.unverify : c.verify}
-                </Button>
+                <VerificationPanel
+                  lang={lang}
+                  verified={f.is_verified}
+                  suspended={!!f.verification_suspended_at}
+                  suspensionReason={f.verification_suspension_reason}
+                  docs={facilityRequiredDocs(f.id)}
+                  pending={verifyFacility.isPending}
+                  onReviewDocs={() => setTab("facdocs")}
+                  onRestore={() => verifyFacility.mutate({ id: f.id, value: true })}
+                  onRevoke={(reason) => verifyFacility.mutate({ id: f.id, value: false, reason })}
+                />
               </li>
             ))}
           </ul>
@@ -791,13 +839,17 @@ function AdminPage() {
                       {p.rating_count > 0 ? ` · ${c.rating(Number(p.rating_avg), p.rating_count)}` : ""}
                     </p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant={p.is_verified ? "outline" : "default"}
-                    onClick={() => verifyPro.mutate({ id: p.id, value: !p.is_verified })}
-                  >
-                    {p.is_verified ? c.unverify : c.verify}
-                  </Button>
+                  <VerificationPanel
+                    lang={lang}
+                    verified={p.is_verified}
+                    suspended={!!p.verification_suspended_at}
+                    suspensionReason={p.verification_suspension_reason}
+                    docs={proRequiredDocs(p.user_id)}
+                    pending={verifyPro.isPending}
+                    onReviewDocs={() => setTab("docs")}
+                    onRestore={() => verifyPro.mutate({ id: p.id, value: true })}
+                    onRevoke={(reason) => verifyPro.mutate({ id: p.id, value: false, reason })}
+                  />
                 </li>
               ))}
             </ul>
