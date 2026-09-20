@@ -26,10 +26,23 @@ export function formatBytes(size?: number | null) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function chatPath(conversationId: string, file: File) {
+export function chatPath(conversationId: string, file: File) {
   const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-60);
   return `${conversationId}/${Date.now()}-${safe}`;
 }
+
+/**
+ * Best-effort removal of an uploaded attachment whose message never got saved.
+ * Failure here is never surfaced to the user — the original error matters more.
+ */
+export async function removeChatFile(path: string) {
+  try {
+    await supabase.storage.from(CHAT_BUCKET).remove([path]);
+  } catch {
+    /* ignored on purpose */
+  }
+}
+
 
 /** MIME types we can infer from a known extension when the browser reports none. */
 const EXT_MIME: Record<string, string> = {
@@ -66,6 +79,43 @@ export function baseMime(file: File): string | null {
   return EXT_MIME[ext] ?? null;
 }
 
+/** Extensions allowed to render inline, with the MIME types each one may carry. */
+const PREVIEW_EXT_MIME: Record<string, readonly string[]> = {
+  jpg: ["image/jpeg"],
+  jpeg: ["image/jpeg"],
+  png: ["image/png"],
+  webp: ["image/webp"],
+  gif: ["image/gif"],
+  mp4: ["video/mp4", "audio/mp4"],
+  mov: ["video/quicktime"],
+  webm: ["video/webm", "audio/webm"],
+  ogg: ["audio/ogg", "video/ogg"],
+  oga: ["audio/ogg"],
+  m4a: ["audio/mp4", "audio/x-m4a", "audio/aac"],
+  mp3: ["audio/mpeg"],
+  wav: ["audio/wav", "audio/x-wav"],
+};
+
+/**
+ * Inline preview family. The stored MIME is canonical (written from Storage by the
+ * database) and the path extension must agree with it — anything else, including
+ * HTML/SVG, falls back to a plain download link.
+ */
+export function attachmentKind(
+  path: string,
+  type?: string | null,
+): "image" | "audio" | "video" | "file" {
+  const mime = (type ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
+  const ext = (path.split(".").pop() ?? "").toLowerCase();
+  const allowed = PREVIEW_EXT_MIME[ext];
+  if (!allowed || !allowed.includes(mime)) return "file";
+  const family = mime.split("/")[0];
+  if (family === "image" || family === "audio" || family === "video") return family;
+  return "file";
+}
+
+
+
 /**
  * Uploads a chat attachment. When `onProgress` is provided the upload goes through
  * XHR so the UI can show a WhatsApp-style percentage ring; `signal` aborts it.
@@ -73,9 +123,10 @@ export function baseMime(file: File): string | null {
 export async function uploadChatFile(
   conversationId: string,
   file: File,
-  options?: { onProgress?: (percent: number) => void; signal?: AbortSignal },
+  options?: { onProgress?: (percent: number) => void; signal?: AbortSignal; path?: string },
 ) {
-  const path = chatPath(conversationId, file);
+  const path = options?.path ?? chatPath(conversationId, file);
+
   const contentType = baseMime(file);
   if (!contentType) throw new Error("unsupported_file_type");
 
@@ -356,9 +407,11 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
     },
   });
 
-  const isImage = (type ?? "").startsWith("image/");
-  const isAudio = (type ?? "").startsWith("audio/");
-  const isVideo = (type ?? "").startsWith("video/");
+  const kind = attachmentKind(path, type);
+  const isImage = kind === "image";
+  const isAudio = kind === "audio";
+  const isVideo = kind === "video";
+
 
   if (isLoading) {
     return (

@@ -1815,6 +1815,14 @@ export type Database = {
       }
     }
     Functions: {
+      admin_chat_attachment_orphans: {
+        Args: never
+        Returns: {
+          created_at: string
+          name: string
+          size: number
+        }[]
+      }
       admin_data_integrity_report: {
         Args: never
         Returns: {
