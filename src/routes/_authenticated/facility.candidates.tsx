@@ -187,7 +187,7 @@ function Candidates() {
     },
   });
 
-  const { data: quota, refetch: refetchQuota } = useQuery({
+  const { data: quota, isPending: quotaPending, refetch: refetchQuota } = useQuery({
     queryKey: ["search-quota", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -262,8 +262,10 @@ function Candidates() {
   ].filter(Boolean) as ActiveFilter[];
 
   const subState = subscriptionLifecycle(quota, quota?.subscription_plans?.is_trial);
-  const searchAllowed = subscriptionAllowsAccess(subState);
-  const subStateNote =
+  // Never claim "no access" before the plan state is known.
+  const planStateKnown = !!facility && !quotaPending;
+  const searchAllowed = !planStateKnown || subscriptionAllowsAccess(subState);
+  const subStateNote = !planStateKnown ? null :
     subState === "expired" ? c.subNoteExpired
     : subState === "inactive" ? c.subNoteInactive
     : subState === "none" ? c.subNoteNone
