@@ -593,10 +593,59 @@ function AdminPage() {
     return [...map.entries()].map(([name, items]) => ({ name, items }));
   }
 
-  const proNameByUser = new Map((pros ?? []).map((p) => [p.user_id, p.full_name]));
   const unknownOwner = lang === "ar" ? "حساب غير معروف" : "Unknown account";
-  const credGroups = groupDocs(shownDocs, (cr) => proNameByUser.get(cr.user_id) ?? unknownOwner);
-  const facDocGroups = groupDocs(shownFacDocs, (fd) => fd.facilities?.name_ar ?? unknownOwner);
+  const proByUser = new Map((pros ?? []).map((p) => [p.user_id, p]));
+  const facById = new Map((facilities ?? []).map((f) => [f.id, f]));
+  const joinMeta = (parts: (string | null | undefined)[]) => parts.filter((p) => !!p && p !== "").join(" · ");
+
+  /** صف واحد لكل كادر رفع وثائق، ومستنداته تحته في ملفه. */
+  const credOwners: ReviewOwner[] = groupDocs(shownDocs, (cr) => cr.user_id).map(({ name: userId, items }) => {
+    const p = proByUser.get(userId);
+    const place = p ? joinMeta([p.city, countryLabel(p.country, lang)]).replace(" · ", "، ") : "";
+    return {
+      key: userId,
+      name: p?.full_name ?? unknownOwner,
+      meta: joinMeta([p?.headline, place]),
+      verified: !!p?.is_verified,
+      details: p
+        ? [
+            ...(p.headline ? [{ label: c.detailHeadline, value: p.headline }] : []),
+            ...(place ? [{ label: c.detailLocation, value: place }] : []),
+            { label: c.detailExperience, value: experienceLabel(p.years_experience, lang) },
+            ...(p.rating_count > 0
+              ? [{ label: c.detailRating, value: c.rating(Number(p.rating_avg), p.rating_count) }]
+              : []),
+          ]
+        : [],
+      docs: items,
+      required: proRequiredDocs(userId),
+    };
+  });
+
+  /** صف واحد لكل منشأة رفعت مستندات. */
+  const facDocOwners: ReviewOwner[] = groupDocs(shownFacDocs, (fd) => fd.facility_id).map(
+    ({ name: facilityId, items }) => {
+      const f = facById.get(facilityId);
+      const place = f ? `${f.city}، ${countryLabel(f.country, lang)}` : "";
+      return {
+        key: facilityId,
+        name: f?.name_ar ?? items[0]?.facilities?.name_ar ?? unknownOwner,
+        meta: joinMeta([f ? facilityTypeLabel(f.facility_type, lang) : null, place]),
+        verified: !!f?.is_verified,
+        details: f
+          ? [
+              { label: c.detailType, value: facilityTypeLabel(f.facility_type, lang) },
+              { label: c.detailLocation, value: place },
+              ...(f.rating_count > 0
+                ? [{ label: c.detailRating, value: c.rating(Number(f.rating_avg), f.rating_count) }]
+                : []),
+            ]
+          : [],
+        docs: items,
+        required: facilityRequiredDocs(facilityId),
+      };
+    },
+  );
 
   const pendingChanges = (changeReqs ?? []).filter((r) => r.status === "pending");
   const openReports = (safetyReports ?? []).filter((r) => r.status === "open").length;
