@@ -327,7 +327,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       className="shrink-0"
                     >
                       <RemoteAvatar
-                        value={a.pro?.avatar_url}
+                        value={a.pro?.avatar_url ?? null}
                         alt={a.pro?.full_name ?? c.healthcarePro}
                         fallbackText={a.pro?.full_name ?? c.healthcarePro}
                         className="size-12 rounded-full text-base"
