@@ -18,6 +18,7 @@ import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
 import { canonical, shareMeta, jobCanonicalPath } from "@/lib/seo";
+import { ReportButton } from "@/components/report-dialog";
 
 const TXT = {
   ar: {
@@ -397,6 +398,14 @@ function JobDetail() {
 
             <div className="mt-6 rounded-lg bg-surface p-4 text-sm text-muted-foreground">
               {revealedFacility ? c.revealedPrivacy : c.privacyNote}
+            </div>
+
+            <div className="mt-6 border-t border-border pt-4">
+              <ReportButton
+                targetType="job"
+                targetId={job.id}
+                className="px-0 text-muted-foreground hover:text-foreground"
+              />
             </div>
           </div>
 

@@ -1326,6 +1326,48 @@ export type Database = {
           },
         ]
       }
+      safety_reports: {
+        Row: {
+          admin_note: string | null
+          category: string
+          created_at: string
+          details: string | null
+          id: string
+          reporter_user_id: string
+          resolved_at: string | null
+          status: string
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          category: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reporter_user_id: string
+          resolved_at?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          category?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reporter_user_id?: string
+          resolved_at?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       saved_jobs: {
         Row: {
           created_at: string
@@ -1722,6 +1764,22 @@ export type Database = {
           issue_code: string
         }[]
       }
+      admin_list_safety_reports: {
+        Args: { _status?: string }
+        Returns: {
+          admin_note: string
+          category: string
+          created_at: string
+          details: string
+          id: string
+          resolved_at: string
+          status: string
+          target_id: string
+          target_label: string
+          target_type: string
+          updated_at: string
+        }[]
+      }
       admin_review_credential: {
         Args: {
           _id: string
@@ -1752,6 +1810,10 @@ export type Database = {
       }
       admin_update_account_deletion: {
         Args: { _note?: string; _request_id: string; _status: string }
+        Returns: undefined
+      }
+      admin_update_safety_report: {
+        Args: { _id: string; _note?: string; _status: string }
         Returns: undefined
       }
       book_open_shift: { Args: { _shift_id: string }; Returns: string }
@@ -2011,6 +2073,15 @@ export type Database = {
       }
       submit_job_application: {
         Args: { _cover_letter?: string; _job_id: string }
+        Returns: string
+      }
+      submit_safety_report: {
+        Args: {
+          _category: string
+          _details?: string
+          _target_id: string
+          _target_type: string
+        }
         Returns: string
       }
       unhire_applicant: {

@@ -61,6 +61,30 @@ const MAP: Record<string, { ar: string; en: string }> = {
     en: "Reviews are available after a completed engagement between both sides.",
   },
   UNAUTHENTICATED: { ar: "سجّل الدخول أولاً.", en: "Please sign in first." },
+  MFA_REQUIRED: {
+    ar: "أكمل التحقق بخطوتين للمتابعة.",
+    en: "Complete two-step verification to continue.",
+  },
+  REPORT_TARGET_NOT_VISIBLE: {
+    ar: "لا يمكنك الإبلاغ عن عنصر لا تملك صلاحية الاطلاع عليه.",
+    en: "You can't report something you don't have access to.",
+  },
+  REPORT_QUOTA_EXCEEDED: {
+    ar: "وصلت الحد اليومي للبلاغات، حاول غداً.",
+    en: "You've reached the daily report limit. Please try tomorrow.",
+  },
+  REPORT_DETAILS_TOO_LONG: {
+    ar: "تفاصيل البلاغ طويلة جداً (الحد 1000 حرف).",
+    en: "The report details are too long (1000 characters max).",
+  },
+  INVALID_REPORT_CATEGORY: {
+    ar: "اختر سبباً صحيحاً للبلاغ.",
+    en: "Choose a valid report reason.",
+  },
+  INVALID_REPORT_TARGET: {
+    ar: "لا يمكن الإبلاغ عن هذا العنصر.",
+    en: "This item can't be reported.",
+  },
 };
 
 export function engagementErrorText(raw: string | undefined, lang: string): string {

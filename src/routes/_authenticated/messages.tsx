@@ -47,6 +47,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Textarea } from "@/components/ui/textarea";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { VoiceRecorder } from "@/components/voice-recorder";
+import { ReportButton } from "@/components/report-dialog";
 import {
   baseMime,
   ChatAttachment,
@@ -646,6 +647,14 @@ function MessagesPage() {
                   )
                 ) : (
                   <div className="flex min-w-0 flex-1 items-center gap-3">{headerBlock}</div>
+                )}
+                {active?.id && (
+                  <ReportButton
+                    targetType="conversation"
+                    targetId={active.id}
+                    iconOnly
+                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                  />
                 )}
               </div>
 
