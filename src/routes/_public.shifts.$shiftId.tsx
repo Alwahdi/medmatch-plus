@@ -452,6 +452,8 @@ function ShiftDetail() {
                     <Link to="/auth">{c.signIn}</Link>
                   </Button>
                 </>
+              ) : proGate.blocked ? (
+                <VerificationGateNotice hasProfile={proGate.hasProfile} />
               ) : booking ? (
                 <div className="mt-4 rounded-lg border border-success/30 bg-success/10 p-4">
                   <div className="flex items-start gap-3">
