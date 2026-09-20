@@ -58,7 +58,15 @@ const TXT = {
         ],
       },
       {
-        h: "٤. وثائق الاعتماد",
+        h: "٤. ظهورك في بحث المنشآت",
+        p: [
+          "ظهور ملفك في بحث المرشحين اختياري ومغلق افتراضياً، ولا يُفعَّل إلا بموافقتك الصريحة.",
+          "عند تفعيله ترى المنشآت المشتركة تخصصك وسنوات خبرتك ومدينتك ودولتك وحالة التوثيق وإتاحتك للمناوبات فقط، دون اسمك أو نبذتك أو رقم هاتفك أو بريدك أو وثائقك.",
+          "يمكنك إيقافه في أي وقت من ملفك المهني، فتختفي من نتائج البحث الجديدة، وتبقى محادثاتك وطلباتك السابقة متاحة لأطرافها.",
+        ],
+      },
+      {
+        h: "٥. وثائق الاعتماد",
         p: [
           "تُحفظ الوثائق في مساحة تخزين خاصة لا يمكن الوصول إليها علناً، ويطّلع عليها فريق المراجعة فقط لغرض التحقق.",
           "يمكنك حذف أي وثيقة من صفحة الاعتمادات في أي وقت.",
@@ -121,7 +129,15 @@ const TXT = {
         ],
       },
       {
-        h: "4. Credential documents",
+        h: "4. Your visibility in facility search",
+        p: [
+          "Appearing in candidate search is optional and off by default; it is only enabled with your explicit consent.",
+          "When enabled, subscribed facilities see only your specialty, years of experience, city, country, verification status and shift availability — not your name, bio, phone, email or documents.",
+          "You can turn it off at any time from your professional profile; you then drop out of new search results, while your existing conversations and applications remain available to their participants.",
+        ],
+      },
+      {
+        h: "5. Credential documents",
         p: [
           "Documents are stored in a private space that isn't publicly accessible, and are only viewed by our review team for verification purposes.",
           "You can delete any document from the credentials page at any time.",
