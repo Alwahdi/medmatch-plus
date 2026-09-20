@@ -224,7 +224,11 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: sentInvites, isError: sentInvitesErr, refetch: sentInvitesRefetch } = useQuery({
+  const {
+    data: sentInvites = [],
+    isError: sentInvitesErr,
+    refetch: sentInvitesRefetch,
+  } = useQuery({
     queryKey: ["invitations-sent", facility?.id, jobId, shiftId],
     enabled: !!facility,
     queryFn: async () => {
