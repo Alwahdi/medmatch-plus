@@ -116,7 +116,16 @@ export function AdminDeletionQueue() {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">{c.hint}</p>
+      <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+        <p>{c.hint}</p>
+        <p className="mt-2 font-bold text-foreground">{c.checklistTitle}</p>
+        <ul className="mt-1 list-disc space-y-1 ps-5">
+          {c.checklist.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </div>
+
       {data.map((r) => (
         <div key={r.id} className="rounded-lg border border-border bg-card p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
