@@ -71,7 +71,8 @@ const TXT = {
         h: "٦. الاحتفاظ بالبيانات وحقوقك",
         p: [
           "نحتفظ ببياناتك ما دام حسابك نشطاً.",
-          "لك الحق في الوصول إلى بياناتك أو تصحيحها أو طلب حذف حسابك بالكامل عبر صفحة التواصل.",
+          "لك الحق في الوصول إلى بياناتك أو تصحيحها، وفي طلب حذف حسابك من الإعدادات (الحساب والخصوصية) أو عبر صفحة التواصل.",
+          "طلب الحذف يُراجَع قبل تنفيذه، وقد نحتفظ ببعض السجلات المرتبطة بتعاملات سابقة أو نخفي هويتها بدل حذفها فوراً بالكامل عند الحاجة.",
         ],
       },
       {
@@ -80,7 +81,7 @@ const TXT = {
       },
       {
         h: "٨. تحديث السياسة",
-        p: ["قد نحدّث هذه السياسة، وسننبّهك داخل المنصة عند أي تغيير جوهري."],
+        p: ["قد نحدّث هذه السياسة، وتظهر التغييرات مع تحديث تاريخ آخر تعديل، وقد نوضّحها داخل المنصة عند الاقتضاء."],
       },
     ],
   },
@@ -133,7 +134,8 @@ const TXT = {
         h: "6. Data retention and your rights",
         p: [
           "We retain your data as long as your account is active.",
-          "You have the right to access, correct, or request full deletion of your account via the contact page.",
+          "You have the right to access and correct your data, and to request account deletion from Settings (Account & privacy) or the contact page.",
+          "Deletion requests are reviewed before being carried out, and where necessary some records tied to past transactions may be retained or anonymised rather than erased instantly.",
         ],
       },
       {
@@ -142,7 +144,7 @@ const TXT = {
       },
       {
         h: "8. Policy updates",
-        p: ["We may update this policy, and we'll notify you within the platform of any material change."],
+        p: ["We may update this policy; changes are reflected with an updated date and may be communicated in-product where appropriate."],
       },
     ],
   },

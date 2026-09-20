@@ -8,6 +8,27 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // طلبات حذف الحساب
+  {
+    test: /REASON_TOO_LONG/i,
+    ar: "السبب طويل جداً. اختصره إلى 1000 حرف أو أقل.",
+    en: "That reason is too long. Shorten it to 1000 characters or fewer.",
+  },
+  {
+    test: /REQUEST_NOT_CANCELLABLE/i,
+    ar: "لا يمكن إلغاء الطلب بعد بدء معالجته. تواصل معنا إذا غيّرت رأيك.",
+    en: "This request can't be cancelled once processing has started. Contact us if you changed your mind.",
+  },
+  {
+    test: /INVALID_DELETION_TRANSITION|INVALID_DELETION_STATUS/i,
+    ar: "لا يمكن نقل الطلب إلى هذه الحالة من حالته الحالية.",
+    en: "The request can't move to that status from its current state.",
+  },
+  {
+    test: /REQUEST_NOT_FOUND/i,
+    ar: "لم نعثر على هذا الطلب. حدّث الصفحة ثم حاول مجدداً.",
+    en: "We couldn't find that request. Refresh the page and try again.",
+  },
   // موقع المنشأة
   {
     test: /WEBSITE_TOO_LONG/i,

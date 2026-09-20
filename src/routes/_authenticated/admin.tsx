@@ -25,6 +25,7 @@ import { fieldLabel } from "@/components/change-request";
 import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
+import { AdminDeletionQueue } from "@/components/admin-deletion-queue";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -520,6 +521,9 @@ function AdminPage() {
             <TabsTrigger value="changelog" className="shrink-0">
               {lang === "ar" ? "سجل التعديلات" : "Change log"}
             </TabsTrigger>
+            <TabsTrigger value="deletions" className="shrink-0">
+              {lang === "ar" ? "طلبات حذف الحساب" : "Account deletion"}
+            </TabsTrigger>
             <TabsTrigger value="readiness" className="shrink-0">
               {lang === "ar" ? "جاهزية الإطلاق" : "Release readiness"}
             </TabsTrigger>
@@ -969,6 +973,10 @@ function AdminPage() {
               ))}
             </ul>
           )}
+        </TabsContent>
+
+        <TabsContent value="deletions" className="mt-6">
+          <AdminDeletionQueue />
         </TabsContent>
 
         <TabsContent value="readiness" className="mt-6">

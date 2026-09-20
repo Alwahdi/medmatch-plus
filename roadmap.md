@@ -533,3 +533,11 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - `_authenticated/route.tsx`: تبعيات فحص الجلسة/AAL صارت `[navigate, attempt, accessToken]` فيعاد الفحص فور تغيّر الجلسة؛ والتحويل إلى `/mfa-challenge` لا يحدث إلا مع عامل TOTP موثّق (منع حلقة aal2→challenge→dashboard).
 - Migration: `mfa_access_ok()` تقتصر على `factor_type='totp'` الموثّق؛ وأُعيد إنشاء سياسة `mfa level required` على 24 جدولاً باستخدام `(select public.mfa_access_ok())` بلا تغيير في الدلالات.
 - تحقق: typecheck/build نظيفان، 390px بلا overflow ولا أخطاء console، 24/24 سياسة محسّنة.
+
+## Phase 52 — Account & Privacy center + verified deletion-request workflow ✅
+- جدول `account_deletion_requests` (RLS: قراءة المالك/الإدارة فقط، لا كتابة مباشرة، سياسة MFA المقيدة، فهرس فريد لطلب فعّال واحد).
+- RPCs: `request_account_deletion` (idempotent، البريد من auth، سبب ≤1000)، `cancel_account_deletion` (المالك، pending فقط)، `admin_update_account_deletion` (إدارة + MFA، انتقالات محددة). anon محروم.
+- تبويب «الحساب والخصوصية» في الإعدادات: ملخص الحساب، روابط البيانات والسياسات، طلب حذف مع تأكيد وسبب اختياري وحالة/إلغاء.
+- تبويب «طلبات حذف الحساب» في /admin عبر RPC فقط، بلا حذف مستخدمين.
+- تصحيح نصوص الشروط (بند 8) والخصوصية (بند 6 و8).
+- اختبارات DB: idempotent، عزل المستخدم الآخر، إلغاء pending، منع إلغاء processing، منع غير الإدارة — ونُظّفت بيانات QA.

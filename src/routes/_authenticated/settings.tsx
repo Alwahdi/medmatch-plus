@@ -7,16 +7,17 @@ import { Button } from "@/components/ui/button";
 import { AlertsPanel } from "@/components/panels/alerts";
 import { NotificationsPanel } from "@/components/panels/notifications";
 import { SecurityPanel } from "@/components/panels/security";
+import { AccountPrivacyPanel } from "@/components/panels/account-privacy";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { ErrorState } from "@/components/error-state";
 import { useLang } from "@/lib/i18n";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
-type SettingsTab = "general" | "alerts" | "notifications" | "security";
+type SettingsTab = "general" | "alerts" | "notifications" | "security" | "account";
 type SettingsSearch = { tab?: SettingsTab };
 
-const TABS: readonly SettingsTab[] = ["general", "alerts", "notifications", "security"];
+const TABS: readonly SettingsTab[] = ["general", "alerts", "notifications", "security", "account"];
 
 export const Route = createFileRoute("/_authenticated/settings")({
   validateSearch: (search: Record<string, unknown>): SettingsSearch => {
@@ -49,6 +50,7 @@ const TXT = {
     tabAlerts: "تنبيهات الوظائف",
     tabNotifications: "الإشعارات",
     tabSecurity: "الأمان",
+    tabAccount: "الحساب والخصوصية",
     langTitle: "لغة الواجهة",
     langBody: "اختر لغة عرض المنصة، يتم الحفظ تلقائياً على هذا الجهاز.",
     arabic: "العربية",
@@ -69,6 +71,7 @@ const TXT = {
     tabAlerts: "Job alerts",
     tabNotifications: "Notifications",
     tabSecurity: "Security",
+    tabAccount: "Account & privacy",
     langTitle: "Interface language",
     langBody: "Pick the platform language. Saved automatically on this device.",
     arabic: "العربية",
@@ -113,6 +116,7 @@ function SettingsPage() {
             )}
             <TabsTrigger value="notifications" className="shrink-0">{c.tabNotifications}</TabsTrigger>
             <TabsTrigger value="security" className="shrink-0">{c.tabSecurity}</TabsTrigger>
+            <TabsTrigger value="account" className="shrink-0">{c.tabAccount}</TabsTrigger>
           </TabsList>
         </div>
 
@@ -153,6 +157,10 @@ function SettingsPage() {
 
         <TabsContent value="security" className="mt-6">
           <SecurityPanel embedded />
+        </TabsContent>
+
+        <TabsContent value="account" className="mt-6">
+          <AccountPrivacyPanel />
         </TabsContent>
       </Tabs>
     </div>
