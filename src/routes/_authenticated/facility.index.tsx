@@ -1447,7 +1447,11 @@ function ShiftForm({
           {expired ? c.subExpiredShift : c.quotaReachedShift}
         </p>
       )}
-      <Button className="w-full sm:w-auto" onClick={goReview} disabled={create.isPending || expired || quotaReached}>
+      <Button
+        className="w-full sm:w-auto"
+        onClick={goReview}
+        disabled={create.isPending || expired || quotaReached || !!startFieldError || !!endFieldError}
+      >
         {c.reviewCta}
       </Button>
     </div>
