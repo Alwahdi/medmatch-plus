@@ -347,6 +347,15 @@ export function FacilityInterviewBlock({
   const started = !!row && new Date(row.scheduled_at).getTime() <= Date.now();
   const isReschedule = !!row && (active || row.status === "declined");
 
+  // نافذة المقابلة المرتبطة بمناوبة: تبدأ وتنتهي قبل بداية المناوبة.
+  const shiftStartMs = shiftStartsAt ? new Date(shiftStartsAt).getTime() : null;
+  const plannedDuration =
+    isReschedule && row ? row.duration_minutes : Math.min(Math.max(Number(duration) || 30, 10), 240);
+  const latestStartMs = shiftStartMs === null ? null : shiftStartMs - plannedDuration * 60_000;
+  const shiftWindowOpen =
+    shiftStartMs === null || (shiftLive && latestStartMs !== null && latestStartMs > Date.now());
+  const canSchedule = !disabled && shiftWindowOpen;
+
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["interview"] });
     queryClient.invalidateQueries({ queryKey: ["facility-applicants"] });
