@@ -309,18 +309,25 @@ function JobsPage() {
     setParams({ scope: next });
   };
 
+  // قوائم الدول/المدن تأتي من مصدر عام مستقل حتى لا تعتمد على الصفحة المعروضة.
+  const { data: places } = useQuery({
+    queryKey: ["public-listing-places"],
+    queryFn: fetchListingPlaces,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const countries = useMemo(
-    () => Array.from(new Set([...(jobs ?? []), ...(shifts ?? [])].map((j) => j.country))),
-    [jobs, shifts],
+    () => Array.from(new Set((places ?? []).map((p) => p.country))),
+    [places],
   );
 
   const cities = useMemo(
     () =>
       Array.from(
         new Set(
-          [...(jobs ?? []), ...(shifts ?? [])]
-            .filter((j) => country === ALL || j.country === country)
-            .map((j) => j.city)
+          (places ?? [])
+            .filter((p) => country === ALL || p.country === country)
+            .map((p) => p.city)
             .filter((x): x is string => Boolean(x)),
         ),
       )
@@ -330,81 +337,109 @@ function JobsPage() {
           label: country === ALL ? labelCityWithCountry(x, lang) : x,
           keywords: [x, labelCityWithCountry(x, lang)],
         })),
-    [jobs, shifts, country, lang],
+    [places, country, lang],
   );
 
   const relevanceOf = (j: { specialty_id: string | null; country: string }) =>
     Number(!!profile?.specialty_id && j.specialty_id === profile.specialty_id) * 2 +
     Number(!!profile?.country && j.country === profile.country);
 
-  const filtered = (jobs ?? [])
-    .filter((j) => {
-      if (country !== ALL && j.country !== country) return false;
-      if (city !== ALL && j.city !== city) return false;
-      if (specialty !== ALL && j.specialty_id !== specialty) return false;
-      if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
-      if (type !== ALL && j.employment_type !== type) return false;
-      if (
-        q &&
-        !matchesQuery(
-          [
-            j.title,
-            j.specialties?.name_ar,
-            j.specialties?.name_en,
-            j.city,
-            j.country,
-            countryLabel(j.country, lang),
-            employmentLabel(j.employment_type, lang),
-          ],
-          q,
-        )
-      )
-        return false;
-      if (hideApplied && appliedIds?.has(j.id)) return false;
-      return true;
-    })
-    .sort((a, b) => {
-      if (sort === "match" && profile) return relevanceOf(b) - relevanceOf(a);
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+  // نطاق التخصص ليس تفويضاً — مجرد تصفية تُمرَّر إلى الخادم.
+  const scopeIds =
+    specialty !== ALL
+      ? null
+      : scope === "mine"
+        ? mySpecialtyId
+          ? [mySpecialtyId]
+          : null
+        : scope === "field"
+          ? fieldIds.length
+            ? fieldIds
+            : null
+          : null;
 
-  const filteredShifts = (kind === "job" ? [] : shifts ?? []).filter((sh) => {
-    if (country !== ALL && sh.country !== country) return false;
-    if (city !== ALL && sh.city !== city) return false;
-    if (specialty !== ALL && sh.specialty_id !== specialty) return false;
-    if (specialty === ALL && !inScope(scope, sh.specialty_id, mySpecialtyId, fieldIds)) return false;
-    if (
-      q &&
-      !matchesQuery(
-        [sh.title, sh.notes, sh.city, sh.country, countryLabel(sh.country, lang), sh.specialties?.name_ar, sh.specialties?.name_en],
-        q,
-      )
-    )
-      return false;
-    return true;
+  const excludeJobIds = hideApplied && appliedIds?.length ? appliedIds : null;
+
+  const filters: SearchFilters = {
+    q,
+    country: country === ALL ? null : country,
+    city: city === ALL ? null : city,
+    specialtyId: specialty === ALL ? null : specialty,
+    specialtyIds: scopeIds,
+    type: type === ALL ? null : type,
+    sort: sort === "match" && profile ? "match" : "new",
+    prefSpecialtyId: sort === "match" ? (profile?.specialty_id ?? null) : null,
+    prefCountry: sort === "match" ? (profile?.country ?? null) : null,
+    excludeJobIds,
+  };
+
+  // في تبويب «الكل» نعرض المناوبات القادمة أولاً ثم أحدث الوظائف، وكل مصدر
+  // يُقسَّم إلى صفحات مستقلة حتى لا يتكرر أو يضيع أي صف عند «عرض المزيد».
+  const pageSize = kind === ALL ? PAGE_SIZE_MIXED : PAGE_SIZE_SINGLE;
+  const filterKey = JSON.stringify({ ...filters, pageSize });
+
+  const jobsQuery = useInfiniteQuery({
+    queryKey: ["search-jobs", filterKey],
+    enabled: kind !== "shift",
+    initialPageParam: 0,
+    queryFn: ({ pageParam, signal }) => searchPublicJobs(filters, pageParam, pageSize, signal),
+    getNextPageParam: (last) =>
+      last.offset + last.rows.length < last.total ? last.offset + pageSize : undefined,
   });
+
+  const shiftsQuery = useInfiniteQuery({
+    queryKey: ["search-shifts", filterKey],
+    enabled: kind !== "job",
+    initialPageParam: 0,
+    queryFn: ({ pageParam, signal }) => searchPublicShifts(filters, pageParam, pageSize, signal),
+    getNextPageParam: (last) =>
+      last.offset + last.rows.length < last.total ? last.offset + pageSize : undefined,
+  });
+
+  const loadedJobs: SearchJobRow[] =
+    kind === "shift" ? [] : (jobsQuery.data?.pages.flatMap((p) => p.rows) ?? []);
+  const loadedShifts: SearchShiftRow[] =
+    kind === "job" ? [] : (shiftsQuery.data?.pages.flatMap((p) => p.rows) ?? []);
+
+  const jobsTotal = kind === "shift" ? 0 : (jobsQuery.data?.pages[0]?.total ?? 0);
+  const shiftsTotal = kind === "job" ? 0 : (shiftsQuery.data?.pages[0]?.total ?? 0);
+  const total = jobsTotal + shiftsTotal;
 
   type Item =
-    | { kind: "job"; id: string; sortAt: number; job: (typeof filtered)[number] }
-    | { kind: "shift"; id: string; sortAt: number; shift: (typeof filteredShifts)[number] };
+    | { kind: "job"; id: string; job: SearchJobRow }
+    | { kind: "shift"; id: string; shift: SearchShiftRow };
 
   const items: Item[] = [
-    ...(kind === "shift" ? [] : filtered).map<Item>((j) => ({
-      kind: "job",
-      id: j.id,
-      sortAt: new Date(j.created_at).getTime(),
-      job: j,
-    })),
-    ...filteredShifts.map<Item>((sh) => ({
-      kind: "shift",
-      id: sh.id,
-      sortAt: new Date(sh.starts_at).getTime(),
-      shift: sh,
-    })),
-  ].sort((a, b) => {
-    if (kind === ALL && a.kind !== b.kind) return a.kind === "shift" ? -1 : 1;
-    return a.kind === "shift" ? a.sortAt - b.sortAt : b.sortAt - a.sortAt;
-  });
+    ...loadedShifts.map<Item>((sh) => ({ kind: "shift", id: sh.id, shift: sh })),
+    ...loadedJobs.map<Item>((j) => ({ kind: "job", id: j.id, job: j })),
+  ];
+
+  const isLoading =
+    (kind !== "shift" && jobsQuery.isPending) || (kind !== "job" && shiftsQuery.isPending);
+  const listError = jobsQuery.error ?? shiftsQuery.error;
+  const hasError = (kind !== "shift" && jobsQuery.isError) || (kind !== "job" && shiftsQuery.isError);
+  const hasMore = Boolean(
+    (kind !== "job" && shiftsQuery.hasNextPage) || (kind !== "shift" && jobsQuery.hasNextPage),
+  );
+  const loadingMore = shiftsQuery.isFetchingNextPage || jobsQuery.isFetchingNextPage;
+
+  const [appendedNote, setAppendedNote] = useState("");
+  const countBeforeLoad = useRef(0);
+  const loadMore = () => {
+    countBeforeLoad.current = items.length;
+    const next =
+      kind !== "job" && shiftsQuery.hasNextPage
+        ? shiftsQuery.fetchNextPage()
+        : jobsQuery.fetchNextPage();
+    void next.then(() => setAppendedNote(""));
+  };
+  useEffect(() => {
+    if (!loadingMore && countBeforeLoad.current && items.length > countBeforeLoad.current) {
+      setAppendedNote(c.appended(items.length - countBeforeLoad.current));
+      countBeforeLoad.current = 0;
+    }
+  }, [loadingMore, items.length, c]);
+
 
   const reset = () => {
     void navigate({ to: "/jobs", search: {}, replace: true });
