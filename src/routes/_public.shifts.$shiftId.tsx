@@ -46,7 +46,7 @@ const TXT = {
     completed: "منتهية",
     urgent: "مستعجلة",
     verified: "ناشر موثّق",
-    hiddenEmployer: "اسم المنشأة محجوب حتى يبدأ التواصل أو يُقبل حجزك",
+    hiddenEmployer: "اسم المنشأة محجوب حتى تحجز المناوبة أو يبدأ التواصل معك",
     facilityProfile: "ملف المنشأة",
     details: "تفاصيل المناوبة",
     notes: "ملاحظات الناشر",
@@ -73,7 +73,7 @@ const TXT = {
     confirmCta: "نعم، احجزها",
     bookedToast: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
     failed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
-    hint: "الحجز مجاني للكوادر الصحية، وسيتواصل معك الناشر لتأكيد التفاصيل.",
+    hint: "الحجز مجاني للكوادر الصحية. بعد نجاح الحجز يمكن للمنشأة التواصل معك للتنسيق حول التفاصيل.",
     bookedNext: "تم الحجز. راجع الموعد وأي مقابلة أو تحديث من نشاطك.",
     trackBooking: "متابعة الحجز",
   },
@@ -89,7 +89,7 @@ const TXT = {
     completed: "Completed",
     urgent: "Urgent",
     verified: "Verified employer",
-    hiddenEmployer: "Employer name is hidden until contact starts or your booking is accepted",
+    hiddenEmployer: "Employer name is hidden until you book the shift or contact begins",
     facilityProfile: "Employer profile",
     details: "Shift details",
     notes: "Employer notes",
@@ -116,7 +116,7 @@ const TXT = {
     confirmCta: "Yes, book it",
     bookedToast: "Shift booked — you'll find it under My shifts",
     failed: "Booking failed, the shift may have just been taken",
-    hint: "Booking is free for healthcare professionals; the employer will contact you to confirm details.",
+    hint: "Booking is free for healthcare professionals. After booking, the facility can contact you to coordinate details.",
     bookedNext: "Booked successfully. Review the schedule and any updates from your activity.",
     trackBooking: "Track booking",
   },
@@ -318,7 +318,7 @@ function ShiftDetail() {
                   params={{ facilityId: facility.id }}
                   className="underline"
                 >
-                  {facility.name_ar}
+                  {facilityDisplayName(facility, lang)}
                 </Link>
               ) : (
                 c.hiddenEmployer

@@ -20,7 +20,7 @@ import { CandidateInterviewBlock } from "@/components/interview";
 import { AlertCircle, Briefcase, CheckCircle2, Clock, FileText, Undo2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { APPLICATION_STAGES, applicationLabel, applicationStage, relativeTime } from "@/lib/format";
+import { APPLICATION_STAGES, applicationLabel, applicationStage, facilityDisplayName, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { employerText, useInactiveEmployers } from "@/lib/employer";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -111,8 +111,8 @@ export function ApplicationsPanel() {
       if (error) throw error;
       const facilityIds = Array.from(new Set((data ?? []).map((a) => a.jobs?.facility_id).filter(Boolean) as string[]));
       const { data: facs } = facilityIds.length
-        ? await supabase.from("facilities").select("id,name_ar").in("id", facilityIds)
-        : { data: [] as { id: string; name_ar: string }[] };
+        ? await supabase.from("facilities").select("id,name_ar,name_en").in("id", facilityIds)
+        : { data: [] as { id: string; name_ar: string; name_en: string | null }[] };
       return (data ?? []).map((a) => ({
         ...a,
         facilityName: facs?.find((f) => f.id === a.jobs?.facility_id)?.name_ar ?? null,

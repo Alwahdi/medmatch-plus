@@ -78,7 +78,7 @@ const TXT = {
     coverCount: (n: number) => `${n} من 2000 حرف`,
     appliedNext: "تم إرسال طلبك. تابع مرحلته وأي مقابلة جديدة من نشاطك.",
     trackApplication: "متابعة الطلب",
-    revealedPrivacy: "أصبحت هوية المنشأة ظاهرة لك لأن التواصل أو الطلب بينكما بدأ بالفعل.",
+    revealedPrivacy: "أصبحت هوية المنشأة ظاهرة لك لأن علاقة توظيف أو تواصل أو دعوة بينكما بدأت بالفعل.",
   },
   en: {
     tooLong: "Message is too long",
@@ -137,7 +137,7 @@ const TXT = {
     coverCount: (n: number) => `${n} of 2,000 characters`,
     appliedNext: "Your application was sent. Track its stage and any interview updates from your activity.",
     trackApplication: "Track application",
-    revealedPrivacy: "The employer identity is visible because contact or an application relationship has already started.",
+    revealedPrivacy: "The employer identity is visible because a hiring relationship, contact or invitation has already started.",
   },
 } as const;
 
