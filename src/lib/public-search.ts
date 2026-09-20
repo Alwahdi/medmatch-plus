@@ -41,7 +41,9 @@ const orUndef = <T,>(v: T | null | undefined) => v ?? undefined;
 
 /** يحذف المفاتيح غير المعرّفة حتى تستخدم الدالة قيمها الافتراضية في قاعدة البيانات. */
 const compact = <T extends Record<string, unknown>>(args: T) =>
-  Object.fromEntries(Object.entries(args).filter(([, v]) => v !== undefined)) as T;
+  Object.fromEntries(Object.entries(args).filter(([, v]) => v !== undefined)) as {
+    [K in keyof T]: Exclude<T[K], undefined>;
+  };
 
 export async function searchPublicJobs(
   f: SearchFilters,
