@@ -344,6 +344,22 @@ export function userError(message: string): never {
 }
 
 /**
+ * نص الخطأ الخام أياً كان شكله: `Error`، أو نص، أو كائن أخطاء Supabase/PostgREST
+ * (الذي ليس من نوع `Error` ويحمل message/code/details/hint).
+ */
+function rawText(error: unknown): string {
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object") {
+    const e = error as Record<string, unknown>;
+    return [e["message"], e["code"], e["details"], e["hint"], e["error_description"], e["error"]]
+      .filter((v): v is string => typeof v === "string" && v.trim() !== "")
+      .join(" · ");
+  }
+  return "";
+}
+
+/**
  * رسالة مفهومة للمستخدم. رسائل `UserFacingError` تُعاد كما هي؛ الأخطاء المعروفة
  * تُترجم؛ وأي خطأ آخر (Supabase/RPC/تخزين) يُسجَّل تقنياً ويُعرض بنص عام.
  */
@@ -353,7 +369,7 @@ export function friendlyError(error: unknown, lang: Lang, fallback?: string): st
   if (error && !(error instanceof UserFacingError)) reportLovableError(error, { source: "handled" });
   if (error instanceof UserFacingError && error.message.trim()) return error.message;
 
-  const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  const raw = rawText(error);
   if (!raw.trim()) return fallback ?? GENERIC[lang];
 
   for (const rule of RULES) {
