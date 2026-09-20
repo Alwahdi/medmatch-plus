@@ -49,6 +49,7 @@ const TXT = {
     withdrawn: "تم سحب الطلب",
     withdrawnAt: (t: string) => `سُحب ${t}`,
     reapply: "التقديم من جديد",
+    updatedAfter: (t: string) => `حُدّثت تفاصيل الوظيفة بعد تقديمك (${t})`,
   },
   en: {
     title: "My applications",
@@ -70,6 +71,7 @@ const TXT = {
     withdrawn: "Application withdrawn",
     withdrawnAt: (t: string) => `Withdrawn ${t}`,
     reapply: "Apply again",
+    updatedAfter: (t: string) => `Job details were updated after you applied (${t})`,
   },
 } as const;
 
@@ -113,12 +115,23 @@ export function ApplicationsPanel() {
       const { data: facs } = facilityIds.length
         ? await supabase.from("facilities").select("id,name_ar,name_en").in("id", facilityIds)
         : { data: [] as { id: string; name_ar: string; name_en: string | null }[] };
+      // Phase 93: تعديلات الوظيفة الجوهرية بعد التقديم مُسجّلة، فنُظهر إشعاراً للمتقدم.
+      const jobIds = Array.from(new Set((data ?? []).map((a) => a.jobs?.id).filter(Boolean) as string[]));
+      const { data: changes } = jobIds.length
+        ? await supabase
+            .from("job_change_events")
+            .select("job_id,created_at")
+            .in("job_id", jobIds)
+            .order("created_at", { ascending: false })
+        : { data: [] as { job_id: string; created_at: string }[] };
       return (data ?? []).map((a) => ({
         ...a,
         facilityName: (() => {
           const f = facs?.find((x) => x.id === a.jobs?.facility_id);
           return f ? facilityDisplayName(f, lang) : null;
         })(),
+        updatedAfterApply:
+          changes?.find((ch) => ch.job_id === a.jobs?.id && ch.created_at > a.created_at)?.created_at ?? null,
       }));
     },
   });
@@ -182,6 +195,11 @@ export function ApplicationsPanel() {
                       <p className="text-xs text-muted-foreground">
                         {a.jobs?.city} · {c.appliedAt(relativeTime(a.created_at, lang))}
                       </p>
+                      {a.updatedAfterApply && !withdrawn && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {c.updatedAfter(relativeTime(a.updatedAfterApply, lang))}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">

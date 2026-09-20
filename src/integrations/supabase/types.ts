@@ -915,6 +915,51 @@ export type Database = {
           },
         ]
       }
+      job_change_events: {
+        Row: {
+          applicants_notified: number
+          changed_by: string | null
+          changed_fields: string[]
+          created_at: string
+          diff: Json
+          id: string
+          job_id: string
+        }
+        Insert: {
+          applicants_notified?: number
+          changed_by?: string | null
+          changed_fields: string[]
+          created_at?: string
+          diff?: Json
+          id?: string
+          job_id: string
+        }
+        Update: {
+          applicants_notified?: number
+          changed_by?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          diff?: Json
+          id?: string
+          job_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_change_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_change_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           applications_count: number
@@ -2196,6 +2241,25 @@ export type Database = {
       unhire_applicant: {
         Args: { _application_id: string }
         Returns: undefined
+      }
+      update_job_listing: {
+        Args: {
+          _city: string
+          _country: string
+          _currency: string
+          _description: string
+          _employment_type: Database["public"]["Enums"]["employment_type"]
+          _expires_at?: string
+          _job_id: string
+          _min_experience: number
+          _required_license: string
+          _salary_max: number
+          _salary_min: number
+          _specialty_id: string
+          _title: string
+          _vacancies: number
+        }
+        Returns: string
       }
       withdraw_job_application: {
         Args: { _application_id: string; _reason?: string }

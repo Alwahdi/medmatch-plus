@@ -659,6 +659,9 @@ function FacilityDashboard() {
                       {formatDateTime(s.starts_at, lang)} ·{" "}
                       {formatMoney(Number(s.hourly_rate), s.currency, lang)}
                       {c.perHour} · {s.city}
+                      {s.status !== "open" && (
+                        <span className="mt-1 block text-xs text-muted-foreground">{c.lockedTerms}</span>
+                      )}
                     </>
                   }
                   actions={
