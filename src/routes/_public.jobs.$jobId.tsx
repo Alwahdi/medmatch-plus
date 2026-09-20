@@ -487,6 +487,8 @@ function JobDetail() {
                     <Link to="/auth">{c.signInCta}</Link>
                   </Button>
                 </>
+              ) : proGate.blocked ? (
+                <VerificationGateNotice hasProfile={proGate.hasProfile} />
               ) : existing && existing.status === "withdrawn" ? (
                 <div className="mt-4">
                   <div className="rounded-lg border border-border bg-muted/50 p-4">
