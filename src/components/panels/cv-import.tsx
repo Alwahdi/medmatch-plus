@@ -73,8 +73,13 @@ const TXT = {
     cooldownMin: (m: number) => `You've reached the CV analysis limit for now. Try again in ${m} min. Your text is preserved.`,
     cooldownHour: (h: number) => `You've reached today's CV analysis limit. Try again in ${h} h. Your text is preserved.`,
     noCredits: "AI credit is currently insufficient.",
-    unavailable: "The analysis service is currently unavailable.",
-    failed: "Failed to analyze the CV, try clearer text.",
+    unavailable:
+      "The analysis service is currently unavailable. You can still complete your profile manually — your text is preserved.",
+    failed:
+      "The AI suggestion failed. You can still complete your profile manually — your text is preserved.",
+    facilityOnly: "CV analysis is available to healthcare professional accounts only.",
+    aiNotice:
+      "When you use AI analysis, your CV text is sent to an external processing service to extract your profile details. Review the results before saving; the analysis is not a confirmation of licensing. Avoid including unnecessary sensitive information.",
   },
 } as const;
 
