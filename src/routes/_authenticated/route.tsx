@@ -47,7 +47,9 @@ function AuthenticatedLayout() {
   const [authError, setAuthError] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const { lang } = useLang();
-  const { user, loading: sessionLoading, error: sessionError } = useSession();
+  const { session, user, loading: sessionLoading, error: sessionError } = useSession();
+  // إعادة الفحص عند تغيّر الجلسة الفعلية فقط (رمز وصول جديد = مستوى تحقق قد يكون تغيّر).
+  const accessToken = session?.access_token ?? null;
   const rolesQuery = useRoles(user);
   const { data: roles } = rolesQuery;
 
@@ -94,26 +96,32 @@ function AuthenticatedLayout() {
           toAuth();
           return;
         }
-        // التحقق بخطوتين: حساب فعّل التطبيق ولم يؤكّد الجلسة لا يدخل التطبيق الخاص.
-        void supabase.auth
-          .mfa
-          .getAuthenticatorAssuranceLevel()
-          .then(({ data: aal }) => {
+        // التحقق بخطوتين: حساب فعّل تطبيق المصادقة ولم يؤكّد الجلسة لا يدخل التطبيق الخاص.
+        void (async () => {
+          try {
+            const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
             if (!active) return;
             if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
-              const next = `${window.location.pathname}${window.location.search}`;
-              void navigate({
-                to: "/mfa-challenge",
-                search: next && next !== "/" ? { next } : {},
-                replace: true,
-              });
-              return;
+              // المنتج يدعم TOTP فقط: بدون عامل TOTP موثّق لا تُعرض شاشة تحدٍّ
+              // لا يستطيع المستخدم إتمامها (تفادي حلقة تحويل لانهائية).
+              const { data: factors } = await supabase.auth.mfa.listFactors();
+              if (!active) return;
+              const hasTotp = !!factors?.totp?.some((f) => f.status === "verified");
+              if (hasTotp) {
+                const next = `${window.location.pathname}${window.location.search}`;
+                void navigate({
+                  to: "/mfa-challenge",
+                  search: next && next !== "/" ? { next } : {},
+                  replace: true,
+                });
+                return;
+              }
             }
             setReady(true);
-          })
-          .catch(() => {
+          } catch {
             if (active) setAuthError(true);
-          });
+          }
+        })();
       })
       .catch((error: unknown) => {
         if (!active) return;
@@ -123,7 +131,7 @@ function AuthenticatedLayout() {
     return () => {
       active = false;
     };
-  }, [navigate, attempt]);
+  }, [navigate, attempt, accessToken]);
 
 
   // حارس الأدوار: كل دور يصل إلى صفحاته فقط.

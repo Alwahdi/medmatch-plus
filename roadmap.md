@@ -526,3 +526,10 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - واجهة: مسار عام جديد `/mfa-challenge` (تحدي TOTP بـ6 أرقام، AR/EN، جوال)، وحارس `_authenticated` يوجّه الجلسة aal1 إليه عند وجود عامل موثّق.
 - صفحة الأمان: حُذف قسم البصمة/WebAuthn غير الحقيقي و`src/lib/webauthn.ts` (لم تُحذف صفوف trusted_devices التاريخية)؛ تغيير كلمة المرور صار يعيد المصادقة فعلياً بكلمة المرور الحالية ثم يُنهي الجلسات الأخرى؛ الحسابات بجوجل فقط تحصل على رابط تعيين كلمة مرور بدل حقل وهمي؛ ربط جوجل عبر linkIdentity فقط بلا بديل قد يبدّل الحساب.
 - ملاحظات linter: `ai_usage_events` بلا سياسة عمداً (مغلق)، والviews المنقّحة ودوال الأعمال قابلة للتنفيذ عمداً حسب التصميم.
+
+## Phase 51 — MFA session stability during password change + session-change gate (مكتملة)
+- `src/lib/reauth.ts` جديد: `verifyCurrentPassword` عبر عميل Supabase مؤقت (`persistSession:false`, `autoRefreshToken:false`, `detectSessionInUrl:false`, `storage:undefined`) + مطابقة `user.id`، ثم `signOut({scope:"local"})` للعميل المؤقت فقط. لا تخزين لكلمة المرور أو رمز الوصول.
+- `security.tsx`: `changePassword` لم يعد يستدعي `signInWithPassword` على العميل الأساسي؛ جلسة aal2 تبقى سليمة ثم `updateUser({password})` + `signOut({scope:"others"})`.
+- `_authenticated/route.tsx`: تبعيات فحص الجلسة/AAL صارت `[navigate, attempt, accessToken]` فيعاد الفحص فور تغيّر الجلسة؛ والتحويل إلى `/mfa-challenge` لا يحدث إلا مع عامل TOTP موثّق (منع حلقة aal2→challenge→dashboard).
+- Migration: `mfa_access_ok()` تقتصر على `factor_type='totp'` الموثّق؛ وأُعيد إنشاء سياسة `mfa level required` على 24 جدولاً باستخدام `(select public.mfa_access_ok())` بلا تغيير في الدلالات.
+- تحقق: typecheck/build نظيفان، 390px بلا overflow ولا أخطاء console، 24/24 سياسة محسّنة.
