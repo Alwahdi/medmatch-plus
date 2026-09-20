@@ -462,6 +462,21 @@ function AdminPage() {
       </div>
     );
 
+  if (isAdmin && hasTotp === true && aal2 === false)
+    return (
+      <div className="mx-auto max-w-md px-4 py-24 text-center">
+        <ShieldCheck className="mx-auto size-8 text-primary" aria-hidden />
+        <h1 className="mt-3 font-display text-2xl font-extrabold">{c.stepUpTitle}</h1>
+        <p className="mt-2 text-muted-foreground">{c.stepUpText}</p>
+        <a
+          href="/mfa-challenge?next=/admin"
+          className="mt-6 inline-block text-primary underline underline-offset-4"
+        >
+          {c.stepUpAction}
+        </a>
+      </div>
+    );
+
   const pendingDocs = (creds ?? []).filter((d) => d.status === "pending");
   const shownDocs = pendingOnly ? pendingDocs : creds ?? [];
   const shownFacilities = (facilities ?? []).filter((f) =>
