@@ -201,14 +201,20 @@ function InvitationsPage() {
 
                   {inv.status === "pending" ? (
                     <>
-                      <Button size="sm" onClick={() => act(inv.id, "accepted")} loading={respond.isPending}>
+                      <Button
+                        size="sm"
+                        onClick={() => act(inv.id, "accepted")}
+                        loading={busy?.id === inv.id && busy.status === "accepted"}
+                        disabled={!!busy && busy.id !== inv.id}
+                      >
                         <Check className="size-4" /> {c.accept}
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => act(inv.id, "declined")}
-                        loading={respond.isPending}
+                        loading={busy?.id === inv.id && busy.status === "declined"}
+                        disabled={!!busy && busy.id !== inv.id}
                       >
                         <X className="size-4" /> {c.decline}
                       </Button>
