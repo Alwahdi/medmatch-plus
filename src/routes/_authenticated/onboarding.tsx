@@ -260,6 +260,66 @@ function Onboarding() {
   );
 }
 
+/**
+ * الحساب الذي أنشأ ملفه فعلاً لا يُعرض له اختيار نوع آخر:
+ * نوع الحساب واحد ونهائي، وإن تعثّر التفعيل نعيد المحاولة لنفس الملف.
+ */
+function ExistingTypeNotice({
+  type,
+  failed,
+  busy,
+  onRetry,
+}: {
+  type: "professional" | "facility";
+  failed: boolean;
+  busy: boolean;
+  onRetry: () => void;
+}) {
+  const { lang } = useLang();
+  const ar = lang !== "en";
+  const typeLabel = ar
+    ? type === "facility"
+      ? "منشأة صحية"
+      : "كادر صحي"
+    : type === "facility"
+      ? "Healthcare facility"
+      : "Healthcare professional";
+
+  return (
+    <div className="mt-8 rounded-lg border border-border bg-card p-5">
+      <div className="flex items-center gap-3">
+        {type === "facility" ? (
+          <Building2 className="size-6 text-primary" />
+        ) : (
+          <Stethoscope className="size-6 text-primary" />
+        )}
+        <div>
+          <p className="text-sm text-muted-foreground">{ar ? "نوع حسابك" : "Your account type"}</p>
+          <p className="font-bold">{typeLabel}</p>
+        </div>
+      </div>
+      <p className="mt-4 text-sm leading-6 text-muted-foreground">
+        {failed
+          ? ar
+            ? "أنشأنا ملفك بنجاح لكن تعذّر تفعيله الآن. أعد المحاولة للمتابعة إلى حسابك."
+            : "Your profile was created but we couldn't activate it just now. Retry to continue to your account."
+          : ar
+            ? "حسابك مرتبط بهذا النوع فقط، ولا يمكن تحويله إلى النوع الآخر. جارٍ نقلك إلى حسابك…"
+            : "Your account is tied to this type only and can't be switched to the other one. Taking you to your account…"}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        {ar
+          ? "إذا احتجت النوع الآخر، أنشئ حساباً ببريد إلكتروني مختلف."
+          : "If you need the other type, create an account with a different email."}
+      </p>
+      <Button type="button" className="mt-5 min-h-11 rounded-lg" disabled={busy} onClick={onRetry}>
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4 rtl:rotate-180" />}
+        {ar ? "المتابعة إلى حسابي" : "Continue to my account"}
+      </Button>
+    </div>
+  );
+}
+
 function PathPicker({ onPick }: { onPick: (p: Path) => void }) {
   const { t } = useLang();
   return (
