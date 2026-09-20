@@ -1996,27 +1996,6 @@ export type Database = {
         }
         Returns: string
       }
-      search_candidates_atomic: {
-        Args: {
-          _city?: string
-          _country?: string
-          _limit?: number
-          _min_experience?: number
-          _specialty_id?: string
-        }
-        Returns: {
-          bio: string
-          city: string
-          country: string
-          headline: string
-          id: string
-          is_open_to_shifts: boolean
-          is_verified: boolean
-          specialty_id: string
-          user_id: string
-          years_experience: number
-        }[]
-      }
       search_candidates_idempotent: {
         Args: {
           _city?: string
