@@ -707,12 +707,29 @@ function AdminPage() {
             <div className="mt-4 space-y-6">
               {credGroups.map((group) => (
                 <section key={group.name}>
-                  <h2 className="mb-2 text-sm font-bold">
-                    {group.name}
-                    <span className="ms-2 text-xs font-normal text-muted-foreground">
-                      {group.items.length}
-                    </span>
-                  </h2>
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <h2 className="text-sm font-bold">{group.name}</h2>
+                    <Badge variant="secondary">
+                      {c.pendingCount(group.items.filter((r) => r.status === "pending").length)}
+                    </Badge>
+                    {group.items.some((r) => r.status === "pending") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="ms-auto"
+                        loading={bulkApprove.isPending && bulkApprove.variables?.groupKey === `cred:${group.name}`}
+                        disabled={bulkApprove.isPending}
+                        onClick={() => {
+                          const ids = group.items.filter((r) => r.status === "pending").map((r) => r.id);
+                          if (!window.confirm(c.approveAllConfirm(group.name, ids.length))) return;
+                          bulkApprove.mutate({ ids, kind: "cred", groupKey: `cred:${group.name}` });
+                        }}
+                      >
+                        <CheckCircle2 className="size-4" />
+                        {c.approveAll(group.items.filter((r) => r.status === "pending").length)}
+                      </Button>
+                    )}
+                  </div>
                   <ul className="space-y-3">
               {group.items.map((cr) => (
                 <li key={cr.id} className="rounded-lg border border-border bg-card p-4">
