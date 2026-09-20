@@ -598,3 +598,10 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - CHECK constraints for all client-writable text lengths and numeric bounds (validated against live data).
 - Blank name / blank job location rejected via trigger on new writes (legacy rows untouched).
 - Constraint-name -> AR/EN message mapping in src/lib/user-errors.ts.
+
+## Phase 60 — Future migration privilege safety gate (done)
+- Revoked TRUNCATE/TRIGGER/REFERENCES/MAINTAIN from anon+authenticated on every public table/view (covers tables created after Phase 34).
+- Tracked the live Phase 52 hotfix on account_deletion_requests (authenticated SELECT only, all writes via trusted RPCs).
+- No client privileges on public sequences.
+- New admin+MFA read-only report: public.release_privilege_audit().
+- Convention documented in supabase/PRIVILEGE-SAFETY.md. Default DB privileges cannot be altered by this connector, so explicit grants are mandatory in every migration.
