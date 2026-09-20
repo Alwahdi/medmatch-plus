@@ -8,6 +8,62 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // حدود التحقق على مستوى قاعدة البيانات (المرحلة 59)
+  {
+    test: /FULL_NAME_REQUIRED/i,
+    ar: "الاسم مطلوب ولا يمكن تركه فارغاً.",
+    en: "A name is required and can't be left blank.",
+  },
+  {
+    test: /LOCATION_REQUIRED/i,
+    ar: "الدولة والمدينة مطلوبتان.",
+    en: "Country and city are required.",
+  },
+  {
+    test: /jobs_title_ck|shifts_title_ck/i,
+    ar: "عنوان الفرصة يجب أن يكون بين 3 و120 حرفاً.",
+    en: "The listing title must be between 3 and 120 characters.",
+  },
+  {
+    test: /jobs_description_ck/i,
+    ar: "وصف الوظيفة يجب أن يكون بين 20 و5000 حرف.",
+    en: "The job description must be between 20 and 5000 characters.",
+  },
+  {
+    test: /jobs_salary_ck/i,
+    ar: "تحقق من الراتب: لا يقبل قيمة سالبة، والحد الأدنى يجب ألا يتجاوز الحد الأعلى.",
+    en: "Check the salary: it can't be negative and the minimum can't exceed the maximum.",
+  },
+  {
+    test: /jobs_vacancies_ck/i,
+    ar: "عدد الشواغر يجب أن يكون بين 1 و100.",
+    en: "Vacancies must be between 1 and 100.",
+  },
+  {
+    test: /jobs_experience_ck|hp_years_ck/i,
+    ar: "سنوات الخبرة يجب أن تكون بين 0 و60.",
+    en: "Years of experience must be between 0 and 60.",
+  },
+  {
+    test: /shifts_rate_ck/i,
+    ar: "أجر الساعة يجب أن يكون رقماً غير سالب.",
+    en: "The hourly rate must be a non-negative number.",
+  },
+  {
+    test: /_currency_ck/i,
+    ar: "اختر عملة صحيحة من القائمة.",
+    en: "Pick a valid currency from the list.",
+  },
+  {
+    test: /profiles_phone_ck|job_alerts_phone_ck/i,
+    ar: "رقم الجوال غير صالح. اكتب من 7 إلى 15 رقماً، مع مقدمة الدولة اختيارياً.",
+    en: "That phone number isn't valid. Use 7 to 15 digits, with an optional country prefix.",
+  },
+  {
+    test: /hp_bio_ck|facilities_description_ck|shifts_notes_ck|hp_headline_ck|applications_cover_ck|reviews_comment_ck|pcr_value_ck|credentials_text_ck|facility_documents_text_ck|_name_ck|_text_ck/i,
+    ar: "أحد الحقول أطول من المسموح. اختصر النص ثم أعد الحفظ.",
+    en: "One of the fields is longer than allowed. Shorten it and save again.",
+  },
   // نوع حساب واحد لكل مستخدم (كادر صحي أو منشأة)
   {
     test: /ACCOUNT_TYPE_CONFLICT/i,
