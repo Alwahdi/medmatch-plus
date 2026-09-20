@@ -30,6 +30,7 @@ import { AdminSafetyReports } from "@/components/admin-safety-reports";
 import { AdminReadiness } from "@/components/admin-readiness";
 import { VerificationPanel, type DocState, type RequiredDoc } from "@/components/admin-verification";
 import { friendlyError } from "@/lib/user-errors";
+import { useVerifiedTotp } from "@/lib/admin-mfa";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -48,6 +49,9 @@ const TXT = {
   ar: {
     loading: "جارٍ التحميل...",
     adminOnlyTitle: "هذه الصفحة للإدارة فقط",
+    mfaGateTitle: "التحقق بخطوتين مطلوب لحسابات الإدارة",
+    mfaGateText: "فعّل تطبيق المصادقة من صفحة الأمان ثم عد إلى لوحة الإدارة. لن تعمل أي عملية إدارية قبل ذلك.",
+    mfaGateAction: "الذهاب إلى الأمان",
     adminOnlyText: "حسابك لا يملك صلاحية مراجعة الوثائق واعتماد المنشآت.",
     backToDashboard: "العودة إلى لوحتك",
     title: "لوحة الإدارة",
@@ -94,6 +98,9 @@ const TXT = {
   en: {
     loading: "Loading...",
     adminOnlyTitle: "This page is for admins only",
+    mfaGateTitle: "Two-factor authentication is required for admin accounts",
+    mfaGateText: "Set up an authenticator app on the Security page, then come back. Admin actions stay blocked until you do.",
+    mfaGateAction: "Go to Security",
     adminOnlyText: "Your account doesn't have permission to review documents and verify facilities.",
     backToDashboard: "Back to your dashboard",
     title: "Admin panel",
@@ -157,6 +164,9 @@ function AdminPage() {
   const { data: roles, isLoading: rolesLoading } = useRoles(user);
   const queryClient = useQueryClient();
   const isAdmin = roles?.includes("admin");
+  const { data: hasTotp, isLoading: totpLoading } = useVerifiedTotp(!!isAdmin);
+  // الطابور الحسّاس لا يُحمَّل إطلاقاً لمدير بلا عامل TOTP موثّق.
+  const adminReady = !!isAdmin && hasTotp === true;
 
   const [pendingOnly, setPendingOnly] = useState(true);
   const [rejectId, setRejectId] = useState<string | null>(null);
@@ -170,7 +180,7 @@ function AdminPage() {
 
   const { data: creds, isError: credsErr, refetch: credsRefetch, isLoading: credsLoading } = useQuery({
     queryKey: ["admin-creds"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("credentials")
@@ -183,7 +193,7 @@ function AdminPage() {
 
   const { data: facilities, isError: facilitiesErr, refetch: facilitiesRefetch } = useQuery({
     queryKey: ["admin-facilities"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facilities")
@@ -198,7 +208,7 @@ function AdminPage() {
 
   const { data: pros, isError: prosErr, refetch: prosRefetch } = useQuery({
     queryKey: ["admin-pros"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("healthcare_professionals")
@@ -213,7 +223,7 @@ function AdminPage() {
 
   const { data: facDocs, isError: facDocsErr, refetch: facDocsRefetch, isLoading: facDocsLoading } = useQuery({
     queryKey: ["admin-facility-docs"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facility_documents")
@@ -226,7 +236,7 @@ function AdminPage() {
 
   const { data: inbox, isError: inboxErr, refetch: inboxRefetch } = useQuery({
     queryKey: ["admin-inbox"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contact_messages")
@@ -241,7 +251,7 @@ function AdminPage() {
 
   const { data: changeReqs, isError: changeReqsErr, refetch: changeReqsRefetch } = useQuery({
     queryKey: ["admin-change-requests"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profile_change_requests")
@@ -254,7 +264,7 @@ function AdminPage() {
 
   const { data: safetyReports } = useQuery({
     queryKey: ["admin-safety-reports"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase.rpc("admin_list_safety_reports");
       if (error) throw error;
@@ -266,7 +276,7 @@ function AdminPage() {
 
   const { data: changeLog, isError: changeLogErr, refetch: changeLogRefetch } = useQuery({
     queryKey: ["admin-change-log"],
-    enabled: !!isAdmin,
+    enabled: adminReady,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profile_change_log")
@@ -421,7 +431,7 @@ function AdminPage() {
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   }
 
-  if (rolesLoading)
+  if (rolesLoading || (isAdmin && totpLoading))
     return (
       <div className="mx-auto max-w-4xl p-6">
         <span className="sr-only">{c.loading}</span>
@@ -435,6 +445,18 @@ function AdminPage() {
         <p className="mt-2 text-muted-foreground">{c.adminOnlyText}</p>
         <Link to="/dashboard" className="mt-6 inline-block text-primary underline underline-offset-4">
           {c.backToDashboard}
+        </Link>
+      </div>
+    );
+
+  if (isAdmin && hasTotp === false)
+    return (
+      <div className="mx-auto max-w-md px-4 py-24 text-center">
+        <ShieldCheck className="mx-auto size-8 text-primary" aria-hidden />
+        <h1 className="mt-3 font-display text-2xl font-extrabold">{c.mfaGateTitle}</h1>
+        <p className="mt-2 text-muted-foreground">{c.mfaGateText}</p>
+        <Link to="/security" className="mt-6 inline-block text-primary underline underline-offset-4">
+          {c.mfaGateAction}
         </Link>
       </div>
     );
