@@ -23,6 +23,7 @@ const TXT = {
     shift: "مناوبة",
     published: "منشورة",
     closed: "مغلقة",
+    expired: "انتهى موعد التقديم",
     open: "متاحة",
     booked: "محجوزة",
     cancelled: "ملغاة",
@@ -35,6 +36,7 @@ const TXT = {
     shift: "Shift",
     published: "Published",
     closed: "Closed",
+    expired: "Application deadline passed",
     open: "Open",
     booked: "Booked",
     cancelled: "Cancelled",
@@ -66,12 +68,13 @@ export function WorkTypeBadge({ type, className }: { type: WorkType; className?:
   );
 }
 
-export type WorkStatus = "published" | "closed" | "open" | "booked" | "cancelled" | "completed";
+export type WorkStatus = "published" | "closed" | "expired" | "open" | "booked" | "cancelled" | "completed";
 
 const STATUS_ICON = {
   published: CircleDot,
   open: CircleDot,
   closed: PauseCircle,
+  expired: CalendarClock,
   booked: CalendarCheck2,
   cancelled: CircleSlash,
   completed: CheckCircle2,

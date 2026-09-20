@@ -107,7 +107,7 @@ export function ApplicationsPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select("id,status,created_at,withdrawn_at,cover_letter,jobs(id,title,city,country,facility_id,is_active)")
+        .select("id,status,created_at,withdrawn_at,cover_letter,jobs(id,title,city,country,facility_id,is_active,expires_at)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -226,7 +226,8 @@ export function ApplicationsPanel() {
                 ) : withdrawn ? (
                   <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
                     <span>{a.withdrawn_at ? c.withdrawnAt(relativeTime(a.withdrawn_at, lang)) : c.withdrawn}</span>
-                    {a.jobs?.is_active && (
+                    {a.jobs?.is_active &&
+                      (!a.jobs.expires_at || new Date(a.jobs.expires_at).getTime() > Date.now()) && (
                       <Button size="sm" variant="outline" asChild>
                         <Link to="/jobs/$jobId" params={{ jobId: a.jobs.id }}>{c.reapply}</Link>
                       </Button>
