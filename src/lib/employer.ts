@@ -1,38 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/auth";
 import type { Lang } from "@/lib/i18n";
 
 /**
- * هوية جهة العمل تُقرأ من قاعدة البيانات فقط عند وجود تعامل حقيقي ومالك حساب حي.
- * إن لم يُرجع الاستعلام صفاً، فجهة العمل غير متاحة (حساب غير قائم أو هوية غير مكشوفة).
+ * جهات العمل التي تعامل معها المستخدم سابقاً ولم يعد لها حساب قائم على المنصة.
+ * الدالة في قاعدة البيانات محصورة بسجلات المستخدم نفسه ولا تكشف أي بيانات عن الجهة.
  */
-export function useEmployerIdentities(facilityIds: (string | null | undefined)[]) {
-  const ids = Array.from(new Set(facilityIds.filter(Boolean) as string[])).sort();
-  return useQuery({
-    queryKey: ["employer-identities", ids],
-    enabled: ids.length > 0,
+export function useInactiveEmployers() {
+  const { user } = useSession();
+  const { data } = useQuery({
+    queryKey: ["inactive-employers", user?.id],
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await supabase.from("facilities").select("id,name_ar").in("id", ids);
+      const { data, error } = await supabase.rpc("my_inactive_employers");
       if (error) throw error;
-      const map = new Map<string, string>();
-      for (const f of data ?? []) map.set(f.id, f.name_ar);
-      return map;
+      return new Set<string>((data ?? []) as unknown as string[]);
     },
   });
+  return data ?? new Set<string>();
 }
 
-export const EMPLOYER_TXT = {
+const EMPLOYER_TXT = {
   ar: {
     unavailable: "جهة العمل غير متاحة",
-    unavailableNote: "لم تعد جهة العمل نشطة على المنصة. هذا السجل محفوظ للاطلاع فقط، ولا تتوفر مراسلة أو تقييم أو مقابلة.",
-    closedListing: "هذه الفرصة لم تعد معروضة.",
+    unavailableNote:
+      "لم تعد جهة العمل نشطة على المنصة، وهذه الفرصة لم تعد معروضة. السجل محفوظ لك للاطلاع فقط، ولا تتوفر مراسلة أو تقييم أو مقابلة.",
   },
   en: {
     unavailable: "Employer unavailable",
     unavailableNote:
-      "This employer is no longer active on the platform. The record is kept for your reference only — messaging, reviews, and interviews aren't available.",
-    closedListing: "This listing is no longer available.",
+      "This employer is no longer active on the platform and the listing is no longer available. The record is kept for your reference only — messaging, reviews, and interviews aren't available.",
   },
 } as const;
 
