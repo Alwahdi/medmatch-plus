@@ -58,7 +58,6 @@ const TXT = {
     requestedOn: (d: string) => `تاريخ الطلب: ${d}`,
     cancelBtn: "إلغاء الطلب",
     cannotCancel: "بدأت معالجة الطلب، لم يعد الإلغاء ممكناً من هنا. تواصل معنا إذا غيّرت رأيك.",
-    adminNote: "ملاحظة الفريق",
     failed: "تعذّر تنفيذ العملية. حاول مرة أخرى.",
   },
   en: {
@@ -100,7 +99,6 @@ const TXT = {
     requestedOn: (d: string) => `Requested on: ${d}`,
     cancelBtn: "Cancel request",
     cannotCancel: "Processing has started, so it can't be cancelled here. Contact us if you changed your mind.",
-    adminNote: "Team note",
     failed: "That didn't work. Please try again.",
   },
 } as const;
