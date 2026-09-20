@@ -25,15 +25,9 @@ export type OperationalReadiness = {
 export const getOperationalReadiness = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<OperationalReadiness> => {
-    // التحقق بخطوتين ثم صلاحية الإدارة — كلاهما من قاعدة البيانات، لا من بيانات العميل.
-    const { error: mfaError } = await context.supabase.rpc("require_mfa");
-    if (mfaError) throw new Error("MFA_REQUIRED");
-    const { data: isAdmin, error: roleError } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (roleError) throw new Error("ADMIN_CHECK_FAILED");
-    if (!isAdmin) throw new Error("ADMIN_REQUIRED");
+    // صلاحية الإدارة + تحقق بخطوتين إلزامي — من قاعدة البيانات، لا من بيانات العميل.
+    const { error: adminMfaError } = await context.supabase.rpc("require_admin_mfa");
+    if (adminMfaError) throw new Error(adminMfaError.message.includes("NOT_ADMIN") ? "ADMIN_REQUIRED" : adminMfaError.message.includes("ENROLLMENT") ? "ADMIN_MFA_ENROLLMENT_REQUIRED" : "MFA_REQUIRED");
 
     const { alertChannelStatus } = await import("./notify.server");
     const channels = alertChannelStatus();
