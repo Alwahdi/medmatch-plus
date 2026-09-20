@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          admin_note: string | null
+          email_snapshot: string
+          id: string
+          processed_at: string | null
+          reason: string | null
+          requested_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          email_snapshot: string
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          email_snapshot?: string
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_usage_events: {
         Row: {
           created_at: string
@@ -1699,6 +1735,10 @@ export type Database = {
         Args: { _professional_id: string; _value: boolean }
         Returns: undefined
       }
+      admin_update_account_deletion: {
+        Args: { _note?: string; _request_id: string; _status: string }
+        Returns: undefined
+      }
       book_open_shift: { Args: { _shift_id: string }; Returns: string }
       bootstrap_admin_role: { Args: { _user_id: string }; Returns: boolean }
       can_read_avatar_path: {
@@ -1708,6 +1748,10 @@ export type Database = {
       can_view_facility_identity: {
         Args: { _facility_id: string; _user_id: string }
         Returns: boolean
+      }
+      cancel_account_deletion: {
+        Args: { _request_id: string }
+        Returns: undefined
       }
       cancel_facility_shift: {
         Args: { _reason?: string; _shift_id: string }
@@ -1793,6 +1837,7 @@ export type Database = {
           value: number
         }[]
       }
+      request_account_deletion: { Args: { _reason?: string }; Returns: string }
       require_mfa: { Args: never; Returns: undefined }
       reschedule_interview: {
         Args: { _interview_id: string; _notes?: string; _scheduled_at: string }
