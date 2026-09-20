@@ -127,20 +127,16 @@ function CandidateProfile() {
       const shiftIds = shifts.map((s) => s.id);
 
       const [appsRes, bookingsRes, reviewsRes] = await Promise.all([
-        jobIds.length
-          ? supabase
-              .from("applications")
-              .select("id,status,created_at,job_id")
-              .eq("user_id", userId)
-              .in("job_id", jobIds)
-          : Promise.resolve({ data: [] as never[] }),
-        shiftIds.length
-          ? supabase
-              .from("shift_bookings")
-              .select("id,status,created_at,shift_id")
-              .eq("user_id", userId)
-              .in("shift_id", shiftIds)
-          : Promise.resolve({ data: [] as never[], error: null }),
+        supabase
+          .from("applications")
+          .select("id,status,created_at,job_id")
+          .eq("user_id", userId)
+          .in("job_id", jobIds),
+        supabase
+          .from("shift_bookings")
+          .select("id,status,created_at,shift_id")
+          .eq("user_id", userId)
+          .in("shift_id", shiftIds),
         supabase
           .from("reviews")
           .select("id,rating,comment,created_at")
