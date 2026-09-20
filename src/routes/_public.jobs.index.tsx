@@ -285,15 +285,21 @@ function JobsPage() {
     : profile ? "match" : "new";
   const hideApplied = signedIn && sp.hideApplied !== "0";
 
+  // معرفات ما قدّم عليه المستخدم نفسه فقط، بسقف معقول، وتُمرَّر كاستثناء للخادم.
   const { data: appliedIds } = useQuery({
     queryKey: ["my-applied-job-ids", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("applications").select("job_id").eq("user_id", user!.id);
+      const { data, error } = await supabase
+        .from("applications")
+        .select("job_id")
+        .eq("user_id", user!.id)
+        .limit(500);
       if (error) throw error;
-      return new Set((data ?? []).map((r) => r.job_id));
+      return (data ?? []).map((r) => r.job_id);
     },
   });
+  const appliedSet = useMemo(() => new Set(appliedIds ?? []), [appliedIds]);
 
   const { data: savedIds } = useQuery({
     queryKey: ["my-saved-job-ids", user?.id],
