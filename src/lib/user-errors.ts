@@ -9,6 +9,22 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // المرحلة 100: التحقق بخطوتين إلزامي لحسابات الإدارة
+  {
+    test: /ADMIN_MFA_ENROLLMENT_REQUIRED/i,
+    ar: "حسابات الإدارة تتطلب تفعيل التحقق بخطوتين. فعّله من صفحة الأمان ثم أعد المحاولة.",
+    en: "Admin accounts require two-factor authentication. Turn it on from the Security page, then try again.",
+  },
+  {
+    test: /MFA_REQUIRED/i,
+    ar: "هذه العملية تتطلب تأكيد جلستك برمز التحقق بخطوتين.",
+    en: "This action needs your session confirmed with your two-factor code.",
+  },
+  {
+    test: /NOT_ADMIN/i,
+    ar: "هذه العملية متاحة لحسابات الإدارة فقط.",
+    en: "This action is available to admin accounts only.",
+  },
   // المرحلة 83: دورة حياة الدعوة تتبع توفر الفرصة
   {
     test: /INVITATION_TARGET_UNAVAILABLE/i,
