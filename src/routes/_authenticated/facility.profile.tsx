@@ -159,6 +159,8 @@ function FacilityProfile() {
     city: "",
     website: "",
     logo_url: "",
+    lat: null as number | null,
+    lng: null as number | null,
     description: "",
   });
 
