@@ -1088,3 +1088,14 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - إصلاح واجهة الحالة غير الصالحة: زر رئيسي «طلب رابط جديد» -> `/auth`، وزر ثانوي صحيح التسمية «الصفحة الرئيسية» -> `/` (كان معنوناً «العودة لتسجيل الدخول» ويقود للرئيسية).
 - اختبارات (390px): بلا معاملات، `?code=garbage`، `token_hash` غير صالح، ورابط منتهٍ => جميعها `invalid` بلا نموذج. ومع جلسة مستخدم حقيقية مسجّلة الدخول: `/reset-password` و`/reset-password?code=fake` => `invalid` (كانت تفتح النموذج سابقاً). AR/EN وnoindex كما هي.
 - لم يُختبر رابط استعادة حقيقي من طرف إلى طرف لأن إرسال البريد غير مُفعّل؛ مسارا `verifyOtp` و`exchangeCodeForSession` صريحان ولا يعتمدان على وجود جلسة.
+
+## Phase80 — اكتمال الملف/الإعداد مفروض من الخادم قبل الإجراءات التشغيلية
+- دوال مساعدة SECURITY DEFINER بـ`search_path ''`: `private.professional_profile_complete(_user_id)` (حساب حي + صف كادر + اسم ≥2 + تخصص موجود + دولة ومدينة غير فارغة + سنوات خبرة 0..60) و`private.facility_profile_complete(_facility_id)` (مالك حي + اسم عربي ≥2 + نوع المنشأة والدولة والمدينة غير فارغة).
+- `public.my_profile_completeness()` self-scoped عبر `auth.uid()` فقط (لا فحص لمستخدمين آخرين)، صلاحية تنفيذ لـ`authenticated` فقط.
+- بوابات الأدوار: `claim_professional_role` => `PROFILE_INCOMPLETE`، `claim_facility_role` => `FACILITY_PROFILE_INCOMPLETE`، بعد فحص `ACCOUNT_TYPE_CONFLICT` ووجود الصف.
+- بوابات تشغيلية: `submit_job_application`, `book_open_shift`, `set_search_visibility(true)` (الإيقاف يبقى متاحاً دائماً)؛ و`search_candidates_idempotent`, `send_candidate_invitation`, `start_candidate_conversation` قبل استهلاك أي حصة؛ و`guard_facility_profile_complete()` trigger BEFORE INSERT على `jobs` و`shifts`.
+- المحادثات القائمة تُعاد كما هي عند نقص البيانات (البوابة تمنع التواصل الجديد فقط)؛ قراءة السجل والطلبات والوظائف السابقة غير متأثرة.
+- لا تشديد مخطط مدمّر: لم تُجعل أعمدة التخصص/الدولة/المدينة NOT NULL؛ المنع عبر بوابات الإجراءات.
+- الواجهة: `src/lib/profile-completeness.ts` (عرض فقط) + بطاقة «أكمل بياناتك» في لوحة الكادر ولوحة المنشأة بأولوية أعلى من التوثيق، ورسائل AR/EN لـ`PROFILE_INCOMPLETE` و`FACILITY_PROFILE_INCOMPLETE` في `user-errors.ts`.
+- اختبارات (DO block على بيانات حية مع تراجع كامل): كادر مكتمل => `my_profile_completeness` صحيحة + claim ينجح؛ بعد إزالة التخصص => claim/apply/book/visible-on كلها `PROFILE_INCOMPLETE` بينما visible-off مسموح والسجل سليم؛ منشأة مكتملة => البحث يمر للبوابة التالية (`FACILITY_VERIFICATION_REQUIRED`)؛ منشأة ناقصة => claim/search/محادثة جديدة/إدراج وظيفة كلها `FACILITY_PROFILE_INCOMPLETE` بلا إنشاء أي صف وبلا فقدان سجل.
+- صلاحيات least-privilege (Phase60) مطبّقة على كل الدوال الجديدة/المعدّلة. البناء وفحص الأنواع نظيفان.
