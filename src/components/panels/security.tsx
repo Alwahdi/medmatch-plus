@@ -28,6 +28,7 @@ import { GoogleIcon } from "@/components/google-icon";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { verifyCurrentPassword } from "@/lib/reauth";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
 import { formatDateTime, relativeTime } from "@/lib/format";
