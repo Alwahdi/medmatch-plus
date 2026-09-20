@@ -47,7 +47,9 @@ function AuthenticatedLayout() {
   const [authError, setAuthError] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const { lang } = useLang();
-  const { user, loading: sessionLoading, error: sessionError } = useSession();
+  const { session, user, loading: sessionLoading, error: sessionError } = useSession();
+  // إعادة الفحص عند تغيّر الجلسة الفعلية فقط (رمز وصول جديد = مستوى تحقق قد يكون تغيّر).
+  const accessToken = session?.access_token ?? null;
   const rolesQuery = useRoles(user);
   const { data: roles } = rolesQuery;
 
