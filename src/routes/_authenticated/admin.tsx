@@ -758,13 +758,17 @@ function AdminPage() {
                     {f.rating_count > 0 ? ` · ${c.rating(Number(f.rating_avg), f.rating_count)}` : ""}
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  variant={f.is_verified ? "outline" : "default"}
-                  onClick={() => verifyFacility.mutate({ id: f.id, value: !f.is_verified })}
-                >
-                  {f.is_verified ? c.unverify : c.verify}
-                </Button>
+                <VerificationPanel
+                  lang={lang}
+                  verified={f.is_verified}
+                  suspended={!!f.verification_suspended_at}
+                  suspensionReason={f.verification_suspension_reason}
+                  docs={facilityRequiredDocs(f.id)}
+                  pending={verifyFacility.isPending}
+                  onReviewDocs={() => setTab("facdocs")}
+                  onRestore={() => verifyFacility.mutate({ id: f.id, value: true })}
+                  onRevoke={(reason) => verifyFacility.mutate({ id: f.id, value: false, reason })}
+                />
               </li>
             ))}
           </ul>
