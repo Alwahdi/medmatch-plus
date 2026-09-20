@@ -89,7 +89,7 @@ export function AdminDeletionQueue() {
   });
 
   const update = useMutation({
-    mutationFn: async (v: { id: string; status: "processing" | "completed" | "rejected" }) => {
+    mutationFn: async (v: { id: string; status: "processing" | "rejected" }) => {
       const note = notes[v.id]?.trim();
       const { error } = await supabase.rpc("admin_update_account_deletion", {
         _request_id: v.id,
