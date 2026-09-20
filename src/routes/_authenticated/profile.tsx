@@ -132,6 +132,15 @@ const TXT = {
     verified: "Verified",
     yearsLabel: "years of experience",
     openBadge: "Open to shifts",
+    rate: "Preferred rate",
+    ratePh: "e.g. 5000",
+    rateHint: "Your expected rate in YER. Facilities see it as a guide — payment is agreed directly with the facility.",
+    ratePeriod: "Rate period",
+    perHour: "Per hour",
+    perDay: "Per day",
+    radius: "Acceptance radius (km)",
+    radiusPh: "e.g. 25",
+    radiusHint: "The maximum distance you're willing to travel for work.",
 
   },
 } as const;
