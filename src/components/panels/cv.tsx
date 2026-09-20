@@ -74,7 +74,12 @@ export function CvPanel() {
     },
   });
 
-  const { data: creds } = useQuery({
+  const {
+    data: creds = [],
+    isPending: credsPending,
+    isError: credsError,
+    refetch: refetchCreds,
+  } = useQuery({
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
