@@ -80,7 +80,11 @@ const TXT = {
       },
       {
         h: "٨. إنهاء الخدمة",
-        p: ["يمكنك حذف حسابك في أي وقت، ويحق لنا إنهاء الخدمة عند مخالفة هذه الشروط."],
+        p: [
+          "يمكنك طلب حذف حسابك في أي وقت من الإعدادات أو عبر صفحة التواصل، ويُراجَع الطلب قبل تنفيذه.",
+          "قد نحتاج للاحتفاظ ببعض السجلات أو إخفاء هويتها لفترة محدودة لأسباب أمنية أو تنظيمية أو لسلامة سجل التعاملات.",
+          "يحق لنا إنهاء الخدمة عند مخالفة هذه الشروط.",
+        ],
       },
     ],
   },
@@ -142,7 +146,11 @@ const TXT = {
       },
       {
         h: "8. Termination",
-        p: ["You may delete your account at any time, and we reserve the right to terminate service for violations of these terms."],
+        p: [
+          "You may request account deletion at any time from Settings or the contact page; requests are reviewed before they are carried out.",
+          "Some records may need to be retained or anonymised for a limited period for security, regulatory, or transaction-integrity reasons.",
+          "We reserve the right to terminate service for violations of these terms.",
+        ],
       },
     ],
   },
