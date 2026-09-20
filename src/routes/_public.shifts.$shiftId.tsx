@@ -182,6 +182,7 @@ function ShiftDetail() {
   const { shiftId } = Route.useParams();
   const { user } = useSession();
   const { data: myFacility } = useMyFacility(user);
+  const proGate = useProfessionalVerificationGate(myFacility ? undefined : user?.id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
