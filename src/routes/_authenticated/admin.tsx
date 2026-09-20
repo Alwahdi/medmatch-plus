@@ -332,7 +332,7 @@ function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-creds"] });
       queryClient.invalidateQueries({ queryKey: ["admin-pros"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   const reviewFacDoc = useMutation({
@@ -359,7 +359,7 @@ function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-facility-docs"] });
       queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   const verifyFacility = useMutation({
