@@ -167,6 +167,10 @@ const TXT = {
     booked: "Shift booked — you'll find it under My shifts",
     bookFailed: "Booking failed, the shift may have just been taken",
     mySub: "Ordered using the specialty and location saved in your profile.",
+    loadMore: "Load more",
+    loading: "Loading…",
+    showing: (x: number, y: number) => `Showing ${x} of ${y}`,
+    appended: (n: number) => `${n} more opportunities added to the list`,
   },
 } as const;
 
