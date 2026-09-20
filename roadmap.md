@@ -1070,3 +1070,11 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - التخطيط بقي متوازناً بعد الحذف (الصور بلا حاوية relative، لا فراغات).
 - ملاحظة معمارية للمستقبل فقط: أي إعادة لميزة الحضور يجب أن تكون بقناة خاصة لكل محادثة مع Realtime Authorization مثبتة من طرف إلى طرف، وبدون كشف معرفات عامة. لم تُنفَّذ في هذه المرحلة.
 - التحقق: بحث شامل في المستودع لا يُظهر أي أثر لـ`online-users`/`presenceState`/`track`؛ الزائر المجهول لا يملك أي مسار اشتراك يكشف معرفات أو حالة اتصال؛ المراسلة تعمل طبيعياً. فحص الأنواع نظيف.
+
+## Phase78 — إنهاء سطح بيانات الأجهزة الموثوقة/WebAuthn القديم
+- migration متتبّعة وidempotent تطابق الإصلاح الحي: حذف كل الصفوف من `public.trusted_devices`، إسقاط السياستين `own trusted devices` و`mfa level required`، و`REVOKE ALL` عن `anon` و`authenticated` مع إبقاء `service_role` فقط.
+- الجدول لم يُسقط (مُشار إليه من migrations سابقة و`cleanup_orphaned_identities()`)؛ بقي جدولاً فارغاً للخادم فقط — وهو المقبول حسب المتطلب.
+- بحث شامل: لا يوجد أي مسار تشغيل (عميل أو خادم) يقرأ/يكتب `trusted_devices`؛ الأثر الوحيد نوع مولّد في `src/integrations/supabase/types.ts` (تلقائي). `src/lib/webauthn.ts` محذوف من Phase50 ولا مستورد له.
+- أُزيلت الإشارة إلى «البصمة» من وصف صفحة الأمان؛ لا ذكر لأجهزة موثوقة/بصمة/passkeys في نصوص الأمان والإعدادات.
+- تدقيق الصلاحيات: `information_schema.role_table_grants` لا يُظهر أي صلاحية لـ`anon`/`authenticated`، عدد الصفوف = 0، عدد السياسات = 0.
+- ملاحظة linter: تحذير «RLS مفعّل بلا سياسات» على هذا الجدول مقصود (جدول خادم فقط بلا وصول للمستخدمين).
