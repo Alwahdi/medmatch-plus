@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AlertsPanel } from "@/components/panels/alerts";
 import { NotificationsPanel } from "@/components/panels/notifications";
 import { SecurityPanel } from "@/components/panels/security";
+import { PushToggle } from "@/components/push-toggle";
 import { AccountPrivacyPanel } from "@/components/panels/account-privacy";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
@@ -152,7 +153,10 @@ function SettingsPage() {
         )}
 
         <TabsContent value="notifications" className="mt-6">
-          <NotificationsPanel embedded />
+          <PushToggle />
+          <div className="mt-4">
+            <NotificationsPanel embedded />
+          </div>
         </TabsContent>
 
         <TabsContent value="security" className="mt-6">

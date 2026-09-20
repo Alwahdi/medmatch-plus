@@ -63,6 +63,7 @@ import { Route as PublicShiftsShiftIdRouteImport } from './routes/_public.shifts
 import { Route as PublicSpecialtiesIndexRouteImport } from './routes/_public.specialties.index'
 import { Route as PublicSpecialtiesSlugRouteImport } from './routes/_public.specialties.$slug'
 import { Route as ApiPublicDispatchAlertsRouteImport } from './routes/api/public/dispatch-alerts'
+import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push-dispatch'
 import { Route as ApiPublicRefreshVerificationRouteImport } from './routes/api/public/refresh-verification'
 import { Route as AuthenticatedFacilityCandidatesUserIdRouteImport } from './routes/_authenticated/facility.candidates.$userId'
 
@@ -348,6 +349,11 @@ const ApiPublicDispatchAlertsRoute = ApiPublicDispatchAlertsRouteImport.update({
   path: '/api/public/dispatch-alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPushDispatchRoute = ApiPublicPushDispatchRouteImport.update({
+  id: '/api/public/push-dispatch',
+  path: '/api/public/push-dispatch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicRefreshVerificationRoute =
   ApiPublicRefreshVerificationRouteImport.update({
     id: '/api/public/refresh-verification',
@@ -406,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
+  '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/api/public/refresh-verification': typeof ApiPublicRefreshVerificationRoute
   '/facility/': typeof AuthenticatedFacilityIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
@@ -462,6 +469,7 @@ export interface FileRoutesByTo {
   '/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
+  '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/api/public/refresh-verification': typeof ApiPublicRefreshVerificationRoute
   '/facility': typeof AuthenticatedFacilityIndexRoute
   '/blog': typeof PublicBlogIndexRoute
@@ -521,6 +529,7 @@ export interface FileRoutesById {
   '/_public/shifts/$shiftId': typeof PublicShiftsShiftIdRoute
   '/_public/specialties/$slug': typeof PublicSpecialtiesSlugRoute
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
+  '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/api/public/refresh-verification': typeof ApiPublicRefreshVerificationRoute
   '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
@@ -579,6 +588,7 @@ export interface FileRouteTypes {
     | '/shifts/$shiftId'
     | '/specialties/$slug'
     | '/api/public/dispatch-alerts'
+    | '/api/public/push-dispatch'
     | '/api/public/refresh-verification'
     | '/facility/'
     | '/blog/'
@@ -635,6 +645,7 @@ export interface FileRouteTypes {
     | '/shifts/$shiftId'
     | '/specialties/$slug'
     | '/api/public/dispatch-alerts'
+    | '/api/public/push-dispatch'
     | '/api/public/refresh-verification'
     | '/facility'
     | '/blog'
@@ -693,6 +704,7 @@ export interface FileRouteTypes {
     | '/_public/shifts/$shiftId'
     | '/_public/specialties/$slug'
     | '/api/public/dispatch-alerts'
+    | '/api/public/push-dispatch'
     | '/api/public/refresh-verification'
     | '/_authenticated/facility/'
     | '/_public/blog/'
@@ -710,6 +722,7 @@ export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicDispatchAlertsRoute: typeof ApiPublicDispatchAlertsRoute
+  ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   ApiPublicRefreshVerificationRoute: typeof ApiPublicRefreshVerificationRoute
 }
 
@@ -1093,6 +1106,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDispatchAlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push-dispatch': {
+      id: '/api/public/push-dispatch'
+      path: '/api/public/push-dispatch'
+      fullPath: '/api/public/push-dispatch'
+      preLoaderRoute: typeof ApiPublicPushDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/refresh-verification': {
       id: '/api/public/refresh-verification'
       path: '/api/public/refresh-verification'
@@ -1250,6 +1270,7 @@ const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicDispatchAlertsRoute: ApiPublicDispatchAlertsRoute,
+  ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   ApiPublicRefreshVerificationRoute: ApiPublicRefreshVerificationRoute,
 }
 export const routeTree = rootRouteImport

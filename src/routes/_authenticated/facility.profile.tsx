@@ -20,6 +20,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { RatingStars } from "@/components/rating-stars";
 import { ImageUpload } from "@/components/image-upload";
+import { LocationPicker } from "@/components/location-picker";
 import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -159,6 +160,8 @@ function FacilityProfile() {
     city: "",
     website: "",
     logo_url: "",
+    lat: null as number | null,
+    lng: null as number | null,
     description: "",
   });
 
@@ -172,6 +175,8 @@ function FacilityProfile() {
       city: facility.city ?? "",
       website: facility.website ?? "",
       logo_url: facility.logo_url ?? "",
+      lat: facility.lat === null || facility.lat === undefined ? null : Number(facility.lat),
+      lng: facility.lng === null || facility.lng === undefined ? null : Number(facility.lng),
       description: facility.description ?? "",
     });
   }, [facility]);
@@ -200,6 +205,8 @@ function FacilityProfile() {
           city: form.city.trim(),
           website: form.website.trim() || null,
           logo_url: form.logo_url.trim() || null,
+          lat: form.lat,
+          lng: form.lng,
           description: form.description.trim() || null,
         })
         .eq("id", facility!.id);
@@ -463,6 +470,11 @@ function FacilityProfile() {
           />
           <p className="mt-1 text-xs text-muted-foreground">{c.descHint}</p>
         </div>
+
+        <LocationPicker
+          value={{ lat: form.lat, lng: form.lng }}
+          onChange={(v) => setForm({ ...form, lat: v.lat, lng: v.lng })}
+        />
 
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => save.mutate()} loading={save.isPending}>

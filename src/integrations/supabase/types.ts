@@ -1199,6 +1199,7 @@ export type Database = {
           created_at: string
           id: string
           link: string | null
+          pushed_at: string | null
           read_at: string | null
           title_ar: string
           title_en: string
@@ -1211,6 +1212,7 @@ export type Database = {
           created_at?: string
           id?: string
           link?: string | null
+          pushed_at?: string | null
           read_at?: string | null
           title_ar: string
           title_en: string
@@ -1223,6 +1225,7 @@ export type Database = {
           created_at?: string
           id?: string
           link?: string | null
+          pushed_at?: string | null
           read_at?: string | null
           title_ar?: string
           title_en?: string

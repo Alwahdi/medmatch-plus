@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUpload } from "@/components/image-upload";
+import { LocationPicker } from "@/components/location-picker";
+import { AvailabilityPicker, availabilityLabel, parseAvailability } from "@/components/availability-picker";
 import { supabase } from "@/integrations/supabase/client";
 import { assertOk } from "@/lib/query-errors";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
@@ -90,6 +92,15 @@ const TXT = {
     verified: "موثّق",
     yearsLabel: "سنوات خبرة",
     openBadge: "متاح للمناوبات",
+    rate: "الأجر المرغوب",
+    ratePh: "مثال: 5000",
+    rateHint: "أجرك المتوقع بالريال اليمني. تراه المنشآت كمرجع، والاتفاق على الدفع يتم مباشرة معها.",
+    ratePeriod: "وحدة الأجر",
+    perHour: "بالساعة",
+    perDay: "باليوم",
+    radius: "نطاق القبول (كم)",
+    radiusPh: "مثال: 25",
+    radiusHint: "أقصى مسافة مستعد للتنقل إليها للعمل.",
 
   },
   en: {
@@ -130,6 +141,15 @@ const TXT = {
     verified: "Verified",
     yearsLabel: "years of experience",
     openBadge: "Open to shifts",
+    rate: "Preferred rate",
+    ratePh: "e.g. 5000",
+    rateHint: "Your expected rate in YER. Facilities see it as a guide — payment is agreed directly with the facility.",
+    ratePeriod: "Rate period",
+    perHour: "Per hour",
+    perDay: "Per day",
+    radius: "Acceptance radius (km)",
+    radiusPh: "e.g. 25",
+    radiusHint: "The maximum distance you're willing to travel for work.",
 
   },
 } as const;
@@ -203,6 +223,12 @@ function ProfileOverview() {
     license_country: "",
     license_number: "",
     is_open_to_shifts: true,
+    lat: null as number | null,
+    lng: null as number | null,
+    availability: [] as number[],
+    search_radius_km: "",
+    preferred_rate: "",
+    preferred_rate_period: "hour",
   });
   const [avatar, setAvatar] = useState("");
 
@@ -232,6 +258,12 @@ function ProfileOverview() {
       license_country: profile.license_country ?? "",
       license_number: profile.license_number ?? "",
       is_open_to_shifts: profile.is_open_to_shifts ?? true,
+      lat: profile.lat === null || profile.lat === undefined ? null : Number(profile.lat),
+      lng: profile.lng === null || profile.lng === undefined ? null : Number(profile.lng),
+      availability: parseAvailability(profile.availability),
+      search_radius_km: profile.search_radius_km === null || profile.search_radius_km === undefined ? "" : String(profile.search_radius_km),
+      preferred_rate: profile.preferred_rate === null || profile.preferred_rate === undefined ? "" : String(profile.preferred_rate),
+      preferred_rate_period: profile.preferred_rate_period ?? "hour",
     });
   }, [profile]);
 
@@ -259,6 +291,12 @@ function ProfileOverview() {
         license_number: form.license_number.trim() || null,
         is_open_to_shifts: form.is_open_to_shifts,
         avatar_url: avatar || null,
+        lat: form.lat,
+        lng: form.lng,
+        availability: form.availability,
+        search_radius_km: form.search_radius_km === "" ? null : Math.max(1, Math.min(500, Number(form.search_radius_km))),
+        preferred_rate: form.preferred_rate === "" ? null : Math.max(0, Number(form.preferred_rate)),
+        preferred_rate_period: form.preferred_rate_period,
       };
 
 
@@ -382,6 +420,11 @@ function ProfileOverview() {
                 <span className="rounded-md bg-surface px-3 py-1 text-muted-foreground">
                   {searchable ? c.visibilityOn : c.visibilityOff}
                 </span>
+                {form.availability.length > 0 && (
+                  <span className="rounded-md bg-surface px-3 py-1 text-muted-foreground">
+                    {availabilityLabel(form.availability, lang)}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -501,6 +544,41 @@ function ProfileOverview() {
           <Textarea id="bio" rows={5} maxLength={1500} value={form.bio}
             placeholder={c.bioPh}
             onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="rate">{c.rate}</Label>
+            <Input id="rate" type="number" min={0} inputMode="decimal" placeholder={c.ratePh}
+              value={form.preferred_rate}
+              onChange={(e) => setForm({ ...form, preferred_rate: e.target.value })} />
+            <p className="mt-1 text-xs text-muted-foreground">{c.rateHint}</p>
+          </div>
+          <div>
+            <Label htmlFor="rate-period">{c.ratePeriod}</Label>
+            <Select value={form.preferred_rate_period}
+              onValueChange={(v) => setForm({ ...form, preferred_rate_period: v })}>
+              <SelectTrigger id="rate-period"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hour">{c.perHour}</SelectItem>
+                <SelectItem value="day">{c.perDay}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <AvailabilityPicker value={form.availability}
+          onChange={(v) => setForm({ ...form, availability: v })} />
+
+        <LocationPicker value={{ lat: form.lat, lng: form.lng }}
+          onChange={(v) => setForm({ ...form, lat: v.lat, lng: v.lng })} />
+
+        <div>
+          <Label htmlFor="radius">{c.radius}</Label>
+          <Input id="radius" type="number" min={1} max={500} inputMode="numeric" placeholder={c.radiusPh}
+            value={form.search_radius_km}
+            onChange={(e) => setForm({ ...form, search_radius_km: e.target.value })} />
+          <p className="mt-1 text-xs text-muted-foreground">{c.radiusHint}</p>
         </div>
 
         <div className="flex items-center justify-between rounded-lg bg-surface p-4">
