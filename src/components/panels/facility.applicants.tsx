@@ -84,6 +84,7 @@ const TXT = {
     title: "Applicants",
     back: "Back to dashboard",
     healthcarePro: "Healthcare professional",
+    coverTitle: "Cover letter",
     verified: "Verified",
     experience: (n: number) => experienceLabel(n, "en"),
     appliedFor: (title: string, time: string) => `Applied for: ${title} · ${time}`,
