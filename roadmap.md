@@ -1036,3 +1036,16 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - UI: unverified facilities see a purpose-built locked state (AR/EN) on candidate search and in the invite panel, pointing at `/facility/verification` and explaining Applicants still works; no quota is consumed. Contact/invite race after opt-out shows a friendly reason and removes the candidate from the loaded results.
 - Copy: for-facilities benefit and privacy visibility text now say candidate search is for verified facilities.
 - Tests (rolled-back transaction): unverified search => FACILITY_VERIFICATION_REQUIRED with quota unchanged (8); verified search returns the consenting candidate; opt-out blocks new chat and invite; unverified blocks search-only contact; no basis => CANDIDATE_CONTACT_NOT_ALLOWED; applicant remains contactable after opt-out; existing conversation still resolves. Live data unchanged.
+
+## Phase 80 — Candidate discoverability controls future search-based contact (requested as Phase76; that label was taken)
+- New `private.candidate_contact_access_retention()` = 30 days, documented as contact-access retention: `candidate_search_access` audit rows are never deleted, they simply stop authorizing NEW outreach after the window.
+- New central helper `private.can_facility_initiate_candidate_contact(facility, professional, job?, shift?)` returning the authorizing basis (`application` | `booking` | `conversation` | `invitation` | `search`) or NULL:
+  - application: only `submitted/reviewing/shortlisted/interview/offer/hired`; `withdrawn`/`rejected` alone never authorize new outreach (history stays readable).
+  - booking: only `confirmed` (covers completed shifts); cancelled does not.
+  - conversation: authorizes only the same job/shift target, not a different thread.
+  - invitation: only `pending`/`accepted`.
+  - search: verified facility + current `is_searchable` consent + access newer than the retention window.
+- `assert_proactive_contact_allowed` now takes the target and raises distinct reasons: `CANDIDATE_CONTACT_NOT_ALLOWED`, `FACILITY_VERIFICATION_REQUIRED`, `CANDIDATE_NO_LONGER_SEARCHABLE`, `CANDIDATE_SEARCH_ACCESS_EXPIRED`. Applied by `start_candidate_conversation` and `send_candidate_invitation`; the 2-arg variant was dropped.
+- UI: friendly AR/EN message for expired search access; stale results drop the candidate on a failed contact/invite; profile visibility help text states that turning it off blocks new search-based invitations/messages without erasing applications or conversations.
+- Tests (temporary data, fully rolled back): fresh access => `search`; opt-out => `CANDIDATE_NO_LONGER_SEARCHABLE`; stale access after re-enable => `CANDIDATE_SEARCH_ACCESS_EXPIRED`; withdrawn/rejected application alone => NULL; cancelled booking alone => NULL; active application => `application`; confirmed booking => `booking`; existing conversation authorizes only its own target. Live data verified unchanged afterwards.
+- Phase 60 grants: private helpers service_role only; both public RPCs authenticated + service_role, revoked from anon/PUBLIC.
