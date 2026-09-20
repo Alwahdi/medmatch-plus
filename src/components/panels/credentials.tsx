@@ -117,7 +117,6 @@ export function CredentialsPanel() {
   const [file, setFile] = useState<File | null>(null);
 
   const schema = z.object({
-    title: z.string().trim().min(2, c.titleReq).max(120),
     doc_type: z.string().min(1, c.typeReq),
     issuer: z.string().trim().max(120).optional(),
   });
@@ -140,22 +139,20 @@ export function CredentialsPanel() {
     mutationFn: async () => {
       const parsed = schema.safeParse(form);
       if (!parsed.success) userError(parsed.error.issues[0]!.message);
-      if (file) {
-        const invalid = checkUpload(file, "document", lang);
-        if (invalid) userError(invalid);
-      }
+      if (!file) userError(c.fileReq);
 
-      let filePath: string | null = null;
-      if (file) {
-        const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
-        filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("credentials").upload(filePath, file);
-        if (upErr) userError(c.uploadFailed);
-      }
+      const ready = await prepareUpload(file, "document", lang).catch((e: Error) => userError(e.message));
+      const ext = ready.name.split(".").pop()?.toLowerCase() ?? "pdf";
+      const filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("credentials")
+        .upload(filePath, ready, { contentType: ready.type || undefined });
+      if (upErr) throw upErr;
 
       const { error } = await supabase.from("credentials").insert({
         user_id: user!.id,
-        title: form.title.trim(),
+        title: docTypeLabel(form.doc_type, "ar"),
+        file_name: file.name.slice(0, 200),
         doc_type: form.doc_type,
         issuer: form.issuer.trim() || null,
         expiry_date: form.expiry_date || null,
@@ -165,12 +162,13 @@ export function CredentialsPanel() {
     },
     onSuccess: () => {
       toast.success(c.uploaded);
-      setForm({ title: "", doc_type: "", issuer: "", expiry_date: "" });
+      setForm({ doc_type: "", issuer: "", expiry_date: "" });
       setFile(null);
       queryClient.invalidateQueries({ queryKey: ["my-creds"] });
     },
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
+
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
