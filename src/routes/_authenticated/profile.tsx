@@ -409,7 +409,8 @@ function ProfileOverview() {
       <div className="card-lift mt-6 space-y-5 rounded-lg border border-border bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <LockedField inputId="name" label={c.fullName} locked={locked} target="professional" field="full_name"
-            currentValue={form.full_name} pending={pendingOf("full_name")}>
+            currentStoredValue={form.full_name} editor={{ kind: "text", maxLength: 100 }}
+            pending={pendingOf("full_name")}>
             <Input id="name" value={form.full_name} maxLength={100} disabled={locked}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
           </LockedField>
@@ -419,7 +420,9 @@ function ProfileOverview() {
               value={form.headline} onChange={(e) => setForm({ ...form, headline: e.target.value })} />
           </div>
           <LockedField label={c.specialty} locked={locked} target="professional" field="specialty_id"
-            currentValue={specialtyName(specialties?.find((s) => s.id === form.specialty_id) ?? null, lang) ?? ""}
+            currentStoredValue={form.specialty_id}
+            currentDisplayValue={specialtyName(specialties?.find((s) => s.id === form.specialty_id) ?? null, lang) ?? ""}
+            editor={{ kind: "specialty" }}
             pending={pendingOf("specialty_id")}>
             <Combobox
               options={(specialties ?? []).map((s) => ({
@@ -436,12 +439,15 @@ function ProfileOverview() {
             />
           </LockedField>
           <LockedField inputId="years" label={c.years} locked={locked} target="professional" field="years_experience"
-            currentValue={String(form.years_experience)} pending={pendingOf("years_experience")}>
+            currentStoredValue={String(form.years_experience)} editor={{ kind: "number", min: 0, max: 60 }}
+            pending={pendingOf("years_experience")}>
             <Input id="years" type="number" min={0} max={60} value={form.years_experience} disabled={locked}
               onChange={(e) => setForm({ ...form, years_experience: Number(e.target.value) })} />
           </LockedField>
           <LockedField label={c.country} locked={locked} target="professional" field="country"
-            currentValue={form.country ? countryLabel(form.country, lang) : ""} pending={pendingOf("country")}>
+            currentStoredValue={form.country}
+            currentDisplayValue={form.country ? countryLabel(form.country, lang) : ""}
+            editor={{ kind: "country" }} pending={pendingOf("country")}>
             <Combobox
               options={countryOptions(lang)}
               value={form.country}
@@ -453,7 +459,8 @@ function ProfileOverview() {
             />
           </LockedField>
           <LockedField label={c.city} locked={locked} target="professional" field="city"
-            currentValue={form.city} pending={pendingOf("city")}>
+            currentStoredValue={form.city} editor={{ kind: "city", country: form.country }}
+            pending={pendingOf("city")}>
             <Combobox
               options={cityOptions(form.country, lang)}
               value={form.city}
@@ -467,7 +474,9 @@ function ProfileOverview() {
             />
           </LockedField>
           <LockedField label={c.licenseCountry} locked={locked} target="professional" field="license_country"
-            currentValue={form.license_country ? countryLabel(form.license_country, lang) : ""}
+            currentStoredValue={form.license_country}
+            currentDisplayValue={form.license_country ? countryLabel(form.license_country, lang) : ""}
+            editor={{ kind: "country" }}
             pending={pendingOf("license_country")}>
             <Combobox
               options={countryOptions(lang)}
@@ -480,7 +489,8 @@ function ProfileOverview() {
             />
           </LockedField>
           <LockedField inputId="lic" label={c.licenseNumber} locked={locked} target="professional" field="license_number"
-            currentValue={form.license_number} pending={pendingOf("license_number")}>
+            currentStoredValue={form.license_number} editor={{ kind: "text", maxLength: 60, dir: "ltr" }}
+            pending={pendingOf("license_number")}>
             <Input id="lic" dir="ltr" value={form.license_number} maxLength={60} disabled={locked}
               onChange={(e) => setForm({ ...form, license_number: e.target.value })} />
           </LockedField>
