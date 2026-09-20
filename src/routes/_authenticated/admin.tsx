@@ -755,15 +755,24 @@ function AdminPage() {
               {c.noFacDocs}
             </p>
           ) : (
-            <ul className="mt-4 space-y-3">
-              {shownFacDocs.map((fd) => (
+            <div className="mt-4 space-y-6">
+              {facDocGroups.map((group) => (
+                <section key={group.name}>
+                  <h2 className="mb-2 text-sm font-bold">
+                    {group.name}
+                    <span className="ms-2 text-xs font-normal text-muted-foreground">
+                      {group.items.length}
+                    </span>
+                  </h2>
+                  <ul className="space-y-3">
+              {group.items.map((fd) => (
                 <li key={fd.id} className="rounded-lg border border-border bg-card p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-bold">{fd.title}</p>
+                      <p className="font-bold">{fd.file_name ?? fd.title}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {facilityDocTypeLabel(fd.doc_type, lang)}
-                        {fd.facilities?.name_ar ? ` · ${fd.facilities.name_ar}` : ""}
+
                         {fd.issuer ? ` · ${fd.issuer}` : ""}
                         {fd.expiry_date ? ` · ${c.expires(formatDate(fd.expiry_date, lang))}` : ""}
                         {` · ${formatDate(fd.created_at, lang)}`}
