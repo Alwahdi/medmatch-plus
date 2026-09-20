@@ -24,7 +24,7 @@ import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
 
-import { checkUpload } from "@/lib/storage";
+import { ACCEPT, prepareUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -38,7 +38,7 @@ const TXT = {
     addTitle: "إضافة وثيقة",
     docType: "نوع الوثيقة",
     docTypePh: "اختر النوع",
-    docTitle: "اسم الوثيقة",
+    fileReq: "اختر ملف الوثيقة أولاً",
     issuer: "الجهة المُصدِرة",
     issuerPh: "مثال: الهيئة السعودية للتخصصات الصحية",
     expiry: "تاريخ الانتهاء",
@@ -74,7 +74,7 @@ const TXT = {
     addTitle: "Add a document",
     docType: "Document type",
     docTypePh: "Choose type",
-    docTitle: "Document name",
+    fileReq: "Choose the document file first",
     issuer: "Issuing authority",
     issuerPh: "e.g. Saudi Commission for Health Specialties",
     expiry: "Expiry date",
@@ -113,11 +113,10 @@ export function CredentialsPanel() {
 
   const { user } = useSession();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ title: "", doc_type: "", issuer: "", expiry_date: "" });
+  const [form, setForm] = useState({ doc_type: "", issuer: "", expiry_date: "" });
   const [file, setFile] = useState<File | null>(null);
 
   const schema = z.object({
-    title: z.string().trim().min(2, c.titleReq).max(120),
     doc_type: z.string().min(1, c.typeReq),
     issuer: z.string().trim().max(120).optional(),
   });
@@ -140,22 +139,20 @@ export function CredentialsPanel() {
     mutationFn: async () => {
       const parsed = schema.safeParse(form);
       if (!parsed.success) userError(parsed.error.issues[0]!.message);
-      if (file) {
-        const invalid = checkUpload(file, "document", lang);
-        if (invalid) userError(invalid);
-      }
+      if (!file) userError(c.fileReq);
 
-      let filePath: string | null = null;
-      if (file) {
-        const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
-        filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("credentials").upload(filePath, file);
-        if (upErr) userError(c.uploadFailed);
-      }
+      const ready = await prepareUpload(file, "document", lang).catch((e: Error) => userError(e.message));
+      const ext = ready.name.split(".").pop()?.toLowerCase() ?? "pdf";
+      const filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("credentials")
+        .upload(filePath, ready, { contentType: ready.type || undefined });
+      if (upErr) throw upErr;
 
       const { error } = await supabase.from("credentials").insert({
         user_id: user!.id,
-        title: form.title.trim(),
+        title: docTypeLabel(form.doc_type, "ar"),
+        file_name: file.name.slice(0, 200),
         doc_type: form.doc_type,
         issuer: form.issuer.trim() || null,
         expiry_date: form.expiry_date || null,
@@ -165,12 +162,13 @@ export function CredentialsPanel() {
     },
     onSuccess: () => {
       toast.success(c.uploaded);
-      setForm({ title: "", doc_type: "", issuer: "", expiry_date: "" });
+      setForm({ doc_type: "", issuer: "", expiry_date: "" });
       setFile(null);
       queryClient.invalidateQueries({ queryKey: ["my-creds"] });
     },
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
+
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
@@ -324,11 +322,6 @@ export function CredentialsPanel() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="title">{c.docTitle}</Label>
-            <Input id="title" maxLength={120} value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })} />
-          </div>
-          <div>
             <Label htmlFor="issuer">{c.issuer}</Label>
             <Input id="issuer" maxLength={120} placeholder={c.issuerPh}
               value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
@@ -341,9 +334,11 @@ export function CredentialsPanel() {
         </div>
         <div>
           <Label htmlFor="file">{c.file}</Label>
-          <Input id="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"
+          <Input id="file" type="file" accept={ACCEPT.document}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          {file ? <p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p> : null}
         </div>
+
         <Button onClick={() => add.mutate()} loading={add.isPending}>
           <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
         </Button>
@@ -359,7 +354,7 @@ export function CredentialsPanel() {
               <div className="flex items-center gap-3">
                 <FileCheck2 className="size-5 text-primary" />
                 <div>
-                  <p className="font-medium">{cred.title}</p>
+                  <p className="font-medium">{cred.file_name ?? cred.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {docTypeLabel(cred.doc_type, lang)}
                     {cred.expiry_date ? c.expiresOn(formatDate(cred.expiry_date, lang)) : ""}

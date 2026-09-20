@@ -198,7 +198,6 @@ export function FacilityVerificationPanel() {
 
   const schema = z.object({
     doc_type: z.string().min(1, c.typeReq),
-    title: z.string().trim().min(2, c.titleReq).max(120),
   });
 
   const add = useMutation({
@@ -206,18 +205,20 @@ export function FacilityVerificationPanel() {
       const parsed = schema.safeParse(form);
       if (!parsed.success) userError(parsed.error.issues[0]!.message);
       if (!file) userError(c.fileReq);
-      const invalid = checkUpload(file, "document", lang);
-      if (invalid) userError(invalid);
 
-      const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+      const ready = await prepareUpload(file, "document", lang).catch((e: Error) => userError(e.message));
+      const ext = ready.name.split(".").pop()?.toLowerCase() ?? "pdf";
       const filePath = `${facility!.id}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("facility-docs").upload(filePath, file);
-      if (upErr) userError(c.uploadFailed);
+      const { error: upErr } = await supabase.storage
+        .from("facility-docs")
+        .upload(filePath, ready, { contentType: ready.type || undefined });
+      if (upErr) throw upErr;
 
       const { error } = await supabase.from("facility_documents").insert({
         facility_id: facility!.id,
         doc_type: form.doc_type,
-        title: form.title.trim(),
+        title: facilityDocTypeLabel(form.doc_type, "ar"),
+        file_name: file.name.slice(0, 200),
         issuer: form.issuer.trim() || null,
         issue_date: form.issue_date || null,
         expiry_date: form.expiry_date || null,
@@ -225,6 +226,7 @@ export function FacilityVerificationPanel() {
       });
       if (error) throw error;
     },
+
     onSuccess: () => {
       toast.success(c.uploaded);
       setForm({ doc_type: "", title: "", issuer: "", issue_date: "", expiry_date: "" });
@@ -423,16 +425,8 @@ export function FacilityVerificationPanel() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="fd-title">{c.docTitle}</Label>
-            <Input
-              id="fd-title"
-              maxLength={120}
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
-          </div>
-          <div>
             <Label htmlFor="fd-issuer">{c.issuer}</Label>
+
             <Input
               id="fd-issuer"
               maxLength={120}

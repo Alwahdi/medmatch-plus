@@ -368,6 +368,7 @@ export type Database = {
           created_at: string
           doc_type: string
           expiry_date: string | null
+          file_name: string | null
           file_path: string | null
           id: string
           issue_date: string | null
@@ -382,6 +383,7 @@ export type Database = {
           created_at?: string
           doc_type: string
           expiry_date?: string | null
+          file_name?: string | null
           file_path?: string | null
           id?: string
           issue_date?: string | null
@@ -396,6 +398,7 @@ export type Database = {
           created_at?: string
           doc_type?: string
           expiry_date?: string | null
+          file_name?: string | null
           file_path?: string | null
           id?: string
           issue_date?: string | null
@@ -474,6 +477,7 @@ export type Database = {
           doc_type: string
           expiry_date: string | null
           facility_id: string
+          file_name: string | null
           file_path: string | null
           id: string
           issue_date: string | null
@@ -488,6 +492,7 @@ export type Database = {
           doc_type: string
           expiry_date?: string | null
           facility_id: string
+          file_name?: string | null
           file_path?: string | null
           id?: string
           issue_date?: string | null
@@ -502,6 +507,7 @@ export type Database = {
           doc_type?: string
           expiry_date?: string | null
           facility_id?: string
+          file_name?: string | null
           file_path?: string | null
           id?: string
           issue_date?: string | null
