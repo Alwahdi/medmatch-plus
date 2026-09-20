@@ -320,3 +320,18 @@ export function experienceLabel(n: number, lang: Lang = "ar") {
   if (n <= 10) return `خبرة ${n} سنوات`;
   return `خبرة ${n} سنة`;
 }
+
+/**
+ * اسم المنشأة المعروض حسب لغة الواجهة: نفضّل اسم اللغة الحالية، ثم الاسم الآخر
+ * (أسماء قديمة عربية فقط لا تظهر فارغة بالإنجليزية)، ثم تسمية محايدة.
+ * لا يغيّر أي اسم مخزّن.
+ */
+export function facilityDisplayName(
+  row: { name_ar?: string | null; name_en?: string | null } | null | undefined,
+  lang: Lang = "ar",
+) {
+  const ar = row?.name_ar?.trim() || "";
+  const en = row?.name_en?.trim() || "";
+  const primary = lang === "en" ? en || ar : ar || en;
+  return primary || (lang === "en" ? "Employer" : "منشأة");
+}
