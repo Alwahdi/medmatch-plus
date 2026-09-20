@@ -1234,6 +1234,30 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profile_change_log: {
         Row: {
           changed_by: string | null
@@ -1977,6 +2001,10 @@ export type Database = {
         Args: { _facility_id: string; _reason?: string; _value: boolean }
         Returns: undefined
       }
+      admin_set_platform_setting: {
+        Args: { _enabled: boolean; _key: string }
+        Returns: undefined
+      }
       admin_set_professional_verified: {
         Args: { _professional_id: string; _reason?: string; _value: boolean }
         Returns: undefined
@@ -2333,6 +2361,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["application_status"]
       }
       set_search_visibility: { Args: { _visible: boolean }; Returns: string }
+      setting_enabled: {
+        Args: { _default?: boolean; _key: string }
+        Returns: boolean
+      }
       slugify: { Args: { input: string }; Returns: string }
       start_candidate_conversation: {
         Args: {
