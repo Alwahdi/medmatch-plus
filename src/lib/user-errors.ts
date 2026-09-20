@@ -21,6 +21,11 @@ const RULES: Rule[] = [
     en: "This professional turned off their search visibility, so new contact isn't possible right now.",
   },
   {
+    test: /CANDIDATE_SEARCH_ACCESS_EXPIRED/i,
+    ar: "مضت مدة على بحثك الذي وصلت منه لهذا المختص، فلم يعد بالإمكان بدء تواصل جديد. أعد البحث للوصول إليه.",
+    en: "Too much time has passed since the search that surfaced this professional. Run the search again to reach them.",
+  },
+  {
     test: /CANDIDATE_CONTACT_NOT_ALLOWED|CANDIDATE_INVITE_NOT_ALLOWED/i,
     ar: "لا يمكن التواصل مع هذا المختص حالياً. ابحث عنه من جديد أو تابعه من المتقدمين إن كان قد تقدّم لفرصة لديك.",
     en: "You can't contact this professional right now. Search again, or follow up from Applicants if they applied to one of your listings.",

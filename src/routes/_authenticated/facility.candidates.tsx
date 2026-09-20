@@ -256,7 +256,7 @@ function Candidates() {
     onError: (e: Error, candidateUserId) => {
       toast.error(friendlyError(e, lang, c.chatFailed));
       // سباق: المرشح قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
-      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
+      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_SEARCH_ACCESS_EXPIRED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
         setResults((rows) => (rows ? rows.filter((r) => r.user_id !== candidateUserId) : rows));
       }
     },

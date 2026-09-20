@@ -73,7 +73,7 @@ const TXT = {
     searchableTitle: "إظهار ملفي للمنشآت في بحث المرشحين",
     searchableText:
       "عند تفعيله ترى المنشآت المؤهلة تخصصك وسنوات خبرتك ومدينتك ودولتك وحالة التوثيق وإتاحتك للمناوبات، ولا ترى رقم هاتفك أو بريدك أو مستنداتك. يمكنك إيقافه في أي وقت.",
-    searchableOffNote: "عند الإيقاف لن تظهر في عمليات البحث الجديدة، وتبقى محادثاتك وطلباتك الحالية كما هي.",
+    searchableOffNote: "عند الإيقاف لن تظهر في عمليات البحث الجديدة، ولن تستطيع المنشآت إرسال دعوات أو رسائل جديدة نتيجة بحث سابق. طلباتك ومحادثاتك الحالية تبقى كما هي ولا يُحذف منها شيء.",
     visibilityOn: "ظاهر في بحث المنشآت",
     visibilityOff: "مخفي عن البحث",
     visibilitySaved: "تم تحديث ظهورك في البحث",
@@ -113,7 +113,7 @@ const TXT = {
     searchableTitle: "Show my profile to facilities in candidate search",
     searchableText:
       "When on, eligible facilities can see your specialty, years of experience, city, country, verification status and shift availability — not your phone, email or documents. You can turn it off at any time.",
-    searchableOffNote: "When off you stay out of new searches; your existing conversations and applications are unaffected.",
+    searchableOffNote: "When off you stay out of new searches, and facilities can no longer send new invitations or messages based on an earlier search. Your existing applications and conversations stay exactly as they are.",
     visibilityOn: "Visible in facility search",
     visibilityOff: "Hidden from search",
     visibilitySaved: "Search visibility updated",

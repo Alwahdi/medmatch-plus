@@ -306,7 +306,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     onError: (e: Error, professionalUserId) => {
       toast.error(friendlyError(e, lang, c.failed));
       // سباق: المختص قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
-      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_INVITE_NOT_ALLOWED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
+      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_SEARCH_ACCESS_EXPIRED|CANDIDATE_INVITE_NOT_ALLOWED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
         setResults((rows) => (rows ? rows.filter((r) => r.user_id !== professionalUserId) : rows));
       }
     },
