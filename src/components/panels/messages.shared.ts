@@ -149,8 +149,6 @@ export const TXT = {
     attach: "Attach file",
     tooBig: "File must be 10MB or smaller",
     uploading: "Uploading...",
-    online: "Online",
-    offline: "Offline",
     voiceNote: "Voice note",
     record: "Record voice",
     stop: "Stop & send",
