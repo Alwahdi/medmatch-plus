@@ -213,7 +213,7 @@ export function FacilityVerificationPanel() {
       const filePath = `${facility!.id}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("facility-docs")
-        .upload(filePath, ready, { contentType: ready.type || undefined });
+        .upload(filePath, ready, { contentType: ready.type || "application/octet-stream" });
       if (upErr) throw upErr;
 
       const { error } = await supabase.from("facility_documents").insert({
