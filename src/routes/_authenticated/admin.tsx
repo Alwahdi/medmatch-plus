@@ -442,6 +442,35 @@ function AdminPage() {
     facQuery.trim() ? f.name_ar.includes(facQuery.trim()) : true,
   );
   const shownPros = (pros ?? []).filter((p) => (proQuery.trim() ? p.full_name.includes(proQuery.trim()) : true));
+
+  // Evidence checklists mirror the DB rule: verification is granted only when
+  // every required document is approved (see sync_pro/facility_verification).
+  const PRO_REQUIRED_DOCS = ["ترخيص مزاولة المهنة", "بطاقة الهوية / الجواز"];
+  const FACILITY_REQUIRED_DOCS = ["رخصة مزاولة المنشأة", "السجل التجاري"];
+
+  function docState(rows: { doc_type: string; status: string }[], docType: string): DocState {
+    const matches = rows.filter((r) => r.doc_type === docType);
+    if (matches.length === 0) return "missing";
+    if (matches.some((r) => r.status === "approved")) return "approved";
+    if (matches.some((r) => r.status === "pending")) return "pending";
+    return "rejected";
+  }
+
+  function proRequiredDocs(userId: string): RequiredDoc[] {
+    const rows = (creds ?? []).filter((r) => r.user_id === userId);
+    return PRO_REQUIRED_DOCS.map((t) => ({
+      label: credentialLabel(t, lang),
+      state: docState(rows, t),
+    }));
+  }
+
+  function facilityRequiredDocs(facilityId: string): RequiredDoc[] {
+    const rows = (facDocs ?? []).filter((r) => r.facility_id === facilityId);
+    return FACILITY_REQUIRED_DOCS.map((t) => ({
+      label: facilityDocTypeLabel(t, lang),
+      state: docState(rows, t),
+    }));
+  }
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
   const pendingFacDocs = (facDocs ?? []).filter((d) => d.status === "pending");
   const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
