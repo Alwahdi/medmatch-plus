@@ -58,7 +58,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
-import { formatDateTime, relativeTime } from "@/lib/format";
+import { facilityDisplayName, formatDateTime, relativeTime } from "@/lib/format";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { markConversationRead, useUnread } from "@/lib/unread";
@@ -144,6 +144,7 @@ function MessagesPage() {
             id: string;
             user_id: string | null;
             name_ar: string;
+            name_en: string | null;
             city: string;
             country: string;
             is_verified: boolean;
@@ -163,7 +164,7 @@ function MessagesPage() {
         await Promise.all([
           supabase
             .from("facilities")
-            .select("id,user_id,name_ar,city,country,is_verified,logo_url")
+            .select("id,user_id,name_ar,name_en,city,country,is_verified,logo_url")
             .in("id", Array.from(new Set(list.map((c) => c.facility_id)))),
           supabase
             .from("healthcare_professionals")
@@ -409,7 +410,7 @@ function MessagesPage() {
       const f = data?.facilities?.[conv.facility_id];
       const revealed = conv.identity_revealed && !!f;
       return {
-        name: revealed ? f!.name_ar : c.facility,
+        name: revealed ? facilityDisplayName(f, lang) : c.facility,
         sub: f ? [f.city, f.country].filter(Boolean).join("، ") : c.hiddenIdentity,
         verified: f?.is_verified ?? false,
         icon: Building2,

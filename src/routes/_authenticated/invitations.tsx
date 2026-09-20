@@ -11,7 +11,7 @@ import { RemoteAvatar } from "@/components/remote-avatar";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { countryLabel, relativeTime } from "@/lib/format";
+import { countryLabel, facilityDisplayName, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
 import { employerText } from "@/lib/employer";
@@ -101,7 +101,7 @@ function InvitationsPage() {
       const { data: rows, error } = await supabase
         .from("invitations")
         .select(
-          "id,status,message,created_at,job_id,shift_id,facility_id,facilities(id,name_ar,city,country,is_verified,logo_url),jobs(id,title,slug,is_active,expires_at),shifts(id,title,starts_at,status)",
+          "id,status,message,created_at,job_id,shift_id,facility_id,facilities(id,name_ar,name_en,city,country,is_verified,logo_url),jobs(id,title,slug,is_active,expires_at),shifts(id,title,starts_at,status)",
         )
         .eq("professional_user_id", user!.id)
         .order("created_at", { ascending: false });
@@ -188,7 +188,7 @@ function InvitationsPage() {
                     <div className="flex items-center gap-2 font-bold">
                       {/* Identity is readable only for the invited professional; an
                           ownerless/withdrawn facility gets the neutral state, never a fake name. */}
-                      {f?.name_ar ?? <span className="text-muted-foreground">{emp.unavailable}</span>}
+                      {f ? facilityDisplayName(f, lang) : <span className="text-muted-foreground">{emp.unavailable}</span>}
                       {f?.is_verified && (
                         <Badge variant="secondary" className="gap-1">
                           <ShieldCheck className="size-3" /> {c.verified}

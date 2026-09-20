@@ -19,7 +19,7 @@ import { RatingStars } from "@/components/rating-stars";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { countryLabel, formatDateTime, formatMoney, formatSalary } from "@/lib/format";
+import { countryLabel, facilityDisplayName, formatDateTime, formatMoney, formatSalary } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
 import { NOINDEX } from "@/lib/seo";
@@ -197,7 +197,7 @@ function FacilityProfilePage() {
               {c.home}
             </Link>
             <span>/</span>
-            <span className="text-on-hero">{facility.name_ar}</span>
+            <span className="text-on-hero">{facilityDisplayName(facility, lang)}</span>
           </nav>
           <Button
             variant="ghost"
@@ -212,14 +212,14 @@ function FacilityProfilePage() {
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <RemoteAvatar
               value={facility.logo_url}
-              alt={facility.name_ar}
+              alt={facilityDisplayName(facility, lang)}
               icon={Building2}
               className="size-16 bg-white/12 text-on-hero ring-1 ring-white/20"
             />
 
             <div>
               <h1 className="font-display text-3xl font-extrabold md:text-4xl">
-                {facility.name_ar}
+                {facilityDisplayName(facility, lang)}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-on-hero/85">
                 <span className="flex items-center gap-1 text-sm">

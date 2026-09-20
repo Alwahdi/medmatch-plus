@@ -24,6 +24,7 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyFacility, useRoles, useSession } from "@/lib/auth";
+import { facilityDisplayName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +74,7 @@ const ITEM =
 
 /** بيانات الحساب المشتركة بين سطح المكتب والجوال. */
 export function useAccountIdentity() {
+  const { lang } = useLang();
   const { user } = useSession();
   const { data: roles } = useRoles(user);
   const isFacility = !!roles?.includes("facility");
@@ -91,7 +93,10 @@ export function useAccountIdentity() {
     },
   });
 
-  const name = (isFacility ? myFacility?.name_ar : myProfile?.full_name) || user?.email || "SyndeoCare";
+  const name =
+    (isFacility ? (myFacility ? facilityDisplayName(myFacility, lang) : "") : myProfile?.full_name) ||
+    user?.email ||
+    "SyndeoCare";
   const image = (isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null;
 
   return { user, roles, isFacility, name, image };
