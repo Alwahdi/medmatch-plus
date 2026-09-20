@@ -230,15 +230,19 @@ function ResetPasswordPage() {
                   // نُنهي جلسة الاستعادة بعد نجاح التغيير حتى لا تبقى مفتوحة من الرابط،
                   // ونمسح معاملات الرابط من العنوان دون إعادة تحميل الصفحة.
                   window.sessionStorage.setItem(DONE_KEY, "1");
+                  clearRecoveryProof();
                   setPhase("done");
                   window.history.replaceState(null, "", "/reset-password");
-                  await supabase.auth.signOut();
+                  // إنهاء كل الجلسات القديمة للحساب بعد الاستعادة (global مدعوم في عميل Supabase).
+                  const { error } = await supabase.auth.signOut({ scope: "global" });
+                  if (error) await supabase.auth.signOut();
                 }}
               />
             )}
           </>
         )}
       </div>
+
     </div>
   );
 }
