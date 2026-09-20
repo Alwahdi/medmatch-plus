@@ -115,12 +115,23 @@ export function ApplicationsPanel() {
       const { data: facs } = facilityIds.length
         ? await supabase.from("facilities").select("id,name_ar,name_en").in("id", facilityIds)
         : { data: [] as { id: string; name_ar: string; name_en: string | null }[] };
+      // Phase 93: تعديلات الوظيفة الجوهرية بعد التقديم مُسجّلة، فنُظهر إشعاراً للمتقدم.
+      const jobIds = Array.from(new Set((data ?? []).map((a) => a.jobs?.id).filter(Boolean) as string[]));
+      const { data: changes } = jobIds.length
+        ? await supabase
+            .from("job_change_events")
+            .select("job_id,created_at")
+            .in("job_id", jobIds)
+            .order("created_at", { ascending: false })
+        : { data: [] as { job_id: string; created_at: string }[] };
       return (data ?? []).map((a) => ({
         ...a,
         facilityName: (() => {
           const f = facs?.find((x) => x.id === a.jobs?.facility_id);
           return f ? facilityDisplayName(f, lang) : null;
         })(),
+        updatedAfterApply:
+          changes?.find((ch) => ch.job_id === a.jobs?.id && ch.created_at > a.created_at)?.created_at ?? null,
       }));
     },
   });
