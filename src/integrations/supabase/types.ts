@@ -1881,6 +1881,11 @@ export type Database = {
         Args: { _city: string; _country: string }
         Returns: boolean
       }
+      mark_conversation_read: {
+        Args: { _conversation_id: string }
+        Returns: number
+      }
+      mark_incoming_messages_delivered: { Args: never; Returns: number }
       mfa_access_ok: { Args: never; Returns: boolean }
       my_inactive_employers: { Args: never; Returns: string[] }
       my_sessions: {
