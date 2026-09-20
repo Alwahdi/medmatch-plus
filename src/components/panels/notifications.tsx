@@ -41,7 +41,7 @@ export function NotificationsPanel({ embedded = false }: { embedded?: boolean })
   const c = TXT[lang];
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { items, unreadCount } = useNotifications(user, 100);
+  const { items, unreadCount, isPending, isError, error, refetch } = useNotifications(user, 100);
 
   return (
     <div className={embedded ? "" : "mx-auto max-w-3xl px-4 py-10"}>
