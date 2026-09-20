@@ -336,6 +336,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                     </p>
                   </div>
                   <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
+                    {!isWithdrawn && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -351,6 +352,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                     >
                       <MessageSquare className="size-4" /> {c.message}
                     </Button>
+                    )}
                     <Button size="sm" variant="outline" asChild>
                       <Link to="/facility/candidates/$userId" params={{ userId: a.user_id }}>
                         <UserRound className="size-4" /> {c.viewProfile}
@@ -438,7 +440,13 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                     )}
                   </div>
                 </div>
-                {applicationStage(a.status) !== "submitted" && (
+                {isWithdrawn && (
+                  <p className="mt-3 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
+                    {c.withdrawnNote}
+                    {a.withdrawn_at ? ` · ${relativeTime(a.withdrawn_at, lang)}` : ""}
+                  </p>
+                )}
+                {!isWithdrawn && applicationStage(a.status) !== "submitted" && (
                   <FacilityInterviewBlock
                     applicationId={a.id}
                     candidateName={a.pro?.full_name ?? c.healthcarePro}
