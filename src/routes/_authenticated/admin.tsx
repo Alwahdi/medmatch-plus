@@ -410,7 +410,7 @@ function AdminPage() {
       toast.success(c.msgUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-inbox"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   async function openFile(path: string | null) {
