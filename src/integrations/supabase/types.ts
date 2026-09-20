@@ -411,6 +411,30 @@ export type Database = {
         }
         Relationships: []
       }
+      expiry_alert_log: {
+        Row: {
+          doc_id: string
+          doc_table: string
+          id: string
+          sent_at: string
+          threshold_days: number
+        }
+        Insert: {
+          doc_id: string
+          doc_table: string
+          id?: string
+          sent_at?: string
+          threshold_days: number
+        }
+        Update: {
+          doc_id?: string
+          doc_table?: string
+          id?: string
+          sent_at?: string
+          threshold_days?: number
+        }
+        Relationships: []
+      }
       facilities: {
         Row: {
           city: string
@@ -420,6 +444,8 @@ export type Database = {
           facility_type: string
           id: string
           is_verified: boolean
+          lat: number | null
+          lng: number | null
           logo_url: string | null
           name_ar: string
           name_en: string | null
@@ -439,6 +465,8 @@ export type Database = {
           facility_type?: string
           id?: string
           is_verified?: boolean
+          lat?: number | null
+          lng?: number | null
           logo_url?: string | null
           name_ar: string
           name_en?: string | null
@@ -458,6 +486,8 @@ export type Database = {
           facility_type?: string
           id?: string
           is_verified?: boolean
+          lat?: number | null
+          lng?: number | null
           logo_url?: string | null
           name_ar?: string
           name_en?: string | null
@@ -583,6 +613,7 @@ export type Database = {
       }
       healthcare_professionals: {
         Row: {
+          availability: Json
           avatar_url: string | null
           bio: string | null
           city: string | null
@@ -596,10 +627,15 @@ export type Database = {
           is_open_to_shifts: boolean
           is_searchable: boolean
           is_verified: boolean
+          lat: number | null
           license_country: string | null
           license_number: string | null
+          lng: number | null
+          preferred_rate: number | null
+          preferred_rate_period: string
           rating_avg: number
           rating_count: number
+          search_radius_km: number | null
           search_visibility_confirmed_at: string | null
           specialty_id: string | null
           updated_at: string
@@ -609,6 +645,7 @@ export type Database = {
           years_experience: number
         }
         Insert: {
+          availability?: Json
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -622,10 +659,15 @@ export type Database = {
           is_open_to_shifts?: boolean
           is_searchable?: boolean
           is_verified?: boolean
+          lat?: number | null
           license_country?: string | null
           license_number?: string | null
+          lng?: number | null
+          preferred_rate?: number | null
+          preferred_rate_period?: string
           rating_avg?: number
           rating_count?: number
+          search_radius_km?: number | null
           search_visibility_confirmed_at?: string | null
           specialty_id?: string | null
           updated_at?: string
@@ -635,6 +677,7 @@ export type Database = {
           years_experience?: number
         }
         Update: {
+          availability?: Json
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -648,10 +691,15 @@ export type Database = {
           is_open_to_shifts?: boolean
           is_searchable?: boolean
           is_verified?: boolean
+          lat?: number | null
           license_country?: string | null
           license_number?: string | null
+          lng?: number | null
+          preferred_rate?: number | null
+          preferred_rate_period?: string
           rating_avg?: number
           rating_count?: number
+          search_radius_km?: number | null
           search_visibility_confirmed_at?: string | null
           specialty_id?: string | null
           updated_at?: string
@@ -1314,6 +1362,39 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           author_user_id: string
@@ -1947,6 +2028,10 @@ export type Database = {
       complete_shift: { Args: { _shift_id: string }; Returns: string }
       consume_ai_quota: { Args: { _feature: string }; Returns: Json }
       consume_candidate_search: { Args: never; Returns: number }
+      distance_km: {
+        Args: { _lat1: number; _lat2: number; _lng1: number; _lng2: number }
+        Returns: number
+      }
       has_engagement: {
         Args: { _facility_id: string; _professional_user_id: string }
         Returns: boolean
@@ -2055,6 +2140,15 @@ export type Database = {
         Returns: undefined
       }
       refresh_verification_expiry: { Args: never; Returns: Json }
+      rehire_shift: {
+        Args: {
+          _ends_at: string
+          _message?: string
+          _shift_id: string
+          _starts_at: string
+        }
+        Returns: string
+      }
       release_privilege_audit: {
         Args: never
         Returns: {
