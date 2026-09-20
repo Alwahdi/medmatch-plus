@@ -27,7 +27,7 @@ import { EmptyState } from "@/components/empty-state";
 import { GoogleIcon } from "@/components/google-icon";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/lib/auth";
+import { useRoles, useSession } from "@/lib/auth";
 import { verifyCurrentPassword } from "@/lib/reauth";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
@@ -75,6 +75,8 @@ const TXT = {
     mfaDisableConfirm: "إيقاف التحقق بخطوتين؟",
     mfaDisableDesc: "سيقل مستوى حماية حسابك.",
     mfaAdded: "أُضيف",
+    mfaAdminRequired: "التحقق بخطوتين مطلوب لحسابات الإدارة",
+    mfaAdminRequiredNote: "لا يمكن إيقافه من هنا، وأي عملية إدارية ترفضها المنصّة بدونه.",
     pwLong: "كلمة المرور يجب ألا تزيد عن ٧٢ حرفاً",
     pwCurrentRequired: "أدخل كلمة المرور الحالية للتأكيد",
     pwCurrentWrong: "كلمة المرور الحالية غير صحيحة",
@@ -140,6 +142,8 @@ const TXT = {
     mfaDisableConfirm: "Disable two-factor?",
     mfaDisableDesc: "Your account will be less protected.",
     mfaAdded: "Added",
+    mfaAdminRequired: "Two-factor authentication is required for admin accounts",
+    mfaAdminRequiredNote: "It cannot be turned off here, and admin actions are rejected without it.",
     pwLong: "Password must be 72 characters or fewer",
     pwCurrentRequired: "Enter your current password to confirm",
     pwCurrentWrong: "Your current password is incorrect",
@@ -217,6 +221,9 @@ function passwordScore(value: string) {
 
 export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   const { user, session } = useSession();
+  const { data: roles } = useRoles(user);
+  // حسابات الإدارة ملزمة بالتحقق بخطوتين؛ الحجب هنا للواجهة والخادم هو المرجع.
+  const isAdmin = !!roles?.includes("admin");
   const { lang } = useLang();
   const c = TXT[lang];
   const qc = useQueryClient();
@@ -383,7 +390,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
   }
 
   async function disableMfa() {
-    if (!activeFactor) return;
+    if (!activeFactor || isAdmin) return;
     const ok = await confirm({
       title: c.mfaDisableConfirm,
       description: c.mfaDisableDesc,
@@ -657,15 +664,23 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
           </Badge>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">{c.mfaBody}</p>
+        {isAdmin && (
+          <p className="mt-2 rounded-lg bg-muted/60 p-3 text-sm">
+            <span className="font-semibold">{c.mfaAdminRequired}</span>{" "}
+            <span className="text-muted-foreground">{c.mfaAdminRequiredNote}</span>
+          </p>
+        )}
 
         {activeFactor ? (
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span className="text-sm text-muted-foreground">
               {c.mfaAdded} · {formatDateTime(activeFactor.created_at, lang)}
             </span>
-            <Button variant="outline" size="sm" onClick={disableMfa}>
-              <Trash2 className="size-4" /> {c.mfaDisable}
-            </Button>
+            {!isAdmin && (
+              <Button variant="outline" size="sm" onClick={disableMfa}>
+                <Trash2 className="size-4" /> {c.mfaDisable}
+              </Button>
+            )}
           </div>
         ) : enroll ? (
           <div className="mt-4 space-y-4">

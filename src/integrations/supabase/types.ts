@@ -1862,6 +1862,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      admin_mfa_access_ok: { Args: never; Returns: boolean }
       admin_review_credential: {
         Args: {
           _id: string
@@ -2065,6 +2066,7 @@ export type Database = {
         }[]
       }
       request_account_deletion: { Args: { _reason?: string }; Returns: string }
+      require_admin_mfa: { Args: never; Returns: undefined }
       require_mfa: { Args: never; Returns: undefined }
       reschedule_interview: {
         Args: { _interview_id: string; _notes?: string; _scheduled_at: string }
