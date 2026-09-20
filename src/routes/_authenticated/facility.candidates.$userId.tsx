@@ -42,6 +42,8 @@ const TXT = {
   ar: {
     loading: "جارٍ التحميل...",
     notFound: "لا يمكن عرض هذا الملف",
+    noProfile: "لم يعد لهذا الحساب ملف مهني",
+    noProfileBody: "قدّم صاحب الحساب على وظيفتك ثم حُذف ملفه المهني، لذا لا توجد بيانات لعرضها. يبقى طلبه ظاهراً في صفحة المتقدمين.",
     notFoundBody: "يظهر الملف الكامل بعد أن يتقدّم المرشح لإحدى وظائفك أو يحجز إحدى مناوباتك.",
     back: "رجوع",
     verified: "موثّق",
@@ -66,6 +68,8 @@ const TXT = {
   en: {
     loading: "Loading...",
     notFound: "This profile isn't available",
+    noProfile: "This account no longer has a professional profile",
+    noProfileBody: "They applied to your job and later removed their profile, so there is nothing to show. Their application still appears in the applicants page.",
     notFoundBody: "Full profiles appear after the candidate applies to one of your jobs or books one of your shifts.",
     back: "Back",
     verified: "Verified",
@@ -171,6 +175,7 @@ function CandidateProfile() {
           shift: shifts.find((s) => s.id === b.shift_id) ?? null,
         })),
         reviews,
+        engaged: true,
       };
     },
   });
@@ -203,8 +208,8 @@ function CandidateProfile() {
   if (!data?.pro)
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">
-        <h1 className="font-display text-2xl font-extrabold">{c.notFound}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{c.notFoundBody}</p>
+        <h1 className="font-display text-2xl font-extrabold">{data?.engaged ? c.noProfile : c.notFound}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{data?.engaged ? c.noProfileBody : c.notFoundBody}</p>
         <Link to="/facility/candidates" className="mt-6 inline-block text-primary underline underline-offset-4">
           {c.back}
         </Link>
