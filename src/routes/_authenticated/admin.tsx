@@ -842,25 +842,45 @@ function AdminPage() {
             <div className="mt-4 space-y-6">
               {facDocGroups.map((group) => (
                 <section key={group.name}>
-                  <h2 className="mb-2 text-sm font-bold">
-                    {group.name}
-                    <span className="ms-2 text-xs font-normal text-muted-foreground">
-                      {group.items.length}
-                    </span>
-                  </h2>
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <h2 className="text-sm font-bold">{group.name}</h2>
+                    <Badge variant="secondary">
+                      {c.pendingCount(group.items.filter((r) => r.status === "pending").length)}
+                    </Badge>
+                    {group.items.some((r) => r.status === "pending") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="ms-auto"
+                        loading={bulkApprove.isPending && bulkApprove.variables?.groupKey === `facdoc:${group.name}`}
+                        disabled={bulkApprove.isPending}
+                        onClick={() => {
+                          const ids = group.items.filter((r) => r.status === "pending").map((r) => r.id);
+                          if (!window.confirm(c.approveAllConfirm(group.name, ids.length))) return;
+                          bulkApprove.mutate({ ids, kind: "facdoc", groupKey: `facdoc:${group.name}` });
+                        }}
+                      >
+                        <CheckCircle2 className="size-4" />
+                        {c.approveAll(group.items.filter((r) => r.status === "pending").length)}
+                      </Button>
+                    )}
+                  </div>
                   <ul className="space-y-3">
               {group.items.map((fd) => (
                 <li key={fd.id} className="rounded-lg border border-border bg-card p-4">
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="break-words font-bold">{fd.file_name ?? fd.title}</p>
+                        <p className="break-words font-bold">{facilityDocTypeLabel(fd.doc_type, lang)}</p>
+                        {(fd.file_name || fd.title) && (
+                          <p className="mt-1 truncate text-xs text-muted-foreground" title={fd.file_name ?? fd.title}>
+                            {c.fileLabel}: {fd.file_name ?? fd.title}
+                          </p>
+                        )}
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {facilityDocTypeLabel(fd.doc_type, lang)}
-
-                          {fd.issuer ? ` · ${fd.issuer}` : ""}
-                          {fd.expiry_date ? ` · ${c.expires(formatDate(fd.expiry_date, lang))}` : ""}
-                          {` · ${formatDate(fd.created_at, lang)}`}
+                          {fd.issuer ? `${fd.issuer} · ` : ""}
+                          {fd.expiry_date ? `${c.expires(formatDate(fd.expiry_date, lang))} · ` : ""}
+                          {formatDate(fd.created_at, lang)}
                         </p>
                         {fd.review_note && (
                           <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">
