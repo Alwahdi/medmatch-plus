@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
+import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
+
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
