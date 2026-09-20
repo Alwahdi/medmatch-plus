@@ -1007,6 +1007,7 @@ function JobForm({
           { label: c.requiredLicense, value: form.required_license ? countryLabel(form.required_license, lang) : c.none },
           { label: c.jobDesc, value: form.description.trim() },
         ]}
+        note={c.privacyReview}
         backLabel={c.backToEdit}
         confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
         onBack={() => setStep("form")}
@@ -1285,6 +1286,7 @@ function ShiftForm({
           },
           { label: c.notes, value: form.notes.trim() || c.none },
         ]}
+        note={c.privacyReview}
         backLabel={c.backToEdit}
         confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
         onBack={() => setStep("form")}
@@ -1407,6 +1409,7 @@ function ReviewStep({
   title,
   subtitle,
   rows,
+  note,
   backLabel,
   confirmLabel,
   onBack,
@@ -1417,6 +1420,7 @@ function ReviewStep({
   title: string;
   subtitle: string;
   rows: { label: string; value: string }[];
+  note?: string;
   backLabel: string;
   confirmLabel: string;
   onBack: () => void;
@@ -1438,6 +1442,7 @@ function ReviewStep({
           </div>
         ))}
       </dl>
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button variant="outline" className="min-h-11" onClick={onBack} disabled={pending}>
           <ArrowRight className="size-4 rtl:rotate-180" /> {backLabel}
