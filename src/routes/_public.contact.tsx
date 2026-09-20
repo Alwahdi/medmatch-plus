@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Mail, MessageSquare, ShieldQuestion, Send, ArrowLeft, type LucideIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { submitContactMessage } from "@/lib/contact.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -91,26 +92,30 @@ function Contact() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [company, setCompany] = useState("");
+  const openedAt = useRef(Date.now());
+  const submit = useServerFn(submitContactMessage);
 
   const send = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.rpc("submit_contact_message", {
-        _name: name.trim(),
-        _email: email.trim(),
-        _message: message.trim(),
-        _subject: subject.trim() || "",
+      const { result } = await submit({
+        data: {
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+          subject: subject.trim(),
+          company,
+          elapsedMs: Date.now() - openedAt.current,
+        },
       });
-      if (error) {
-        throw new Error("failed");
-      }
-      return data as string;
+      return result;
     },
     onSuccess: (result) => {
       if (result === "rate_limited") {
         toast.error(c.rateLimited);
         return;
       }
-      if (result === "invalid_name" || result === "invalid_email" || result === "invalid_message") {
+      if (result === "invalid") {
         toast.error(c.invalid);
         return;
       }
@@ -182,6 +187,19 @@ function Contact() {
             <p className="section-label">{c.sendMessageLabel}</p>
             <h2 className="mt-3 font-display text-2xl font-extrabold">{c.formTitle}</h2>
             <div className="mt-6 space-y-4">
+              {/* Honeypot: hidden from users and assistive tech, bots fill it. */}
+              <div aria-hidden="true" className="hidden">
+                <label htmlFor="c-company">Company</label>
+                <input
+                  id="c-company"
+                  name="company"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                />
+              </div>
               <div>
                 <Label htmlFor="c-name">{c.name}</Label>
                 <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" required />
