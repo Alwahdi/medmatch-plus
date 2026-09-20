@@ -693,3 +693,47 @@ backend/admin operation with a retention strategy — direct facility/profile de
 never be restored.
 
 Typecheck clean, build OK.
+
+## Phase 68 — Minimal Trust & Safety reporting workflow (DONE)
+
+New `public.safety_reports` table: reporter (FK `auth.users`, ON DELETE CASCADE), constrained
+`target_type` (job/shift/conversation/message), `target_id`, constrained `category`
+(misleading / fraud_or_fee / harassment / privacy / unsafe_content / other), optional
+`details` (<=1000), constrained `status` (open/reviewing/resolved/dismissed, default open),
+`admin_note`, `created_at`/`updated_at`/`resolved_at`. No listing or message content is
+copied into the report row — admins resolve target context through the trusted admin RPC.
+
+Privileges (Phase 60 rule): `REVOKE ALL FROM PUBLIC, anon, authenticated`, then
+`GRANT SELECT TO authenticated` and `GRANT ALL TO service_role`. RLS on, with the Phase 50
+restrictive `mfa level required` policy plus SELECT for own reports and SELECT for admins.
+No client INSERT/UPDATE/DELETE anywhere — writes go through RPCs only.
+
+RPCs (all SECURITY DEFINER, `SET search_path`, `REVOKE ALL FROM PUBLIC, anon`, explicit
+EXECUTE grants):
+- `submit_safety_report(_target_type,_target_id,_category,_details)` — `require_mfa()`,
+  reporter derived from `auth.uid()`, validates the target exists and the reporter has
+  legitimate visibility (job/shift: currently listed, or own application/booking/invitation;
+  conversation: `is_conversation_participant`; message: participant of its conversation).
+  Duplicate open/reviewing report of the same reporter+target+category returns the existing
+  id (also enforced by a partial unique index). Daily quota of 20 per user under
+  `pg_advisory_xact_lock`. No notification to the reported party.
+- `admin_list_safety_reports(_status)` and `admin_update_safety_report(_id,_status,_note)` —
+  `require_mfa()` + `has_role(auth.uid(),'admin')`, transitions open→reviewing/resolved/
+  dismissed and reviewing→resolved/dismissed only. No automatic suspension or deletion.
+
+UI: secondary "Report this job/shift" action on job and shift detail (signed-out users get a
+sign-in link), an icon-only "Report conversation" action in the messages header, and a small
+dialog with reason radios + optional details stating the report goes to the SyndeoCare review
+team. New `Safety reports` admin tab with an open-count badge, newest-open-first list,
+reviewing/resolve/dismiss with a note, and a link to the job/shift target.
+
+Verified on live data as `authenticated` with QA rows removed afterwards (table back to 0):
+participant can report a conversation; duplicate returns the same id; a signed-in user can
+report a visible job; an outsider reporting that conversation or a message in it is blocked
+with `REPORT_TARGET_NOT_VISIBLE`; the 21st report in a day is blocked with
+`REPORT_QUOTA_EXCEEDED`; a non-admin calling the admin list gets `NOT_AUTHORIZED`; a direct
+`UPDATE` on `safety_reports` is `permission denied`; reports are invisible to anyone but the
+reporter and admins. AR/EN copy in place; typecheck clean, build OK.
+
+Open: the admin-side triage flow could not be exercised end to end because no real admin
+account is assigned yet (existing launch blocker).
