@@ -102,9 +102,36 @@ export function MyShiftsPanel() {
     onError: () => toast.error(c.cancelFailed),
   });
 
+  const completed = (data ?? []).filter(
+    (b) => b.status === "confirmed" && b.shifts?.status === "completed",
+  );
+  const earnings = completed.reduce<Record<string, number>>((acc, b) => {
+    const s = b.shifts!;
+    const cur = s.currency ?? "YER";
+    acc[cur] = (acc[cur] ?? 0) + s.hourly_rate * hoursBetween(s.starts_at, s.ends_at);
+    return acc;
+  }, {});
+
   return (
     <div>
       {confirmDialog}
+
+      {completed.length > 0 && (
+        <div className="mb-4 rounded-lg border border-border bg-card p-4 shadow-card">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <div>
+              <p className="text-sm text-muted-foreground">{c.earningsTitle}</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">
+                {Object.entries(earnings)
+                  .map(([cur, amount]) => formatMoney(amount, cur, lang))
+                  .join(" · ")}
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground">{c.earningsCount(completed.length)}</p>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">{c.earningsHint}</p>
+        </div>
+      )}
 
       {isLoading ? (
         <ListSkeleton />
