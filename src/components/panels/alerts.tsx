@@ -73,6 +73,17 @@ const TXT = {
   en: {
     title: "Job alerts",
     sub: "Set your specialty and location, and we'll send you matching new opportunities as they appear.",
+    subNoChannel:
+      "Save your criteria now — you'll be able to turn on external delivery once a channel becomes available.",
+    unavailableSuffix: "— currently unavailable",
+    noChannels:
+      "No external delivery channel is available right now. Matching opportunities still appear for you in the app, but an alert that sends by email or WhatsApp can't be created yet.",
+    statusUnknown:
+      "We couldn't check delivery channel status, so an externally delivered alert can't be created right now.",
+    recheck: "Try again",
+    savedUnavailable: "Saved — delivery channel unavailable",
+    activeUndeliverable: "Preference is on, but delivery is unavailable",
+    cannotEnable: "This alert can't be turned on because its channel is unavailable right now.",
     specialty: "Specialty",
     allSpecialties: "All specialties",
     country: "Country",
