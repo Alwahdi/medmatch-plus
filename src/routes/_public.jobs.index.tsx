@@ -632,7 +632,7 @@ function JobsPage() {
                   <RotateCcw className="size-4" /> {c.reset}
                 </Button>
                 <Button className="w-full lg:hidden" onClick={() => setShowFilters(false)}>
-                  {c.applyFilters} · {c.count(items.length)}
+                  {c.applyFilters} · {c.count(total)}
                 </Button>
               </div>
             </div>
