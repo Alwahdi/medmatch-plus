@@ -28,6 +28,8 @@ import { ErrorState } from "@/components/error-state";
 import { AdminDeletionQueue } from "@/components/admin-deletion-queue";
 import { AdminSafetyReports } from "@/components/admin-safety-reports";
 import { AdminReadiness } from "@/components/admin-readiness";
+import { VerificationPanel, type DocState, type RequiredDoc } from "@/components/admin-verification";
+import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -513,7 +515,7 @@ function AdminPage() {
         <StatCard label={c.statInbox} value={newMsgs.length} icon={Inbox} />
       </div>
 
-      <Tabs defaultValue="docs" className="mt-8">
+      <Tabs value={tab} onValueChange={setTab} className="mt-8">
         <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <TabsList className="w-max justify-start">
             <TabsTrigger value="docs" className="shrink-0">
