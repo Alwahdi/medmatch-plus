@@ -331,9 +331,11 @@ export function AlertsPanel() {
         ))}
       </ul>
 
-      {!alerts?.length && (
+      {alertsErr ? (
+        <ErrorState className="mt-6" onRetry={() => void alertsRefetch()} />
+      ) : !alertsPending && !alerts.length ? (
         <EmptyState className="mt-6" icon={Bell} title={c.empty} />
-      )}
+      ) : null}
     </div>
   );
 }
