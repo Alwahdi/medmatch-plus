@@ -110,6 +110,9 @@ const TXT = {
     candidateNote: "ملاحظة المرشح",
     failed: "تعذّر تنفيذ العملية",
     joinLink: "رابط الاجتماع",
+    beforeShift: (t: string) => `يجب أن تنتهي المقابلة قبل بداية المناوبة (${t}).`,
+    noWindow: "لم يتبقَّ وقت كافٍ قبل بداية المناوبة لجدولة مقابلة.",
+    windowInvalid: "اختر موعداً تنتهي فيه المقابلة قبل بداية المناوبة.",
   },
   en: {
     interview: "Interview",
@@ -172,6 +175,9 @@ const TXT = {
     candidateNote: "Candidate note",
     failed: "The action could not be completed",
     joinLink: "Meeting link",
+    beforeShift: (t: string) => `The interview must end before the shift starts (${t}).`,
+    noWindow: "There isn't enough time left before the shift starts to hold an interview.",
+    windowInvalid: "Pick a time that ends before the shift starts.",
   },
 } as const;
 
@@ -206,6 +212,14 @@ const ERRORS: Record<string, { ar: string; en: string }> = {
   INTERVIEW_NOT_STARTED: {
     ar: "لا يمكن إنهاء المقابلة قبل موعدها المجدول.",
     en: "The interview can't be finished before its scheduled time.",
+  },
+  SHIFT_INTERVIEW_WINDOW_INVALID: {
+    ar: "يجب أن تنتهي المقابلة قبل بداية المناوبة. اختر موعداً أبكر أو مدة أقصر.",
+    en: "The interview must end before the shift starts. Pick an earlier time or a shorter duration.",
+  },
+  SHIFT_UNAVAILABLE: {
+    ar: "لم تعد هذه المناوبة متاحة (أُلغيت أو انتهت أو تغيّر حجزها).",
+    en: "This shift is no longer available (cancelled, finished, or the booking changed).",
   },
 };
 
@@ -299,11 +313,17 @@ export function FacilityInterviewBlock({
   shiftBookingId,
   candidateName,
   disabled = false,
+  shiftStartsAt,
+  shiftLive = true,
 }: {
   applicationId?: string;
   shiftBookingId?: string;
   candidateName: string;
   disabled?: boolean;
+  /** بداية المناوبة المرتبطة — المقابلة يجب أن تنتهي قبلها. */
+  shiftStartsAt?: string;
+  /** المناوبة ما زالت محجوزة ولم يبدأ وقتها. */
+  shiftLive?: boolean;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
@@ -326,6 +346,15 @@ export function FacilityInterviewBlock({
   const active = row && (row.status === "scheduled" || row.status === "confirmed");
   const started = !!row && new Date(row.scheduled_at).getTime() <= Date.now();
   const isReschedule = !!row && (active || row.status === "declined");
+
+  // نافذة المقابلة المرتبطة بمناوبة: تبدأ وتنتهي قبل بداية المناوبة.
+  const shiftStartMs = shiftStartsAt ? new Date(shiftStartsAt).getTime() : null;
+  const plannedDuration =
+    isReschedule && row ? row.duration_minutes : Math.min(Math.max(Number(duration) || 30, 10), 240);
+  const latestStartMs = shiftStartMs === null ? null : shiftStartMs - plannedDuration * 60_000;
+  const shiftWindowOpen =
+    shiftStartMs === null || (shiftLive && latestStartMs !== null && latestStartMs > Date.now());
+  const canSchedule = !disabled && shiftWindowOpen;
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["interview"] });
@@ -406,13 +435,19 @@ export function FacilityInterviewBlock({
         </div>
         {!disabled && (
           <div className="flex flex-wrap gap-2">
+            {canSchedule && (
             <Button
               size="sm"
               variant={active ? "outline" : "default"}
               onClick={() => {
                 const base = new Date(Date.now() + 24 * 60 * 60 * 1000);
                 base.setMinutes(0, 0, 0);
-                setWhen(row && isReschedule ? toLocalInput(new Date(row.scheduled_at)) : toLocalInput(base));
+                let start = row && isReschedule ? new Date(row.scheduled_at) : base;
+                if (latestStartMs !== null && start.getTime() > latestStartMs) {
+                  start = new Date(latestStartMs);
+                  start.setSeconds(0, 0);
+                }
+                setWhen(toLocalInput(start));
                 if (row) {
                   setDuration(String(row.duration_minutes));
                   setMode(row.mode);
@@ -425,6 +460,7 @@ export function FacilityInterviewBlock({
             >
               <CalendarClock className="size-4" /> {isReschedule ? c.reschedule : c.schedule}
             </Button>
+            )}
             {active && (
               <>
                 {started && (
@@ -454,6 +490,10 @@ export function FacilityInterviewBlock({
         )}
       </div>
 
+      {!disabled && shiftStartMs !== null && !shiftWindowOpen && !row && (
+        <p className="mt-3 text-sm text-muted-foreground">{c.noWindow}</p>
+      )}
+
       {row && (
         <div className="mt-3">
           <InterviewSummary row={row} lang={lang} />
@@ -476,7 +516,20 @@ export function FacilityInterviewBlock({
           <div className="space-y-4">
             <div>
               <Label htmlFor="iv-when">{c.when}</Label>
-              <Input id="iv-when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+              <Input
+                id="iv-when"
+                type="datetime-local"
+                value={when}
+                {...(latestStartMs !== null
+                  ? { max: toLocalInput(new Date(latestStartMs)), "aria-describedby": "iv-when-hint" }
+                  : {})}
+                onChange={(e) => setWhen(e.target.value)}
+              />
+              {shiftStartsAt && (
+                <p id="iv-when-hint" className="mt-1 text-xs text-muted-foreground">
+                  {c.beforeShift(formatDateTime(shiftStartsAt, lang))}
+                </p>
+              )}
             </div>
             {!isReschedule && (
               <>
@@ -560,6 +613,10 @@ export function FacilityInterviewBlock({
                   toast.error(c.needWhen);
                   return;
                 }
+                if (latestStartMs !== null && new Date(when).getTime() > latestStartMs) {
+                  toast.error(c.windowInvalid);
+                  return;
+                }
                 if (!isReschedule && mode === "onsite" && !place.trim()) {
                   toast.error(c.needPlace);
                   return;
@@ -569,7 +626,7 @@ export function FacilityInterviewBlock({
                     toast.error(c.needLink);
                     return;
                   }
-                  if (!/^https?:\/\/\S+/i.test(link.trim())) {
+                  if (!/^https:\/\/\S+$/i.test(link.trim())) {
                     toast.error(c.badLink);
                     return;
                   }

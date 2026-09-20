@@ -734,6 +734,8 @@ function FacilityDashboard() {
                       shiftId={s.id}
                       facilityId={facility.id}
                       shiftCompleted={s.status === "completed"}
+                      shiftStartsAt={s.starts_at}
+                      shiftStatus={s.status}
                     />
                   )}
                 </PublishedWorkCard>
