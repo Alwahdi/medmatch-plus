@@ -12,7 +12,7 @@ import { useSignedIn } from "@/components/page-chrome";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
+import { canonicalCountry, countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
 import { useSpecialtyScope, type Scope } from "@/lib/specialty-filter";
@@ -189,7 +189,8 @@ function JobsPage() {
     void navigate({ to: "/jobs", search: merged, replace: true });
   };
   const q = sp.q ?? "";
-  const country = sp.country ?? ALL;
+  // روابط قديمة قد تحمل مرادفاً للدولة — نطبّعها إلى القيمة المعتمدة.
+  const country = sp.country ? (canonicalCountry(sp.country) || ALL) : ALL;
   const city = sp.city ?? ALL;
   const specialty = sp.specialty ?? ALL;
   const type = sp.type ?? ALL;

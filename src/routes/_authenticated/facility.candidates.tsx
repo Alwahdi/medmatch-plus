@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, specialtyName, experienceLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
+import { canonicalCountry } from "@/lib/countries";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { useLang } from "@/lib/i18n";
@@ -167,7 +168,7 @@ function Candidates() {
     void navigate({ to: "/facility/candidates", search: merged, replace: true });
   };
   const specialty = sp.specialty ?? ANY;
-  const country = sp.country ?? ANY;
+  const country = sp.country ? (canonicalCountry(sp.country) || ANY) : ANY;
   const city = sp.city ?? "";
   const minExp = sp.minExp ?? "";
   const setSpecialty = (v: string) => setParams({ specialty: v });
