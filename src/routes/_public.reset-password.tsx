@@ -71,6 +71,7 @@ const T = {
   },
   requestNew: { ar: "طلب رابط جديد", en: "Request a new link" },
   backToAuth: { ar: "العودة لتسجيل الدخول", en: "Back to sign in" },
+  toHome: { ar: "الصفحة الرئيسية", en: "Home page" },
 } as const;
 
 type Phase = "checking" | "ready" | "invalid" | "done";
