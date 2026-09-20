@@ -134,7 +134,12 @@ function FacilityProfilePage() {
     },
   });
 
-  const { data: shifts } = useQuery({
+  const {
+    data: shifts = [],
+    isPending: shiftsPending,
+    isError: shiftsError,
+    refetch: refetchShifts,
+  } = useQuery({
     queryKey: ["public-facility-shifts", facilityId],
     enabled: !!facility,
     queryFn: async () => {
