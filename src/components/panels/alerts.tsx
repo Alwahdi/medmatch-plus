@@ -404,7 +404,8 @@ export function AlertsPanel() {
 
             </div>
           </li>
-        ))}
+          );
+        })}
       </ul>
 
       {alertsErr ? (
