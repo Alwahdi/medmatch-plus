@@ -927,3 +927,42 @@ browser:** the authenticated screens (invitations, dashboard, notifications, inv
 signed-in session can be minted in this environment, the same standing blocker as the admin
 account. Their states were changed by the same three-branch pattern used by the already-correct
 panels. Typecheck clean.
+
+## Phase 74 — Internal admin notes are never client-readable (DONE)
+
+Row level security filters rows, not columns. Both `safety_reports` and `account_deletion_requests`
+granted table SELECT to signed-in users with an own-row policy, so the person who filed a report or
+a deletion request could query the row directly and read the internal `admin_note` (plus admin
+processing metadata) even though no screen displayed it.
+
+- Client SELECT is revoked on both tables from `anon` and `authenticated`; the owner SELECT policies
+  are dropped. Reading now only happens through trusted functions.
+- `my_account_deletion_request()` (auth + MFA) returns the owner's latest request with
+  `id, reason, status, requested_at, updated_at, processed_at` — no `admin_note`, no email snapshot
+  (the user knows their own email), no reviewer identity. Account & privacy uses it and no longer
+  renders a team note.
+- `admin_list_account_deletion_requests(_status)` (admin + MFA) returns the full queue including
+  `email_snapshot` and `admin_note`; the admin deletion queue uses it. `admin_list_safety_reports`
+  already covered the reports queue, and the reporter has no history screen, so no
+  `my_safety_reports()` was added — an unused read surface is one more thing to keep safe.
+- Request / cancel / admin-update RPCs are unchanged apart from explicit grants.
+
+**Report target visibility now mirrors the public surface.** `submit_safety_report` accepted any job
+with `is_active` or any shift with `status = 'open'`. Live data holds 12 active jobs whose facility
+has no live owner — never shown publicly, yet reportable by anyone. A listing is now reportable only
+if it is genuinely public (active, not expired / open and still in the future, and the facility has a
+live owner) or the reporter has a real history with it: an application, booking, invitation, or a
+conversation about it. Historical engagement stays reportable on purpose — someone who dealt with a
+listing that has since closed must still be able to raise a concern about it.
+
+**Cleanup tracking.** The single orphan QA fixture (user `2bd60a3b-…`) is recorded as a migration
+guarded on that exact id, on the auth user being absent, and on the conversation having no messages.
+It is a no-op now that the rows are gone, and it deliberately does not generalise into a sweep of
+arbitrary orphans. Current counts: 0 orphan profiles, 0 orphan professional records.
+
+Verified: neither table is SELECT-able by `anon` or `authenticated`; the owner RPC is granted to
+signed-in users only and the admin RPC rejects `anon`; every new function had inherited privileges
+revoked from `PUBLIC`/`anon` first. The contact cleanup and the privilege-audit wording asked for in
+this round were already delivered in Phase 69 — the legacy `submit_contact_message(text,text,text,text)`
+is dropped and the audit expects zero anon/PUBLIC SECURITY DEFINER endpoints. Admin-side screens
+still need a real admin account to exercise end to end (standing launch blocker). Typecheck clean.
