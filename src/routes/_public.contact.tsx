@@ -187,6 +187,19 @@ function Contact() {
             <p className="section-label">{c.sendMessageLabel}</p>
             <h2 className="mt-3 font-display text-2xl font-extrabold">{c.formTitle}</h2>
             <div className="mt-6 space-y-4">
+              {/* Honeypot: hidden from users and assistive tech, bots fill it. */}
+              <div aria-hidden="true" className="hidden">
+                <label htmlFor="c-company">Company</label>
+                <input
+                  id="c-company"
+                  name="company"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                />
+              </div>
               <div>
                 <Label htmlFor="c-name">{c.name}</Label>
                 <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" required />
