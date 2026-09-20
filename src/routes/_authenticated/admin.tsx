@@ -439,7 +439,7 @@ function AdminPage() {
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   }
 
-  if (rolesLoading || (isAdmin && totpLoading))
+  if (rolesLoading || (isAdmin && (totpLoading || aalLoading)))
     return (
       <div className="mx-auto max-w-4xl p-6">
         <span className="sr-only">{c.loading}</span>
