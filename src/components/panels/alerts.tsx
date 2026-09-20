@@ -1,6 +1,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Bell, BellRing, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,16 @@ const TXT = {
   ar: {
     title: "تنبيهات الوظائف",
     sub: "حدّد تخصصك وموقعك، ونرسل لك الفرص الجديدة المطابقة أولاً بأول.",
+    subNoChannel: "احفظ معاييرك الآن، وستتمكن من تفعيل الإرسال الخارجي عند توفر القناة.",
+    unavailableSuffix: "— غير متاح حالياً",
+    noChannels:
+      "لا تتوفر حالياً قناة إرسال خارجي. الفرص المطابقة تظهر لك داخل المنصة، لكن لا يمكن إنشاء تنبيه يُرسل عبر البريد أو واتساب الآن.",
+    statusUnknown:
+      "تعذّر التحقق من حالة قنوات الإرسال، لذلك لا يمكن إنشاء تنبيه إرسال خارجي الآن.",
+    recheck: "إعادة المحاولة",
+    savedUnavailable: "محفوظ — القناة غير مفعلة",
+    activeUndeliverable: "التفضيل مفعّل، لكن الإرسال غير متاح",
+    cannotEnable: "لا يمكن تفعيل هذا التنبيه لأن قناته غير متاحة حالياً",
     specialty: "التخصص",
     allSpecialties: "كل التخصصات",
     country: "الدولة",
@@ -63,6 +73,17 @@ const TXT = {
   en: {
     title: "Job alerts",
     sub: "Set your specialty and location, and we'll send you matching new opportunities as they appear.",
+    subNoChannel:
+      "Save your criteria now — you'll be able to turn on external delivery once a channel becomes available.",
+    unavailableSuffix: "— currently unavailable",
+    noChannels:
+      "No external delivery channel is available right now. Matching opportunities still appear for you in the app, but an alert that sends by email or WhatsApp can't be created yet.",
+    statusUnknown:
+      "We couldn't check delivery channel status, so an externally delivered alert can't be created right now.",
+    recheck: "Try again",
+    savedUnavailable: "Saved — delivery channel unavailable",
+    activeUndeliverable: "Preference is on, but delivery is unavailable",
+    cannotEnable: "This alert can't be turned on because its channel is unavailable right now.",
     specialty: "Specialty",
     allSpecialties: "All specialties",
     country: "Country",
@@ -101,11 +122,28 @@ export function AlertsPanel() {
   const [channel, setChannel] = useState<"email" | "whatsapp">("email");
   const [phone, setPhone] = useState("");
 
-  const { data: channels, isError: channelsErr, refetch: channelsRefetch } = useQuery({
+  const {
+    data: channels,
+    isPending: channelsPending,
+    isError: channelsErr,
+    refetch: channelsRefetch,
+  } = useQuery({
     queryKey: ["alert-channels"],
     queryFn: () => getChannelStatus(),
     staleTime: 5 * 60_000,
   });
+
+  // Fail closed: while the status is unknown (loading or failed) no channel is
+  // treated as deliverable, so we never promise a send we cannot make.
+  const ready = { email: channels?.email === true, whatsapp: channels?.whatsapp === true };
+  const anyReady = ready.email || ready.whatsapp;
+  const channelReady = channel === "whatsapp" ? ready.whatsapp : ready.email;
+
+  // If exactly one channel can deliver, select it instead of leaving the user
+  // on a dead option.
+  useEffect(() => {
+    if (ready.email !== ready.whatsapp) setChannel(ready.email ? "email" : "whatsapp");
+  }, [ready.email, ready.whatsapp]);
 
   const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
@@ -136,6 +174,9 @@ export function AlertsPanel() {
 
   const create = useMutation({
     mutationFn: async () => {
+      // Guard the write as well as the button: an alert is never stored
+      // against a channel that cannot deliver.
+      if (!channelReady) throw new UserFacingError(channelsErr ? c.statusUnknown : c.noChannels);
       if (channel === "whatsapp" && !/^\+?\d{8,15}$/.test(phone.trim())) {
         throw new UserFacingError(c.invalidPhone);
       }
@@ -161,6 +202,11 @@ export function AlertsPanel() {
 
   const toggle = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      if (is_active) {
+        const target = alerts.find((a) => a.id === id);
+        const targetReady = target?.channel === "whatsapp" ? ready.whatsapp : ready.email;
+        if (!targetReady) throw new UserFacingError(c.cannotEnable);
+      }
       const { error } = await supabase.from("job_alerts").update({ is_active }).eq("id", id);
       if (error) throw error;
       return { id, is_active };
@@ -175,6 +221,7 @@ export function AlertsPanel() {
         lang,
       );
     },
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.cannotEnable)),
   });
 
   const remove = useMutation({
@@ -188,8 +235,9 @@ export function AlertsPanel() {
     },
   });
 
+  // A failed channel-status read must not hide the saved alerts: it only
+  // blocks creating a new externally delivered one (handled below).
   const loadErrors = [
-    { err: channelsErr, retry: channelsRefetch },
     { err: specialtiesErr, retry: specialtiesRefetch },
     { err: alertsErr, retry: alertsRefetch },
   ].filter((q) => q.err);
@@ -206,17 +254,19 @@ export function AlertsPanel() {
       {confirmDialog}
 
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {c.sub}
-      </p>
+      <p className="mt-2 text-sm text-muted-foreground">{anyReady ? c.sub : c.subNoChannel}</p>
 
-      {channels && !(channels.email && channels.whatsapp) && (
-        <div className="mt-4 rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
-          {lang === "ar"
-            ? "تفضيلاتك تُحفظ الآن، ويبدأ الإرسال الفعلي فور تفعيل مزوّد الرسائل عند الإطلاق."
-            : "Your preferences are saved now; actual delivery starts as soon as the messaging provider is activated at launch."}
+      {(channelsErr || (!channelsPending && !anyReady)) && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
+          <span className="min-w-0 flex-1">{channelsErr ? c.statusUnknown : c.noChannels}</span>
+          {channelsErr && (
+            <Button variant="outline" size="sm" onClick={() => void channelsRefetch()}>
+              {c.recheck}
+            </Button>
+          )}
         </div>
       )}
+
 
       <div className="mt-6 grid gap-3 rounded-lg border border-border bg-card p-5 md:grid-cols-2">
         <Combobox
@@ -270,8 +320,12 @@ export function AlertsPanel() {
         <Select value={channel} onValueChange={(v) => setChannel(v as "email" | "whatsapp")}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="email">{c.email}</SelectItem>
-            <SelectItem value="whatsapp">{c.whatsapp}</SelectItem>
+            <SelectItem value="email" disabled={!ready.email}>
+              {ready.email ? c.email : `${c.email} ${c.unavailableSuffix}`}
+            </SelectItem>
+            <SelectItem value="whatsapp" disabled={!ready.whatsapp}>
+              {ready.whatsapp ? c.whatsapp : `${c.whatsapp} ${c.unavailableSuffix}`}
+            </SelectItem>
           </SelectContent>
         </Select>
         {channel === "whatsapp" && (
@@ -281,7 +335,12 @@ export function AlertsPanel() {
             onChange={(e) => setPhone(e.target.value)}
           />
         )}
-        <Button className="md:col-span-2" onClick={() => create.mutate()} loading={create.isPending}>
+        <Button
+          className="md:col-span-2"
+          onClick={() => create.mutate()}
+          loading={create.isPending}
+          disabled={!channelReady}
+        >
           <BellRing className="size-4" /> {create.isPending ? c.saving : c.add}
         </Button>
       </div>
@@ -293,7 +352,9 @@ export function AlertsPanel() {
       )}
 
       <ul className="mt-6 space-y-3">
-        {alerts.map((a) => (
+        {alerts.map((a) => {
+          const rowReady = a.channel === "whatsapp" ? ready.whatsapp : ready.email;
+          return (
           <li
             key={a.id}
             className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4"
@@ -306,10 +367,19 @@ export function AlertsPanel() {
               {a.city && <Badge variant="outline">{a.city}</Badge>}
               {a.employment_type && <Badge variant="outline">{employmentLabel(a.employment_type, lang)}</Badge>}
               <Badge variant="secondary">{a.channel === "whatsapp" ? c.channelWhatsapp : c.channelEmail}</Badge>
+              {!rowReady && (
+                <Badge variant="outline" className="text-muted-foreground">
+                  {a.is_active ? c.activeUndeliverable : c.savedUnavailable}
+                </Badge>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <Switch
                 checked={a.is_active}
+                // Off and delete always work; on is blocked while the channel
+                // cannot deliver.
+                disabled={!rowReady && !a.is_active}
+                aria-label={!rowReady && !a.is_active ? c.cannotEnable : undefined}
                 onCheckedChange={(v) => toggle.mutate({ id: a.id, is_active: v })}
               />
               <Button
@@ -334,7 +404,8 @@ export function AlertsPanel() {
 
             </div>
           </li>
-        ))}
+          );
+        })}
       </ul>
 
       {alertsErr ? (
