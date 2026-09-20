@@ -234,6 +234,12 @@ function ProfileOverview() {
       license_country: profile.license_country ?? "",
       license_number: profile.license_number ?? "",
       is_open_to_shifts: profile.is_open_to_shifts ?? true,
+      lat: profile.lat === null || profile.lat === undefined ? null : Number(profile.lat),
+      lng: profile.lng === null || profile.lng === undefined ? null : Number(profile.lng),
+      availability: parseAvailability(profile.availability),
+      search_radius_km: profile.search_radius_km === null || profile.search_radius_km === undefined ? "" : String(profile.search_radius_km),
+      preferred_rate: profile.preferred_rate === null || profile.preferred_rate === undefined ? "" : String(profile.preferred_rate),
+      preferred_rate_period: profile.preferred_rate_period ?? "hour",
     });
   }, [profile]);
 
