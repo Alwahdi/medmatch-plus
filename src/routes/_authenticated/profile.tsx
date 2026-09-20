@@ -292,6 +292,22 @@ function ProfileOverview() {
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
 
+  // Search visibility is opt-in and goes through its own trusted action, so a
+  // routine profile save can never turn it on.
+  const searchable = profile?.is_searchable === true;
+  const setVisibility = useMutation({
+    mutationFn: async (visible: boolean) => {
+      assertOk(await supabase.rpc("set_search_visibility", { _visible: visible }));
+    },
+    onSuccess: () => {
+      toast.success(c.visibilitySaved);
+      queryClient.invalidateQueries({ queryKey: ["my-pro"] });
+    },
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.visibilityFailed)),
+  });
+
+
+
   const loadErrors = [
     { err: specialtiesErr, retry: specialtiesRefetch },
     { err: profileErr, retry: profileRefetch },
