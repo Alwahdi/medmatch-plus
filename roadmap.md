@@ -1099,3 +1099,12 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - الواجهة: `src/lib/profile-completeness.ts` (عرض فقط) + بطاقة «أكمل بياناتك» في لوحة الكادر ولوحة المنشأة بأولوية أعلى من التوثيق، ورسائل AR/EN لـ`PROFILE_INCOMPLETE` و`FACILITY_PROFILE_INCOMPLETE` في `user-errors.ts`.
 - اختبارات (DO block على بيانات حية مع تراجع كامل): كادر مكتمل => `my_profile_completeness` صحيحة + claim ينجح؛ بعد إزالة التخصص => claim/apply/book/visible-on كلها `PROFILE_INCOMPLETE` بينما visible-off مسموح والسجل سليم؛ منشأة مكتملة => البحث يمر للبوابة التالية (`FACILITY_VERIFICATION_REQUIRED`)؛ منشأة ناقصة => claim/search/محادثة جديدة/إدراج وظيفة كلها `FACILITY_PROFILE_INCOMPLETE` بلا إنشاء أي صف وبلا فقدان سجل.
 - صلاحيات least-privilege (Phase60) مطبّقة على كل الدوال الجديدة/المعدّلة. البناء وفحص الأنواع نظيفان.
+
+## Phase81 — جدولة مقابلات المناوبات ضمن نافذة صالحة
+- `private.assert_shift_interview_window(_shift_id,_scheduled_at,_duration_minutes)` (STABLE, SECURITY DEFINER, `search_path=''`): المناوبة يجب أن تكون `booked` و`starts_at > now()` وإلا `SHIFT_UNAVAILABLE`؛ ويجب أن تبدأ المقابلة وتنتهي (`scheduled_at + duration`) قبل `starts_at` وإلا `SHIFT_INTERVIEW_WINDOW_INVALID`.
+- `schedule_interview`: فرع الحجز يستدعي البوابة بعد التحقق من `confirmed` وملكية المنشأة؛ ورابط الاجتماع لنمط `video` صار يشترط `https://` صراحة (`INTERVIEW_URL_INVALID`).
+- `reschedule_interview`: المقابلات المرتبطة بمناوبة تُعيد فحص الحجز (`confirmed`) والنافذة قبل قبول الموعد الجديد؛ المقابلات المرتبطة بوظيفة بلا تغيير.
+- `respond_to_interview`: القبول يفشل بـ`SHIFT_UNAVAILABLE` إذا لم تعد المناوبة محجوزة/مستقبلية، بينما الاعتذار يبقى متاحاً للسجل.
+- الواجهة (`src/components/interview.tsx`): زر الجدولة يختفي عند عدم بقاء وقت كافٍ قبل بداية المناوبة مع سطر تفسيري؛ حقل الموعد له `max` محسوب من (بداية المناوبة − المدة) وتلميح AR/EN بموعد بدء المناوبة؛ تحقق محلي قبل الإرسال ورسائل AR/EN لـ`SHIFT_INTERVIEW_WINDOW_INVALID` و`SHIFT_UNAVAILABLE`؛ تمرير `shiftStartsAt`/`shiftLive` عبر `FacilityBookingsPanel` من لوحة المنشأة.
+- اختبارات (DO block بتراجع كامل): مقابلة تنتهي قبل البدء => مسموحة؛ رابط `http` => مرفوض؛ إعادة جدولة متداخلة أو بعد البدء => `SHIFT_INTERVIEW_WINDOW_INVALID`؛ إعادة جدولة صالحة => تمر؛ قبول أثناء مناوبة حية => يمر؛ بعد إلغاء المناوبة => القبول `SHIFT_UNAVAILABLE` والاعتذار مسموح؛ جدولة جديدة على مناوبة ملغاة => `SHIFT_UNAVAILABLE`؛ لا صف تاريخي تغيّر.
+- صلاحيات least-privilege (Phase60) على كل الدوال المعدّلة. البناء وفحص الأنواع نظيفان.
