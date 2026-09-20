@@ -250,7 +250,7 @@ export function FacilityVerificationPanel() {
       toast.success(c.deleted);
       void queryClient.invalidateQueries({ queryKey: ["facility-docs"] });
     },
-    onError: () => toast.error(c.saveFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
 
   async function openFile(path: string | null) {
