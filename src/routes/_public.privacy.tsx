@@ -161,8 +161,11 @@ const TXT = {
         ],
       },
       {
-        h: "8. Cookies",
-        p: ["We use only essential cookies for sign-in and to remember your language preference."],
+        h: "8. Browser storage & cookies",
+        p: [
+          "We use essential browser storage (such as local storage and necessary cookies) to maintain your sign-in and session, and to remember your preferred language.",
+          "We run no advertising and no cross-site tracking, and we do not sell your data.",
+        ],
       },
       {
         h: "9. Policy updates",
