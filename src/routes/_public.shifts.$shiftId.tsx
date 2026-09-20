@@ -210,6 +210,7 @@ function ShiftDetail() {
         .select("id,status")
         .eq("shift_id", shiftId)
         .eq("user_id", user!.id)
+        .eq("status", "confirmed")
         .maybeSingle();
       if (error) throw error;
       return data;

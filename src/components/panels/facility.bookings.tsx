@@ -29,6 +29,10 @@ const TXT = {
     chatOpened: "تم فتح المحادثة — اسم منشأتك ظاهر الآن للمرشح",
     chatFailed: "تعذّر بدء المحادثة",
     cancelled: "ملغي",
+    cancelledAt: (time: string, actor: string) => `أُلغي ${time} — ${actor}`,
+    byPro: "من المختص",
+    byFacility: "من المنشأة",
+    historyNote: "محاولة حجز سابقة محفوظة للسجل فقط.",
     revealTitle: "بدء المحادثة مع صاحب الحجز؟",
     revealDesc: "عند بدء المحادثة سيظهر اسم منشأتك لهذا المختص حتى تكون المحادثة واضحة للطرفين.",
     revealCta: "ابدأ المحادثة",
@@ -46,6 +50,10 @@ const TXT = {
     chatOpened: "Conversation opened — your facility name is now visible to the candidate",
     chatFailed: "Failed to start conversation",
     cancelled: "Cancelled",
+    cancelledAt: (time: string, actor: string) => `Cancelled ${time} — ${actor}`,
+    byPro: "by the professional",
+    byFacility: "by the facility",
+    historyNote: "Past booking attempt, kept for your records only.",
     revealTitle: "Start a conversation with this professional?",
     revealDesc: "Starting the conversation reveals your facility name to this professional so both sides know who they are speaking with.",
     revealCta: "Start conversation",
@@ -72,7 +80,7 @@ export function FacilityBookingsPanel({
     queryFn: async () => {
       const { data: bookings, error } = await supabase
         .from("shift_bookings")
-        .select("id,status,created_at,user_id")
+        .select("id,status,created_at,cancelled_at,cancellation_actor,user_id")
         .eq("shift_id", shiftId)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -83,7 +91,10 @@ export function FacilityBookingsPanel({
         .select("user_id,full_name,headline,years_experience,country,city,is_verified")
         .in("user_id", userIds);
       if (prosError) throw prosError;
-      return (bookings ?? []).map((b) => ({
+      const sorted = [...(bookings ?? [])].sort((a, b) =>
+        a.status === b.status ? 0 : a.status === "confirmed" ? -1 : 1,
+      );
+      return sorted.map((b) => ({
         ...b,
         pro: pros?.find((p) => p.user_id === b.user_id) ?? null,
       }));
@@ -146,8 +157,18 @@ export function FacilityBookingsPanel({
                 {[b.pro?.city, countryLabel(b.pro?.country, lang)].filter(Boolean).join("، ")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">{c.bookedAt(relativeTime(b.created_at, lang))}</p>
+              {b.status === "cancelled" && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {b.cancelled_at
+                    ? c.cancelledAt(
+                        relativeTime(b.cancelled_at, lang),
+                        b.cancellation_actor === "facility" ? c.byFacility : c.byPro,
+                      )
+                    : c.historyNote}
+                </p>
+              )}
             </div>
-            <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
+            <div className={b.status === "cancelled" ? "hidden" : "grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap"}>
               <Button size="sm" variant="outline" loading={startChat.isPending} onClick={async () => {
                 const ok = await confirm({
                   title: c.revealTitle,

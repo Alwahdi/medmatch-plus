@@ -239,7 +239,7 @@ function JobsPage() {
     queryKey: ["my-booked-shift-ids", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("shift_bookings").select("shift_id").eq("user_id", user!.id);
+      const { data, error } = await supabase.from("shift_bookings").select("shift_id").eq("user_id", user!.id).eq("status", "confirmed");
       if (error) throw error;
       return new Set((data ?? []).map((r) => r.shift_id));
     },
