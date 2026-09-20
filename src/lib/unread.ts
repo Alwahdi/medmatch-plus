@@ -6,7 +6,17 @@ import type { User } from "@supabase/supabase-js";
 
 export type UnreadMap = Record<string, number>;
 
-/** Unread messages per conversation for the current user (messages sent by the other party). */
+/**
+ * Unread messages per conversation for the current user (messages sent by the
+ * other party).
+ *
+ * Documented fail-soft exception (Phase 73): this drives chrome only — the nav
+ * badge and the per-row counters. On a failed request it degrades to "no
+ * badge", which is honest chrome (a badge is an additive hint, its absence
+ * claims nothing), and it never replaces real content. The messages page
+ * itself still surfaces a real error state with retry for the conversation and
+ * message lists, so a backend failure is always visible where it matters.
+ */
 export function useUnread(user: User | null | undefined) {
   const queryClient = useQueryClient();
 
