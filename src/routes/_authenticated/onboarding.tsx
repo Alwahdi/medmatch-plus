@@ -150,34 +150,43 @@ function Onboarding() {
     }
   }, [roles, redirected, navigate]);
 
+  // نوع الحساب القائم فعلاً (ملف كادر أو ملف منشأة) — لا يمكن تغييره بعد إنشائه.
+  const existingType: Path = existing?.fac ? "facility" : existing?.pro ? "professional" : null;
+  const [claimFailed, setClaimFailed] = useState(false);
+  const [claiming, setClaiming] = useState(false);
+
+  const claimExisting = useMemo(
+    () => async () => {
+      if (!existingType || !user) return;
+      const rpc = existingType === "facility" ? "claim_facility_role" : "claim_professional_role";
+      const to = existingType === "facility" ? "/facility" : "/dashboard";
+      setClaiming(true);
+      try {
+        await activateRole(rpc, queryClient, user.id);
+        setClaimFailed(false);
+        void navigate({ to, replace: true });
+      } catch (e) {
+        setClaimFailed(true);
+        toast.error(t("ob.error"), { description: friendlyError(e, lang, t("ob.error")) });
+      } finally {
+        setClaiming(false);
+      }
+    },
+    [existingType, user, queryClient, navigate, t, lang],
+  );
+
   // تحويل من لديه ملف جاهز — مع تفعيل الدور أولاً حتى لا يرتد إلى الإعداد.
   useEffect(() => {
-    if (redirected || !existing || !user || !roles) return;
-    const go = async (
-      rpc: "claim_professional_role" | "claim_facility_role",
-      to: "/facility" | "/dashboard",
-      role: "facility" | "professional",
-    ) => {
-      setRedirected(true);
-      if (!roles.includes(role)) {
-        try {
-          await activateRole(rpc, queryClient, user.id);
-        } catch (e) {
-          setRedirected(false);
-          toast.error(t("ob.error"), { description: friendlyError(e, lang, t("ob.error")) });
-          return;
-        }
-      }
+    if (redirected || !existingType || !user || !roles) return;
+    const role = existingType === "facility" ? "facility" : "professional";
+    const to = existingType === "facility" ? "/facility" : "/dashboard";
+    setRedirected(true);
+    if (roles.includes(role)) {
       void navigate({ to, replace: true });
-    };
-    if (existing.fac) {
-      void go("claim_facility_role", "/facility", "facility");
       return;
     }
-    if (existing.pro) {
-      void go("claim_professional_role", "/dashboard", "professional");
-    }
-  }, [existing, redirected, navigate, roles, user, queryClient]);
+    void claimExisting();
+  }, [existingType, redirected, navigate, roles, user, claimExisting]);
 
   // فتح الشاشة: عند وصول البيانات، أو خطأ، أو انقضاء مهلة قصيرة.
   useEffect(() => {
