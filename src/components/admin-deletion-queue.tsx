@@ -63,11 +63,7 @@ export function AdminDeletionQueue() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["admin-deletion-requests"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("account_deletion_requests")
-        .select("id,user_id,email_snapshot,reason,status,admin_note,requested_at,processed_at")
-        .in("status", ["pending", "processing"])
-        .order("requested_at", { ascending: true });
+      const { data, error } = await supabase.rpc("admin_list_account_deletion_requests");
       if (error) throw error;
       return data ?? [];
     },
