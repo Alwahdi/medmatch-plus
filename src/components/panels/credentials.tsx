@@ -247,6 +247,17 @@ export function CredentialsPanel() {
         </div>
       </div>
 
+      {requiredExpired ? (
+        <p className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+          {v.requiredExpired}
+        </p>
+      ) : requiredExpiringSoon ? (
+        <p className="mt-3 rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+          {v.requiredExpiringSoon}
+        </p>
+      ) : null}
+
+
       <div className="mt-6 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
