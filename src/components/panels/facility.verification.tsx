@@ -466,6 +466,11 @@ export function FacilityVerificationPanel() {
             accept={ACCEPT.document}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
+          {file ? (
+            <p className="mt-1 truncate text-xs text-muted-foreground" dir="ltr" title={file.name}>
+              {file.name}
+            </p>
+          ) : null}
         </div>
         <Button className="w-full sm:w-auto" onClick={() => add.mutate()} loading={add.isPending}>
           <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
