@@ -172,6 +172,8 @@ function FacilityProfile() {
       city: facility.city ?? "",
       website: facility.website ?? "",
       logo_url: facility.logo_url ?? "",
+      lat: facility.lat === null || facility.lat === undefined ? null : Number(facility.lat),
+      lng: facility.lng === null || facility.lng === undefined ? null : Number(facility.lng),
       description: facility.description ?? "",
     });
   }, [facility]);
