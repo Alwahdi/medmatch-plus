@@ -235,8 +235,9 @@ export function AlertsPanel() {
     },
   });
 
+  // A failed channel-status read must not hide the saved alerts: it only
+  // blocks creating a new externally delivered one (handled below).
   const loadErrors = [
-    { err: channelsErr, retry: channelsRefetch },
     { err: specialtiesErr, retry: specialtiesRefetch },
     { err: alertsErr, retry: alertsRefetch },
   ].filter((q) => q.err);
@@ -253,17 +254,19 @@ export function AlertsPanel() {
       {confirmDialog}
 
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {c.sub}
-      </p>
+      <p className="mt-2 text-sm text-muted-foreground">{anyReady ? c.sub : c.subNoChannel}</p>
 
-      {channels && !(channels.email && channels.whatsapp) && (
-        <div className="mt-4 rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
-          {lang === "ar"
-            ? "تفضيلاتك تُحفظ الآن، ويبدأ الإرسال الفعلي فور تفعيل مزوّد الرسائل عند الإطلاق."
-            : "Your preferences are saved now; actual delivery starts as soon as the messaging provider is activated at launch."}
+      {(channelsErr || (!channelsPending && !anyReady)) && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
+          <span className="min-w-0 flex-1">{channelsErr ? c.statusUnknown : c.noChannels}</span>
+          {channelsErr && (
+            <Button variant="outline" size="sm" onClick={() => void channelsRefetch()}>
+              {c.recheck}
+            </Button>
+          )}
         </div>
       )}
+
 
       <div className="mt-6 grid gap-3 rounded-lg border border-border bg-card p-5 md:grid-cols-2">
         <Combobox
