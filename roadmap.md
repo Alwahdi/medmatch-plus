@@ -664,3 +664,32 @@ Verified, no change needed (already correct from earlier phases):
 
 Open (needs production infra):
 - [ ] Re-run LCP/INP on the published production build over a real mobile profile and confirm LCP < 2.5s / CLS < 0.1. Dev-server numbers cannot confirm the target.
+
+## Phase 66 — Block direct destructive identity/history deletes (DONE)
+
+Tracked idempotent migration matching the live hotfix, plus a full audit of DELETE grants/policies.
+
+Revoked (no client delete path, cascade/history risk):
+- Identity rows: `facilities` (policy `facility owner delete` dropped), `profiles`,
+  `healthcare_professionals`, `conversations`, `messages`, `trusted_devices`.
+- Listings: `jobs`, `shifts` — no delete UI exists; closing a job (`is_active=false`) and
+  `cancel_facility_shift()` are the intended workflows, so `guard_listing_history_delete()`
+  is now a second line of defence rather than the only one.
+- Dead grants: `invitations`, `profile_change_requests`, `shift_bookings`
+  (policy `booking cancel before start` dropped; cancellation is `cancel_my_shift_booking()` RPC).
+
+Kept (intentional owner deletion, verified against UI):
+`notifications`, `message_reactions`, `saved_jobs`, `job_alerts`, `credentials`,
+`facility_documents`. Verification state recalculates via existing sync triggers.
+
+Verified after migration — `authenticated` holds DELETE on exactly those six tables;
+remaining DELETE policies are credentials / facility_documents / message_reactions /
+notifications (job_alerts and saved_jobs are covered by FOR ALL own-row policies).
+`service_role` retains full access for trusted backend operations.
+
+Account deletion: Phase 52 request workflow stays the only user-facing route; it records
+state and does not hard-delete. Any future erase/anonymisation must be a trusted
+backend/admin operation with a retention strategy — direct facility/profile deletes must
+never be restored.
+
+Typecheck clean, build OK.
