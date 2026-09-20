@@ -41,7 +41,7 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+  // Single reporting path: reportLovableError below. No raw console output in the browser.
   const router = useRouter();
   const { lang } = useLang();
   const ar = lang === "ar";
