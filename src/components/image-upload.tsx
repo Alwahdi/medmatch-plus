@@ -4,7 +4,9 @@ import { Camera, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
-import { removeImage, uploadImage, useImageUrl, validateImage } from "@/lib/storage";
+import { ACCEPT, prepareUpload, removeImage, uploadImage, useImageUrl } from "@/lib/storage";
+import { friendlyError } from "@/lib/user-errors";
+
 import { cn } from "@/lib/utils";
 
 const TXT = {
@@ -55,19 +57,20 @@ export function ImageUpload({
   const pick = async (file: File | undefined) => {
     if (!file || !user) return;
     try {
-      validateImage(file, lang);
       setBusy(true);
-      const path = await uploadImage(user.id, file, prefix);
+      const ready = await prepareUpload(file, "avatar", lang);
+      const path = await uploadImage(user.id, ready, prefix);
       if (value) await removeImage(value);
       onChange(path);
       toast.success(c.done);
     } catch (e) {
-      toast.error((e as Error).message || c.failed);
+      toast.error(friendlyError(e, lang, c.failed));
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   };
+
 
   const shape = rounded === "full" ? "rounded-full" : "rounded-lg";
 
