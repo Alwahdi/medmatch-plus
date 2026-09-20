@@ -244,7 +244,7 @@ export function CredentialsPanel() {
             {c.progress(approvedRequired, PRO_REQUIRED_DOCS.length)}
           </span>
         </div>
-        <Progress value={pct} className="mt-3" />
+        <Progress value={pct} className="mt-3" aria-label={lang === "ar" ? "نسبة اكتمال المستندات" : "Credential completion"} />
         <ul className="mt-4 space-y-2">
           {DOC_TYPES.map((type) => {
             const doc = list.find((d) => d.doc_type === type);
