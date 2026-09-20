@@ -1928,6 +1928,13 @@ export type Database = {
         }[]
       }
       my_inactive_employers: { Args: never; Returns: string[] }
+      my_profile_completeness: {
+        Args: never
+        Returns: {
+          facility_complete: boolean
+          professional_complete: boolean
+        }[]
+      }
       my_sessions: {
         Args: never
         Returns: {
