@@ -1935,6 +1935,30 @@ export type Database = {
           professional_complete: boolean
         }[]
       }
+      my_saved_jobs: {
+        Args: never
+        Returns: {
+          applications_count: number
+          city: string
+          country: string
+          created_at: string
+          currency: string
+          employment_type: Database["public"]["Enums"]["employment_type"]
+          expires_at: string
+          facility_verified: boolean
+          id: string
+          is_available: boolean
+          is_featured: boolean
+          min_experience: number
+          salary_max: number
+          salary_min: number
+          saved_at: string
+          slug: string
+          specialty_name_ar: string
+          specialty_name_en: string
+          title: string
+        }[]
+      }
       my_sessions: {
         Args: never
         Returns: {
