@@ -103,6 +103,7 @@ export function CvImportPanel() {
     NO_CREDITS: c.noCredits,
     AI_UNAVAILABLE: c.unavailable,
     AI_FAILED: c.failed,
+    PROFESSIONAL_FEATURE_ONLY: c.facilityOnly,
   };
 
   const { data: specialties } = useQuery({
