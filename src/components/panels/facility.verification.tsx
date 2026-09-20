@@ -350,30 +350,41 @@ export function FacilityVerificationPanel() {
           {FACILITY_DOC_TYPES.map((type) => {
             const doc = list.find((d) => d.doc_type === type);
             const isRequired = FACILITY_REQUIRED_DOCS.includes(type);
+            const docExpired = !!doc && doc.status === "approved" && isExpired(doc.expiry_date);
             const Icon =
-              doc?.status === "approved"
-                ? CheckCircle2
-                : doc?.status === "rejected"
-                  ? XCircle
-                  : doc
-                    ? Clock
-                    : ShieldCheck;
+              docExpired
+                ? ShieldAlert
+                : doc?.status === "approved"
+                  ? CheckCircle2
+                  : doc?.status === "rejected"
+                    ? XCircle
+                    : doc
+                      ? Clock
+                      : ShieldCheck;
             const tone =
-              doc?.status === "approved"
-                ? "text-accent"
-                : doc?.status === "rejected"
-                  ? "text-destructive"
+              docExpired || doc?.status === "rejected"
+                ? "text-destructive"
+                : doc?.status === "approved"
+                  ? "text-accent"
                   : "text-muted-foreground";
             return (
               <li key={type} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/60 p-3 sm:gap-3">
                 <Icon className={`size-5 shrink-0 ${tone}`} />
-                <span className="min-w-0 flex-1 basis-[60%] truncate text-sm">{facilityDocTypeLabel(type, lang)}</span>
+                <span className="min-w-0 flex-1 basis-[60%] text-sm">
+                  <span className="block truncate">{facilityDocTypeLabel(type, lang)}</span>
+                  {doc?.expiry_date ? (
+                    <span className="block text-xs text-muted-foreground">
+                      {c.expiry}: {formatDate(doc.expiry_date, lang)}
+                    </span>
+                  ) : null}
+                </span>
                 <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
                   {isRequired ? c.required : c.optional}
                 </Badge>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {doc ? credentialLabel(doc.status, lang) : c.missing}
+                <span className={`shrink-0 text-xs ${docExpired ? "text-destructive" : "text-muted-foreground"}`}>
+                  {docExpired ? v.expired : doc ? credentialLabel(doc.status, lang) : c.missing}
                 </span>
+
 
               </li>
             );
