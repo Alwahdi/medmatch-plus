@@ -435,9 +435,18 @@ function FacilityDashboard() {
         </DialogContent>
       </Dialog>
 
-      {(!facility.is_verified || overdueShifts > 0 || newApplicants > 0) && (
+      {(!isFacilityProfileComplete(facility) || !facility.is_verified || overdueShifts > 0 || newApplicants > 0) && (
         <div className="mt-6">
-          {!facility.is_verified ? (
+          {!isFacilityProfileComplete(facility) ? (
+            <NextStepCard
+              icon={ShieldAlert}
+              label={c.attention}
+              title={c.completeProfile}
+              description={c.completeProfileBody}
+              tone="warning"
+              action={<Button variant="secondary" asChild><Link to="/facility/profile">{c.completeProfileCta}</Link></Button>}
+            />
+          ) : !facility.is_verified ? (
             <NextStepCard
               icon={ShieldAlert}
               label={c.attention}
@@ -446,6 +455,7 @@ function FacilityDashboard() {
               tone="warning"
               action={<Button variant="secondary" asChild><Link to="/facility/profile" search={{ tab: "verification" }}>{c.verifyNow}</Link></Button>}
             />
+
           ) : overdueShifts > 0 ? (
             <NextStepCard
               icon={CalendarClock}
