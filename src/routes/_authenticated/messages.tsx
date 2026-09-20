@@ -61,7 +61,6 @@ import { useSession } from "@/lib/auth";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
-import { useOnlineUsers } from "@/lib/presence";
 import { markConversationRead, useUnread } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -123,7 +122,6 @@ function MessagesPage() {
 
 
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onlineUsers = useOnlineUsers(user);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["conversations", user?.id],
@@ -418,7 +416,6 @@ function MessagesPage() {
         image: revealed ? f!.logo_url : null,
         kind: "facility" as const,
         linkId: revealed ? conv.facility_id : null,
-        online: !!f?.user_id && onlineUsers.has(f.user_id),
       };
     }
     const p = data?.pros?.[conv.professional_user_id];
@@ -430,7 +427,6 @@ function MessagesPage() {
       image: p?.avatar_url ?? null,
       kind: "pro" as const,
       linkId: p ? conv.professional_user_id : null,
-      online: onlineUsers.has(conv.professional_user_id),
     };
   }
 
@@ -463,15 +459,7 @@ function MessagesPage() {
 
   const headerBlock = activeInfo && (
     <>
-      <span className="relative">
-        <RemoteAvatar value={activeInfo.image} icon={activeInfo.icon} className="size-10 rounded-lg" />
-        <span
-          className={cn(
-            "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
-            activeInfo.online ? "bg-success" : "bg-muted-foreground/40",
-          )}
-        />
-      </span>
+      <RemoteAvatar value={activeInfo.image} icon={activeInfo.icon} className="size-10 rounded-lg" />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2 font-bold">
           <span className="truncate">{activeInfo.name}</span>
@@ -481,16 +469,13 @@ function MessagesPage() {
             </Badge>
           )}
         </span>
-        <span className="flex items-center gap-2 text-xs">
-           <span className={activeInfo.online ? "text-success" : "text-muted-foreground"}>
-            {activeInfo.online ? c.online : c.offline}
-          </span>
-          {activeInfo.linkId && (
+        {activeInfo.linkId && (
+          <span className="flex items-center gap-2 text-xs">
             <span className="hidden text-primary underline underline-offset-4 sm:inline">
               {c.viewProfile}
             </span>
-          )}
-        </span>
+          </span>
+        )}
       </span>
 
     </>
@@ -561,15 +546,7 @@ function MessagesPage() {
                         active?.id === conv.id && "bg-secondary",
                       )}
                     >
-                      <span className="relative shrink-0">
-                        <RemoteAvatar value={info.image} icon={Icon} className="size-12 rounded-full" />
-                        <span
-                          className={cn(
-                            "absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card",
-                             info.online ? "bg-success" : "bg-muted-foreground/40",
-                          )}
-                        />
-                      </span>
+                      <RemoteAvatar value={info.image} icon={Icon} className="size-12 shrink-0 rounded-full" />
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-1.5">
                           <span className="truncate font-bold">{info.name}</span>
