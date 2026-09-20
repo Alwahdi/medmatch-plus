@@ -777,7 +777,7 @@ function FacilitySteps({
                 value={form.facility_type}
                 onValueChange={(v) => setForm({ ...form, facility_type: v })}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label={lang === "ar" ? "نوع المنشأة" : "Facility type"}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

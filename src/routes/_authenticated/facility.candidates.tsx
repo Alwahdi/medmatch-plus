@@ -362,7 +362,7 @@ function Candidates() {
           allowCustom
           customLabel={cbx.add}
         />
-        <Input
+        <Input aria-label={c.minExpPlaceholder}
           type="number"
           min={0}
           placeholder={c.minExpPlaceholder}

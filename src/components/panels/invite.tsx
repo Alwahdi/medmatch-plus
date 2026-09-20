@@ -488,7 +488,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             allowCustom
             customLabel={cbx.add}
           />
-          <Input
+          <Input aria-label={c.minExp}
             type="number"
             min={0}
             placeholder={c.minExp}

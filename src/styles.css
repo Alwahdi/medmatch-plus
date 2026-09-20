@@ -26,6 +26,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-strong: var(--primary-strong);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -78,8 +79,10 @@
   --card-foreground: oklch(0.24 0.025 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.24 0.025 250);
-  --primary: oklch(0.55 0.12 215);
+  --primary: oklch(0.535 0.115 215);
   --primary-foreground: oklch(0.99 0.004 220);
+  /* نسخة داكنة من اللون الأساسي لنصوص صغيرة فوق خلفيات فاتحة (تباين AA) */
+  --primary-strong: oklch(0.45 0.115 215);
   --secondary: oklch(0.95 0.018 225);
   --secondary-foreground: oklch(0.34 0.055 235);
   --muted: oklch(0.95 0.008 240);
@@ -126,6 +129,7 @@
   --popover-foreground: oklch(0.96 0.006 240);
   --primary: oklch(0.7 0.11 184);
   --primary-foreground: oklch(0.17 0.025 190);
+  --primary-strong: oklch(0.8 0.1 184);
   --secondary: oklch(0.29 0.04 250);
   --secondary-foreground: oklch(0.96 0.006 240);
   --muted: oklch(0.29 0.04 250);

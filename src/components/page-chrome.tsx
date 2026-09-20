@@ -19,7 +19,7 @@ export function PageChrome({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <OfflineBanner />
       <SiteHeader />
-      <main id="main-content" className="flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>
       <SiteFooter />
     </div>
   );

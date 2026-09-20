@@ -502,7 +502,7 @@ export function FacilityInterviewBlock({
                         if (v !== "video") setLink("");
                       }}
                     >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger aria-label={lang === "ar" ? "نوع المقابلة" : "Interview mode"}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="video">{c.video}</SelectItem>
                         <SelectItem value="phone">{c.phone}</SelectItem>

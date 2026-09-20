@@ -285,7 +285,7 @@ export function CredentialsPanel() {
           <div>
             <Label>{c.docType}</Label>
             <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
-              <SelectTrigger><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
+              <SelectTrigger aria-label={c.docType}><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
               <SelectContent>
                 {docTypes(lang).map((d, i) => <SelectItem key={d} value={docTypes("ar")[i]!}>{d}</SelectItem>)}
               </SelectContent>

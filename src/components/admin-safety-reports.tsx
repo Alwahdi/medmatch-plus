@@ -149,7 +149,7 @@ export function AdminSafetyReports() {
 
           {(r.status === "open" || r.status === "reviewing") && (
             <>
-              <Textarea
+              <Textarea aria-label={c.note}
                 className="mt-3"
                 rows={2}
                 maxLength={1000}

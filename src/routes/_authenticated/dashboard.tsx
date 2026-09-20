@@ -411,7 +411,7 @@ function Dashboard() {
             </ul>
           ) : (
             <p className="mt-4 text-sm text-muted-foreground">
-               {c.noShifts} <Link to="/jobs" search={{ kind: "shift" }} className="text-primary underline">{c.browseMarket}</Link>
+               {c.noShifts} <Link to="/jobs" search={{ kind: "shift" }} className="text-primary-strong underline">{c.browseMarket}</Link>
             </p>
           )}
         </section>

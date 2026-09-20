@@ -113,7 +113,7 @@ export function AdminDeletionQueue() {
             <span className="text-muted-foreground">{c.reason}: </span>
             {r.reason || c.noReason}
           </p>
-          <Textarea
+          <Textarea aria-label={c.note}
             className="mt-3"
             rows={2}
             maxLength={1000}

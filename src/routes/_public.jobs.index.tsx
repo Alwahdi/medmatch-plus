@@ -479,7 +479,7 @@ function JobsPage() {
               aria-label={c.closeFilters}
             />
           )}
-          <aside className={`${showFilters ? "fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-y-auto rounded-t-lg bg-background p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" : "hidden"} lg:static lg:order-1 lg:block lg:max-h-none lg:overflow-visible lg:rounded-none lg:bg-transparent lg:p-0`}>
+          <div className={`${showFilters ? "fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-y-auto rounded-t-lg bg-background p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" : "hidden"} lg:static lg:order-1 lg:block lg:max-h-none lg:overflow-visible lg:rounded-none lg:bg-transparent lg:p-0`}>
             <div className="mb-4 flex items-center justify-between lg:hidden">
               <h2 className="font-display text-lg font-bold">{c.filters}</h2>
               <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} aria-label={c.closeFilters}>
@@ -521,6 +521,7 @@ function JobsPage() {
                       ]}
                       value={country}
                       onChange={(v) => setParams({ country: v, city: "" })}
+                      ariaLabel={c.country}
                       placeholder={c.allCountries}
                       searchPlaceholder={cbx.search}
                       emptyText={cbx.empty}
@@ -538,6 +539,7 @@ function JobsPage() {
                       ]}
                       value={city}
                       onChange={setCity}
+                      ariaLabel={c.city}
                       placeholder={c.allCities}
                       searchPlaceholder={cbx.search}
                       emptyText={cbx.empty}
@@ -559,6 +561,7 @@ function JobsPage() {
                       ]}
                       value={specialty}
                       onChange={setSpecialty}
+                      ariaLabel={c.specialty}
                       placeholder={c.allSpecialties}
                       searchPlaceholder={cbx.search}
                       emptyText={cbx.empty}
@@ -580,6 +583,7 @@ function JobsPage() {
                       ]}
                       value={type}
                       onChange={setType}
+                      ariaLabel={c.jobType}
                       placeholder={c.all}
                       searchPlaceholder={cbx.search}
                       emptyText={cbx.empty}
@@ -595,7 +599,7 @@ function JobsPage() {
                 </Button>
               </div>
             </div>
-          </aside>
+          </div>
 
           {/* Results */}
           <div className="lg:order-2">

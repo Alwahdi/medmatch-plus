@@ -14,21 +14,21 @@ export function SiteFooter() {
           </p>
         </div>
         <div>
-          <h3 className="text-sm font-bold">{t("footer.forPros")}</h3>
+          <h2 className="text-sm font-bold">{t("footer.forPros")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/jobs" className="hover:text-foreground">{t("footer.browseJobs")}</Link></li>
             <li><Link to="/register" className="hover:text-foreground">{t("footer.createProfile")}</Link></li>
           </ul>
         </div>
         <div>
-          <h3 className="text-sm font-bold">{t("footer.forFacilities")}</h3>
+          <h2 className="text-sm font-bold">{t("footer.forFacilities")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/for-facilities" className="hover:text-foreground">{t("footer.howItWorks")}</Link></li>
             <li><Link to="/register/employer" className="hover:text-foreground">{t("footer.registerFacility")}</Link></li>
           </ul>
         </div>
         <div>
-          <h3 className="text-sm font-bold">{t("footer.resources")}</h3>
+          <h2 className="text-sm font-bold">{t("footer.resources")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/blog" className="hover:text-foreground">{t("footer.blog")}</Link></li>
             <li><Link to="/guides" className="hover:text-foreground">{t("footer.guides")}</Link></li>
@@ -37,7 +37,7 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <h3 className="text-sm font-bold">{t("footer.platform")}</h3>
+          <h2 className="text-sm font-bold">{t("footer.platform")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/about" className="hover:text-foreground">{t("footer.about")}</Link></li>
             <li><Link to="/contact" className="hover:text-foreground">{t("footer.contact")}</Link></li>

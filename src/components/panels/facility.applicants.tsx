@@ -426,7 +426,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                           setStage.mutate({ id: a.id, status: v });
                         }}
                       >
-                        <SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-full sm:w-44" aria-label={lang === "ar" ? "حالة الطلب" : "Application stage"}><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {MANUAL_STAGES.map((k) => (
                             <SelectItem key={k} value={k}>{applicationLabel(k, lang)}</SelectItem>

@@ -379,7 +379,7 @@ export function FacilityVerificationPanel() {
           <div>
             <Label>{c.docType}</Label>
             <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
-              <SelectTrigger>
+              <SelectTrigger aria-label={c.docType}>
                 <SelectValue placeholder={c.docTypePh} />
               </SelectTrigger>
               <SelectContent>

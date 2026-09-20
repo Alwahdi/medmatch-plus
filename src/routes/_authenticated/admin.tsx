@@ -645,7 +645,7 @@ function AdminPage() {
                       <label className="text-xs font-medium" htmlFor={`note-${cr.id}`}>
                         {c.noteLabel}
                       </label>
-                      <Textarea
+                      <Textarea aria-label={c.notePlaceholder}
                         id={`note-${cr.id}`}
                         rows={2}
                         className="mt-2 bg-background"

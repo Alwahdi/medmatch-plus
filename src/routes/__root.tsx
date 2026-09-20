@@ -21,7 +21,7 @@ function NotFoundComponent() {
   const { lang } = useLang();
   const ar = lang === "ar";
   return (
-    <div className="flex min-h-[60vh] items-center justify-center bg-background px-4">
+    <main id="main-content" tabIndex={-1} className="flex min-h-[60vh] items-center justify-center bg-background px-4 outline-none">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-primary">404</h1>
         <h2 className="mt-4 text-xl font-semibold">{ar ? "الصفحة غير موجودة" : "Page not found"}</h2>
@@ -32,7 +32,7 @@ function NotFoundComponent() {
           <Link to="/" className={buttonVariants()}>{ar ? "العودة للرئيسية" : "Back home"}</Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -46,7 +46,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-[60vh] items-center justify-center bg-background px-4">
+    <main id="main-content" tabIndex={-1} className="flex min-h-[60vh] items-center justify-center bg-background px-4 outline-none">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">{ar ? "تعذّر تحميل هذه الصفحة" : "This page didn't load"}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -69,7 +69,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
