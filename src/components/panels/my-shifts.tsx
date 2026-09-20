@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, hoursBetween } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { employerText, useInactiveEmployers } from "@/lib/employer";
 import { ListSkeleton } from "@/components/list-skeleton";
 
 
@@ -59,6 +60,8 @@ export function MyShiftsPanel() {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
+  const inactiveEmployers = useInactiveEmployers();
+  const emp = employerText(lang);
 
 
 
@@ -104,6 +107,7 @@ export function MyShiftsPanel() {
           {data.filter((booking) => booking.status !== "cancelled").map((b) => {
             const s = b.shifts!;
             const hours = hoursBetween(s.starts_at, s.ends_at);
+            const employerGone = inactiveEmployers.has(s.facility_id);
             return (
               <li key={b.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
@@ -121,7 +125,7 @@ export function MyShiftsPanel() {
                   <p className="font-display text-lg font-extrabold text-accent">
                     {formatMoney(s.hourly_rate * hours, s.currency, lang)}
                   </p>
-                  {b.status === "confirmed" && s.status === "completed" && user && (
+                  {b.status === "confirmed" && s.status === "completed" && user && !employerGone && (
                     <div className="mt-1 flex justify-end">
                       <ReviewDialog
                         direction="pro_to_facility"
@@ -154,7 +158,13 @@ export function MyShiftsPanel() {
 
                 </div>
                 </div>
-                {b.status !== "cancelled" && <CandidateInterviewBlock shiftBookingId={b.id} />}
+                {employerGone ? (
+                  <p className="mt-3 rounded-lg bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
+                    <span className="font-semibold text-foreground">{emp.unavailable}</span> — {emp.unavailableNote}
+                  </p>
+                ) : (
+                  b.status !== "cancelled" && <CandidateInterviewBlock shiftBookingId={b.id} />
+                )}
               </li>
             );
           })}

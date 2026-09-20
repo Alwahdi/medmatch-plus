@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { APPLICATION_STAGES, applicationLabel, applicationStage, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { employerText, useInactiveEmployers } from "@/lib/employer";
 import { ListSkeleton } from "@/components/list-skeleton";
 
 
@@ -44,6 +45,8 @@ export function ApplicationsPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { user } = useSession();
+  const inactiveEmployers = useInactiveEmployers();
+  const emp = employerText(lang);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["my-apps-full", user?.id],
     enabled: !!user,
@@ -76,6 +79,7 @@ export function ApplicationsPanel() {
           {data.map((a) => {
             const idx = STAGES.indexOf(applicationStage(a.status) as (typeof STAGES)[number]);
             const rejected = a.status === "rejected";
+            const employerGone = !!a.jobs?.facility_id && inactiveEmployers.has(a.jobs.facility_id);
             return (
               <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
@@ -84,16 +88,20 @@ export function ApplicationsPanel() {
                       <Briefcase className="size-5" />
                     </span>
                     <div className="min-w-0">
-                      <Link to="/jobs/$jobId" params={{ jobId: a.jobs!.id }} className="block truncate font-bold hover:text-primary">
-                        {a.jobs?.title}
-                      </Link>
+                      {employerGone ? (
+                        <p className="truncate font-bold">{a.jobs?.title}</p>
+                      ) : (
+                        <Link to="/jobs/$jobId" params={{ jobId: a.jobs!.id }} className="block truncate font-bold hover:text-primary">
+                          {a.jobs?.title}
+                        </Link>
+                      )}
                       <p className="text-xs text-muted-foreground">
                         {a.jobs?.city} · {c.appliedAt(relativeTime(a.created_at, lang))}
                       </p>
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
-                    {a.status === "hired" && user && a.jobs?.facility_id && (
+                    {a.status === "hired" && user && a.jobs?.facility_id && !employerGone && (
                       <ReviewDialog
                         direction="pro_to_facility"
                         facilityId={a.jobs.facility_id}
@@ -109,7 +117,13 @@ export function ApplicationsPanel() {
                     </Badge>
                   </div>
                 </div>
-                <CandidateInterviewBlock applicationId={a.id} />
+                {employerGone ? (
+                  <p className="mt-3 rounded-lg bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
+                    <span className="font-semibold text-foreground">{emp.unavailable}</span> — {emp.unavailableNote}
+                  </p>
+                ) : (
+                  <CandidateInterviewBlock applicationId={a.id} />
+                )}
                 {!rejected && (
                   <div className="mt-4">
                     <div className="flex gap-1" aria-hidden="true">
