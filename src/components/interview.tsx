@@ -313,11 +313,17 @@ export function FacilityInterviewBlock({
   shiftBookingId,
   candidateName,
   disabled = false,
+  shiftStartsAt,
+  shiftLive = true,
 }: {
   applicationId?: string;
   shiftBookingId?: string;
   candidateName: string;
   disabled?: boolean;
+  /** بداية المناوبة المرتبطة — المقابلة يجب أن تنتهي قبلها. */
+  shiftStartsAt?: string;
+  /** المناوبة ما زالت محجوزة ولم يبدأ وقتها. */
+  shiftLive?: boolean;
 }) {
   const { lang } = useLang();
   const c = TXT[lang];
