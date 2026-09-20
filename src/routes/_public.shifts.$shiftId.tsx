@@ -124,21 +124,40 @@ const TXT = {
 } as const;
 
 export const Route = createFileRoute("/_public/shifts/$shiftId")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "تفاصيل المناوبة | Shift details | SyndeoCare" },
-      {
-        name: "description",
-        content: "تفاصيل المناوبة الطبية: التوقيت، المدة، الأجر بالساعة، الموقع، والحجز المباشر.",
-      },
-      { property: "og:title", content: "تفاصيل المناوبة | Shift details | SyndeoCare" },
-      { property: "og:description", content: "اطّلع على تفاصيل المناوبة واحجزها مباشرة." },
-      { property: "og:type", content: "article" },
-      { name: "twitter:card", content: "summary_large_image" },
-      ...shareMeta(`/shifts/${params.shiftId}`),
-    ],
-    links: canonical(`/shifts/${params.shiftId}`),
-  }),
+  // البيانات الوصفية من العرض المنقّح فقط؛ المناوبة المحجوزة أو المنتهية لا تُفهرس.
+  loader: async ({ params }) => ({ seo: (await fetchPublicShiftMeta(params.shiftId)) is: null }),
+  head: ({ params, loaderData }) => {
+    const path = `/shifts/${params.shiftId}`;
+    const seo = loaderData?.seo;
+    if (!seo)
+      return {
+        meta: [
+          { title: "هذه المناوبة لم تعد متاحة | SyndeoCare" },
+          { name: "description", content: "هذه المناوبة لم تعد متاحة للحجز. تصفّح المناوبات المتاحة حالياً على SyndeoCare." },
+          { property: "og:title", content: "هذه المناوبة لم تعد متاحة | SyndeoCare" },
+          { property: "og:description", content: "تصفّح المناوبات الطبية المتاحة حالياً على SyndeoCare." },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary_large_image" },
+          NOINDEX,
+          ...shareMeta("/jobs"),
+        ],
+        links: canonical("/jobs"),
+      };
+    return {
+      meta: [
+        { title: seo.title },
+        { name: "description", content: seo.description },
+        { property: "og:title", content: seo.title },
+        { property: "og:description", content: seo.description },
+        { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: seo.title },
+        { name: "twitter:description", content: seo.description },
+        ...shareMeta(path),
+      ],
+      links: canonical(path),
+    };
+  },
   component: ShiftDetail,
   notFoundComponent: () => {
     const { lang } = useLang();
