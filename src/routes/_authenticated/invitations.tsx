@@ -113,6 +113,11 @@ function InvitationsPage() {
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
+  // Only the row (and action) actually running shows a spinner.
+  const busy = respond.isPending ? respond.variables : undefined;
+
+
+
   async function act(id: string, status: "accepted" | "declined") {
     const ok = await confirm({
       title: status === "accepted" ? c.confirmAcceptTitle : c.confirmDeclineTitle,
