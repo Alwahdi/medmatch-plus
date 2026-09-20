@@ -309,8 +309,8 @@ function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-change-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-change-log"] });
     },
-    onError: () => {
-      toast.error(c.updateFailed);
+    onError: (e: Error) => {
+      toast.error(friendlyError(e, lang) || c.updateFailed);
     },
   });
 
