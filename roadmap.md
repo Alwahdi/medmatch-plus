@@ -1002,3 +1002,13 @@ Tested: no provider / email-only / WhatsApp-without-template readiness, credenti
 status payload and redacted from logged provider errors, and the retry rule that an unconfigured
 delivery is never treated as sent — 6 checks pass. Typecheck and build clean. The screen itself needs
 a signed-in session to exercise end to end, which this environment cannot mint.
+
+## Phase 76 — Explicit opt-in for candidate search visibility
+- `healthcare_professionals.is_searchable` now defaults to false; added `search_visibility_confirmed_at` + CHECK (visible requires recorded consent); legacy row migrated to hidden with no inferred consent.
+- Client write privileges on both visibility columns revoked; changes go only through `set_search_visibility(boolean)` (SECURITY DEFINER, require_mfa, own-profile only, stamps consent on opt-in, keeps last consent on opt-out).
+- Legacy unfiltered `search_candidates` dropped; live search path filters `is_searchable = true`.
+- Onboarding: unchecked opt-in toggle before finish; failure to enable visibility never fails onboarding.
+- Profile: visibility switch drives the RPC (not the save payload) plus a visible "Visible in facility search" / "Hidden from search" state.
+- Candidate results now show an honest "Not yet verified" state instead of silence.
+- Privacy policy gained a visibility section (opt-in, exact fields shown, reversible).
+- Verified in a rolled-back transaction: default off, consent-less visibility rejected, no client column writes, anon cannot execute the RPC, opt-in/opt-out states, search filter present, legacy function gone. Live data unchanged.
