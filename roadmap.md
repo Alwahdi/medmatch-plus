@@ -605,3 +605,10 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - No client privileges on public sequences.
 - New admin+MFA read-only report: public.release_privilege_audit().
 - Convention documented in supabase/PRIVILEGE-SAFETY.md. Default DB privileges cannot be altered by this connector, so explicit grants are mandatory in every migration.
+
+## Phase 61 — Public-view owner helper privacy regression fix (done)
+- Dropped `private.owner_account_exists(uuid)`: it accepted an arbitrary auth user id and leaked account existence to any authenticated caller.
+- Tracked the live redesign in a migration: `private.facility_has_live_owner(_facility_id uuid)` (SECURITY DEFINER, `search_path=''`) takes a facility id only and joins `public.facilities` -> `auth.users` internally.
+- `public.public_jobs` / `public.public_shifts` recreated to call the facility-scoped helper; no owner user id is exposed in either view.
+- Verified as anon: public_jobs readable (3 rows), public_shifts readable, 12 active jobs of ownerless/seed facilities excluded; old helper call from `authenticated` fails.
+- Audit: remaining SECURITY DEFINER functions taking a user uuid are `can_view_facility_identity` (self-scoped) and the admin-gated role RPCs — no arbitrary-user existence probes remain.
