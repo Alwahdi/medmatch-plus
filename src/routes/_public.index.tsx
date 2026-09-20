@@ -15,9 +15,14 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import heroImage from "@/assets/hero.jpg";
-import forProsImage from "@/assets/for-professionals.jpg";
-import forEmployersImage from "@/assets/for-employers.jpg";
+import hero640 from "@/assets/hero-640.webp";
+import hero960 from "@/assets/hero-960.webp";
+import hero1280 from "@/assets/hero-1280.webp";
+import hero1600 from "@/assets/hero-1600.webp";
+import forPros640 from "@/assets/for-professionals-640.webp";
+import forPros1024 from "@/assets/for-professionals-1024.webp";
+import forEmployers640 from "@/assets/for-employers-640.webp";
+import forEmployers1024 from "@/assets/for-employers-1024.webp";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { JobCard, type JobRow } from "@/components/job-card";
@@ -46,6 +51,9 @@ export const Route = createFileRoute("/_public/")({
       { name: "twitter:card", content: "summary_large_image" },
       ...shareMeta("/"),
     ],
+    // No <link rel=preload> for the hero: the <img> is in the SSR HTML with
+    // fetchPriority="high", and the head serializer emitted a duplicate,
+    // href-less preload tag.
     links: canonical("/"),
     scripts: [
       {
@@ -64,6 +72,10 @@ export const Route = createFileRoute("/_public/")({
   }),
   component: Home,
 });
+
+const HERO_SRCSET = `${hero640} 640w, ${hero960} 960w, ${hero1280} 1280w, ${hero1600} 1600w`;
+const HERO_SIZES = "100vw";
+const CARD_SIZES = "(min-width: 768px) 50vw, 100vw";
 
 const WHY = [
   { icon: ShieldCheck, key: "verified" },
@@ -129,10 +141,14 @@ function Home() {
       {/* Hero */}
       <section className="relative isolate min-h-[min(640px,78dvh)] overflow-hidden bg-foreground">
         <img
-          src={heroImage}
+          src={hero960}
+          srcSet={HERO_SRCSET}
+          sizes={HERO_SIZES}
           alt=""
           width={1600}
           height={1104}
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 -z-20 size-full object-cover object-center"
         />
         <div className="absolute inset-0 -z-10 bg-foreground/75" />
@@ -230,11 +246,14 @@ function Home() {
           <div className="mt-7 grid gap-5 md:mt-10 md:grid-cols-2 md:gap-6">
              <article className="card-lift overflow-hidden rounded-lg border border-border bg-card">
               <img
-                src={forProsImage}
+                src={forPros1024}
+                srcSet={`${forPros640} 640w, ${forPros1024} 1024w`}
+                sizes={CARD_SIZES}
                 alt={t("home.sides.pros.title")}
                 width={1280}
                 height={960}
                 loading="lazy"
+                decoding="async"
                 className="h-44 w-full object-cover sm:h-56"
               />
               <div className="p-6">
@@ -253,11 +272,14 @@ function Home() {
 
              <article className="card-lift overflow-hidden rounded-lg border border-border bg-card">
               <img
-                src={forEmployersImage}
+                src={forEmployers1024}
+                srcSet={`${forEmployers640} 640w, ${forEmployers1024} 1024w`}
+                sizes={CARD_SIZES}
                 alt={t("home.sides.employers.title")}
                 width={1280}
                 height={960}
                 loading="lazy"
+                decoding="async"
                 className="h-44 w-full object-cover sm:h-56"
               />
               <div className="p-6">
