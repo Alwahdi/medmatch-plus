@@ -202,6 +202,11 @@ export function AlertsPanel() {
 
   const toggle = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      if (is_active) {
+        const target = alerts.find((a) => a.id === id);
+        const targetReady = target?.channel === "whatsapp" ? ready.whatsapp : ready.email;
+        if (!targetReady) throw new UserFacingError(c.cannotEnable);
+      }
       const { error } = await supabase.from("job_alerts").update({ is_active }).eq("id", id);
       if (error) throw error;
       return { id, is_active };
