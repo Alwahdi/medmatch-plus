@@ -39,7 +39,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     code: "SA",
-    ar: "المملكة العربية السعودية",
+    ar: "السعودية",
     en: "Saudi Arabia",
     regions: [
       r("الرياض", "Riyadh", [
@@ -70,7 +70,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     code: "AE",
-    ar: "الإمارات العربية المتحدة",
+    ar: "الإمارات",
     en: "United Arab Emirates",
     regions: [
       r("دبي", "Dubai", [
@@ -107,7 +107,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     code: "OM",
-    ar: "عمان",
+    ar: "عُمان",
     en: "Oman",
     regions: [
       r("مسقط", "Muscat", [["مسقط", "Muscat"], ["السيب", "Seeb"]]),
@@ -261,54 +261,31 @@ export const EMPLOYER_TYPES: { value: string; ar: string; en: string }[] = [
 
 /* ---------------------------------------------------------------------------
  * Searchable-select helpers.
- * Country values are stored in the database as Arabic names (see
- * `COUNTRIES` in lib/format). Cities are stored as Arabic names too, so the
- * English UI shows the English label but always submits the Arabic value.
+ * Country values are stored in the database as the canonical Arabic names in
+ * `@/lib/countries` — the single source of truth. Cities are stored as Arabic
+ * names too, so the English UI shows the English label but submits Arabic.
  * ------------------------------------------------------------------------- */
 
-import { COUNTRIES as STORED_COUNTRIES, countryLabel, type Lang } from "@/lib/format";
+import { CANONICAL_COUNTRIES, countryCodeOf, countryDisplay } from "@/lib/countries";
+import { type Lang } from "@/lib/format";
+
+export { DEFAULT_COUNTRY } from "@/lib/countries";
 
 export type Option = { value: string; label: string; keywords?: string[] };
 
-/** Map a stored Arabic country name to a `COUNTRIES` entry in this file. */
-const CODE_BY_STORED: Record<string, string> = {
-  "اليمن": "YE",
-  "السعودية": "SA",
-  "المملكة العربية السعودية": "SA",
-  "الإمارات": "AE",
-  "الإمارات العربية المتحدة": "AE",
-  "مصر": "EG",
-  "الكويت": "KW",
-  "قطر": "QA",
-  "الأردن": "JO",
-  "البحرين": "BH",
-  "عُمان": "OM",
-  "عمان": "OM",
-  "المغرب": "MA",
-  "الجزائر": "DZ",
-  "تونس": "TN",
-  "العراق": "IQ",
-  "لبنان": "LB",
-  "سوريا": "SY",
-  "فلسطين": "PS",
-  "السودان": "SD",
-  "ليبيا": "LY",
-};
-
-export const DEFAULT_COUNTRY = "اليمن";
-
 export function countryOptions(lang: Lang = "ar"): Option[] {
-  return STORED_COUNTRIES.map((x) => ({
-    value: x,
-    label: countryLabel(x, lang),
-    keywords: [x, countryLabel(x, "en")],
+  return CANONICAL_COUNTRIES.map((c) => ({
+    value: c.stored,
+    label: lang === "en" ? c.en : c.ar,
+    keywords: [c.stored, c.ar, c.en, c.code, ...c.aliases],
   }));
 }
 
 function countryData(stored: string | null | undefined) {
-  const code = CODE_BY_STORED[(stored ?? "").trim()];
-  return COUNTRIES.find((c) => c.code === code) ?? null;
+  const code = countryCodeOf(stored);
+  return code ? (COUNTRIES.find((c) => c.code === code) ?? null) : null;
 }
+
 
 /** Cities of the chosen country. Empty when no (known) country is given. */
 export function cityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {

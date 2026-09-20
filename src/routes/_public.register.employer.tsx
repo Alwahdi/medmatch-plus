@@ -13,6 +13,7 @@ import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
 import { ConsentNote } from "@/components/consent-note";
 import { friendlyError } from "@/lib/user-errors";
+import { canonicalCountry } from "@/lib/countries";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { PHONE_PLACEHOLDER_AR, PHONE_PLACEHOLDER_EN, isValidPhone, normalizePhone } from "@/lib/phone";
@@ -228,7 +229,7 @@ function RegisterEmployer() {
       return;
     }
     setBusy(true);
-    const countryName = countryObj ? countryObj.ar : parsed.data.country;
+    const countryName = canonicalCountry(countryObj ? countryObj.ar : parsed.data.country);
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,

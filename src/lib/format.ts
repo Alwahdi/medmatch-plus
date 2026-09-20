@@ -1,3 +1,5 @@
+import { countryDisplay } from "@/lib/countries";
+
 export type Lang = "ar" | "en";
 
 export const EMPLOYMENT_LABELS: Record<string, string> = {
@@ -171,64 +173,16 @@ export function docTypeLabel(value: string, lang: Lang = "ar") {
   return i >= 0 ? (DOC_TYPES_EN[i] as string) : value;
 }
 
-export const COUNTRIES = [
-  "اليمن",
-  "السعودية",
-  "الإمارات",
-  "مصر",
-  "الكويت",
-  "قطر",
-  "الأردن",
-  "البحرين",
-  "عُمان",
-  "المغرب",
-  "الجزائر",
-  "تونس",
-  "العراق",
-  "لبنان",
-];
-
-const COUNTRY_EN: Record<string, string> = {
-  "اليمن": "Yemen",
-  "السعودية": "Saudi Arabia",
-  "الإمارات": "UAE",
-  "مصر": "Egypt",
-  "الكويت": "Kuwait",
-  "قطر": "Qatar",
-  "الأردن": "Jordan",
-  "البحرين": "Bahrain",
-  "عُمان": "Oman",
-  "المغرب": "Morocco",
-  "الجزائر": "Algeria",
-  "تونس": "Tunisia",
-  "العراق": "Iraq",
-  "لبنان": "Lebanon",
-};
-
-/** Country names are stored in Arabic; show an English label when available. */
-/** بعض السجلات القديمة تخزّن رمز الدولة (YE) بدل الاسم — نعيده إلى اسم مقروء. */
-const COUNTRY_BY_CODE: Record<string, string> = Object.fromEntries(
-  Object.entries(COUNTRY_EN).map(([ar, en]) => [en, ar]),
-);
-const ISO_COUNTRY: Record<string, string> = {
-  YE: "اليمن",
-  SA: "السعودية",
-  AE: "الإمارات",
-  EG: "مصر",
-  JO: "الأردن",
-  OM: "عُمان",
-  QA: "قطر",
-  KW: "الكويت",
-  BH: "البحرين",
-  IQ: "العراق",
-  SD: "السودان",
-};
+/**
+ * الدول: المرجع الوحيد هو `@/lib/countries` (المرحلة 102). لا تُنشئ قائمة دول
+ * أخرى هنا أو في أي ملف — القيم المخزّنة والمرادفات والتسميات كلها هناك.
+ */
+export { STORED_COUNTRIES as COUNTRIES, canonicalCountry, DEFAULT_COUNTRY } from "@/lib/countries";
 
 export function countryLabel(value: string | null | undefined, lang: Lang = "ar") {
-  if (!value) return "";
-  const canonical = ISO_COUNTRY[value.toUpperCase()] ?? COUNTRY_BY_CODE[value] ?? value;
-  return lang === "en" ? (COUNTRY_EN[canonical] ?? canonical) : canonical;
+  return countryDisplay(value, lang);
 }
+
 
 function locale(lang: Lang) {
   return lang === "en" ? "en-US" : "ar-EG-u-nu-latn";
