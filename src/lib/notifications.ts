@@ -61,6 +61,11 @@ export function useNotifications(user: User | null | undefined, limit = 30) {
     items,
     unreadCount: items.filter((n) => !n.read_at).length,
     isLoading: query.isLoading,
+    // Exposed so screens never render "no notifications" for a failed request.
+    isPending: query.isPending,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
   };
 }
 
