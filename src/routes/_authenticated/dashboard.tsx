@@ -388,7 +388,11 @@ function Dashboard() {
 
         <section className="rounded-lg border border-border bg-card p-5 shadow-card">
           <SectionHeading title={c.upcomingShifts} action={<Button variant="link" size="sm" asChild><Link to="/activity" search={{ tab: "shifts" }}>{c.viewAll}</Link></Button>} />
-          {upcomingBookings.length ? (
+          {bookingsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : upcomingBookings.length ? (
             <ul className="mt-4 space-y-3">
               {upcomingBookings.slice(0, 4).map((b) => (
                 <li key={b.id} className="border-b border-border pb-3 last:border-0">
