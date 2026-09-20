@@ -640,6 +640,9 @@ function AdminPage() {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      {isExpired(cr.expiry_date) ? (
+                        <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
+                      ) : null}
                       <Badge
                         variant={
                           cr.status === "approved" ? "default" : cr.status === "rejected" ? "destructive" : "secondary"
@@ -740,6 +743,9 @@ function AdminPage() {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      {isExpired(fd.expiry_date) ? (
+                        <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
+                      ) : null}
                       <Badge
                         variant={
                           fd.status === "approved" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"
