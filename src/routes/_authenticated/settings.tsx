@@ -49,6 +49,7 @@ const TXT = {
     tabAlerts: "تنبيهات الوظائف",
     tabNotifications: "الإشعارات",
     tabSecurity: "الأمان",
+    tabAccount: "الحساب والخصوصية",
     langTitle: "لغة الواجهة",
     langBody: "اختر لغة عرض المنصة، يتم الحفظ تلقائياً على هذا الجهاز.",
     arabic: "العربية",
