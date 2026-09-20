@@ -1020,3 +1020,10 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - CHECK constraints validated: status/billing_period known values, `searches_used >= 0`. Explicit REVOKE/GRANT per Phase 60.
 - UI: shared `subscriptionLifecycle()` / `subscriptionAllowsAccess()` in `facility.shared.ts`; facility dashboard and candidate search now show Trial active / Active / Ended / Inactive / No subscription with factual support-contact copy (no checkout, payments stay disabled). Unknown/loading state never renders a false block.
 - Tests (rollback-only): trialing+future allowed, active+future allowed, cancelled+future blocked (INACTIVE), active+past blocked (EXPIRED), unknown status rejected, at-quota insert blocked. 13 trialing rows unchanged.
+
+## Phase 78 — Operational release readiness (requested as Phase75; that label was taken)
+- `release_readiness_report()` reworded: ownerless facilities are historical/seed records kept for history and excluded from public listing views (`info`).
+- New checks: `ownerless_public_jobs`, `ownerless_public_shifts` (blocker if > 0), `verified_fac_without_required_docs`, `verified_pro_without_required_docs`, `both_domain_profiles`, `invalid_shift_duration`, `dangerous_client_privileges`, `client_tables_without_rls`.
+- New server function `getOperationalReadiness` (`src/lib/readiness.functions.ts`): admin + MFA verified through DB RPCs, env inspected server-side only, returns booleans plus missing variable NAMES — never values. Reuses `alertChannelStatus()`. Email/WhatsApp/CV AI missing = warning (in-app notifications and manual entry still work), cron secret missing = blocker (proactive dispatch), `PUBLIC_SITE_URL` fallback = info, `payments_disabled_for_trial` = info product policy.
+- New `AdminReadiness` component groups DB + operational checks into Blockers / Warnings / Ready / Info with AR/EN labels and remediation text; no publish CTA.
+- Tests: unauthenticated `/_serverFn` call returns 403; response shape contains only booleans/names; live data verified (6 ownerless facilities, 0 leaks, 0 integrity failures). typecheck + build clean.
