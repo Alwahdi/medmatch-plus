@@ -18,3 +18,20 @@ export function useVerifiedTotp(enabled = true) {
     },
   });
 }
+
+/**
+ * لا يكفي وجود عامل TOTP: الخادم يشترط جلسة aal2. حساب سجّل الدخول بكلمة المرور
+ * فقط يبقى aal1 فتفشل كل عمليات المراجعة، لذا نكشف الحالة للواجهة.
+ */
+export function useSessionAal2(enabled = true) {
+  return useQuery({
+    queryKey: ["mfa-session-aal2"],
+    enabled,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (error) throw error;
+      return data?.currentLevel === "aal2";
+    },
+  });
+}
