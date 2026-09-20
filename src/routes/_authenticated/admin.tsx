@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
-import { fieldLabel } from "@/components/change-request";
+import { fieldLabel, changeValueLabel, isOpaqueChangeValue, useSpecialtyList } from "@/components/change-request";
 import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
@@ -933,8 +933,16 @@ function AdminPage() {
                         )}
                       </p>
                       <p className="mt-1 text-sm">
-                        <span className="text-muted-foreground">{r.old_value || "—"}</span> → <b>{r.new_value}</b>
+                        <span className="text-muted-foreground">
+                          {changeValueLabel(r.field, r.old_value, lang, specialtyList)}
+                        </span>{" "}
+                        → <b>{changeValueLabel(r.field, r.new_value, lang, specialtyList)}</b>
                       </p>
+                      {isOpaqueChangeValue(r.field) && (
+                        <p className="mt-0.5 break-all font-mono text-[11px] text-muted-foreground" dir="ltr">
+                          {r.old_value || "—"} → {r.new_value}
+                        </p>
+                      )}
                       {r.reason && <p className="mt-1 text-xs text-muted-foreground">{r.reason}</p>}
                       <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(r.created_at, lang)}</p>
                     </div>
