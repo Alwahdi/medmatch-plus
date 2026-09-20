@@ -72,7 +72,7 @@ export function FacilityBookingsPanel({
     queryFn: async () => {
       const { data: bookings, error } = await supabase
         .from("shift_bookings")
-        .select("id,status,created_at,user_id")
+        .select("id,status,created_at,cancelled_at,cancellation_actor,user_id")
         .eq("shift_id", shiftId)
         .order("created_at", { ascending: false });
       if (error) throw error;
