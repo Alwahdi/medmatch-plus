@@ -195,6 +195,11 @@ export function ApplicationsPanel() {
                       <p className="text-xs text-muted-foreground">
                         {a.jobs?.city} · {c.appliedAt(relativeTime(a.created_at, lang))}
                       </p>
+                      {a.updatedAfterApply && !withdrawn && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {c.updatedAfter(relativeTime(a.updatedAfterApply, lang))}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
