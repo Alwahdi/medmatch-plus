@@ -71,6 +71,7 @@ import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
+import { useRequireFacilityVerification } from "@/lib/platform-settings";
 import { isFacilityProfileComplete } from "@/lib/profile-completeness";
 import { Skeleton } from "@/components/ui/skeleton";
 
