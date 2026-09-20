@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { assertOk } from "@/lib/query-errors";
 import type { User } from "@supabase/supabase-js";
 
 export type AppNotification = {
@@ -72,8 +73,8 @@ export async function markNotificationRead(id: string) {
 export async function markAllNotificationsRead(userId: string) {
   assertOk(
     await supabase
-    .from("notifications")
-    .update({ read_at: new Date().toISOString() })
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
       .eq("user_id", userId)
       .is("read_at", null),
   );

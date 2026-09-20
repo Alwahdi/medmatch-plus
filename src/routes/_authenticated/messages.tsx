@@ -55,6 +55,7 @@ import {
   uploadChatFile,
 } from "@/components/chat-attachment";
 import { supabase } from "@/integrations/supabase/client";
+import { unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { checkUpload } from "@/lib/storage";
@@ -159,7 +160,7 @@ function MessagesPage() {
       };
       if (list.length === 0) return empty;
 
-      const [{ data: facilities }, { data: pros }, { data: jobs }, { data: shifts }] =
+      const [facilitiesRes, prosRes, jobsRes, shiftsRes] =
         await Promise.all([
           supabase
             .from("facilities")
@@ -179,13 +180,20 @@ function MessagesPage() {
             .in("id", list.map((c) => c.shift_id).filter(Boolean) as string[]),
         ]);
 
-      const { data: lastMsgs } = await supabase
-        .from("messages")
-        .select("conversation_id,body,attachment_name,attachment_type,created_at")
-        .in("conversation_id", list.map((c) => c.id))
-        .order("created_at", { ascending: false });
+      const facilities = unwrapRows(facilitiesRes);
+      const pros = unwrapRows(prosRes);
+      const jobs = unwrapRows(jobsRes);
+      const shifts = unwrapRows(shiftsRes);
+
+      const lastMsgs = unwrapRows(
+        await supabase
+          .from("messages")
+          .select("conversation_id,body,attachment_name,attachment_type,created_at")
+          .in("conversation_id", list.map((c) => c.id))
+          .order("created_at", { ascending: false }),
+      );
       const previews: Record<string, string> = {};
-      for (const m of lastMsgs ?? []) {
+      for (const m of lastMsgs) {
         if (!previews[m.conversation_id])
           previews[m.conversation_id] =
             m.body ||
@@ -197,10 +205,10 @@ function MessagesPage() {
       return {
         ...empty,
         previews,
-        facilities: Object.fromEntries((facilities ?? []).map((f) => [f.id, f])),
-        pros: Object.fromEntries((pros ?? []).map((p) => [p.user_id, p])),
-        jobs: Object.fromEntries((jobs ?? []).map((j) => [j.id, j])),
-        shifts: Object.fromEntries((shifts ?? []).map((s) => [s.id, s])),
+        facilities: Object.fromEntries(facilities.map((f) => [f.id, f])),
+        pros: Object.fromEntries(pros.map((p) => [p.user_id, p])),
+        jobs: Object.fromEntries(jobs.map((j) => [j.id, j])),
+        shifts: Object.fromEntries(shifts.map((s) => [s.id, s])),
       };
     },
   });
@@ -262,12 +270,14 @@ function MessagesPage() {
     queryKey: ["reactions", active?.id, messages?.length],
     enabled: !!messages?.length,
     queryFn: async () => {
-      const { data: rows } = await supabase
-        .from("message_reactions")
-        .select("id,message_id,user_id,emoji")
-        .in("message_id", (messages ?? []).map((m) => m.id));
+      const rows = unwrapRows(
+        await supabase
+          .from("message_reactions")
+          .select("id,message_id,user_id,emoji")
+          .in("message_id", (messages ?? []).map((m) => m.id)),
+      );
       const map: Record<string, { emoji: string; user_id: string; id: string }[]> = {};
-      for (const r of rows ?? []) (map[r.message_id] ??= []).push(r);
+      for (const r of rows) (map[r.message_id] ??= []).push(r);
       return map;
     },
   });

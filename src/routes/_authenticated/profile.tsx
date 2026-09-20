@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUpload } from "@/components/image-upload";
 import { supabase } from "@/integrations/supabase/client";
+import { assertOk } from "@/lib/query-errors";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
 
 import { useSession } from "@/lib/auth";
@@ -262,7 +263,7 @@ function ProfileOverview() {
         const { error } = await supabase.from("healthcare_professionals").insert(payload);
         if (error) throw error;
         // أول إنشاء للملف = تفعيل دور الكادر حتى لا يعود إلى شاشة الإعداد.
-        await supabase.rpc("claim_professional_role");
+        assertOk(await supabase.rpc("claim_professional_role"));
       }
 
       const { error: accErr } = await supabase
