@@ -21,7 +21,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, formatDateTime, formatMoney, formatSalary } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
-import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 import { ErrorState } from "@/components/error-state";
 import { NOINDEX } from "@/lib/seo";
 
@@ -48,8 +47,6 @@ const TXT = {
     perHour: "/ساعة",
     type: "نوع المنشأة",
     location: "الموقع",
-    online: "متصل الآن",
-    offline: "غير متصل",
   },
   en: {
     home: "Home",
@@ -73,8 +70,6 @@ const TXT = {
     perHour: "/hour",
     type: "Facility type",
     location: "Location",
-    online: "Online now",
-    offline: "Offline",
   },
 } as const;
 
@@ -100,8 +95,6 @@ function FacilityProfilePage() {
   const { lang } = useLang();
   const c = TXT[lang];
   const { facilityId } = Route.useParams();
-  const { user } = useSession();
-  const online = useOnlineUsers(user);
 
   const { data: facility, isLoading, isError: facErr, error: facErrObj, refetch: facRefetch } = useQuery({
     queryKey: ["public-facility", facilityId],

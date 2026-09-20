@@ -23,7 +23,6 @@ import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime, experienceLabel } from "@/lib/format";
 import { friendlyError } from "@/lib/user-errors";
 import { useLang } from "@/lib/i18n";
-import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ErrorState } from "@/components/error-state";
 
@@ -201,7 +200,6 @@ function CandidateProfile() {
   const pro = data.pro;
   const hired = data.apps.some((a) => a.status === "hired");
   const confirmed = data.bookings.some((b) => b.status === "confirmed");
-  const isOnline = online.has(userId);
   const specialty = (pro as { specialty?: { name_ar: string; name_en: string } | null }).specialty;
 
   return (
@@ -215,27 +213,17 @@ function CandidateProfile() {
         <div className="px-6 pb-6">
           <div className="-mt-10 flex flex-wrap items-end justify-between gap-4">
             <div className="flex items-end gap-4">
-              <div className="relative">
-                <RemoteAvatar
-                  value={pro.avatar_url}
-                  fallbackText={pro.full_name}
-                  className="size-24 rounded-lg ring-4 ring-card"
-                />
-                <span
-                  className={`absolute -bottom-1 -end-1 size-5 rounded-full border-4 border-card ${OnlineDotClass(isOnline)}`}
-                  title={isOnline ? c.online : c.offline}
-                />
-              </div>
+              <RemoteAvatar
+                value={pro.avatar_url}
+                fallbackText={pro.full_name}
+                className="size-24 rounded-lg ring-4 ring-card"
+              />
               <div className="pb-1">
                 <h1 className="flex items-center gap-2 font-display text-2xl font-extrabold">
                   {pro.full_name}
                   {pro.is_verified && <ShieldCheck className="size-5 text-accent" />}
                 </h1>
                 <p className="mt-0.5 text-sm text-muted-foreground">{pro.headline ?? ""}</p>
-                <p className={`mt-1 flex items-center gap-1.5 text-xs font-semibold ${isOnline ? "text-emerald-600" : "text-muted-foreground"}`}>
-                  <span className={`size-2 rounded-full ${OnlineDotClass(isOnline)}`} />
-                  {isOnline ? c.online : c.offline}
-                </p>
               </div>
             </div>
 
