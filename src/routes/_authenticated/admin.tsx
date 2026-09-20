@@ -30,7 +30,7 @@ import { AdminSafetyReports } from "@/components/admin-safety-reports";
 import { AdminReadiness } from "@/components/admin-readiness";
 import { VerificationPanel, type DocState, type RequiredDoc } from "@/components/admin-verification";
 import { friendlyError } from "@/lib/user-errors";
-import { useVerifiedTotp } from "@/lib/admin-mfa";
+import { useSessionAal2, useVerifiedTotp } from "@/lib/admin-mfa";
 import { VALIDITY_TXT, isExpired, isValidEvidence } from "@/lib/doc-validity";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -53,6 +53,9 @@ const TXT = {
     mfaGateTitle: "التحقق بخطوتين مطلوب لحسابات الإدارة",
     mfaGateText: "فعّل تطبيق المصادقة من صفحة الأمان ثم عد إلى لوحة الإدارة. لن تعمل أي عملية إدارية قبل ذلك.",
     mfaGateAction: "الذهاب إلى الأمان",
+    stepUpTitle: "أدخل رمز التحقق لمتابعة العمل الإداري",
+    stepUpText: "جلستك الحالية بكلمة المرور فقط. أدخل الرمز من تطبيق المصادقة لتفعيل أزرار الاعتماد والرفض.",
+    stepUpAction: "إدخال رمز التحقق",
     adminOnlyText: "حسابك لا يملك صلاحية مراجعة الوثائق واعتماد المنشآت.",
     backToDashboard: "العودة إلى لوحتك",
     title: "لوحة الإدارة",
@@ -102,6 +105,9 @@ const TXT = {
     mfaGateTitle: "Two-factor authentication is required for admin accounts",
     mfaGateText: "Set up an authenticator app on the Security page, then come back. Admin actions stay blocked until you do.",
     mfaGateAction: "Go to Security",
+    stepUpTitle: "Enter your verification code to continue",
+    stepUpText: "This session used your password only. Enter the code from your authenticator app to unlock approve and reject.",
+    stepUpAction: "Enter verification code",
     adminOnlyText: "Your account doesn't have permission to review documents and verify facilities.",
     backToDashboard: "Back to your dashboard",
     title: "Admin panel",
