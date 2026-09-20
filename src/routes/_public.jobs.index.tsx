@@ -539,8 +539,11 @@ function JobsPage() {
                   <div className="relative mt-1.5">
                     <Search className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-muted-foreground end-3" />
                     <Input
-                      value={q}
-                      onChange={(e) => setQ(e.target.value)}
+                      value={qInput}
+                      onChange={(e) => setQInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") setQ(qInput);
+                      }}
                       placeholder={c.search}
                       className="h-11 pe-9"
                       maxLength={80}
