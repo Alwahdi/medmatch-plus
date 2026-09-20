@@ -4,6 +4,7 @@ import { POSTS, getPost } from "@/content/blog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
+import { canonical, shareMeta, absoluteUrl, OG_IMAGE } from "@/lib/seo";
 import { useLang } from "@/lib/i18n";
 
 const TXT = {
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/_public/blog/$slug")({
     if (!post) throw notFound();
     return { post };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) {
       return { meta: [{ title: "مقال غير موجود | SyndeoCare" }, { name: "robots", content: "noindex" }] };
     }
@@ -48,6 +49,24 @@ export const Route = createFileRoute("/_public/blog/$slug")({
         { property: "og:description", content: post.excerpt.ar },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
+        ...shareMeta(`/blog/${params.slug}`),
+      ],
+      links: canonical(`/blog/${params.slug}`),
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title.ar,
+            description: post.excerpt.ar,
+            datePublished: post.date,
+            inLanguage: "ar",
+            image: OG_IMAGE,
+            mainEntityOfPage: absoluteUrl(`/blog/${params.slug}`),
+            publisher: { "@type": "Organization", name: "SyndeoCare", url: absoluteUrl("/") },
+          }),
+        },
       ],
     };
   },
