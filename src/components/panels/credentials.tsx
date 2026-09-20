@@ -368,9 +368,15 @@ export function CredentialsPanel() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {isExpired(cred.expiry_date) ? (
+                  <Badge variant="destructive">{v.expired}</Badge>
+                ) : isExpiringSoon(cred.expiry_date) ? (
+                  <Badge variant="outline">{v.expiringSoon}</Badge>
+                ) : null}
                 <Badge variant={cred.status === "approved" ? "default" : "secondary"}>
                   {credentialLabel(cred.status, lang)}
                 </Badge>
+
                 <Button size="sm" variant="outline" onClick={() => openFile(cred.file_path)}>
                   <FileText className="size-4" /> {c.view}
                 </Button>
