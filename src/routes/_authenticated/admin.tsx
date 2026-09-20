@@ -184,7 +184,9 @@ function AdminPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facilities")
-        .select("id,name_ar,country,city,is_verified,rating_avg,rating_count,facility_type")
+        .select(
+          "id,name_ar,country,city,is_verified,rating_avg,rating_count,facility_type,verification_suspended_at,verification_suspension_reason",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
