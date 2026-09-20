@@ -808,3 +808,47 @@ Shift form (the only place shift times are entered — there is no separate edit
   unchanged; both inputs keep the 48px-tall shared Input control at 320/390.
 
 Typecheck clean, build OK.
+
+## Phase 71 — Alert dispatcher hardening (DONE)
+
+**Cron auth.** `src/routes/api/public/dispatch-alerts.ts` no longer compares the secret by hand.
+It calls the shared `authenticateCronRequest(request)` (SHA-256 + `timingSafeEqual`, current and
+previous secret for rotation, Bearer only — no second homemade header). Every response —
+401, 500 and the JSON summary — carries `Cache-Control: no-store`, and failures return generic
+text with the detail logged server-side only.
+
+**Fail-closed dispatcher.** `dispatchAlerts()` routes every `supabaseAdmin` read and write
+through `ok()`, which logs the backend message server-side and throws `DispatchError`:
+- an alerts read failure can no longer report `alerts: 0`;
+- the jobs/shifts `Promise.all` inspects both errors, so a failed half is never "no matches";
+- the `alert_deliveries` read aborts the run **before any provider call** (treating that
+  failure as "nothing delivered yet" would resend everything);
+- recipient lookup, claim, finalize and `last_sent_at` errors are all checked.
+
+**Atomic claim (no duplicate sends).** Before contacting a provider the run must own the row:
+a new delivery is inserted as `processing` (a `23505` means a concurrent run won the race →
+skipped), and an existing row is claimed with a compare-and-set update on
+`id + status + attempt_count`; zero rows updated → skipped. No transaction is held across the
+provider HTTP call. If persistence fails *after* a real send, the run raises instead of
+reporting success and the row stays `processing`, retried only after
+`PROCESSING_TIMEOUT_MS` (10 min) — no blind immediate resend. `shouldAttempt()` handles
+`processing` accordingly. `last_sent_at` is display state only; `alert_deliveries` is the
+source of truth.
+
+**Schema.** Dropped the plain `(alert_id, job_id, channel)` unique constraint (NULL semantics
+allowed duplicates) in favour of two partial unique indexes — `... WHERE job_id IS NOT NULL`
+and `... WHERE shift_id IS NOT NULL` — plus validated CHECKs: exactly one target
+(`(job_id IS NOT NULL) <> (shift_id IS NOT NULL)`) and
+`status IN ('sent','failed','not_configured','processing')`. Privileges: nothing for `anon`,
+`SELECT` for `authenticated`, `ALL` for `service_role`.
+
+**Secret-safe provider errors.** `sanitizeProviderError()` in `notify.server.ts` collapses
+whitespace, redacts the configured API keys, `Bearer …` and `authorization/api_key/token/
+secret/password` patterns, and truncates to 300 chars before anything reaches the delivery log.
+
+Verified: no/bad secret → 401 `no-store`; current and previous secrets → accepted; redaction
+and the 300-char cap confirmed; at DB level duplicate job and shift deliveries are blocked,
+the first claim updates 1 row and the concurrent second updates 0, both-targets and unknown
+status rows are rejected (all inside a rolled-back transaction — no test data left; 0 rows in
+`alert_deliveries` and `job_alerts`). `not_configured` still doesn't burn retries and becomes
+attemptable once the channel is ready. No real email or WhatsApp was sent. Typecheck clean.
