@@ -99,7 +99,6 @@ function CandidateProfile() {
   const c = TXT[lang];
   const { user } = useSession();
   const navigate = useNavigate();
-  const online = useOnlineUsers(user);
 
   const { data, isLoading, isError: loadErr, error: loadErrObj, refetch: loadRefetch } = useQuery({
     queryKey: ["candidate-profile", userId, user?.id],
