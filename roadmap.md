@@ -1051,3 +1051,5 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - Phase 60 grants: private helpers service_role only; both public RPCs authenticated + service_role, revoked from anon/PUBLIC.
 
 - Phase 81 (requested as Phase73): إيصالات الرسائل موثوقة — لا صلاحية تعديل مباشرة للعميل، RPCs المستلم فقط، backfill لـ11 صف قديم، CHECK قراءة⇐تسليم (validated)، صلاحيات صريحة Phase60. اختبارات: رفض التحديث المباشر، عدم لمس الصادر، delivered بدون read، idempotent، رفض غير المشارك.
+
+- Phase 82 (requested as Phase77): شارة التوثيق مبنية على أدلة — sync يحسب is_verified = المستندات المطلوبة معتمدة AND لا تعليق إداري؛ admin_set_*(true) يرفض VERIFICATION_REQUIREMENTS_NOT_MET دون أدلة ويستخدم كاستعادة فقط؛ (false) يستلزم سبباً ويضع verification_suspended_at/reason ولا يُلغى بمراجعة المستندات. لوحة الإدارة: لا زر «توثيق» يدوي، بل قائمة المستندات المطلوبة بحالاتها وCTA للمراجعة وسحب/استعادة مع تأكيد. اختبارات (بيانات مؤقتة رولباك): بدون مستندات مرفوض، مستند واحد لا يوثّق، اعتماد الاثنين يوثّق تلقائياً، رفض مستند يسحب التوثيق، السحب يتطلب سبباً ويصمد أمام تعديل المستندات، الاستعادة تعمل مع أدلة قائمة، 0 صفوف موثّقة بلا أدلة.
