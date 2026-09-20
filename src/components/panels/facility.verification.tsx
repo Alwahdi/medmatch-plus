@@ -481,6 +481,11 @@ export function FacilityVerificationPanel() {
                   </div>
                 </div>
                 <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+                  {isExpired(doc.expiry_date) ? (
+                    <Badge variant="destructive">{v.expired}</Badge>
+                  ) : isExpiringSoon(doc.expiry_date) ? (
+                    <Badge variant="outline">{v.expiringSoon}</Badge>
+                  ) : null}
                   <Badge
                     variant={
                       doc.status === "approved"
