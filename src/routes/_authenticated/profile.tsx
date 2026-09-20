@@ -384,6 +384,11 @@ function ProfileOverview() {
                 <span className="rounded-md bg-surface px-3 py-1 text-muted-foreground">
                   {searchable ? c.visibilityOn : c.visibilityOff}
                 </span>
+                {form.availability.length > 0 && (
+                  <span className="rounded-md bg-surface px-3 py-1 text-muted-foreground">
+                    {availabilityLabel(form.availability, lang)}
+                  </span>
+                )}
               </div>
             </div>
           </div>
