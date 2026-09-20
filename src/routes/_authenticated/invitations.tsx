@@ -5,6 +5,8 @@ import { Briefcase, Building2, CalendarClock, Check, MailOpen, ShieldCheck, X } 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
