@@ -131,8 +131,8 @@ export const POSTS: Post[] = [
       en: "How to shorten hiring time at your health facility",
     },
     excerpt: {
-      ar: "خطوات تجعل إعلانك يجذب المرشح المناسب خلال أيام لا أسابيع.",
-      en: "Steps that make your posting attract the right candidate in days, not weeks.",
+      ar: "خطوات عملية تجعل إعلانك أوضح وأكثر جذباً للمرشح المناسب.",
+      en: "Practical steps that make your posting clearer and more attractive to the right candidate.",
     },
     sections: [
       {
