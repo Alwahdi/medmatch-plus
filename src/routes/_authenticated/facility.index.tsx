@@ -105,6 +105,7 @@ export const Route = createFileRoute("/_authenticated/facility/")({
 function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const requireFacilityVerification = useRequireFacilityVerification();
   const { confirm, confirmDialog } = useConfirm();
   const rawTab = Route.useSearch().tab ?? "all";
   // توافق خلفي: الروابط القديمة new-job/new-shift تفتح القسم الصحيح مع نافذة الإنشاء.
