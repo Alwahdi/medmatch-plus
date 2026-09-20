@@ -53,9 +53,9 @@ export const Route = createFileRoute("/_authenticated/facility/candidates")({
 
 const ANY = "any";
 
+// Pre-contact results carry only the opaque professional-profile id, never an auth user id.
 type Candidate = {
   id: string;
-  user_id: string;
   specialty_id: string | null;
   years_experience: number;
   country: string | null;
@@ -63,6 +63,7 @@ type Candidate = {
   is_open_to_shifts: boolean;
   is_verified: boolean;
 };
+
 
 const TXT = {
   ar: {
