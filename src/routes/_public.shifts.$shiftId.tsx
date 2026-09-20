@@ -30,6 +30,7 @@ import {
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
+import { ReportButton } from "@/components/report-dialog";
 import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
@@ -381,6 +382,14 @@ function ShiftDetail() {
             <p className="mt-2 leading-relaxed whitespace-pre-line text-muted-foreground">
               {shift.notes || c.noNotes}
             </p>
+
+            <div className="mt-6 border-t border-border pt-4">
+              <ReportButton
+                targetType="shift"
+                targetId={shift.id}
+                className="px-0 text-muted-foreground hover:text-foreground"
+              />
+            </div>
           </div>
 
           <div className="space-y-6">

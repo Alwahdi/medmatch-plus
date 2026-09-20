@@ -26,6 +26,7 @@ import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, coun
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
 import { AdminDeletionQueue } from "@/components/admin-deletion-queue";
+import { AdminSafetyReports } from "@/components/admin-safety-reports";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -251,6 +252,18 @@ function AdminPage() {
     },
   });
 
+  const { data: safetyReports } = useQuery({
+    queryKey: ["admin-safety-reports"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_list_safety_reports");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+
+
   const { data: changeLog, isError: changeLogErr, refetch: changeLogRefetch } = useQuery({
     queryKey: ["admin-change-log"],
     enabled: !!isAdmin,
@@ -444,6 +457,7 @@ function AdminPage() {
   const pendingFacDocs = (facDocs ?? []).filter((d) => d.status === "pending");
   const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
   const pendingChanges = (changeReqs ?? []).filter((r) => r.status === "pending");
+  const openReports = (safetyReports ?? []).filter((r) => r.status === "open").length;
   const shownChanges = pendingOnly ? pendingChanges : changeReqs ?? [];
   const loadErrors = [
     { err: credsErr, retry: credsRefetch },
@@ -523,6 +537,14 @@ function AdminPage() {
             </TabsTrigger>
             <TabsTrigger value="deletions" className="shrink-0">
               {lang === "ar" ? "طلبات حذف الحساب" : "Account deletion"}
+            </TabsTrigger>
+            <TabsTrigger value="safety" className="shrink-0">
+              {lang === "ar" ? "بلاغات السلامة" : "Safety reports"}
+              {openReports > 0 && (
+                <Badge variant="destructive" className="ms-2">
+                  {openReports}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="readiness" className="shrink-0">
               {lang === "ar" ? "جاهزية الإطلاق" : "Release readiness"}
@@ -977,6 +999,10 @@ function AdminPage() {
 
         <TabsContent value="deletions" className="mt-6">
           <AdminDeletionQueue />
+        </TabsContent>
+
+        <TabsContent value="safety" className="mt-6">
+          <AdminSafetyReports />
         </TabsContent>
 
         <TabsContent value="readiness" className="mt-6">
