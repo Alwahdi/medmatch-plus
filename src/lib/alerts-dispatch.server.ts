@@ -14,7 +14,13 @@
  *   last_attempt_at); only the first attempt INSERTs.
  * - `job_alerts.last_sent_at` only advances when something was actually sent.
  */
-import { alertChannelStatus, sendEmail, sendWhatsApp, type SendResult } from "./notify.server";
+import {
+  alertChannelStatus,
+  sanitizeProviderError,
+  sendEmail,
+  sendWhatsApp,
+  type SendResult,
+} from "./notify.server";
 
 /** Canonical public site URL, without a trailing slash. */
 export function siteUrl(): string {
