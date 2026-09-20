@@ -121,6 +121,10 @@ const TXT = {
     booked: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
     bookFailed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
     mySub: "مرتّبة حسب التخصص والموقع المسجلين في ملفك.",
+    loadMore: "عرض المزيد",
+    loading: "جارٍ التحميل…",
+    showing: (x: number, y: number) => `عرض ${x} من ${y}`,
+    appended: (n: number) => `تمت إضافة ${n} فرصة إلى القائمة`,
   },
   en: {
     badge: "Permanent roles and instant shifts in one place",
