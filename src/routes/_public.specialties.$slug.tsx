@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -38,7 +39,7 @@ const TXT = {
 } as const;
 
 export const Route = createFileRoute("/_public/specialties/$slug")({
-  head: () => ({
+  head: ({ params }) => ({
     meta: [
       { title: "وظائف حسب التخصص | Jobs by specialty | SyndeoCare" },
       {
@@ -49,7 +50,9 @@ export const Route = createFileRoute("/_public/specialties/$slug")({
       { property: "og:description", content: "فرص عمل ومناوبات في تخصصك الطبي." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta(`/specialties/${params.slug}`),
     ],
+    links: canonical(`/specialties/${params.slug}`),
   }),
   component: SpecialtyPage,
   notFoundComponent: () => {

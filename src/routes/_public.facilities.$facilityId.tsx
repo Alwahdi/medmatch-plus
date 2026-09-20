@@ -22,6 +22,7 @@ import { countryLabel, formatDateTime, formatMoney, formatSalary } from "@/lib/f
 import { useLang } from "@/lib/i18n";
 import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 import { ErrorState } from "@/components/error-state";
+import { NOINDEX } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -88,6 +89,7 @@ export const Route = createFileRoute("/_public/facilities/$facilityId")({
       { property: "og:description", content: "ملف المنشأة الصحية ووظائفها المنشورة على SyndeoCare." },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary_large_image" },
+      NOINDEX,
     ],
   }),
   component: FacilityProfilePage,

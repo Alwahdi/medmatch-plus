@@ -14,6 +14,7 @@ import { useLang } from "@/lib/i18n";
 import { ConsentNote } from "@/components/consent-note";
 import { friendlyError } from "@/lib/user-errors";
 import { PHONE_PLACEHOLDER_AR, PHONE_PLACEHOLDER_EN, isValidPhone, normalizePhone } from "@/lib/phone";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/register/")({
   head: () => ({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/_public/register/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      NOINDEX,
     ],
   }),
   component: RegisterSeeker,

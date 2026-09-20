@@ -22,6 +22,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { DICT, useLang } from "@/lib/i18n";
+import { NOINDEX } from "@/lib/seo";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
@@ -51,6 +52,7 @@ export const Route = createFileRoute("/_public/auth")({
       { property: "og:description", content: DICT["auth.subtitle"]!.ar },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      NOINDEX,
     ],
   }),
   component: AuthPage,

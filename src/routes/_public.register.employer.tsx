@@ -16,6 +16,7 @@ import { friendlyError } from "@/lib/user-errors";
 import { COUNTRIES, EMPLOYER_TYPES } from "@/lib/geo";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { PHONE_PLACEHOLDER_AR, PHONE_PLACEHOLDER_EN, isValidPhone, normalizePhone } from "@/lib/phone";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/register/employer")({
   head: () => ({
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/_public/register/employer")({
       { property: "og:description", content: "ابدأ التوظيف خلال دقيقة، بدون بطاقة ائتمان." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      NOINDEX,
     ],
   }),
   component: RegisterEmployer,

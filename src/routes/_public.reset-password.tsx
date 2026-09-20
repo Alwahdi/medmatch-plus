@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/lib/i18n";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/reset-password")({
   head: () => ({
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/_public/reset-password")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
+      NOINDEX,
     ],
   }),
   component: ResetPasswordPage,

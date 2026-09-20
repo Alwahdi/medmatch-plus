@@ -17,6 +17,7 @@ import { employmentLabel, experienceLabel, formatDate, formatSalary, relativeTim
 import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
+import { canonical, shareMeta, jobCanonicalPath } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -132,7 +133,9 @@ const TXT = {
 } as const;
 
 export const Route = createFileRoute("/_public/jobs/$jobId")({
-  head: () => ({
+  // المسار الأساسي يعتمد الـslug دائماً حتى لا يتكرر نفس الإعلان برابطين.
+  loader: async ({ params }) => ({ canonicalPath: await jobCanonicalPath(params.jobId) }),
+  head: ({ loaderData }) => ({
     meta: [
       { title: "تفاصيل الوظيفة | Job details | SyndeoCare" },
       {
@@ -143,7 +146,9 @@ export const Route = createFileRoute("/_public/jobs/$jobId")({
       { property: "og:description", content: "تعرّف على تفاصيل الوظيفة وقدّم عليها مباشرة." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta(loaderData?.canonicalPath ?? "/jobs"),
     ],
+    links: canonical(loaderData?.canonicalPath ?? "/jobs"),
   }),
   component: JobDetail,
   notFoundComponent: () => {
