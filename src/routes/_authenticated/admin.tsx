@@ -30,7 +30,7 @@ import { AdminSafetyReports } from "@/components/admin-safety-reports";
 import { AdminReadiness } from "@/components/admin-readiness";
 import { VerificationPanel, type DocState, type RequiredDoc } from "@/components/admin-verification";
 import { friendlyError } from "@/lib/user-errors";
-import { useVerifiedTotp } from "@/lib/admin-mfa";
+import { useSessionAal2, useVerifiedTotp } from "@/lib/admin-mfa";
 import { VALIDITY_TXT, isExpired, isValidEvidence } from "@/lib/doc-validity";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -53,6 +53,9 @@ const TXT = {
     mfaGateTitle: "التحقق بخطوتين مطلوب لحسابات الإدارة",
     mfaGateText: "فعّل تطبيق المصادقة من صفحة الأمان ثم عد إلى لوحة الإدارة. لن تعمل أي عملية إدارية قبل ذلك.",
     mfaGateAction: "الذهاب إلى الأمان",
+    stepUpTitle: "أدخل رمز التحقق لمتابعة العمل الإداري",
+    stepUpText: "جلستك الحالية بكلمة المرور فقط. أدخل الرمز من تطبيق المصادقة لتفعيل أزرار الاعتماد والرفض.",
+    stepUpAction: "إدخال رمز التحقق",
     adminOnlyText: "حسابك لا يملك صلاحية مراجعة الوثائق واعتماد المنشآت.",
     backToDashboard: "العودة إلى لوحتك",
     title: "لوحة الإدارة",
@@ -102,6 +105,9 @@ const TXT = {
     mfaGateTitle: "Two-factor authentication is required for admin accounts",
     mfaGateText: "Set up an authenticator app on the Security page, then come back. Admin actions stay blocked until you do.",
     mfaGateAction: "Go to Security",
+    stepUpTitle: "Enter your verification code to continue",
+    stepUpText: "This session used your password only. Enter the code from your authenticator app to unlock approve and reject.",
+    stepUpAction: "Enter verification code",
     adminOnlyText: "Your account doesn't have permission to review documents and verify facilities.",
     backToDashboard: "Back to your dashboard",
     title: "Admin panel",
@@ -166,8 +172,9 @@ function AdminPage() {
   const queryClient = useQueryClient();
   const isAdmin = roles?.includes("admin");
   const { data: hasTotp, isLoading: totpLoading } = useVerifiedTotp(!!isAdmin);
-  // الطابور الحسّاس لا يُحمَّل إطلاقاً لمدير بلا عامل TOTP موثّق.
-  const adminReady = !!isAdmin && hasTotp === true;
+  const { data: aal2, isLoading: aalLoading } = useSessionAal2(!!isAdmin);
+  // الطابور الحسّاس لا يُحمَّل إطلاقاً لمدير بلا عامل TOTP موثّق وجلسة مؤكَّدة.
+  const adminReady = !!isAdmin && hasTotp === true && aal2 === true;
 
   const [pendingOnly, setPendingOnly] = useState(true);
   const [rejectId, setRejectId] = useState<string | null>(null);
@@ -302,8 +309,8 @@ function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-change-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-change-log"] });
     },
-    onError: () => {
-      toast.error(c.updateFailed);
+    onError: (e: Error) => {
+      toast.error(friendlyError(e, lang) || c.updateFailed);
     },
   });
 
@@ -403,7 +410,7 @@ function AdminPage() {
       toast.success(c.msgUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-inbox"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   async function openFile(path: string | null) {
@@ -432,7 +439,7 @@ function AdminPage() {
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   }
 
-  if (rolesLoading || (isAdmin && totpLoading))
+  if (rolesLoading || (isAdmin && (totpLoading || aalLoading)))
     return (
       <div className="mx-auto max-w-4xl p-6">
         <span className="sr-only">{c.loading}</span>
@@ -459,6 +466,21 @@ function AdminPage() {
         <Link to="/security" className="mt-6 inline-block text-primary underline underline-offset-4">
           {c.mfaGateAction}
         </Link>
+      </div>
+    );
+
+  if (isAdmin && hasTotp === true && aal2 === false)
+    return (
+      <div className="mx-auto max-w-md px-4 py-24 text-center">
+        <ShieldCheck className="mx-auto size-8 text-primary" aria-hidden />
+        <h1 className="mt-3 font-display text-2xl font-extrabold">{c.stepUpTitle}</h1>
+        <p className="mt-2 text-muted-foreground">{c.stepUpText}</p>
+        <a
+          href="/mfa-challenge?next=/admin"
+          className="mt-6 inline-block text-primary underline underline-offset-4"
+        >
+          {c.stepUpAction}
+        </a>
       </div>
     );
 
