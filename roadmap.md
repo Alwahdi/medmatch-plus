@@ -1207,3 +1207,10 @@ No invented metrics, testimonials, or customer counts. AR/EN parity checked; tsg
 - `contact_messages` تُركت كما هي: التحديث مقصور على `is_handled` للمشرف عبر RLS.
 - بقية الجداول: الأعمدة النظامية (العدّادات، حالات المراجعة، `sent_at`, `reviewed_at`, التوثيق، الاشتراكات) غير ممنوحة للعميل أصلاً وتمر عبر RPCs موثوقة؛ `interviews.scheduled_at` يبقى عبر RPC.
 - الاختبار (بدور authenticated): إدراج رسالة بـ`read_at` مرفوض، إدراج محفوظة بـ`created_at` مرفوض، تحديث المحفوظات مرفوض، تحديث `job_alerts.last_sent_at` مرفوض، تحديث `profiles.updated_at` مرفوض؛ بينما تعديل الاسم في الملف الشخصي وإنشاء/تبديل/حذف التنبيه تعمل كالمعتاد.
+
+## Phase 92 — إزالة الأعمدة الحاملة للهوية من قراءات الجداول الأصلية (مكتملة)
+- `jobs`: أُلغي منح SELECT على مستوى الجدول لـauthenticated وأُعيد منحه على الأعمدة الآمنة فقط — `publisher_name` (أسماء أشخاص قديمة) لم يعد قابلاً للقراءة من العميل. `shifts`: نفس الشيء مع استثناء `booked_by` (معرّف من حجز المناوبة). service_role/postgres بلا تغيير، وanon لا يقرأ الجداول الأصلية أصلاً.
+- `private.can_read_job_row`: حُذف فرع `saved_jobs` — الحفظ إشارة مرجعية لا صلاحية. تبقى القراءة التاريخية لمن له طلب/دعوة/محادثة، وللمالك والمشرف.
+- دالة جديدة `public.my_saved_jobs()` (SECURITY DEFINER، مقيّدة بـ`auth.uid()`، EXECUTE لـauthenticated/service_role فقط) تُرجع حقول الوظيفة الآمنة + `is_available` + `saved_at` بلا أي هوية، فيبقى سجل المحفوظات يعمل حتى بعد إغلاق الوظيفة.
+- الواجهة: `SavedPanel` صار يعتمد الدالة المنقّحة ويُظهر «لم تعد هذه الوظيفة متاحة للتقديم» للمغلقة؛ أُضيفت `FACILITY_JOB_COLUMNS`/`FACILITY_SHIFT_COLUMNS` بدل `select('*')` في لوحة المنشأة (لأن `*` يفشل مع عمود بلا صلاحية). لا وجود لـ`publisher_name`/`booked_by` في كود العميل، وهوية المنشأة تأتي فقط عبر `can_view_facility_identity`.
+- الاختبار (بدور authenticated): قراءة `jobs.publisher_name` و`shifts.booked_by` مرفوضة، القراءة العادية للأعمدة الآمنة تعمل، مستخدم غير مشرف حافظ فقط لوظيفة لا يرى صفها الأصلي بينما يراها في سجل المحفوظات المنقّح. البناء وفحص الأنواع نظيفان.
