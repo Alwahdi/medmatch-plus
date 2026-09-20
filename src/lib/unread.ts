@@ -31,19 +31,34 @@ export function useUnread(user: User | null | undefined) {
 
   useEffect(() => {
     if (!user) return;
-    void markDelivered(user.id);
+    let cancelled = false;
+    void markDelivered();
+
+    const refresh = () => {
+      if (cancelled) return;
+      queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    };
+
+    // Realtime can fire several events in a burst; coalesce them into one RPC.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const schedule = () => {
+      if (timer) return;
+      timer = setTimeout(() => {
+        timer = undefined;
+        void markDelivered().then(refresh);
+      }, 600);
+    };
+
     const channelName = `messages-unread-${user.id}-${Math.random().toString(36).slice(2)}`;
     const channel = supabase.channel(channelName);
     channel
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
-        void markDelivered(user.id).then(() => {
-          queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
-          queryClient.invalidateQueries({ queryKey: ["messages"] });
-          queryClient.invalidateQueries({ queryKey: ["conversations"] });
-        });
-      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, schedule)
       .subscribe();
     return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
       void supabase.removeChannel(channel);
     };
   }, [user?.id, queryClient]);
@@ -55,24 +70,26 @@ export function useUnread(user: User | null | undefined) {
   return { map, total };
 }
 
-export async function markConversationRead(conversationId: string, userId: string) {
-  assertOk(
-    await supabase
-      .from("messages")
-      .update({ read_at: new Date().toISOString() })
-      .eq("conversation_id", conversationId)
-      .neq("sender_id", userId)
-      .is("read_at", null),
-  );
+/**
+ * Marks the incoming messages of the conversation the user is actually viewing
+ * as read. Timestamps are set server-side by a trusted RPC: the sender can
+ * never stamp its own message and an existing timestamp is never rewritten.
+ */
+export async function markConversationRead(conversationId: string) {
+  assertOk(await supabase.rpc("mark_conversation_read", { _conversation_id: conversationId }));
 }
 
 /** Marks every incoming message as delivered (recipient is online / app is open). */
-export async function markDelivered(userId: string) {
-  assertOk(
-    await supabase
-      .from("messages")
-      .update({ delivered_at: new Date().toISOString() })
-      .neq("sender_id", userId)
-      .is("delivered_at", null),
-  );
+let deliveredInFlight: Promise<void> | null = null;
+export async function markDelivered() {
+  // Never let two overlapping calls hit the RPC at once.
+  if (deliveredInFlight) return deliveredInFlight;
+  deliveredInFlight = (async () => {
+    try {
+      assertOk(await supabase.rpc("mark_incoming_messages_delivered"));
+    } finally {
+      deliveredInFlight = null;
+    }
+  })();
+  return deliveredInFlight;
 }

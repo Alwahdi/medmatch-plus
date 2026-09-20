@@ -244,7 +244,7 @@ function MessagesPage() {
 
   useEffect(() => {
     if (!active || !user || !unread[active.id]) return;
-    void markConversationRead(active.id, user.id).then(() => {
+    void markConversationRead(active.id).then(() => {
       queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
     });
   }, [active, user, unread, queryClient]);

@@ -852,3 +852,35 @@ the first claim updates 1 row and the concurrent second updates 0, both-targets 
 status rows are rejected (all inside a rolled-back transaction — no test data left; 0 rows in
 `alert_deliveries` and `job_alerts`). `not_configured` still doesn't burn retries and becomes
 attemptable once the channel is ready. No real email or WhatsApp was sent. Typecheck clean.
+
+## Phase 72 — Trusted delivery/read receipts (DONE)
+
+Receipts are no longer client-written. The `participants mark read` UPDATE policy is dropped
+and `UPDATE` (table-level and the `read_at` / `delivered_at` column grants) is revoked from
+`anon` and `authenticated`, so a modified client can no longer stamp its own sent message,
+clear a timestamp, or write a fabricated/future one. Sending, reading and reaction flows are
+untouched; `service_role` keeps full access.
+
+Two `SECURITY DEFINER` RPCs (`SET search_path`, `require_mfa()`, `auth.uid()`-derived identity,
+`REVOKE ALL FROM PUBLIC, anon` then `GRANT EXECUTE TO authenticated, service_role`):
+- `mark_conversation_read(_conversation_id)` — participant check via
+  `is_conversation_participant`, then updates only `sender_id <> auth.uid() AND read_at IS NULL`
+  in that conversation, setting `read_at = now()` and
+  `delivered_at = COALESCE(delivered_at, now())`. Returns the affected count.
+- `mark_incoming_messages_delivered()` — updates only incoming messages with
+  `delivered_at IS NULL` in conversations the caller belongs to; returns the count. Backed by a
+  new partial index `messages_undelivered_idx (conversation_id, sender_id) WHERE delivered_at IS NULL`.
+
+Both only fill NULLs, so timestamps can never be moved backward or forward, and all times are
+server times.
+
+Frontend (`src/lib/unread.ts`): both helpers call the RPCs and no longer take a `userId` — the
+server derives identity. `markConversationRead` still runs only for the conversation actually
+open. Realtime bursts are coalesced into a single delivered call (600 ms) and an in-flight
+guard prevents overlapping RPCs; invalidations are unchanged.
+
+Tested inside a rolled-back transaction (no QA data left): recipient direct UPDATE denied,
+sender direct UPDATE denied, non-participant read RPC → `NOT_A_PARTICIPANT` and delivered RPC
+touches 0 rows, recipient delivered RPC stamps the incoming message only, read RPC sets
+delivered+read on incoming only, and repeat calls affect 0 rows with the original timestamps
+preserved. Typecheck clean.
