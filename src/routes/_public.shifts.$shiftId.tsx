@@ -125,7 +125,10 @@ const TXT = {
 
 export const Route = createFileRoute("/_public/shifts/$shiftId")({
   // البيانات الوصفية من العرض المنقّح فقط؛ المناوبة المحجوزة أو المنتهية لا تُفهرس.
-  loader: async ({ params }) => ({ seo: (await fetchPublicShiftMeta(params.shiftId)) is: null }),
+  loader: async ({ params }) => {
+    const meta = await fetchPublicShiftMeta(params.shiftId);
+    return { seo: meta ? shiftSeoText(meta) : null };
+  },
   head: ({ params, loaderData }) => {
     const path = `/shifts/${params.shiftId}`;
     const seo = loaderData?.seo;
