@@ -2004,6 +2004,7 @@ export type Database = {
         | "offer"
         | "hired"
         | "rejected"
+        | "withdrawn"
       credential_status: "pending" | "approved" | "rejected"
       employment_type:
         | "full_time"
@@ -2150,6 +2151,7 @@ export const Constants = {
         "offer",
         "hired",
         "rejected",
+        "withdrawn",
       ],
       credential_status: ["pending", "approved", "rejected"],
       employment_type: ["full_time", "part_time", "contract", "locum", "shift"],
