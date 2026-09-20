@@ -14,22 +14,23 @@ export type UploadKind = "avatar" | "document" | "chat";
 
 const RULES: Record<UploadKind, { ext: string[]; mime: string[]; maxBytes: number }> = {
   avatar: {
-    ext: ["jpg", "jpeg", "png", "webp", "gif"],
-    mime: ALLOWED,
+    ext: ["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"],
+    mime: [...ALLOWED, "image/heic", "image/heif"],
     maxBytes: MAX_BYTES,
   },
   document: {
-    ext: ["pdf", "jpg", "jpeg", "png", "webp"],
-    mime: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
+    ext: ["pdf", "jpg", "jpeg", "png", "webp", "heic", "heif"],
+    mime: ["application/pdf", "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"],
     maxBytes: 10 * 1024 * 1024,
   },
   chat: {
     ext: [
-      "pdf", "jpg", "jpeg", "png", "webp", "gif", "mp4", "webm", "mov", "ogg", "oga",
+      "pdf", "jpg", "jpeg", "png", "webp", "gif", "heic", "heif", "mp4", "webm", "mov", "ogg", "oga",
       "m4a", "mp3", "wav", "txt", "csv", "doc", "docx", "xls", "xlsx",
     ],
     mime: [
       "application/pdf", "image/jpeg", "image/png", "image/webp", "image/gif",
+      "image/heic", "image/heif",
       "video/mp4", "video/webm", "video/quicktime",
       "audio/webm", "audio/ogg", "audio/mpeg", "audio/mp4", "audio/wav", "audio/x-wav",
       "audio/x-m4a", "audio/aac",
@@ -42,14 +43,96 @@ const RULES: Record<UploadKind, { ext: string[]; mime: string[]; maxBytes: numbe
   },
 };
 
+/** ملفات المتصفح المقترحة في نافذة الاختيار لكل نوع. */
+export const ACCEPT = {
+  avatar: "image/*",
+  document: "application/pdf,image/*,.pdf,.heic,.heif",
+  chat: "*/*",
+} as const;
+
 const HINT = {
   avatar: { ar: "استخدم صورة JPG أو PNG أو WEBP أو GIF.", en: "Use a JPG, PNG, WEBP or GIF image." },
-  document: { ar: "استخدم ملف PDF أو صورة JPG أو PNG أو WEBP.", en: "Use a PDF file or a JPG, PNG or WEBP image." },
+  document: { ar: "استخدم ملف PDF أو صورة من جهازك.", en: "Use a PDF file or an image from your device." },
   chat: {
     ar: "الأنواع المدعومة: صور، فيديو، صوت، PDF، ومستندات Word/Excel/نص.",
     en: "Supported: images, video, audio, PDF and Word/Excel/text documents.",
   },
 } as const;
+
+function isHeic(file: File) {
+  const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+  const mime = (file.type || "").toLowerCase();
+  return ext === "heic" || ext === "heif" || mime.includes("heic") || mime.includes("heif");
+}
+
+function isImage(file: File) {
+  const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+  return (file.type || "").startsWith("image/") || ["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(ext);
+}
+
+function renamed(file: File, blob: Blob, ext: string, type: string) {
+  const base = file.name.replace(/\.[^.]+$/, "") || "image";
+  return new File([blob], `${base}.${ext}`, { type });
+}
+
+/** يحوّل صور الآيفون (HEIC) إلى JPEG داخل المتصفح. */
+async function convertHeic(file: File): Promise<File> {
+  const { default: heic2any } = await import("heic2any");
+  const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+  const blob = Array.isArray(out) ? out[0]! : (out as Blob);
+  return renamed(file, blob, "jpg", "image/jpeg");
+}
+
+/** يصغّر الصور الكبيرة بدل رفضها (الحد الأقصى للبُعد ومستوى الجودة ثابتان). */
+async function compressImage(file: File, maxBytes: number): Promise<File> {
+  if (file.size <= maxBytes) return file;
+  const bitmap = await createImageBitmap(file);
+  const maxSide = 2000;
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close?.();
+  for (const quality of [0.85, 0.7, 0.55]) {
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b), "image/jpeg", quality),
+    );
+    if (blob && blob.size <= maxBytes) return renamed(file, blob, "jpg", "image/jpeg");
+  }
+  return file;
+}
+
+/**
+ * يجهّز الملف قبل الرفع: تحويل HEIC إلى JPEG وضغط الصور الكبيرة، ثم التحقق
+ * النهائي من النوع والحجم. يرمي رسالة مترجمة عند رفض الملف.
+ */
+export async function prepareUpload(file: File, kind: UploadKind, lang: "ar" | "en"): Promise<File> {
+  let out = file;
+  if (isImage(file)) {
+    if (isHeic(file)) {
+      try {
+        out = await convertHeic(file);
+      } catch {
+        throw new Error(
+          lang === "ar"
+            ? "تعذّر قراءة صورة الآيفون. جرّب تصديرها بصيغة JPG ثم أعد الرفع."
+            : "We couldn't read this iPhone photo. Export it as JPG and try again.",
+        );
+      }
+    }
+    try {
+      out = await compressImage(out, RULES[kind].maxBytes);
+    } catch {
+      /* الضغط تحسين اختياري: نُكمل بالملف الأصلي */
+    }
+  }
+  const invalid = checkUpload(out, kind, lang);
+  if (invalid) throw new Error(invalid);
+  return out;
+}
 
 /** Returns a translated error message, or null when the file is acceptable. */
 export function checkUpload(file: File, kind: UploadKind, lang: "ar" | "en"): string | null {
@@ -71,6 +154,7 @@ export function checkUpload(file: File, kind: UploadKind, lang: "ar" | "en"): st
   }
   return null;
 }
+
 
 export function validateImage(file: File, lang: "ar" | "en") {
   const msg = checkUpload(file, "avatar", lang);
