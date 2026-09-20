@@ -1925,6 +1925,7 @@ export type Database = {
         Args: { _booking_id: string; _reason?: string }
         Returns: string
       }
+      canonical_country: { Args: { _value: string }; Returns: string }
       claim_facility_role: { Args: never; Returns: boolean }
       claim_professional_role: { Args: never; Returns: boolean }
       cleanup_orphaned_identities: { Args: never; Returns: Json }
