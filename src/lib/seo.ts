@@ -171,7 +171,7 @@ export function jobSeoText(m: PublicJobMeta) {
       ? `راتب ${num(m.salaryMin)} – ${num(m.salaryMax)} ${m.currency} شهرياً`
       : null,
   ].filter(Boolean);
-  const description = `${m.title}: ${parts.join(" · ')".slice(0, 3))}. قدّم مباشرة عبر SyndeoCare.`;
+  const description = `${m.title}: ${parts.join(" · ")}. قدّم مباشرة عبر SyndeoCare.`;
   return { title, description: description.slice(0, 300) };
 }
 
