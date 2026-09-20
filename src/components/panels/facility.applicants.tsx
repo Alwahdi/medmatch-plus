@@ -475,9 +475,10 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                   />
                 )}
                 {a.cover_letter && (
-                    <p className="mt-4 rounded-lg bg-surface p-4 text-sm leading-relaxed whitespace-pre-line">
-                    {a.cover_letter}
-                  </p>
+                  <div className="mt-4 rounded-lg bg-surface p-4">
+                    <p className="text-xs font-bold text-muted-foreground">{c.coverTitle}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed whitespace-pre-line">{a.cover_letter}</p>
+                  </div>
                 )}
               </li>
             );
