@@ -966,3 +966,39 @@ revoked from `PUBLIC`/`anon` first. The contact cleanup and the privilege-audit 
 this round were already delivered in Phase 69 — the legacy `submit_contact_message(text,text,text,text)`
 is dropped and the audit expects zero anon/PUBLIC SECURITY DEFINER endpoints. Admin-side screens
 still need a real admin account to exercise end to end (standing launch blocker). Typecheck clean.
+
+## Phase 75 — Alerts tell the truth about delivery (requested as "Phase 70"; that number was already used)
+
+The alerts screen knew whether email / WhatsApp could actually deliver — it showed a soft banner —
+and then let the user pick either channel anyway, save the alert, switch it on, and see a plain
+"Email" badge. That reads as a working subscription. Neither provider is configured in this
+environment, so every one of those alerts would have gone nowhere.
+
+- Channel readiness is now fail-closed: while the status is loading or the status read failed, no
+  channel counts as deliverable. A failed read no longer blanks the whole screen either — saved
+  alerts stay visible with a short factual line and a retry.
+- Unavailable channels stay listed but disabled and labelled "البريد الإلكتروني — غير متاح حالياً" /
+  "Email — currently unavailable". With exactly one channel ready, that one is selected
+  automatically. With none, "Add alert" is disabled and the copy states plainly that matching
+  opportunities still appear in the app while external delivery is not available.
+- The mutation re-checks readiness, so an alert can never be written against a dead channel even if
+  the button is reached another way.
+- Existing alerts are preserved and shown honestly: an unavailable channel carries
+  "محفوظ — القناة غير مفعلة", and one still `is_active` shows "التفضيل مفعّل، لكن الإرسال غير متاح"
+  rather than the database being silently rewritten. Such an alert can be switched off or deleted,
+  but not switched on — blocked in the UI and in the mutation.
+- Intro copy is conditional: delivery wording only when a provider can deliver, otherwise
+  "احفظ معاييرك الآن، وستتمكن من تفعيل الإرسال الخارجي عند توفر القناة." In-app matching
+  (NewMatchesCard) is unaffected — it works with no provider at all.
+
+**Dispatch and provider status were already correct and were left alone.** `alertChannelStatus()`
+counts WhatsApp ready only with token + phone number id + an approved template name (proactive sends
+outside the 24h window cannot use plain text), and returns two booleans — no ids, no tokens.
+The dispatcher records `not_configured` as its own delivery status, distinct from `sent`/`failed`,
+retries such rows only once the channel becomes usable, and advances `last_sent_at` solely after a
+real send.
+
+Tested: no provider / email-only / WhatsApp-without-template readiness, credentials absent from the
+status payload and redacted from logged provider errors, and the retry rule that an unconfigured
+delivery is never treated as sent — 6 checks pass. Typecheck and build clean. The screen itself needs
+a signed-in session to exercise end to end, which this environment cannot mint.
