@@ -207,9 +207,10 @@ function ResetPasswordPage() {
                 <Link to="/auth">{t("requestNew")}</Link>
               </Button>
               <Button asChild variant="outline" className="h-11 w-full rounded-lg">
-                <Link to="/">{t("backToAuth")}</Link>
+                <Link to="/">{t("toHome")}</Link>
               </Button>
             </div>
+
           </div>
         ) : (
           <>
