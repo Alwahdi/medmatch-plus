@@ -178,7 +178,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: recent, isError: recentErr, refetch: recentRefetch } = useQuery({
+  const {
+    data: recent = [],
+    isPending: recentPending,
+    isError: recentErr,
+    refetch: recentRefetch,
+  } = useQuery({
     queryKey: ["past-collaborators", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
