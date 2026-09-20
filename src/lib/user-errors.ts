@@ -26,6 +26,17 @@ const RULES: Rule[] = [
     ar: "اذكر سبب سحب التوثيق (٣ أحرف على الأقل).",
     en: "Give a reason for removing verification (at least 3 characters).",
   },
+  // المرحلة 80: اكتمال الملف شرط خادمي قبل الإجراءات التشغيلية
+  {
+    test: /FACILITY_PROFILE_INCOMPLETE/i,
+    ar: "أكمل بيانات منشأتك الأساسية أولاً (الاسم، نوع المنشأة، الدولة، المدينة) ثم أعد المحاولة.",
+    en: "Complete your facility's core details first (name, facility type, country, city), then try again.",
+  },
+  {
+    test: /PROFILE_INCOMPLETE/i,
+    ar: "أكمل بيانات ملفك الأساسية أولاً (الاسم، التخصص، الدولة، المدينة، سنوات الخبرة) ثم أعد المحاولة.",
+    en: "Complete your core profile first (name, specialty, country, city, years of experience), then try again.",
+  },
   // المرحلة 79: بوابة التوثيق للبحث عن المرشحين وإلغاء الظهور
   {
     test: /FACILITY_VERIFICATION_REQUIRED/i,
