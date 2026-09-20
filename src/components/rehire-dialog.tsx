@@ -77,7 +77,7 @@ export function RehireDialog({
         _shift_id: shiftId,
         _starts_at: new Date(starts).toISOString(),
         _ends_at: new Date(ends).toISOString(),
-        _message: message.trim() || null,
+        ...(message.trim() ? { _message: message.trim() } : {}),
       });
       if (error) throw error;
     },
