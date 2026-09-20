@@ -289,7 +289,11 @@ export function AccountPrivacyPanel() {
             <p className="mt-1 text-sm text-muted-foreground">
               {c.requestedOn(formatDate(active.requested_at, lang))}
             </p>
+            {active.status === "processing" && (
+              <p className="mt-2 text-sm text-muted-foreground">{c.processingNote}</p>
+            )}
             {/* Internal review notes stay internal: the safe read model excludes them. */}
+
 
             {active.status === "pending" ? (
               <Button
