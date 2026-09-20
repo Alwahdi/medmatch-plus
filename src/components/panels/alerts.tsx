@@ -115,7 +115,12 @@ export function AlertsPanel() {
     },
   });
 
-  const { data: alerts, isError: alertsErr, refetch: alertsRefetch } = useQuery({
+  const {
+    data: alerts = [],
+    isPending: alertsPending,
+    isError: alertsErr,
+    refetch: alertsRefetch,
+  } = useQuery({
     queryKey: ["job-alerts", user?.id],
     enabled: !!user,
     queryFn: async () => {
