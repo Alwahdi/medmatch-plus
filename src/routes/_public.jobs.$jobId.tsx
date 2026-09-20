@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { publicJobsQuery, toPublicJob, OWNER_JOB_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
-import { employmentLabel, experienceLabel, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
+import { employmentLabel, experienceLabel, facilityDisplayName, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
@@ -44,7 +44,7 @@ const TXT = {
     licenseReq: (l: string) => `ترخيص مزاولة مهنة سارٍ من ${l}`,
     teamworkReq: "إجادة العمل ضمن فريق متعدد التخصصات",
     privacyNote:
-      "هوية المنشأة الناشرة تظهر لك مباشرة بعد قبول طلبك أو بدء التواصل معك، وتظهر حالة توثيق الناشر على صفحة الفرصة.",
+      "هوية المنشأة الناشرة تظهر لك عندما تتقدّم علاقة التوظيف (فرز أو مقابلة أو عرض) أو عندما تتواصل معك المنشأة أو ترسل لك دعوة، وتظهر حالة توثيق الناشر على صفحة الفرصة.",
     applyTitle: "التقديم على الوظيفة",
     signInPrompt: "سجّل دخولك كي تتقدم وتتابع حالة طلبك خطوة بخطوة.",
     signInCta: "تسجيل الدخول للتقديم",
@@ -103,7 +103,7 @@ const TXT = {
     licenseReq: (l: string) => `Valid professional license from ${l}`,
     teamworkReq: "Ability to work well within a multidisciplinary team",
     privacyNote:
-      "The employer's identity is revealed once your application is accepted or they reach out to you, and each employer's verification status is shown on the listing.",
+      "The employer's identity is revealed when the hiring relationship advances (shortlist, interview or offer) or when the facility contacts or invites you, and each employer's verification status is shown on the listing.",
     applyTitle: "Apply for this job",
     signInPrompt: "Sign in to apply and track your application status step by step.",
     signInCta: "Sign in to apply",
@@ -343,7 +343,7 @@ function JobDetail() {
               {isOpen ? c.open : c.closed}
             </Badge>
             <span className="flex items-center gap-2">
-              <Building2 className="size-4" /> {revealedFacility?.name_ar ?? c.hiddenEmployer}
+              <Building2 className="size-4" /> {revealedFacility ? facilityDisplayName(revealedFacility, lang) : c.hiddenEmployer}
             </span>
 
             {job.facility_verified && (
