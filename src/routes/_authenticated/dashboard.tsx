@@ -293,7 +293,7 @@ function Dashboard() {
             className="h-28 animate-pulse rounded-lg border border-border bg-muted/40"
             aria-hidden="true"
           />
-        ) : !profile ? (
+        ) : !isProfessionalProfileComplete(profile) ? (
           <NextStepCard
             icon={UserRound}
             label={c.nextStep}
