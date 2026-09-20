@@ -2117,7 +2117,6 @@ export type Database = {
           is_open_to_shifts: boolean
           is_verified: boolean
           specialty_id: string
-          user_id: string
           years_experience: number
         }[]
       }
@@ -2206,6 +2205,15 @@ export type Database = {
         }
         Returns: string
       }
+      send_candidate_invitation_from_search: {
+        Args: {
+          _candidate_id: string
+          _job_id?: string
+          _message?: string
+          _shift_id?: string
+        }
+        Returns: string
+      }
       set_application_stage: {
         Args: {
           _application_id: string
@@ -2219,6 +2227,15 @@ export type Database = {
         Args: {
           _job_id?: string
           _professional_user_id: string
+          _shift_id?: string
+          _subject?: string
+        }
+        Returns: string
+      }
+      start_candidate_conversation_from_search: {
+        Args: {
+          _candidate_id: string
+          _job_id?: string
           _shift_id?: string
           _subject?: string
         }
