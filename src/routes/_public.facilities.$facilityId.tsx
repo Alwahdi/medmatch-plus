@@ -187,7 +187,6 @@ function FacilityProfilePage() {
       </div>
     );
 
-  const isOnline = facility.user_id ? online.has(facility.user_id) : false;
 
   return (
     <>
@@ -211,27 +210,17 @@ function FacilityProfilePage() {
             </Link>
           </Button>
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <div className="relative">
-              <RemoteAvatar
-                value={facility.logo_url}
-                alt={facility.name_ar}
-                icon={Building2}
-                className="size-16 bg-white/12 text-on-hero ring-1 ring-white/20"
-              />
-              <span
-                className={`absolute -bottom-0.5 -end-0.5 size-4 rounded-full border-2 border-transparent ${OnlineDotClass(isOnline)}`}
-                title={isOnline ? c.online : c.offline}
-              />
-            </div>
+            <RemoteAvatar
+              value={facility.logo_url}
+              alt={facility.name_ar}
+              icon={Building2}
+              className="size-16 bg-white/12 text-on-hero ring-1 ring-white/20"
+            />
 
             <div>
               <h1 className="font-display text-3xl font-extrabold md:text-4xl">
                 {facility.name_ar}
               </h1>
-              <p className={`mt-1 flex items-center gap-1.5 text-xs font-semibold ${isOnline ? "text-emerald-300" : "text-on-hero/60"}`}>
-                <span className={`size-2 rounded-full ${OnlineDotClass(isOnline)}`} />
-                {isOnline ? c.online : c.offline}
-              </p>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-on-hero/85">
                 <span className="flex items-center gap-1 text-sm">
                   <MapPin className="size-4" /> {facility.city}،{" "}
