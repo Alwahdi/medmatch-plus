@@ -464,6 +464,11 @@ function FacilityProfile() {
           <p className="mt-1 text-xs text-muted-foreground">{c.descHint}</p>
         </div>
 
+        <LocationPicker
+          value={{ lat: form.lat, lng: form.lng }}
+          onChange={(v) => setForm({ ...form, lat: v.lat, lng: v.lng })}
+        />
+
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => save.mutate()} loading={save.isPending}>
             {save.isPending && <Loader2 className="size-4 animate-spin" />}
