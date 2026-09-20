@@ -196,6 +196,17 @@ function JobsPage() {
   const kind = sp.kind === "job" || sp.kind === "shift" ? sp.kind : ALL;
   const setKind = (v: string) => setParams({ kind: v, type: v === "shift" ? "" : (sp.type ?? "") });
   const setQ = (v: string) => setParams({ q: v });
+  // كلمة البحث محلية مع تأخير بسيط حتى لا نضرب الرابط/الشبكة مع كل حرف.
+  const [qInput, setQInput] = useState(q);
+  useEffect(() => {
+    setQInput(q);
+  }, [q]);
+  useEffect(() => {
+    if (qInput === q) return;
+    const t = setTimeout(() => setParams({ q: qInput }), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qInput]);
   const setCity = (v: string) => setParams({ city: v });
   const setSpecialty = (v: string) => setParams({ specialty: v });
   const setType = (v: string) => setParams({ type: v, kind: v === ALL ? (sp.kind ?? "") : "job" });
