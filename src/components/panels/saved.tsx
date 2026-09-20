@@ -38,14 +38,32 @@ export function SavedPanel() {
     queryKey: ["saved-jobs", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data: rows, error } = await supabase
-        .from("saved_jobs")
-        .select(
-          "job_id,jobs(id,title,country,city,salary_min,salary_max,currency,employment_type,min_experience,created_at,expires_at,is_featured,facility_verified,applications_count,specialties(name_ar,name_en))",
-        )
-        .order("created_at", { ascending: false });
+      // Phase 92: سجل المحفوظات يمر عبر دالة منقّحة — لا قراءة للجدول الأصلي ولا أي حقل هوية.
+      const { data: rows, error } = await supabase.rpc("my_saved_jobs");
       if (error) throw error;
-      return (rows ?? []).map((r) => r.jobs).filter(Boolean) as unknown as JobRow[];
+      return (rows ?? []).map((r) => ({
+        job: {
+          id: r.id,
+          slug: r.slug,
+          title: r.title,
+          country: r.country,
+          city: r.city,
+          salary_min: r.salary_min,
+          salary_max: r.salary_max,
+          currency: r.currency,
+          employment_type: r.employment_type,
+          min_experience: r.min_experience,
+          created_at: r.created_at,
+          expires_at: r.expires_at,
+          is_featured: r.is_featured,
+          facility_verified: r.facility_verified,
+          applications_count: r.applications_count,
+          specialties: r.specialty_name_ar
+            ? { name_ar: r.specialty_name_ar, name_en: r.specialty_name_en }
+            : null,
+        } as JobRow,
+        isAvailable: r.is_available,
+      }));
     },
   });
 
