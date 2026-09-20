@@ -1,14 +1,32 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# SyndeoCare — crawl rules
+# Public marketing, content and listing pages are open to crawlers.
+# Private, account and authentication paths are excluded.
 
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /facility
+Disallow: /admin
+Disallow: /settings
+Disallow: /security
+Disallow: /notifications
+Disallow: /messages
+Disallow: /activity
+Disallow: /applications
+Disallow: /my-shifts
+Disallow: /saved
+Disallow: /alerts
+Disallow: /profile
+Disallow: /cv
+Disallow: /cv-import
+Disallow: /credentials
+Disallow: /invitations
+Disallow: /preferences
+Disallow: /onboarding
+Disallow: /auth
+Disallow: /register
+Disallow: /reset-password
+Disallow: /mfa-challenge
+Disallow: /api/
+
+Sitemap: https://syndeocare.ai/sitemap.xml
