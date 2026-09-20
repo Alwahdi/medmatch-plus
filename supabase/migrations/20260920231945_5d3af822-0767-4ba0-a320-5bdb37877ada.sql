@@ -1,0 +1,20 @@
+-- Restore table-level write privileges to match existing RLS write policies.
+GRANT INSERT, UPDATE ON public.applications TO authenticated;
+GRANT UPDATE ON public.contact_messages TO authenticated;
+GRANT UPDATE ON public.conversations TO authenticated;
+GRANT INSERT, DELETE ON public.credentials TO authenticated;
+GRANT INSERT, UPDATE ON public.facilities TO authenticated;
+GRANT INSERT, DELETE ON public.facility_documents TO authenticated;
+GRANT INSERT, UPDATE ON public.healthcare_professionals TO authenticated;
+GRANT INSERT, UPDATE ON public.invitations TO authenticated;
+GRANT INSERT, UPDATE ON public.jobs TO authenticated;
+GRANT INSERT, DELETE ON public.message_reactions TO authenticated;
+GRANT INSERT ON public.messages TO authenticated;
+GRANT UPDATE, DELETE ON public.notifications TO authenticated;
+GRANT INSERT, UPDATE ON public.profile_change_requests TO authenticated;
+GRANT INSERT, UPDATE ON public.profiles TO authenticated;
+GRANT INSERT, UPDATE ON public.reviews TO authenticated;
+GRANT INSERT ON public.shift_bookings TO authenticated;
+GRANT INSERT, UPDATE ON public.shifts TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.job_alerts TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.saved_jobs TO authenticated;
