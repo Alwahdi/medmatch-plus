@@ -316,9 +316,29 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
             return (
               <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-                  <div className="min-w-0">
+                  <div className="flex min-w-0 gap-3">
+                    <Link
+                      to="/facility/candidates/$userId"
+                      params={{ userId: a.user_id }}
+                      aria-label={a.pro?.full_name ?? c.healthcarePro}
+                      className="shrink-0"
+                    >
+                      <RemoteAvatar
+                        value={a.pro?.avatar_url}
+                        alt={a.pro?.full_name ?? c.healthcarePro}
+                        fallbackText={a.pro?.full_name ?? c.healthcarePro}
+                        className="size-12 rounded-full text-base"
+                      />
+                    </Link>
+                    <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2 font-bold">
-                      <span className="min-w-0 truncate">{a.pro?.full_name ?? c.healthcarePro}</span>
+                      <Link
+                        to="/facility/candidates/$userId"
+                        params={{ userId: a.user_id }}
+                        className="min-w-0 truncate hover:underline"
+                      >
+                        {a.pro?.full_name ?? c.healthcarePro}
+                      </Link>
                       {a.pro?.is_verified && <Badge variant="secondary">{c.verified}</Badge>}
                       {isWithdrawn && <Badge variant="outline">{c.withdrawnBadge}</Badge>}
                       {isHired && (
@@ -334,6 +354,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                     <p className="mt-1 text-xs text-muted-foreground">
                       {c.appliedFor(a.job?.title ?? "", relativeTime(a.created_at, lang))}
                     </p>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
                     {!isWithdrawn && (
