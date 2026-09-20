@@ -344,8 +344,9 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     if (ok) cancelInvite.mutate(id);
   }
 
-  function InviteButton({ userId }: { userId: string }) {
-    const st = statusOf(userId);
+  // Engaged professionals are addressed by user id; anonymous search hits by candidate id only.
+  function InviteButton({ userId, candidateId }: { userId?: string; candidateId?: string }) {
+    const st = userId ? statusOf(userId) : null;
     if (st === "accepted") return <Badge className="bg-success text-success-foreground">{c.accepted}</Badge>;
     if (st === "declined") return <Badge variant="secondary">{c.declined}</Badge>;
     if (st === "cancelled") return <Badge variant="secondary">{c.statuses.cancelled}</Badge>;
@@ -354,12 +355,13 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       <Button
         size="sm"
         disabled={invite.isPending || (!jobId && !shiftId)}
-        onClick={() => invite.mutate(userId)}
+        onClick={() => invite.mutate(userId ? { userId } : { candidateId })}
       >
         <Send className="size-4" /> {c.invite}
       </Button>
     );
   }
+
 
   const loadErrors = [
     { err: specialtiesErr, retry: specialtiesRefetch },
