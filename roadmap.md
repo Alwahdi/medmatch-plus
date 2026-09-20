@@ -1143,3 +1143,12 @@ Kept (verified factual):
 - Published salary range on public jobs (live audit: 20 jobs, 0 missing/zero salary).
 - "We never sell your personal data" (policy statement).
 No invented metrics, testimonials, or customer counts. AR/EN parity checked; tsgo clean.
+
+## Phase 85 — AI CV import: schema-aligned output + privacy transparency (مكتملة)
+- `src/lib/profile-schema.ts` جديد: `PROFILE_LIMITS` مصدر واحد (fullName 100، headline 150، bio 1500، country/city/license 60، specialtyHint 80، years 0..60) مطابق لقيود DB (hp_full_name_ck/hp_headline_ck/hp_bio_ck/hp_place_ck/hp_license_ck/hp_years_ck) ولـ maxLength في /profile.
+- `cv.functions.ts`: مخرجات النموذج تُتحقّق بـZod (`parsedCvSchema`) بدل الـcasts اليدوية — كل الحقول nullable، تطبيع مسافات وقصّ على الحد، مفاتيح إضافية تُسقط، أي JSON/حجّة تالفة => `AI_FAILED`. لا حقول توثيق ولا روابط/HTML من النموذج.
+- بوابة نوع الحساب قبل استهلاك الحصة أو الاتصال بالمزود: وجود منشأة مملوكة أو دور facility => `PROFESSIONAL_FEATURE_ONLY`؛ الكادر والحساب بلا دور مسموحان (التهيئة قد تبدأ بالسيرة).
+- واجهة الاستيراد: إشعار خصوصية ظاهر أعلى زر التحليل (AR/EN) مربوط بـ`aria-describedby`، ورسائل فشل توضّح أن الاقتراح فشل والملف يمكن إكماله يدوياً والنص محفوظ.
+- سياسة الخصوصية: قسم ٩ / 9 جديد عن التحليل الاختياري (إرسال النص لخدمة المعالجة المهيّأة لاقتراح الحقول فقط، مراجعة قبل الحفظ، ليس توثيقاً، تجنّب المعلومات الحساسة) بدون أي ادعاء عن التدريب/عدم الاحتفاظ. أُعيد ترقيم قسم التحديث إلى ١٠ / 10.
+- لا `console.*` يطبع نص السيرة أو ناتج التحليل أو مفتاح المزود؛ حدث الحصة يسجل user_id/feature/timestamp فقط.
+- tsgo نظيف + build OK.
