@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { unwrap, unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime, experienceLabel } from "@/lib/format";
+import { friendlyError } from "@/lib/user-errors";
 import { useLang } from "@/lib/i18n";
 import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -174,7 +175,7 @@ function CandidateProfile() {
       toast.success(c.chatOpened);
       navigate({ to: "/messages" });
     },
-    onError: (e: Error) => toast.error(e.message === "no-facility" ? c.noFacility : c.chatFailed),
+    onError: (e: Error) => toast.error(e.message === "no-facility" ? c.noFacility : friendlyError(e, lang, c.chatFailed)),
   });
 
   if (loadErr)

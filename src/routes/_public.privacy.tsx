@@ -61,7 +61,7 @@ const TXT = {
         h: "٤. ظهورك في بحث المنشآت",
         p: [
           "ظهور ملفك في بحث المرشحين اختياري ومغلق افتراضياً، ولا يُفعَّل إلا بموافقتك الصريحة.",
-          "عند تفعيله ترى المنشآت المشتركة تخصصك وسنوات خبرتك ومدينتك ودولتك وحالة التوثيق وإتاحتك للمناوبات فقط، دون اسمك أو نبذتك أو رقم هاتفك أو بريدك أو وثائقك.",
+          "عند تفعيله ترى المنشآت الموثّقة والمشتركة فقط تخصصك وسنوات خبرتك ومدينتك ودولتك وحالة التوثيق وإتاحتك للمناوبات فقط، دون اسمك أو نبذتك أو رقم هاتفك أو بريدك أو وثائقك.",
           "يمكنك إيقافه في أي وقت من ملفك المهني، فتختفي من نتائج البحث الجديدة، وتبقى محادثاتك وطلباتك السابقة متاحة لأطرافها.",
         ],
       },
@@ -132,7 +132,7 @@ const TXT = {
         h: "4. Your visibility in facility search",
         p: [
           "Appearing in candidate search is optional and off by default; it is only enabled with your explicit consent.",
-          "When enabled, subscribed facilities see only your specialty, years of experience, city, country, verification status and shift availability — not your name, bio, phone, email or documents.",
+          "When enabled, only verified subscribed facilities see your specialty, years of experience, city, country, verification status and shift availability — not your name, bio, phone, email or documents.",
           "You can turn it off at any time from your professional profile; you then drop out of new search results, while your existing conversations and applications remain available to their participants.",
         ],
       },

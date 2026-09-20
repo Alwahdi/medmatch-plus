@@ -45,6 +45,9 @@ export const INVITE_TXT = {
     recentEmpty: "لا يوجد مختصون سابقون بعد",
     recentEmptyBody: "بعد توظيف مختص أو تأكيد مناوبة معه سيظهر هنا لدعوته بنقرة واحدة.",
     searchTitle: "ابحث عن مختصين جدد",
+    lockedTitle: "وثّق منشأتك لاستخدام البحث عن المرشحين",
+    lockedBody: "البحث عن كوادر جديدة ودعوتهم متاح للمنشآت الموثّقة فقط، ولن يُحتسب أي بحث من حصتك قبل التوثيق. يمكنك الآن دعوة من عمل معك سابقاً، ومتابعة المتقدمين على فرصك من صفحة المتقدمين.",
+    lockedCta: "توثيق المنشأة",
     specialty: "التخصص",
     allSpecialties: "كل التخصصات",
     country: "الدولة",
@@ -90,6 +93,9 @@ export const INVITE_TXT = {
     recentEmpty: "No past professionals yet",
     recentEmptyBody: "Once you hire someone or confirm a shift, they appear here for one-click invites.",
     searchTitle: "Find new professionals",
+    lockedTitle: "Verify your facility to use candidate search",
+    lockedBody: "Searching and inviting new professionals is for verified facilities only, and nothing is deducted from your allowance until then. You can still invite people who worked with you before, and manage applicants from the Applicants page.",
+    lockedCta: "Facility verification",
     specialty: "Specialty",
     allSpecialties: "All specialties",
     country: "Country",
@@ -156,7 +162,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facilities")
-        .select("id,name_ar")
+        .select("id,name_ar,is_verified")
         .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -291,13 +297,19 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       if (shiftId) args._shift_id = shiftId;
       if (message.trim()) args._message = message.trim();
       const { error } = await supabase.rpc("send_candidate_invitation", args);
-      if (error) throw new UserFacingError(error.message.includes("INVITATION_EXISTS") ? c.duplicate : c.failed);
+      if (error) throw error.message.includes("INVITATION_EXISTS") ? new UserFacingError(c.duplicate) : error;
     },
     onSuccess: () => {
       toast.success(c.sent);
       queryClient.invalidateQueries({ queryKey: ["invitations-sent"] });
     },
-    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
+    onError: (e: Error, professionalUserId) => {
+      toast.error(friendlyError(e, lang, c.failed));
+      // سباق: المختص قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
+      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_INVITE_NOT_ALLOWED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
+        setResults((rows) => (rows ? rows.filter((r) => r.user_id !== professionalUserId) : rows));
+      }
+    },
   });
 
   /** سحب دعوة معلّقة — الحالة فقط، والباقي يفرضه الخادم. */
@@ -430,6 +442,18 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
           <Search className="size-5 text-primary" /> {c.searchTitle}
         </h2>
+        {facility && !facility.is_verified ? (
+          <div className="mt-4 rounded-lg border border-border bg-card p-5">
+            <h3 className="flex items-center gap-2 text-base font-bold">
+              <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
+              {c.lockedTitle}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">{c.lockedBody}</p>
+            <Button asChild className="mt-4 min-h-11">
+              <Link to="/facility/verification">{c.lockedCta}</Link>
+            </Button>
+          </div>
+        ) : (
         <div className="mt-4 grid gap-3 rounded-lg border border-border bg-card p-5 md:grid-cols-4">
           <Combobox
             options={[
@@ -475,6 +499,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             <Search className="size-4" /> {search.isPending ? c.searching : c.searchBtn}
           </Button>
         </div>
+        )}
 
         {results && (
           <ul className="mt-4 space-y-3">
