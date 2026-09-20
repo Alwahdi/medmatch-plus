@@ -26,10 +26,23 @@ export function formatBytes(size?: number | null) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function chatPath(conversationId: string, file: File) {
+export function chatPath(conversationId: string, file: File) {
   const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-60);
   return `${conversationId}/${Date.now()}-${safe}`;
 }
+
+/**
+ * Best-effort removal of an uploaded attachment whose message never got saved.
+ * Failure here is never surfaced to the user — the original error matters more.
+ */
+export async function removeChatFile(path: string) {
+  try {
+    await supabase.storage.from(CHAT_BUCKET).remove([path]);
+  } catch {
+    /* ignored on purpose */
+  }
+}
+
 
 /** MIME types we can infer from a known extension when the browser reports none. */
 const EXT_MIME: Record<string, string> = {
