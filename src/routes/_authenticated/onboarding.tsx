@@ -404,6 +404,8 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
     city: "",
     license_number: "",
     is_open_to_shifts: true,
+    // Candidate-search visibility is opt-in: off unless the user asks for it.
+    is_searchable: false,
   });
   const draftKey = user ? `syndeocare:onboarding:professional:${user.id}` : null;
 
@@ -477,6 +479,11 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
     }
     try {
       await activateRole("claim_professional_role", queryClient, user!.id);
+      if (form.is_searchable) {
+        // Visibility failing must not cost the user their finished profile.
+        const { error: visErr } = await supabase.rpc("set_search_visibility", { _visible: true });
+        if (visErr) toast.warning(t("ob.searchableFailed"));
+      }
     } catch (e) {
       setBusy(false);
       toast.error(t("ob.error"), { description: friendlyError(e, lang, t("ob.error")) });
@@ -599,6 +606,19 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
                 checked={form.is_open_to_shifts}
                 onCheckedChange={(v) => setForm({ ...form, is_open_to_shifts: v })}
               />
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                <Label htmlFor="ob-searchable" className="cursor-pointer">
+                  {t("ob.field.searchable")}
+                </Label>
+                <Switch
+                  id="ob-searchable"
+                  checked={form.is_searchable}
+                  onCheckedChange={(v) => setForm({ ...form, is_searchable: v })}
+                />
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">{t("ob.field.searchableHint")}</p>
             </div>
             <div className="rounded-lg bg-secondary p-4">
               <p className="flex items-center gap-2 font-bold">

@@ -336,6 +336,18 @@ export const DICT: Dict = {
   "ob.field.city": { ar: "المدينة", en: "City" },
   "ob.field.license": { ar: "رقم الترخيص (اختياري)", en: "License number (optional)" },
   "ob.field.openShifts": { ar: "متاح لاستقبال المناوبات", en: "Available for shifts" },
+  "ob.field.searchable": {
+    ar: "إظهار ملفي للمنشآت في بحث المرشحين",
+    en: "Show my profile to facilities in candidate search",
+  },
+  "ob.field.searchableHint": {
+    ar: "عند تفعيله يمكن للمنشآت المؤهلة العثور على ملفك المهني. يمكنك إيقافه في أي وقت من ملفك.",
+    en: "When on, eligible facilities can find your professional profile. You can turn it off any time from your profile.",
+  },
+  "ob.searchableFailed": {
+    ar: "حُفظ ملفك، لكن تعذّر تفعيل الظهور في البحث. يمكنك تفعيله من ملفك المهني.",
+    en: "Your profile was saved, but search visibility could not be enabled. You can turn it on from your profile.",
+  },
   "ob.field.facName": { ar: "اسم المنشأة", en: "Employer name" },
   "ob.field.facType": { ar: "نوع المنشأة", en: "Employer type" },
   "ob.field.website": { ar: "الموقع الإلكتروني (اختياري)", en: "Website (optional)" },

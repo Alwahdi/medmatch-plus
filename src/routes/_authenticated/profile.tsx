@@ -70,8 +70,14 @@ const TXT = {
     bioPh: "اكتب ملخصاً عن خبرتك، أبرز إنجازاتك، والمهارات السريرية التي تتقنها.",
     openTitle: "متاح للمناوبات الفورية",
     openText: "سنعرض مناوبات تناسب تخصصك ومدينتك.",
-    searchableTitle: "الظهور في بحث المنشآت",
-    searchableText: "عند إيقافه لن يظهر ملفك في عمليات بحث المنشآت الجديدة.",
+    searchableTitle: "إظهار ملفي للمنشآت في بحث المرشحين",
+    searchableText:
+      "عند تفعيله ترى المنشآت المؤهلة تخصصك وسنوات خبرتك ومدينتك ودولتك وحالة التوثيق وإتاحتك للمناوبات، ولا ترى رقم هاتفك أو بريدك أو مستنداتك. يمكنك إيقافه في أي وقت.",
+    searchableOffNote: "عند الإيقاف لن تظهر في عمليات البحث الجديدة، وتبقى محادثاتك وطلباتك الحالية كما هي.",
+    visibilityOn: "ظاهر في بحث المنشآت",
+    visibilityOff: "مخفي عن البحث",
+    visibilitySaved: "تم تحديث ظهورك في البحث",
+    visibilityFailed: "تعذّر تحديث الظهور",
     save: "حفظ الملف",
     saving: "جارٍ الحفظ...",
     nameShort: "الاسم قصير جداً",
@@ -104,8 +110,14 @@ const TXT = {
     bioPh: "Write a summary of your experience, key achievements, and clinical skills.",
     openTitle: "Available for instant shifts",
     openText: "We'll show shifts that fit your specialty and city.",
-    searchableTitle: "Appear in facility search",
-    searchableText: "Turn this off to hide your profile from new facility searches.",
+    searchableTitle: "Show my profile to facilities in candidate search",
+    searchableText:
+      "When on, eligible facilities can see your specialty, years of experience, city, country, verification status and shift availability — not your phone, email or documents. You can turn it off at any time.",
+    searchableOffNote: "When off you stay out of new searches; your existing conversations and applications are unaffected.",
+    visibilityOn: "Visible in facility search",
+    visibilityOff: "Hidden from search",
+    visibilitySaved: "Search visibility updated",
+    visibilityFailed: "Could not update visibility",
     save: "Save profile",
     saving: "Saving...",
     nameShort: "Name is too short",
@@ -191,7 +203,6 @@ function ProfileOverview() {
     license_country: "",
     license_number: "",
     is_open_to_shifts: true,
-    is_searchable: true,
   });
   const [avatar, setAvatar] = useState("");
 
@@ -221,7 +232,6 @@ function ProfileOverview() {
       license_country: profile.license_country ?? "",
       license_number: profile.license_number ?? "",
       is_open_to_shifts: profile.is_open_to_shifts ?? true,
-      is_searchable: profile.is_searchable ?? true,
     });
   }, [profile]);
 
@@ -248,7 +258,6 @@ function ProfileOverview() {
         license_country: form.license_country || null,
         license_number: form.license_number.trim() || null,
         is_open_to_shifts: form.is_open_to_shifts,
-        is_searchable: form.is_searchable,
         avatar_url: avatar || null,
       };
 
@@ -282,6 +291,22 @@ function ProfileOverview() {
 
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
+
+  // Search visibility is opt-in and goes through its own trusted action, so a
+  // routine profile save can never turn it on.
+  const searchable = profile?.is_searchable === true;
+  const setVisibility = useMutation({
+    mutationFn: async (visible: boolean) => {
+      assertOk(await supabase.rpc("set_search_visibility", { _visible: visible }));
+    },
+    onSuccess: () => {
+      toast.success(c.visibilitySaved);
+      queryClient.invalidateQueries({ queryKey: ["my-pro"] });
+    },
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.visibilityFailed)),
+  });
+
+
 
   const loadErrors = [
     { err: specialtiesErr, retry: specialtiesRefetch },
@@ -354,6 +379,9 @@ function ProfileOverview() {
                     {c.openBadge}
                   </span>
                 )}
+                <span className="rounded-md bg-surface px-3 py-1 text-muted-foreground">
+                  {searchable ? c.visibilityOn : c.visibilityOff}
+                </span>
               </div>
             </div>
           </div>
@@ -478,9 +506,14 @@ function ProfileOverview() {
           <div>
             <p className="font-medium">{c.searchableTitle}</p>
             <p className="text-xs text-muted-foreground">{c.searchableText}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{c.searchableOffNote}</p>
           </div>
-          <Switch checked={form.is_searchable}
-            onCheckedChange={(v) => setForm({ ...form, is_searchable: v })} />
+          <Switch
+            checked={searchable}
+            disabled={!profile || setVisibility.isPending}
+            aria-label={c.searchableTitle}
+            onCheckedChange={(v) => setVisibility.mutate(v)}
+          />
         </div>
 
         <div className="flex flex-wrap gap-2">

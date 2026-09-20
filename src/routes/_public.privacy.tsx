@@ -58,20 +58,28 @@ const TXT = {
         ],
       },
       {
-        h: "٤. وثائق الاعتماد",
+        h: "٤. ظهورك في بحث المنشآت",
+        p: [
+          "ظهور ملفك في بحث المرشحين اختياري ومغلق افتراضياً، ولا يُفعَّل إلا بموافقتك الصريحة.",
+          "عند تفعيله ترى المنشآت المشتركة تخصصك وسنوات خبرتك ومدينتك ودولتك وحالة التوثيق وإتاحتك للمناوبات فقط، دون اسمك أو نبذتك أو رقم هاتفك أو بريدك أو وثائقك.",
+          "يمكنك إيقافه في أي وقت من ملفك المهني، فتختفي من نتائج البحث الجديدة، وتبقى محادثاتك وطلباتك السابقة متاحة لأطرافها.",
+        ],
+      },
+      {
+        h: "٥. وثائق الاعتماد",
         p: [
           "تُحفظ الوثائق في مساحة تخزين خاصة لا يمكن الوصول إليها علناً، ويطّلع عليها فريق المراجعة فقط لغرض التحقق.",
           "يمكنك حذف أي وثيقة من صفحة الاعتمادات في أي وقت.",
         ],
       },
       {
-        h: "٥. الرسائل داخل المنصة",
+        h: "٦. الرسائل داخل المنصة",
         p: [
           "الرسائل بينك وبين المنشأة مرئية لطرفَي المحادثة فقط، وقد يطّلع عليها فريق الدعم عند بلاغ إساءة.",
         ],
       },
       {
-        h: "٦. الاحتفاظ بالبيانات وحقوقك",
+        h: "٧. الاحتفاظ بالبيانات وحقوقك",
         p: [
           "نحتفظ ببياناتك ما دام حسابك نشطاً.",
           "لك الحق في الوصول إلى بياناتك أو تصحيحها، وفي طلب حذف حسابك من الإعدادات (الحساب والخصوصية) أو عبر صفحة التواصل.",
@@ -79,11 +87,11 @@ const TXT = {
         ],
       },
       {
-        h: "٧. ملفات الارتباط",
+        h: "٨. ملفات الارتباط",
         p: ["نستخدم ملفات ارتباط أساسية لتسجيل الدخول وحفظ تفضيلات اللغة فقط."],
       },
       {
-        h: "٨. تحديث السياسة",
+        h: "٩. تحديث السياسة",
         p: ["قد نحدّث هذه السياسة، وتظهر التغييرات مع تحديث تاريخ آخر تعديل، وقد نوضّحها داخل المنصة عند الاقتضاء."],
       },
     ],
@@ -121,20 +129,28 @@ const TXT = {
         ],
       },
       {
-        h: "4. Credential documents",
+        h: "4. Your visibility in facility search",
+        p: [
+          "Appearing in candidate search is optional and off by default; it is only enabled with your explicit consent.",
+          "When enabled, subscribed facilities see only your specialty, years of experience, city, country, verification status and shift availability — not your name, bio, phone, email or documents.",
+          "You can turn it off at any time from your professional profile; you then drop out of new search results, while your existing conversations and applications remain available to their participants.",
+        ],
+      },
+      {
+        h: "5. Credential documents",
         p: [
           "Documents are stored in a private space that isn't publicly accessible, and are only viewed by our review team for verification purposes.",
           "You can delete any document from the credentials page at any time.",
         ],
       },
       {
-        h: "5. In-platform messages",
+        h: "6. In-platform messages",
         p: [
           "Messages between you and a facility are visible only to both parties in the conversation, and may be reviewed by our support team when a report of abuse is filed.",
         ],
       },
       {
-        h: "6. Data retention and your rights",
+        h: "7. Data retention and your rights",
         p: [
           "We retain your data as long as your account is active.",
           "You have the right to access and correct your data, and to request account deletion from Settings (Account & privacy) or the contact page.",
@@ -142,11 +158,11 @@ const TXT = {
         ],
       },
       {
-        h: "7. Cookies",
+        h: "8. Cookies",
         p: ["We use only essential cookies for sign-in and to remember your language preference."],
       },
       {
-        h: "8. Policy updates",
+        h: "9. Policy updates",
         p: ["We may update this policy; changes are reflected with an updated date and may be communicated in-product where appropriate."],
       },
     ],
