@@ -21,6 +21,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { publicShiftsQuery, toPublicShift, OWNER_SHIFT_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
+import { VerificationGateNotice } from "@/components/verification-gate-notice";
+import { useProfessionalVerificationGate } from "@/lib/verification-gate";
 import {
   countryLabel,
   facilityDisplayName,
