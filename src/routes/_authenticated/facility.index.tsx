@@ -1348,24 +1348,49 @@ function ShiftForm({
           />
         </div>
         <div>
-          <Label htmlFor="ss">{c.shiftStartsAt}</Label>
+          <Label htmlFor="ss">
+            {c.shiftStartsAt} <span className="font-normal text-muted-foreground">({c.localTimeHint})</span>
+          </Label>
           <Input id="ss" type="datetime-local" value={form.starts_at}
+            min={toLocalInput(new Date(Date.now() + 60_000))}
+            aria-invalid={!!startFieldError}
+            aria-describedby={startFieldError ? "ss-error" : undefined}
             onChange={(e) => {
               const v = e.target.value;
               let end = form.ends_at;
               const startMs = new Date(v).getTime();
-              if (v && (!end || new Date(end).getTime() <= startMs || new Date(end).getTime() - startMs > 24 * 3600_000)) {
-                const d = new Date(startMs + 8 * 3600_000);
-                const pad = (n: number) => String(n).padStart(2, "0");
-                end = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-              }
+              const stale =
+                !!v &&
+                (!end || new Date(end).getTime() <= startMs || new Date(end).getTime() - startMs > 24 * 3600_000);
+              if (stale) end = toLocalInput(new Date(startMs + 8 * 3600_000));
+              setEndAdjusted(stale && !!form.ends_at);
               setForm({ ...form, starts_at: v, ends_at: end });
             }} />
+          {startFieldError && (
+            <p id="ss-error" role="alert" className="mt-1.5 text-xs font-medium text-destructive">
+              {startFieldError}
+            </p>
+          )}
         </div>
         <div>
-          <Label htmlFor="se">{c.shiftEndsAt}</Label>
+          <Label htmlFor="se">
+            {c.shiftEndsAt} <span className="font-normal text-muted-foreground">({c.localTimeHint})</span>
+          </Label>
           <Input id="se" type="datetime-local" value={form.ends_at}
-            onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
+            min={form.starts_at || undefined}
+            aria-invalid={!!endFieldError}
+            aria-describedby={endFieldError ? "se-error" : endAdjusted ? "se-hint" : undefined}
+            onChange={(e) => {
+              setEndAdjusted(false);
+              setForm({ ...form, ends_at: e.target.value });
+            }} />
+          {endFieldError ? (
+            <p id="se-error" role="alert" className="mt-1.5 text-xs font-medium text-destructive">
+              {endFieldError}
+            </p>
+          ) : endAdjusted ? (
+            <p id="se-hint" className="mt-1.5 text-xs text-muted-foreground">{c.endAdjusted}</p>
+          ) : null}
         </div>
         <div>
           <Label htmlFor="sr">{c.hourlyRate}</Label>
