@@ -39,6 +39,10 @@ export type Page<T> = { rows: T[]; total: number; offset: number };
 const clean = (v: string | null | undefined) => (v && v !== "all" ? v : undefined);
 const orUndef = <T,>(v: T | null | undefined) => v ?? undefined;
 
+/** يحذف المفاتيح غير المعرّفة حتى تستخدم الدالة قيمها الافتراضية في قاعدة البيانات. */
+const compact = <T extends Record<string, unknown>>(args: T) =>
+  Object.fromEntries(Object.entries(args).filter(([, v]) => v !== undefined)) as T;
+
 export async function searchPublicJobs(
   f: SearchFilters,
   offset: number,
@@ -46,7 +50,7 @@ export async function searchPublicJobs(
   signal?: AbortSignal,
 ): Promise<Page<SearchJobRow>> {
   const { data, error } = await supabase
-    .rpc("search_public_jobs", {
+    .rpc("search_public_jobs", compact({
       _q: f.q ? f.q.slice(0, 80) : undefined,
       _country: clean(f.country),
       _city: clean(f.city),
@@ -59,7 +63,7 @@ export async function searchPublicJobs(
       _exclude_ids: orUndef(f.excludeJobIds),
       _limit: limit,
       _offset: offset,
-    })
+    }))
     .abortSignal(signal ?? new AbortController().signal);
   if (error) throw error;
   const rows = (data ?? []) as { total_count: number }[];
@@ -77,7 +81,7 @@ export async function searchPublicShifts(
   signal?: AbortSignal,
 ): Promise<Page<SearchShiftRow>> {
   const { data, error } = await supabase
-    .rpc("search_public_shifts", {
+    .rpc("search_public_shifts", compact({
       _q: f.q ? f.q.slice(0, 80) : undefined,
       _country: clean(f.country),
       _city: clean(f.city),
@@ -88,7 +92,7 @@ export async function searchPublicShifts(
       _sort: f.sort,
       _limit: limit,
       _offset: offset,
-    })
+    }))
     .abortSignal(signal ?? new AbortController().signal);
   if (error) throw error;
   const rows = (data ?? []) as { total_count: number }[];
