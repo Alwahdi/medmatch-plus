@@ -1805,6 +1805,7 @@ export type Database = {
         Returns: boolean
       }
       mfa_access_ok: { Args: never; Returns: boolean }
+      my_inactive_employers: { Args: never; Returns: string[] }
       my_sessions: {
         Args: never
         Returns: {
