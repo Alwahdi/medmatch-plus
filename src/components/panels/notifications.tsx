@@ -75,7 +75,11 @@ export function NotificationsPanel({ embedded = false }: { embedded?: boolean })
       </div>
 
       <div className="mt-6 space-y-3">
-        {items.length === 0 ? (
+        {isPending ? (
+          <ListSkeleton rows={4} />
+        ) : isError ? (
+          <ErrorState error={error} onRetry={() => void refetch()} />
+        ) : items.length === 0 ? (
           <EmptyState icon={Bell} title={c.empty} description={c.emptyBody} />
         ) : (
           items.map((n) => (
