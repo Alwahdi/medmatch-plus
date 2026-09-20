@@ -505,6 +505,41 @@ function ProfileOverview() {
             onChange={(e) => setForm({ ...form, bio: e.target.value })} />
         </div>
 
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="rate">{c.rate}</Label>
+            <Input id="rate" type="number" min={0} inputMode="decimal" placeholder={c.ratePh}
+              value={form.preferred_rate}
+              onChange={(e) => setForm({ ...form, preferred_rate: e.target.value })} />
+            <p className="mt-1 text-xs text-muted-foreground">{c.rateHint}</p>
+          </div>
+          <div>
+            <Label htmlFor="rate-period">{c.ratePeriod}</Label>
+            <Select value={form.preferred_rate_period}
+              onValueChange={(v) => setForm({ ...form, preferred_rate_period: v })}>
+              <SelectTrigger id="rate-period"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hour">{c.perHour}</SelectItem>
+                <SelectItem value="day">{c.perDay}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <AvailabilityPicker value={form.availability}
+          onChange={(v) => setForm({ ...form, availability: v })} />
+
+        <LocationPicker value={{ lat: form.lat, lng: form.lng }}
+          onChange={(v) => setForm({ ...form, lat: v.lat, lng: v.lng })} />
+
+        <div>
+          <Label htmlFor="radius">{c.radius}</Label>
+          <Input id="radius" type="number" min={1} max={500} inputMode="numeric" placeholder={c.radiusPh}
+            value={form.search_radius_km}
+            onChange={(e) => setForm({ ...form, search_radius_km: e.target.value })} />
+          <p className="mt-1 text-xs text-muted-foreground">{c.radiusHint}</p>
+        </div>
+
         <div className="flex items-center justify-between rounded-lg bg-surface p-4">
           <div>
             <p className="font-medium">{c.openTitle}</p>
