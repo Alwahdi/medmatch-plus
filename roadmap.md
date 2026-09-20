@@ -592,3 +592,9 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - UI: withdraw action + optional reason on My applications; withdrawn history badge/date with no interview/review/message actions; job detail "Apply again" when open, history-only when closed; facility applicants show "Withdrawn by candidate" audit row (hidden from default pipeline, available via stage filter).
 - DB tests passed (withdraw keeps row, count 1->0->1 on reapply, interview cancelled, facility actions blocked, hired/rejected not withdrawable).
 - Not verified in browser: authenticated visual sweep (no test session could be minted this turn).
+
+## Phase 59 — Server-side validation contract (done)
+- Normalization triggers (trim/empty->null/currency uppercase) on profiles, healthcare_professionals, facilities, jobs, shifts, credentials, facility_documents, job_alerts, trusted_devices.
+- CHECK constraints for all client-writable text lengths and numeric bounds (validated against live data).
+- Blank name / blank job location rejected via trigger on new writes (legacy rows untouched).
+- Constraint-name -> AR/EN message mapping in src/lib/user-errors.ts.
