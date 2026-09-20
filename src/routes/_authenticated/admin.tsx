@@ -166,8 +166,9 @@ function AdminPage() {
   const queryClient = useQueryClient();
   const isAdmin = roles?.includes("admin");
   const { data: hasTotp, isLoading: totpLoading } = useVerifiedTotp(!!isAdmin);
-  // الطابور الحسّاس لا يُحمَّل إطلاقاً لمدير بلا عامل TOTP موثّق.
-  const adminReady = !!isAdmin && hasTotp === true;
+  const { data: aal2, isLoading: aalLoading } = useSessionAal2(!!isAdmin);
+  // الطابور الحسّاس لا يُحمَّل إطلاقاً لمدير بلا عامل TOTP موثّق وجلسة مؤكَّدة.
+  const adminReady = !!isAdmin && hasTotp === true && aal2 === true;
 
   const [pendingOnly, setPendingOnly] = useState(true);
   const [rejectId, setRejectId] = useState<string | null>(null);
