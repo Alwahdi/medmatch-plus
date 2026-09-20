@@ -151,7 +151,7 @@ function FacilityDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*,applications(id,status)")
+        .select(`${FACILITY_JOB_COLUMNS},applications(id,status)`)
         .eq("facility_id", facility!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
