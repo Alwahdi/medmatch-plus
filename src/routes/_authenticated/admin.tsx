@@ -381,6 +381,35 @@ function AdminPage() {
     onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
+  /** اعتماد كل المستندات قيد المراجعة لمالك واحد عبر نفس مسار المراجعة المحمي. */
+  const bulkApprove = useMutation({
+    mutationFn: async ({ ids, kind }: { ids: string[]; kind: "cred" | "facdoc"; groupKey: string }) => {
+      let ok = 0;
+      let firstError = "";
+      for (const id of ids) {
+        const { error } = await supabase.rpc(
+          kind === "cred" ? "admin_review_credential" : "admin_review_facility_document",
+          { _id: id, _status: "approved" },
+        );
+        if (error) {
+          if (!firstError) firstError = friendlyError(error as unknown as Error, lang) || c.updateFailed;
+        } else ok++;
+      }
+      return { ok, failed: ids.length - ok, firstError };
+    },
+    onSuccess: ({ ok, failed, firstError }) => {
+      if (failed === 0) toast.success(c.bulkDone(ok));
+      else toast.error(`${c.bulkPartial(ok, failed)}${firstError ? ` — ${firstError}` : ""}`);
+      queryClient.invalidateQueries({ queryKey: ["admin-creds"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-pros"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-facility-docs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
+    },
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
+  });
+
+
+
   const verifyFacility = useMutation({
     mutationFn: async ({ id, value, reason }: { id: string; value: boolean; reason?: string }) => {
       const { error } = await supabase.rpc("admin_set_facility_verified", {
