@@ -188,6 +188,9 @@ export function FacilityBookingsPanel({
                   <UserRound className="size-4" /> {c.viewProfile}
                 </Link>
               </Button>
+              {shiftCompleted && b.status === "confirmed" && (
+                <RehireDialog shiftId={shiftId} candidateName={b.pro?.full_name ?? c.healthcarePro} />
+              )}
               {shiftCompleted && b.status === "confirmed" && user && (
                 <ReviewDialog
                   direction="facility_to_pro"
