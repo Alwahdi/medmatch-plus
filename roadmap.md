@@ -1124,3 +1124,22 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - Removed console.error(error) from root ErrorComponent; reportLovableError is the single reporting path. Removed raw error log in admin change-request onError.
 - Remaining console.* are server-only (start.ts, server.ts, *.server.ts, api routes, sitemap) or the error-capture pipeline.
 - Footer link label updated. Tests: language persists after reload, AR/EN copy accurate, no console errors, tsgo clean.
+
+## Phase84 — Marketing claim audit (evidence-based copy)
+Changed:
+- "بدون رسوم أبداً / No fees ever" -> "مجانية حالياً للكوادر الصحية / Currently free for healthcare professionals" (+ section title and pricing strip).
+- AI CV claims "في ثوانٍ / in seconds" (home.sides.pros, steps.seeker1, ai.title, ai.text, ai.ctaPrimary, cv upload hint) -> "يساعدك الذكاء الاصطناعي ... بسرعة / AI helps turn your CV into a professional profile faster".
+- "سجّل في أقل من دقيقة / Sign up in under a minute" and employer register subtitle/meta -> "تسجيل مختصر بدون نماذج طويلة / A streamlined signup without long forms".
+- "خلال دقائق لا ساعات / in minutes, not hours" -> apply once the profile is ready.
+- "انشر ... خلال دقائق — ليظهر فوراً / Post in minutes — instantly visible" -> short form, visible once published (also about + for-facilities urgent shift copy).
+- "never miss a match" -> factual in-app notification wording.
+- One-click apply: "فوراً / instantly" -> "بنقرة واحدة / in one click".
+- Onboarding "دقيقتان / Two minutes" -> a few short steps.
+- Password reset toast "رابط خلال دقائق" -> no timing promise (email delivery not enabled).
+Kept (verified factual):
+- 30-day employer trial: facility_subscriptions.ends_at default now() + 30 days.
+- Verification badge only on reviewed/approved accounts; documents never shown to professionals.
+- Candidate search opt-in, limited to eligible verified facilities.
+- Published salary range on public jobs (live audit: 20 jobs, 0 missing/zero salary).
+- "We never sell your personal data" (policy statement).
+No invented metrics, testimonials, or customer counts. AR/EN parity checked; tsgo clean.
