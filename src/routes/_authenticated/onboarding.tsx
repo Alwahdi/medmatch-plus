@@ -241,7 +241,14 @@ function Onboarding() {
 
 
 
-        {path === null ? (
+        {existingType ? (
+          <ExistingTypeNotice
+            type={existingType}
+            failed={claimFailed}
+            busy={claiming}
+            onRetry={() => void claimExisting()}
+          />
+        ) : path === null ? (
           <PathPicker onPick={setPath} />
         ) : path === "professional" ? (
           <ProfessionalSteps defaultName={metaName} onChangePath={() => setPath(null)} />
