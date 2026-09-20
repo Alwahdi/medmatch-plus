@@ -1844,6 +1844,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      release_privilege_audit: {
+        Args: never
+        Returns: {
+          check_code: string
+          detail: string
+          severity: string
+          value: number
+        }[]
+      }
       release_readiness_report: {
         Args: never
         Returns: {
