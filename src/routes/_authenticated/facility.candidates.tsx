@@ -242,10 +242,10 @@ function Candidates() {
   });
 
   const startChat = useMutation({
-    mutationFn: async (candidateUserId: string) => {
+    mutationFn: async (candidateId: string) => {
       if (!facility) throw new UserFacingError(c.completeFacility);
-      const { error } = await supabase.rpc("start_candidate_conversation", {
-        _professional_user_id: candidateUserId,
+      const { error } = await supabase.rpc("start_candidate_conversation_from_search", {
+        _candidate_id: candidateId,
         _subject: c.initialContact,
       });
       if (error) throw error;
@@ -254,14 +254,15 @@ function Candidates() {
       toast.success(c.chatOpened);
       navigate({ to: "/messages" });
     },
-    onError: (e: Error, candidateUserId) => {
+    onError: (e: Error, candidateId) => {
       toast.error(friendlyError(e, lang, c.chatFailed));
       // سباق: المرشح قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
       if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_SEARCH_ACCESS_EXPIRED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
-        setResults((rows) => (rows ? rows.filter((r) => r.user_id !== candidateUserId) : rows));
+        setResults((rows) => (rows ? rows.filter((r) => r.id !== candidateId) : rows));
       }
     },
   });
+
 
   const activeFilters: ActiveFilter[] = [
     specialty !== ANY
