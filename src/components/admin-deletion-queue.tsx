@@ -140,8 +140,11 @@ export function AdminDeletionQueue() {
             value={notes[r.id] ?? ""}
             onChange={(e) => setNotes((n) => ({ ...n, [r.id]: e.target.value }))}
           />
-          <div className="mt-3 flex flex-wrap gap-2">
-            {r.status === "pending" && (
+          {r.status === "processing" && (
+            <p className="mt-3 text-xs text-muted-foreground">{c.processingNote}</p>
+          )}
+          {r.status === "pending" && (
+            <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="outline"
@@ -151,26 +154,17 @@ export function AdminDeletionQueue() {
                 {update.isPending && <Loader2 className="size-4 animate-spin" />}
                 {c.start}
               </Button>
-            )}
-            {r.status === "processing" && (
               <Button
                 size="sm"
+                variant="ghost"
                 disabled={update.isPending}
-                onClick={() => update.mutate({ id: r.id, status: "completed" })}
+                onClick={() => update.mutate({ id: r.id, status: "rejected" })}
               >
-                {update.isPending && <Loader2 className="size-4 animate-spin" />}
-                {c.complete}
+                {c.reject}
               </Button>
-            )}
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={update.isPending}
-              onClick={() => update.mutate({ id: r.id, status: "rejected" })}
-            >
-              {c.reject}
-            </Button>
-          </div>
+            </div>
+          )}
+
         </div>
       ))}
     </div>
