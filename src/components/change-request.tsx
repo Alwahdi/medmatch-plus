@@ -123,6 +123,7 @@ export function fieldLabel(field: string, lang: "ar" | "en") {
 /** Wraps a form field that is locked after verification and offers a review-backed change request. */
 export function LockedField({
   label,
+  inputId,
   locked,
   target,
   field,
@@ -132,6 +133,7 @@ export function LockedField({
   pending,
 }: {
   label: string;
+  inputId?: string;
   locked: boolean;
   target: ChangeTarget;
   field: string;
@@ -188,7 +190,7 @@ export function LockedField({
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Label className="flex items-center gap-1.5">
+        <Label htmlFor={inputId} className="flex items-center gap-1.5">
           {label}
           {locked && <Lock className="size-3.5 text-muted-foreground" />}
         </Label>

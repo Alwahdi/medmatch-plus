@@ -27,6 +27,9 @@ type Props = {
   disabled?: boolean;
   className?: string;
   id?: string;
+  /** اسم وصفي للقارئ الشاشي — دور combobox لا يشتق اسمه من محتواه. */
+  ariaLabel?: string;
+  ariaLabelledBy?: string;
 };
 
 export function Combobox({
@@ -41,6 +44,8 @@ export function Combobox({
   disabled,
   className,
   id,
+  ariaLabel,
+  ariaLabelledBy,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
@@ -74,6 +79,8 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-labelledby={ariaLabelledBy}
+          aria-label={ariaLabelledBy ? undefined : (ariaLabel ?? placeholder)}
           disabled={disabled}
           className={cn(
             "w-full justify-between font-normal",

@@ -26,7 +26,7 @@ export function FilterBar({
   const t = TXT[lang];
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)} aria-label={t.active}>
+    <div className={cn("flex flex-wrap items-center gap-2", className)} role="group" aria-label={t.active}>
       {typeof count === "number" && (
         <span className="text-sm font-semibold text-muted-foreground">{t.results(count)}</span>
       )}

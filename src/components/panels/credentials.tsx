@@ -244,7 +244,7 @@ export function CredentialsPanel() {
             {c.progress(approvedRequired, PRO_REQUIRED_DOCS.length)}
           </span>
         </div>
-        <Progress value={pct} className="mt-3" />
+        <Progress value={pct} className="mt-3" aria-label={lang === "ar" ? "نسبة اكتمال المستندات" : "Credential completion"} />
         <ul className="mt-4 space-y-2">
           {DOC_TYPES.map((type) => {
             const doc = list.find((d) => d.doc_type === type);
@@ -285,7 +285,7 @@ export function CredentialsPanel() {
           <div>
             <Label>{c.docType}</Label>
             <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
-              <SelectTrigger><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
+              <SelectTrigger aria-label={c.docType}><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
               <SelectContent>
                 {docTypes(lang).map((d, i) => <SelectItem key={d} value={docTypes("ar")[i]!}>{d}</SelectItem>)}
               </SelectContent>

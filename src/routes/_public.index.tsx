@@ -197,7 +197,7 @@ function Home() {
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={t("home.search.placeholderRole")}
                 maxLength={80}
-                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                className="h-12 w-full rounded-md bg-transparent text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
             <div className="flex flex-1 items-center gap-2 rounded-lg bg-surface px-3 sm:max-w-64">
@@ -207,7 +207,7 @@ function Home() {
                 onChange={(e) => setLoc(e.target.value)}
                 placeholder={t("home.search.placeholderLoc")}
                 maxLength={60}
-                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                className="h-12 w-full rounded-md bg-transparent text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
             <Button type="submit" size="lg" className="h-12 px-8">
@@ -220,9 +220,9 @@ function Home() {
       {/* Why */}
         <section className="bg-background pb-12 pt-10 md:pb-16 md:pt-16">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-center text-sm font-semibold tracking-wide text-accent">
+          <h2 className="text-center text-sm font-semibold tracking-wide text-accent">
             {t("home.why.label")}
-          </p>
+          </h2>
            <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {WHY.map((f) => (
                 <div key={f.key} className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
@@ -342,12 +342,12 @@ function Home() {
                   {i + 1}
                 </span>
                 {key === "employer3" && (
-                   <span className="mt-4 inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                   <span className="mt-4 inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary-strong">
                     {t("home.steps.employer3.highlight")}
                   </span>
                 )}
                 {key === "seeker2" && (
-                   <span className="mt-4 inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                   <span className="mt-4 inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary-strong">
                     {t("home.steps.seeker2.highlight")}
                   </span>
                 )}

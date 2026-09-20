@@ -350,7 +350,7 @@ function ProfileOverview() {
             />
             <div className="min-w-0">
               <h2 className="flex items-center gap-2 text-xl font-extrabold">
-                <span className="truncate">{form.full_name}</span>
+                <span className="truncate">{form.full_name || (lang === "ar" ? "ملفي" : "My profile")}</span>
                 {profile?.is_verified && <BadgeCheck className="size-5 shrink-0 text-primary" />}
               </h2>
               {form.headline && (
@@ -408,7 +408,7 @@ function ProfileOverview() {
       {mode === "edit" && (
       <div className="card-lift mt-6 space-y-5 rounded-lg border border-border bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-2">
-          <LockedField label={c.fullName} locked={locked} target="professional" field="full_name"
+          <LockedField inputId="name" label={c.fullName} locked={locked} target="professional" field="full_name"
             currentValue={form.full_name} pending={pendingOf("full_name")}>
             <Input id="name" value={form.full_name} maxLength={100} disabled={locked}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
@@ -435,7 +435,7 @@ function ProfileOverview() {
               emptyText={ct.empty}
             />
           </LockedField>
-          <LockedField label={c.years} locked={locked} target="professional" field="years_experience"
+          <LockedField inputId="years" label={c.years} locked={locked} target="professional" field="years_experience"
             currentValue={String(form.years_experience)} pending={pendingOf("years_experience")}>
             <Input id="years" type="number" min={0} max={60} value={form.years_experience} disabled={locked}
               onChange={(e) => setForm({ ...form, years_experience: Number(e.target.value) })} />
@@ -479,7 +479,7 @@ function ProfileOverview() {
               emptyText={ct.empty}
             />
           </LockedField>
-          <LockedField label={c.licenseNumber} locked={locked} target="professional" field="license_number"
+          <LockedField inputId="lic" label={c.licenseNumber} locked={locked} target="professional" field="license_number"
             currentValue={form.license_number} pending={pendingOf("license_number")}>
             <Input id="lic" dir="ltr" value={form.license_number} maxLength={60} disabled={locked}
               onChange={(e) => setForm({ ...form, license_number: e.target.value })} />

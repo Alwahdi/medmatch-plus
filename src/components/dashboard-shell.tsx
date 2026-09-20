@@ -162,7 +162,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             {account}
           </div>
         </aside>
-        <main id="main-content" className="min-w-0 flex-1 pb-[calc(var(--app-bottom-nav)+1.5rem)] md:pb-6">{children}</main>
+        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 outline-none pb-[calc(var(--app-bottom-nav)+1.5rem)] md:pb-6">{children}</main>
       </div>
 
       {/* Mobile bottom tab bar */}

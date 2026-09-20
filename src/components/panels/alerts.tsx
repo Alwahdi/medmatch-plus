@@ -318,7 +318,7 @@ export function AlertsPanel() {
           emptyText={cbx.empty}
         />
         <Select value={channel} onValueChange={(v) => setChannel(v as "email" | "whatsapp")}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger aria-label={lang === "en" ? "Notification channel" : "قناة الإشعار"}><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="email" disabled={!ready.email}>
               {ready.email ? c.email : `${c.email} ${c.unavailableSuffix}`}
@@ -329,7 +329,7 @@ export function AlertsPanel() {
           </SelectContent>
         </Select>
         {channel === "whatsapp" && (
-          <Input
+          <Input aria-label={c.phonePh}
             placeholder={c.phonePh}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}

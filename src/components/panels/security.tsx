@@ -684,7 +684,7 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
               </div>
             </div>
             <div dir="ltr" className="flex">
-              <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+              <InputOTP maxLength={6} value={otp} onChange={setOtp} autoComplete="one-time-code" aria-label={lang === "ar" ? "رمز التحقق" : "Verification code"}>
                 <InputOTPGroup>
                   {[0, 1, 2, 3, 4, 5].map((i) => (
                     <InputOTPSlot key={i} index={i} />

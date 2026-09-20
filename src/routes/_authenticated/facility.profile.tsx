@@ -347,7 +347,7 @@ function FacilityProfile() {
       <div className="card-lift mt-6 space-y-4 rounded-lg border border-border bg-card p-6">
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <LockedField label={c.nameAr} locked={locked} target="facility" field="name_ar"
+          <LockedField inputId="name_ar" label={c.nameAr} locked={locked} target="facility" field="name_ar"
             currentValue={form.name_ar} facilityId={facility.id} pending={pendingOf("name_ar")}>
             <Input
               id="name_ar"
@@ -357,7 +357,7 @@ function FacilityProfile() {
               onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
             />
           </LockedField>
-          <LockedField label={c.nameEn} locked={locked} target="facility" field="name_en"
+          <LockedField inputId="name_en" label={c.nameEn} locked={locked} target="facility" field="name_en"
             currentValue={form.name_en} facilityId={facility.id} pending={pendingOf("name_en")}>
             <Input
               id="name_en"
@@ -375,7 +375,7 @@ function FacilityProfile() {
               disabled={locked}
               onValueChange={(v) => setForm({ ...form, facility_type: v })}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label={c.type}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

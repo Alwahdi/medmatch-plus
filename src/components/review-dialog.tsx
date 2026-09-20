@@ -144,7 +144,7 @@ export function ReviewDialog({
         <RatingInput value={rating} onChange={setRating} label={c.stars} />
         <div>
           <p className="text-sm font-medium">{c.comment}</p>
-          <Textarea
+          <Textarea aria-label={c.placeholder}
             rows={4}
             className="mt-2"
             maxLength={800}
