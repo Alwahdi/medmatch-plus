@@ -25,7 +25,7 @@ import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
 import { useSession } from "@/lib/auth";
-import { countryLabel } from "@/lib/format";
+import { countryLabel, facilityTypeLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
@@ -348,7 +348,8 @@ function FacilityProfile() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <LockedField inputId="name_ar" label={c.nameAr} locked={locked} target="facility" field="name_ar"
-            currentValue={form.name_ar} facilityId={facility.id} pending={pendingOf("name_ar")}>
+            currentStoredValue={form.name_ar} editor={{ kind: "text", maxLength: 120 }}
+            facilityId={facility.id} pending={pendingOf("name_ar")}>
             <Input
               id="name_ar"
               maxLength={120}
@@ -358,7 +359,8 @@ function FacilityProfile() {
             />
           </LockedField>
           <LockedField inputId="name_en" label={c.nameEn} locked={locked} target="facility" field="name_en"
-            currentValue={form.name_en} facilityId={facility.id} pending={pendingOf("name_en")}>
+            currentStoredValue={form.name_en} editor={{ kind: "text", maxLength: 120, dir: "ltr" }}
+            facilityId={facility.id} pending={pendingOf("name_en")}>
             <Input
               id="name_en"
               dir="ltr"
@@ -369,7 +371,10 @@ function FacilityProfile() {
             />
           </LockedField>
           <LockedField label={c.type} locked={locked} target="facility" field="facility_type"
-            currentValue={form.facility_type} facilityId={facility.id} pending={pendingOf("facility_type")}>
+            currentStoredValue={form.facility_type}
+            currentDisplayValue={facilityTypeLabel(form.facility_type, lang)}
+            editor={{ kind: "facilityType" }}
+            facilityId={facility.id} pending={pendingOf("facility_type")}>
             <Select
               value={form.facility_type}
               disabled={locked}
@@ -388,7 +393,9 @@ function FacilityProfile() {
             </Select>
           </LockedField>
           <LockedField label={c.country} locked={locked} target="facility" field="country"
-            currentValue={form.country ? countryLabel(form.country, lang) : ""} facilityId={facility.id}
+            currentStoredValue={form.country}
+            currentDisplayValue={form.country ? countryLabel(form.country, lang) : ""}
+            editor={{ kind: "country" }} facilityId={facility.id}
             pending={pendingOf("country")}>
             <Combobox
               options={countryOptions(lang)}
@@ -401,7 +408,8 @@ function FacilityProfile() {
             />
           </LockedField>
           <LockedField label={c.city} locked={locked} target="facility" field="city"
-            currentValue={form.city} facilityId={facility.id} pending={pendingOf("city")}>
+            currentStoredValue={form.city} editor={{ kind: "city", country: form.country }}
+            facilityId={facility.id} pending={pendingOf("city")}>
             <Combobox
               options={cityOptions(form.country, lang)}
               value={form.city}
