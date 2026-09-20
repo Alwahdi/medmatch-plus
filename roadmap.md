@@ -624,3 +624,16 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 ### Release checklist (open, owner action)
 - [ ] Lovable Project Description still shows the old `MediConnect Hub...` text. No setter is exposed to the agent, so the owner must update it manually to:
   `SyndeoCare is a healthcare recruitment and workforce platform connecting healthcare professionals with healthcare facilities through jobs, shifts, applications, interviews, secure messaging, credential verification, and structured hiring workflows.`
+
+## Phase 63 — Production HTTP security headers + CSP (done, CSP report-only)
+- New `src/lib/security-headers.ts` applies headers centrally; wired as the first `requestMiddleware` in `src/start.ts` (SSR + server routes) and around the generic 500 pages in `src/start.ts` / `src/server.ts`. Never overwrites Content-Type, cookies or an existing Cache-Control.
+- Always on: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/microphone/geolocation/payment/usb/serial/sensors/display-capture (verified: no product feature uses them), `Cross-Origin-Opener-Policy: same-origin-allow-popups` to keep the Google sign-in popup working. No COEP (would break Google Fonts / cloud assets).
+- Production-host only (`syndeocare.ai`, `www.syndeocare.ai`, https): `Strict-Transport-Security: max-age=31536000; includeSubDomains` and `X-Frame-Options: DENY`. Deliberately skipped on localhost and the Lovable preview host, which renders the app inside an editor iframe.
+- CSP shipped as **Content-Security-Policy-Report-Only** on HTML responses: `default-src 'self'`; `style-src` + `font-src` limited to fonts.googleapis.com / fonts.gstatic.com; `img-src 'self' data: blob:` + the cloud origin (signed storage URLs); `connect-src 'self'` + cloud HTTPS/WSS + the Lovable auth broker / AI gateway origins; `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`. No wildcard `https:`.
+- Own inline bootstrap removed: the language bootstrap moved from `dangerouslySetInnerHTML` to same-origin `public/lang-boot.js`. `script-src` still needs `'unsafe-inline'` because TanStack Start emits inline hydration payloads without a nonce hook.
+- Cache: `Cache-Control: no-store, max-age=0` on HTML for `/auth`, `/reset-password`, `/mfa-challenge`, `/api` and every authenticated path prefix; hashed static assets keep framework caching.
+- Error hygiene: full errors still go to server logs only; responses keep the generic `renderErrorPage()` body with no stack or message.
+- Verified with curl (200, 404, /settings no-store) and Playwright on `/`, `/jobs`, `/auth`, `/reset-password`: fonts and assets load, zero CSP report-only violations, no failed app requests.
+
+### Release gate (open)
+- [ ] Switch `content-security-policy-report-only` to enforcing `content-security-policy` only after observing the production host for report-only violations (signed storage URLs, OAuth broker, realtime WSS), and after a nonce is available for the framework's inline hydration script.
