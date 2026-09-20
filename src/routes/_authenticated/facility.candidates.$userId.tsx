@@ -61,8 +61,6 @@ const TXT = {
     initialContact: "تواصل بخصوص فرصة مهنية",
     expected: "الراتب المتوقع",
     license: "الترخيص",
-    online: "متصل الآن",
-    offline: "غير متصل",
     memberSince: "عضو منذ",
   },
   en: {
@@ -87,8 +85,6 @@ const TXT = {
     initialContact: "Contact about a professional opportunity",
     expected: "Expected salary",
     license: "License",
-    online: "Online now",
-    offline: "Offline",
     memberSince: "Member since",
   },
 } as const;
