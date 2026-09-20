@@ -84,7 +84,7 @@ export async function sendEmail(input: {
     });
     if (!res.ok) {
       const body = await res.text();
-      return { status: "failed", error: `email ${res.status}: ${body.slice(0, 300)}` };
+      return { status: "failed", error: sanitizeProviderError(`email ${res.status}: ${body}`) };
     }
     return { status: "sent" };
   } catch (e) {
