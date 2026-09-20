@@ -69,6 +69,10 @@ const TXT = {
     removedToast: "تمت إزالة الوظيفة من المحفوظات",
     saveFailed: "تعذّر تحديث المحفوظات",
     appliedToast: "تم إرسال طلبك بنجاح",
+    withdrawnTitle: "سحبت طلبك على هذه الوظيفة",
+    withdrawnOpen: "الوظيفة ما زالت مفتوحة، ويمكنك التقديم من جديد برسالة محدّثة.",
+    withdrawnClosed: "الوظيفة لم تعد تستقبل طلبات، ويبقى الطلب في سجلك فقط.",
+    applyAgain: "التقديم من جديد",
     applyFailed: "تعذّر إرسال الطلب",
     coverCount: (n: number) => `${n} من 2000 حرف`,
     appliedNext: "تم إرسال طلبك. تابع مرحلته وأي مقابلة جديدة من نشاطك.",
@@ -124,6 +128,10 @@ const TXT = {
     removedToast: "Job removed from saved list",
     saveFailed: "Could not update saved jobs",
     appliedToast: "Your application was sent successfully",
+    withdrawnTitle: "You withdrew your application",
+    withdrawnOpen: "The job is still open — you can apply again with an updated message.",
+    withdrawnClosed: "This job no longer accepts applications; it stays in your history only.",
+    applyAgain: "Apply again",
     applyFailed: "Could not send the application",
     coverCount: (n: number) => `${n} of 2,000 characters`,
     appliedNext: "Your application was sent. Track its stage and any interview updates from your activity.",
@@ -445,6 +453,36 @@ function JobDetail() {
                     <Link to="/auth">{c.signInCta}</Link>
                   </Button>
                 </>
+              ) : existing && existing.status === "withdrawn" ? (
+                <div className="mt-4">
+                  <div className="rounded-lg border border-border bg-muted/50 p-4">
+                    <p className="font-bold">{c.withdrawnTitle}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {isOpen ? c.withdrawnOpen : c.withdrawnClosed}
+                    </p>
+                  </div>
+                  {isOpen && (
+                    <>
+                      <label htmlFor="cover" className="mt-4 block text-sm font-medium">
+                        {c.coverLabel} <span className="text-muted-foreground">({c.optional})</span>
+                      </label>
+                      <Textarea
+                        id="cover"
+                        value={cover}
+                        onChange={(e) => setCover(e.target.value)}
+                        maxLength={2000}
+                        rows={5}
+                        placeholder={c.coverPlaceholder}
+                        className="mt-1.5"
+                      />
+                      <div className="mt-1 text-end text-xs text-muted-foreground">{c.coverCount(cover.length)}</div>
+                      <Button className="mt-3 w-full" onClick={() => apply.mutate()} disabled={apply.isPending}>
+                        {apply.isPending && <Loader2 className="size-4 animate-spin" />}
+                        {apply.isPending ? c.sending : c.applyAgain}
+                      </Button>
+                    </>
+                  )}
+                </div>
               ) : existing ? (
                 <div className="mt-4 rounded-lg border border-success/30 bg-success/10 p-4">
                   <div className="flex items-start gap-3">
@@ -508,7 +546,7 @@ function JobDetail() {
       {/* Sticky mobile apply bar */}
       {!isOwner && (
         <div className="fixed inset-x-0 bottom-[var(--app-bottom-nav)] z-40 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+var(--app-safe-bottom))] backdrop-blur lg:hidden">
-           {existing ? (
+           {existing && existing.status !== "withdrawn" ? (
              <Button className="w-full" asChild>
                <Link to="/activity" search={{ tab: "applications" }}>{c.trackApplication}</Link>
              </Button>
@@ -518,7 +556,7 @@ function JobDetail() {
                disabled={!isOpen}
                onClick={() => document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "center" })}
              >
-               {isOpen ? c.applyTitle : c.notAccepting}
+               {isOpen ? (existing ? c.applyAgain : c.applyTitle) : c.notAccepting}
              </Button>
            )}
         </div>

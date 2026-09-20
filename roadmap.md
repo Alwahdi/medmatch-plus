@@ -582,3 +582,13 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - `applications_count` = عدد الحجوزات المؤكدة النشطة (يُحتسب إعادة احتساب لا زيادة عمياء).
 - الواجهة: استعلامات الحجز النشط تفلتر `status='confirmed'`؛ «مناوباتي» تعرض الحجوزات الملغاة بشارة وتاريخ ومَن ألغاها بلا تقييم/مقابلة/رابط؛ بطاقة حجوزات المنشأة ترتّب المؤكد أولاً وتخفي إجراءات الصفوف الملغاة؛ التقرير الشهري يوضّح أنه يعدّ الحجوزات السارية.
 - اختبارات DB (rollback): حجز→إلغاء (السجل يبقى والمناوبة تُفتح)، إعادة حجز بمستخدم آخر، منع صفّين مؤكدين، رفض حالة غير صالحة، إلغاء المنشأة يحفظ السجل ويغلق المناوبة، والإلغاء المتكرر idempotent. typecheck/build نظيفان، وفحص 320/390/1440 بلا تجاوز أفقي.
+
+## Phase 58 — Professional application withdrawal + truthful history (done)
+- enum `withdrawn` + `withdrawn_at`/`withdrawal_reason` (<=500) on applications.
+- `jobs.applications_count` recomputed idempotently = applications where status <> 'withdrawn'.
+- `withdraw_job_application(_application_id,_reason)`: owner + MFA, allowed from submitted/reviewing/shortlisted/interview, idempotent, cancels active linked interviews, notifies facility, keeps conversations.
+- `submit_job_application` reactivates a withdrawn row (same id) when the job is still open.
+- `set_application_stage` rejects `withdrawn` target and withdrawn rows; `hire_applicant` rejects withdrawn/rejected; `schedule_interview` rejects withdrawn.
+- UI: withdraw action + optional reason on My applications; withdrawn history badge/date with no interview/review/message actions; job detail "Apply again" when open, history-only when closed; facility applicants show "Withdrawn by candidate" audit row (hidden from default pipeline, available via stage filter).
+- DB tests passed (withdraw keeps row, count 1->0->1 on reapply, interview cancelled, facility actions blocked, hired/rejected not withdrawable).
+- Not verified in browser: authenticated visual sweep (no test session could be minted this turn).

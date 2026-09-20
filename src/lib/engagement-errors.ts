@@ -1,5 +1,17 @@
 /** ترجمة أخطاء التقديم والحجز القادمة من قاعدة البيانات إلى رسائل مفهومة. */
 const MAP: Record<string, { ar: string; en: string }> = {
+  APPLICATION_NOT_WITHDRAWABLE: {
+    ar: "لا يمكن سحب الطلب بعد صدور قرار المنشأة بشأنه.",
+    en: "You can't withdraw an application after the employer's final decision.",
+  },
+  APPLICATION_WITHDRAWN: {
+    ar: "هذا الطلب مسحوب.",
+    en: "This application is withdrawn.",
+  },
+  WITHDRAW_REASON_TOO_LONG: {
+    ar: "سبب السحب طويل جداً (الحد 500 حرف).",
+    en: "The withdrawal reason is too long (500 characters max).",
+  },
   PROFESSIONAL_REQUIRED: {
     ar: "هذا الإجراء متاح لحسابات الكوادر الصحية فقط.",
     en: "Only healthcare professional accounts can do this.",

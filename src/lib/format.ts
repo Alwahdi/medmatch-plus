@@ -24,6 +24,7 @@ export const APPLICATION_LABELS: Record<string, string> = {
   offer: "مقابلة / عرض",
   hired: "مُختار",
   rejected: "غير مُختار",
+  withdrawn: "طلب مسحوب",
 };
 
 export const APPLICATION_LABELS_EN: Record<string, string> = {
@@ -34,6 +35,7 @@ export const APPLICATION_LABELS_EN: Record<string, string> = {
   offer: "Interview / offer",
   hired: "Selected",
   rejected: "Not selected",
+  withdrawn: "Withdrawn",
 };
 
 /** The four stages the product exposes. Legacy values collapse into them. */
@@ -42,8 +44,10 @@ export const APPLICATION_STAGES = ["submitted", "reviewing", "interview", "hired
 export type ApplicationStage = (typeof APPLICATION_STAGES)[number];
 
 /** Maps any stored application status onto one of the four exposed stages (or "rejected"). */
-export function applicationStage(status: string): ApplicationStage | "rejected" {
+export function applicationStage(status: string): ApplicationStage | "rejected" | "withdrawn" {
   switch (status) {
+    case "withdrawn":
+      return "withdrawn";
     case "shortlisted":
       return "reviewing";
     case "offer":
@@ -71,6 +75,9 @@ export function applicationErrorText(raw: string, lang: "ar" | "en" = "ar") {
     "VACANCIES_FILLED",
     "NOT_HIRED",
     "USE_HIRE_APPLICANT",
+    "WITHDRAW_IS_CANDIDATE_ONLY",
+    "APPLICATION_WITHDRAWN",
+    "APPLICATION_REJECTED",
   ].find((k) => raw.includes(k));
   const ar: Record<string, string> = {
     NOT_FOUND: "لم نعثر على هذا الطلب.",
@@ -81,6 +88,9 @@ export function applicationErrorText(raw: string, lang: "ar" | "en" = "ar") {
     VACANCIES_FILLED: "اكتملت شواغر هذه الوظيفة.",
     NOT_HIRED: "هذا المرشح غير مُختار أصلاً.",
     USE_HIRE_APPLICANT: "استخدم زر اختيار المرشح.",
+    WITHDRAW_IS_CANDIDATE_ONLY: "سحب الطلب قرار يخص المتقدم نفسه.",
+    APPLICATION_WITHDRAWN: "سحب المتقدم طلبه — لم يعد بالإمكان تغيير مرحلته.",
+    APPLICATION_REJECTED: "هذا الطلب في حالة «غير مُختار».",
   };
   const en: Record<string, string> = {
     NOT_FOUND: "We couldn't find this application.",
@@ -91,6 +101,9 @@ export function applicationErrorText(raw: string, lang: "ar" | "en" = "ar") {
     VACANCIES_FILLED: "All positions for this job are filled.",
     NOT_HIRED: "This candidate isn't selected.",
     USE_HIRE_APPLICANT: "Use the select-candidate button.",
+    WITHDRAW_IS_CANDIDATE_ONLY: "Withdrawing is the candidate's own decision.",
+    APPLICATION_WITHDRAWN: "The candidate withdrew this application — its stage can't change.",
+    APPLICATION_REJECTED: "This application is marked as not selected.",
   };
   if (!code) return lang === "ar" ? "تعذّر إتمام العملية." : "The action couldn't be completed.";
   return (lang === "ar" ? ar : en)[code]!;

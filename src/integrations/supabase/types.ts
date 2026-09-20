@@ -158,6 +158,8 @@ export type Database = {
           status: Database["public"]["Enums"]["application_status"]
           updated_at: string
           user_id: string
+          withdrawal_reason: string | null
+          withdrawn_at: string | null
         }
         Insert: {
           cover_letter?: string | null
@@ -167,6 +169,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["application_status"]
           updated_at?: string
           user_id: string
+          withdrawal_reason?: string | null
+          withdrawn_at?: string | null
         }
         Update: {
           cover_letter?: string | null
@@ -176,6 +180,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["application_status"]
           updated_at?: string
           user_id?: string
+          withdrawal_reason?: string | null
+          withdrawn_at?: string | null
         }
         Relationships: [
           {
@@ -1993,6 +1999,10 @@ export type Database = {
         Args: { _application_id: string }
         Returns: undefined
       }
+      withdraw_job_application: {
+        Args: { _application_id: string; _reason?: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "facility" | "professional"
@@ -2004,6 +2014,7 @@ export type Database = {
         | "offer"
         | "hired"
         | "rejected"
+        | "withdrawn"
       credential_status: "pending" | "approved" | "rejected"
       employment_type:
         | "full_time"
@@ -2150,6 +2161,7 @@ export const Constants = {
         "offer",
         "hired",
         "rejected",
+        "withdrawn",
       ],
       credential_status: ["pending", "approved", "rejected"],
       employment_type: ["full_time", "part_time", "contract", "locum", "shift"],

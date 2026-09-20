@@ -1,11 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { engagementErrorText } from "@/lib/engagement-errors";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
 import { CandidateInterviewBlock } from "@/components/interview";
-import { AlertCircle, Briefcase, CheckCircle2, Clock, FileText, XCircle } from "lucide-react";
+import { AlertCircle, Briefcase, CheckCircle2, Clock, FileText, Undo2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { APPLICATION_STAGES, applicationLabel, applicationStage, relativeTime } from "@/lib/format";
@@ -27,6 +39,16 @@ const TXT = {
     stageOf: (name: string, i: number, n: number) => `المرحلة الحالية: ${name} (${i} من ${n})`,
     error: "تعذّر تحميل طلباتك.",
     retry: "إعادة المحاولة",
+    withdraw: "سحب الطلب",
+    withdrawTitle: "سحب هذا الطلب؟",
+    withdrawDesc: "سيظهر طلبك لدى المنشأة كـ«طلب مسحوب»، وتُلغى أي مقابلة مرتبطة به. يبقى الطلب في سجلك، ويمكنك التقديم من جديد ما دامت الوظيفة مفتوحة.",
+    reasonLabel: "سبب السحب (اختياري)",
+    reasonPlaceholder: "مثال: ارتبطت بفرصة أخرى.",
+    cancel: "إلغاء",
+    confirmWithdraw: "نعم، اسحب الطلب",
+    withdrawn: "تم سحب الطلب",
+    withdrawnAt: (t: string) => `سُحب ${t}`,
+    reapply: "التقديم من جديد",
   },
   en: {
     title: "My applications",
@@ -38,6 +60,16 @@ const TXT = {
     stageOf: (name: string, i: number, n: number) => `Current stage: ${name} (${i} of ${n})`,
     error: "We couldn't load your applications.",
     retry: "Try again",
+    withdraw: "Withdraw application",
+    withdrawTitle: "Withdraw this application?",
+    withdrawDesc: "The employer will see it as withdrawn and any linked interview is cancelled. It stays in your history, and you can apply again while the job is open.",
+    reasonLabel: "Reason (optional)",
+    reasonPlaceholder: "e.g. I accepted another offer.",
+    cancel: "Cancel",
+    confirmWithdraw: "Yes, withdraw",
+    withdrawn: "Application withdrawn",
+    withdrawnAt: (t: string) => `Withdrawn ${t}`,
+    reapply: "Apply again",
   },
 } as const;
 
@@ -47,13 +79,33 @@ export function ApplicationsPanel() {
   const { user } = useSession();
   const inactiveEmployers = useInactiveEmployers();
   const emp = employerText(lang);
+  const queryClient = useQueryClient();
+  const [target, setTarget] = useState<{ id: string } | null>(null);
+  const [reason, setReason] = useState("");
+
+  const withdraw = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const args: { _application_id: string; _reason?: string } = { _application_id: id };
+      if (reason.trim()) args._reason = reason.trim().slice(0, 500);
+      const { error } = await supabase.rpc("withdraw_job_application", args);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(c.withdrawn);
+      setTarget(null);
+      setReason("");
+      queryClient.invalidateQueries({ queryKey: ["my-apps-full"] });
+      queryClient.invalidateQueries({ queryKey: ["application"] });
+    },
+    onError: (e: Error) => toast.error(engagementErrorText(e.message, lang)),
+  });
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["my-apps-full", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select("id,status,created_at,cover_letter,jobs(id,title,city,country,facility_id)")
+        .select("id,status,created_at,withdrawn_at,cover_letter,jobs(id,title,city,country,facility_id,is_active)")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -70,6 +122,33 @@ export function ApplicationsPanel() {
 
   return (
     <div>
+      <Dialog open={!!target} onOpenChange={(o) => { if (!o) setTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{c.withdrawTitle}</DialogTitle>
+            <DialogDescription>{c.withdrawDesc}</DialogDescription>
+          </DialogHeader>
+          <label htmlFor="withdraw-reason" className="text-sm font-medium">{c.reasonLabel}</label>
+          <Textarea
+            id="withdraw-reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            maxLength={500}
+            rows={3}
+            placeholder={c.reasonPlaceholder}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTarget(null)}>{c.cancel}</Button>
+            <Button
+              variant="destructive"
+              loading={withdraw.isPending}
+              onClick={() => target && withdraw.mutate({ id: target.id, reason })}
+            >
+              {c.confirmWithdraw}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {isLoading ? (
         <ListSkeleton />
       ) : isError ? (
@@ -79,6 +158,8 @@ export function ApplicationsPanel() {
           {data.map((a) => {
             const idx = STAGES.indexOf(applicationStage(a.status) as (typeof STAGES)[number]);
             const rejected = a.status === "rejected";
+            const withdrawn = a.status === "withdrawn";
+            const canWithdraw = !withdrawn && !rejected && a.status !== "hired";
             const employerGone = !!a.jobs?.facility_id && inactiveEmployers.has(a.jobs.facility_id);
             return (
               <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
@@ -112,7 +193,7 @@ export function ApplicationsPanel() {
                       />
                     )}
                     <Badge variant={rejected ? "destructive" : "secondary"} className="gap-1">
-                      {rejected ? <XCircle className="size-3.5" /> : a.status === "hired" ? <CheckCircle2 className="size-3.5" /> : <Clock className="size-3.5" />}
+                      {rejected ? <XCircle className="size-3.5" /> : withdrawn ? <Undo2 className="size-3.5" /> : a.status === "hired" ? <CheckCircle2 className="size-3.5" /> : <Clock className="size-3.5" />}
                       {applicationLabel(a.status, lang)}
                     </Badge>
                   </div>
@@ -121,10 +202,31 @@ export function ApplicationsPanel() {
                   <p className="mt-3 rounded-lg bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
                     <span className="font-semibold text-foreground">{emp.unavailable}</span> — {emp.unavailableNote}
                   </p>
+                ) : withdrawn ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
+                    <span>{a.withdrawn_at ? c.withdrawnAt(relativeTime(a.withdrawn_at, lang)) : c.withdrawn}</span>
+                    {a.jobs?.is_active && (
+                      <Button size="sm" variant="outline" asChild>
+                        <Link to="/jobs/$jobId" params={{ jobId: a.jobs.id }}>{c.reapply}</Link>
+                      </Button>
+                    )}
+                  </div>
                 ) : (
                   <CandidateInterviewBlock applicationId={a.id} />
                 )}
-                {!rejected && (
+                {canWithdraw && !employerGone && (
+                  <div className="mt-3">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => { setReason(""); setTarget({ id: a.id }); }}
+                    >
+                      <Undo2 className="size-4" /> {c.withdraw}
+                    </Button>
+                  </div>
+                )}
+                {!rejected && !withdrawn && (
                   <div className="mt-4">
                     <div className="flex gap-1" aria-hidden="true">
                       {STAGES.map((s, i) => (
