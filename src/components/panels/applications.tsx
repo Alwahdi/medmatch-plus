@@ -100,7 +100,7 @@ export function ApplicationsPanel() {
     onError: (e: Error) => toast.error(engagementErrorText(e.message, lang)),
   });
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["my-apps-full", user?.id],
+    queryKey: ["my-apps-full", user?.id, lang],
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -115,7 +115,10 @@ export function ApplicationsPanel() {
         : { data: [] as { id: string; name_ar: string; name_en: string | null }[] };
       return (data ?? []).map((a) => ({
         ...a,
-        facilityName: facs?.find((f) => f.id === a.jobs?.facility_id)?.name_ar ?? null,
+        facilityName: (() => {
+          const f = facs?.find((x) => x.id === a.jobs?.facility_id);
+          return f ? facilityDisplayName(f, lang) : null;
+        })(),
       }));
     },
   });
