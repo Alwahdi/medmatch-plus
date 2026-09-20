@@ -498,7 +498,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         )}
       </section>
 
-      {sentInvites?.length ? (
+      {sentInvitesErr ? (
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-extrabold">{c.sentTitle}</h2>
+          <ErrorState className="mt-4" onRetry={() => void sentInvitesRefetch()} />
+        </section>
+      ) : sentInvites.length ? (
         <section className="mt-10">
           <h2 className="font-display text-xl font-extrabold">{c.sentTitle}</h2>
           <ul className="mt-4 space-y-2">
