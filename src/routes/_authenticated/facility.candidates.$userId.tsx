@@ -174,7 +174,7 @@ function CandidateProfile() {
       toast.success(c.chatOpened);
       navigate({ to: "/messages" });
     },
-    onError: (e: Error) => toast.error(e.message === "no-facility" ? c.noFacility : c.chatFailed),
+    onError: (e: Error) => toast.error(e.message === "no-facility" ? c.noFacility : friendlyError(e, lang, c.chatFailed)),
   });
 
   if (loadErr)
