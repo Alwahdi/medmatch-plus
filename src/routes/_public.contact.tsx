@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Mail, MessageSquare, ShieldQuestion, Send, ArrowLeft, type LucideIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { submitContactMessage } from "@/lib/contact.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
