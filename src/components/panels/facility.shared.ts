@@ -285,6 +285,11 @@ export const TXT = {
     reviewTitle: "Review the details before publishing",
     reviewSub: "Check everything is correct. You can go back and edit before publishing.",
     draftSaved: "Draft saves automatically on this device",
+    privacyHint:
+      "Your facility identity stays hidden until you reveal it, so don't include the facility name, a phone or WhatsApp number, an email, or a website in the text.",
+    privacyReview: "This will publish without your facility name or any direct contact details.",
+    privacyBlocked:
+      "The text includes your facility name or a direct contact detail (link, email, or number). Remove it and try again.",
     backToEdit: "Back to edit",
     confirmPublish: "Confirm and publish",
     notSet: "Not set",
