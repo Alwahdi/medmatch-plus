@@ -25,6 +25,7 @@ import { fieldLabel } from "@/components/change-request";
 import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
+import { AdminDeletionQueue } from "@/components/admin-deletion-queue";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
