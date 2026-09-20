@@ -694,7 +694,7 @@ function JobsPage() {
               <div>
                 <p className="section-label">{c.results}</p>
                 <h2 className="mt-1 font-display text-xl font-extrabold">
-                  {c.count(items.length)}
+                  {c.count(total)}
                 </h2>
                 <FilterBar
                   className="mt-2"
