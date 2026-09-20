@@ -9,6 +9,22 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // المرحلة 79: بوابة التوثيق للبحث عن المرشحين وإلغاء الظهور
+  {
+    test: /FACILITY_VERIFICATION_REQUIRED/i,
+    ar: "البحث عن المرشحين والتواصل الناتج عنه متاح للمنشآت الموثّقة فقط. أكمل توثيق منشأتك أولاً.",
+    en: "Candidate search and the contact that follows it are for verified facilities only. Complete your facility verification first.",
+  },
+  {
+    test: /CANDIDATE_NO_LONGER_SEARCHABLE/i,
+    ar: "هذا المختص أوقف ظهوره في البحث، فلا يمكن بدء تواصل جديد معه الآن.",
+    en: "This professional turned off their search visibility, so new contact isn't possible right now.",
+  },
+  {
+    test: /CANDIDATE_CONTACT_NOT_ALLOWED|CANDIDATE_INVITE_NOT_ALLOWED/i,
+    ar: "لا يمكن التواصل مع هذا المختص حالياً. ابحث عنه من جديد أو تابعه من المتقدمين إن كان قد تقدّم لفرصة لديك.",
+    en: "You can't contact this professional right now. Search again, or follow up from Applicants if they applied to one of your listings.",
+  },
   // حدود التحقق على مستوى قاعدة البيانات (المرحلة 59)
   {
     test: /FULL_NAME_REQUIRED/i,
