@@ -221,6 +221,7 @@ export function AlertsPanel() {
         lang,
       );
     },
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.cannotEnable)),
   });
 
   const remove = useMutation({
