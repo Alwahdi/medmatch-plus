@@ -101,13 +101,15 @@ function AuthenticatedLayout() {
         // التحقق بخطوتين: حساب فعّل تطبيق المصادقة ولم يؤكّد الجلسة لا يدخل التطبيق الخاص.
         void (async () => {
           try {
-            const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+            const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
             if (!active) return;
+            if (aalError) throw aalError;
             if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
               // المنتج يدعم TOTP فقط: بدون عامل TOTP موثّق لا تُعرض شاشة تحدٍّ
               // لا يستطيع المستخدم إتمامها (تفادي حلقة تحويل لانهائية).
-              const { data: factors } = await supabase.auth.mfa.listFactors();
+              const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
               if (!active) return;
+              if (factorsError) throw factorsError;
               const hasTotp = !!factors?.totp?.some((f) => f.status === "verified");
               if (hasTotp) {
                 const next = `${window.location.pathname}${window.location.search}`;
