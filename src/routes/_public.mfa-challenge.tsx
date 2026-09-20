@@ -76,18 +76,28 @@ function MfaChallengePage() {
 
   useEffect(() => {
     let active = true;
+    setPhase("checking");
     void (async () => {
-      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      // فشل قراءة حالة التحقق ليس "لا يوجد تحقق": لا نسمح بالمرور، بل نعرض خطأ.
+      const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (!active) return;
+      if (aalError) {
+        setPhase("failed");
+        return;
+      }
       if (!aal || aal.nextLevel !== "aal2" || aal.currentLevel === "aal2") {
         // لا حاجة لتحدٍّ: إمّا لا يوجد عامل موثّق أو الجلسة مؤكَّدة أصلاً.
         setPhase("none");
         leave();
         return;
       }
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const totp = factors?.totp?.find((f) => f.status === "verified");
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (!active) return;
+      if (factorsError) {
+        setPhase("failed");
+        return;
+      }
+      const totp = factors?.totp?.find((f) => f.status === "verified");
       if (!totp) {
         setPhase("none");
         leave();
@@ -99,7 +109,7 @@ function MfaChallengePage() {
     return () => {
       active = false;
     };
-  }, [leave]);
+  }, [leave, attempt]);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
