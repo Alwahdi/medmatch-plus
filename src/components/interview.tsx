@@ -490,6 +490,10 @@ export function FacilityInterviewBlock({
         )}
       </div>
 
+      {!disabled && shiftStartMs !== null && !shiftWindowOpen && !row && (
+        <p className="mt-3 text-sm text-muted-foreground">{c.noWindow}</p>
+      )}
+
       {row && (
         <div className="mt-3">
           <InterviewSummary row={row} lang={lang} />
