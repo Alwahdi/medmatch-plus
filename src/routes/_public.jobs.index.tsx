@@ -1,27 +1,35 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { JobCard, type JobRow } from "@/components/job-card";
-import { ShiftCard, type ShiftRow } from "@/components/shift-card";
+import { JobCard } from "@/components/job-card";
+import { ShiftCard } from "@/components/shift-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
-import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { useSession } from "@/lib/auth";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
-import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+import { useSpecialtyScope, type Scope } from "@/lib/specialty-filter";
 import { labelCityWithCountry } from "@/lib/geo";
-import { matchesQuery } from "@/lib/search";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { ErrorState } from "@/components/error-state";
 import { canonical, shareMeta } from "@/lib/seo";
+import {
+  PAGE_SIZE_MIXED,
+  PAGE_SIZE_SINGLE,
+  fetchListingPlaces,
+  searchPublicJobs,
+  searchPublicShifts,
+  type SearchFilters,
+  type SearchJobRow,
+  type SearchShiftRow,
+} from "@/lib/public-search";
 
 
 type JobsSearch = {
