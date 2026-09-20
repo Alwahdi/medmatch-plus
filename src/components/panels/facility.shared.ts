@@ -269,6 +269,8 @@ export const TXT = {
     shiftTitlePlaceholder: "e.g. Night shift — Emergency",
     shiftStartsAt: "Start",
     shiftEndsAt: "End",
+    localTimeHint: "in your local time",
+    endAdjusted: "We adjusted the end time to match the new start — please review it.",
     hourlyRate: "Hourly rate",
     notes: "Notes",
     publishShift: "Post shift",
