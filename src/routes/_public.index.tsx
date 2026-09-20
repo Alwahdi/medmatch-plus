@@ -197,7 +197,7 @@ function Home() {
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={t("home.search.placeholderRole")}
                 maxLength={80}
-                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                className="h-12 w-full rounded-md bg-transparent text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
             <div className="flex flex-1 items-center gap-2 rounded-lg bg-surface px-3 sm:max-w-64">
@@ -207,7 +207,7 @@ function Home() {
                 onChange={(e) => setLoc(e.target.value)}
                 placeholder={t("home.search.placeholderLoc")}
                 maxLength={60}
-                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                className="h-12 w-full rounded-md bg-transparent text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
             <Button type="submit" size="lg" className="h-12 px-8">
