@@ -85,8 +85,6 @@ export const TXT = {
     attach: "إرفاق ملف",
     tooBig: "حجم الملف يجب ألا يتجاوز 10 ميغابايت",
     uploading: "جارٍ الرفع...",
-    online: "متصل الآن",
-    offline: "غير متصل",
     voiceNote: "رسالة صوتية",
     record: "تسجيل صوتي",
     stop: "إيقاف وإرسال",
