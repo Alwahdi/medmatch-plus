@@ -16,6 +16,11 @@
  *   WHATSAPP_TEMPLATE_NAME    - approved template name; REQUIRED for proactive
  *                               job/shift alerts (plain text is only deliverable
  *                               inside the 24h service window)
+ *
+ * الخصوصية (المرحلة 101): لا يجوز أن تحمل أي قناة خارجية (بريد/واتساب/إشعار
+ * دفع) نص محادثة خاصة أو اسم مرفق أو موضوع المحادثة. أي إشعار عن رسالة جديدة
+ * يبقى عاماً ويحيل المستخدم إلى صفحة الرسائل داخل المنصة، ما لم يصدر قرار
+ * خصوصية/منتج صريح بخلاف ذلك.
  */
 
 export type SendStatus = "sent" | "failed" | "not_configured";
