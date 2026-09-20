@@ -152,7 +152,10 @@ function SettingsPage() {
         )}
 
         <TabsContent value="notifications" className="mt-6">
-          <NotificationsPanel embedded />
+          <PushToggle />
+          <div className="mt-4">
+            <NotificationsPanel embedded />
+          </div>
         </TabsContent>
 
         <TabsContent value="security" className="mt-6">
