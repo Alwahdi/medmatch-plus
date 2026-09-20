@@ -96,7 +96,10 @@ const TXT = {
     statusTitle: "Your request",
     pending: "Pending",
     processing: "Processing",
-    completed: "Processed",
+    completed: "Completed",
+    processingNote:
+      "Your request is being processed. Your account still exists and you can sign in until the deletion and anonymisation are carried out; we'll let you know once it's done.",
+
     rejected: "Rejected",
     cancelledS: "Cancelled",
     requestedOn: (d: string) => `Requested on: ${d}`,
