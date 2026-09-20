@@ -423,14 +423,7 @@ export function FacilityVerificationPanel() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="fd-title">{c.docTitle}</Label>
-            <Input
-              id="fd-title"
-              maxLength={120}
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
-          </div>
+
           <div>
             <Label htmlFor="fd-issuer">{c.issuer}</Label>
             <Input
