@@ -186,7 +186,7 @@ function Candidates() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facility_subscriptions")
-        .select("searches_used,plan_code,subscription_plans(candidate_searches,name_ar)")
+        .select("status,ends_at,searches_used,plan_code,subscription_plans(candidate_searches,name_ar,is_trial)")
         .eq("facility_id", facility!.id)
         .maybeSingle();
       if (error) throw error;
@@ -254,6 +254,13 @@ function Candidates() {
     minExp ? { key: "minExp", label: `${minExp}+`, onClear: () => setMinExp("") } : null,
   ].filter(Boolean) as ActiveFilter[];
 
+  const subState = subscriptionLifecycle(quota, quota?.subscription_plans?.is_trial);
+  const searchAllowed = subscriptionAllowsAccess(subState);
+  const subStateNote =
+    subState === "expired" ? c.subNoteExpired
+    : subState === "inactive" ? c.subNoteInactive
+    : subState === "none" ? c.subNoteNone
+    : null;
   const plan = quota?.subscription_plans;
   const remaining =
     plan && typeof quota?.searches_used === "number"

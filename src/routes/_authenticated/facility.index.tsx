@@ -72,7 +72,15 @@ import { useUnread } from "@/lib/unread";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { TXT, shiftErrorText, type FacilitySearch, type PlanRow, type SubRow } from "@/components/panels/facility.shared";
+import {
+  TXT,
+  shiftErrorText,
+  subscriptionAllowsAccess,
+  subscriptionLifecycle,
+  type FacilitySearch,
+  type PlanRow,
+  type SubRow,
+} from "@/components/panels/facility.shared";
 import { ErrorState } from "@/components/error-state";
 import { friendlyError, userError } from "@/lib/user-errors";
 
