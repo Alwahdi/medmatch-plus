@@ -76,7 +76,8 @@ const EMPLOYER_STEP_KEYS = ["employer1", "employer2", "employer3", "employer4"];
 const SEEKER_STEP_KEYS = ["seeker1", "seeker2", "seeker3", "seeker4"];
 
 function Home() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const ar = lang !== "en";
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [loc, setLoc] = useState("");
@@ -444,7 +445,18 @@ function Home() {
               <ErrorState onRetry={() => void jobsRefetch()} />
             ) : jobsLoading
                ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)
-              : jobs?.map((job, index) => <div key={job.id} className={index > 2 ? "hidden sm:block" : undefined}><JobCard job={job} /></div>)}
+              : jobs?.length
+                ? jobs.map((job, index) => <div key={job.id} className={index > 2 ? "hidden sm:block" : undefined}><JobCard job={job} /></div>)
+                : (
+                  <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {ar ? "لا توجد وظائف منشورة حالياً. فعّل تنبيهاً لتصلك أول فرصة فور نشرها." : "No jobs are published right now. Set an alert to hear about the first opening."}
+                    </p>
+                    <Button asChild className="mt-4 min-h-11 rounded-lg">
+                      <Link to="/register">{ar ? "أنشئ حساباً وفعّل التنبيهات" : "Create an account and set alerts"}</Link>
+                    </Button>
+                  </div>
+                )}
           </div>
         </div>
       </section>
@@ -469,7 +481,23 @@ function Home() {
               <ErrorState onRetry={() => void shiftsRefetch()} />
             ) : shiftsLoading
                ? [...Array(2)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)
-              : shifts?.map((shift, index) => <div key={shift.id} className={index > 1 ? "hidden sm:block" : undefined}><ShiftCard shift={shift} /></div>)}
+              : shifts?.length
+                ? shifts.map((shift, index) => <div key={shift.id} className={index > 1 ? "hidden sm:block" : undefined}><ShiftCard shift={shift} /></div>)
+                : (
+                  <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {ar ? "لا توجد مناوبات متاحة حالياً. تابع الصفحة أو فعّل تنبيهاً لتصلك المناوبات الجديدة." : "No shifts are open right now. Check back or set an alert for new shifts."}
+                    </p>
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      <Button asChild className="min-h-11 rounded-lg">
+                        <Link to="/register">{ar ? "فعّل تنبيه المناوبات" : "Set a shift alert"}</Link>
+                      </Button>
+                      <Button asChild variant="outline" className="min-h-11 rounded-lg">
+                        <Link to="/jobs">{ar ? "تصفح الوظائف" : "Browse jobs"}</Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
           </div>
         </div>
       </section>
