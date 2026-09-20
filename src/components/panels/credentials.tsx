@@ -196,10 +196,18 @@ export function CredentialsPanel() {
 
   const list = items ?? [];
   const approvedRequired = PRO_REQUIRED_DOCS.filter((t) =>
-    list.some((d) => d.doc_type === t && d.status === "approved"),
+    list.some((d) => d.doc_type === t && isValidEvidence(d)),
   ).length;
   const isVerified = approvedRequired === PRO_REQUIRED_DOCS.length;
   const pct = Math.round((approvedRequired / PRO_REQUIRED_DOCS.length) * 100);
+  const requiredExpired = list.some(
+    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
+  );
+  const requiredExpiringSoon = list.some(
+    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
+  );
+  const v = VALIDITY_TXT[lang];
+
 
   const loadErrors = [
     { err: itemsErr, retry: itemsRefetch },
