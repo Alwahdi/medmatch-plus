@@ -565,3 +565,12 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - claim_professional_role/claim_facility_role يرفضان وجود النوع المعاكس (ملف أو دور) بخطأ ACCOUNT_TYPE_CONFLICT؛ EXECUTE لauthenticated/service_role فقط. دور admin يبقى إضافياً.
 - UI: رسالة عربية/إنجليزية لـACCOUNT_TYPE_CONFLICT؛ onboarding يعرض ExistingTypeNotice لمن يملك ملفاً (بلا اختيار النوع المعاكس) مع إعادة محاولة التفعيل لنفس الملف؛ "تغيير نوع الحساب" يبقى لمن لا يملك ملفاً بعد؛ register.employer وcv-import صارا يعرضان الرسالة الودية.
 - اختبارات rollback-only: T1–T8 نجحت (منع النوعين، السماح بنوع واحد، منشأة بلا مالك، admin+نوع واحد). لا تغيير على أي بيانات (2 كادر، 12 منشأة، 7 أدوار، 0 حساب بالنوعين).
+
+## Phase 56 — إزالة بيانات العرض التجريبية من الواجهة العامة مع حفظ السجل (مكتملة)
+- migration idempotent مطابقة للhotfix: `private.facility_has_live_owner`، إلغاء توثيق المنشآت بلا مالك، تصفير `facility_verified` لوظائفها/مناوباتها، تعريف `public.public_jobs`/`public.public_shifts` على المنشآت ذات المالك الحي فقط، واشتراط المالك الحي في `can_view_facility_identity`.
+- لم تُحذف أي منشأة/وظيفة/مناوبة/تقديم/حجز — السجل محفوظ لأصحابه فقط.
+- `public.my_inactive_employers()` (self-scoped, SECURITY DEFINER, authenticated فقط) تخبر المستخدم أن جهة عمل في سجله لم تعد نشطة دون كشف أي بيانات عنها.
+- واجهة السجل التاريخي: «جهة العمل غير متاحة» في التقديمات والمناوبات، بلا تقييم أو مقابلة أو رابط للفرصة.
+- نُقلت fixtures البذور من migration الإنتاج إلى `scripts/dev-seed.sql` (تجربة/تطوير فقط).
+- الصفحة الرئيسية: حالات فارغة حقيقية للوظائف والمناوبات مع CTA، بلا أرقام أو بطاقات وهمية.
+- تحقق: 0 وظائف/مناوبات عامة بلا مالك، 0 منشأة موثقة بلا مالك، 0 شارات توثيق خاطئة، 3 وظائف حقيقية / 0 مناوبات مفتوحة (واقعي). typecheck نظيف، build OK، الرئيسية بلا overflow على 320/390/1440.
