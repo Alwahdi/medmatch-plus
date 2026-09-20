@@ -208,6 +208,7 @@ function JobDetail() {
   const { jobId } = Route.useParams();
   const { user } = useSession();
   const { data: myFacility } = useMyFacility(user);
+  const proGate = useProfessionalVerificationGate(myFacility ? undefined : user?.id);
   const queryClient = useQueryClient();
   const [cover, setCover] = useState("");
 
