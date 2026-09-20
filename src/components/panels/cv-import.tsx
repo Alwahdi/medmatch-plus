@@ -179,8 +179,18 @@ export function CvImportPanel() {
         onChange={(e) => setText(e.target.value)}
         placeholder={c.placeholder}
       />
+      <p
+        id="cv-ai-notice"
+        className="mt-3 rounded-lg border border-border bg-surface p-3 text-xs leading-relaxed text-muted-foreground"
+      >
+        {c.aiNotice}
+      </p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <Button onClick={() => analyze.mutate()} loading={analyze.isPending}>
+        <Button
+          onClick={() => analyze.mutate()}
+          loading={analyze.isPending}
+          aria-describedby="cv-ai-notice"
+        >
           <Sparkles className="size-4" /> {analyze.isPending ? c.analyzing : c.analyze}
         </Button>
         <Button variant="outline" asChild>
