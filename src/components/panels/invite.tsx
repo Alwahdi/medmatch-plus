@@ -378,7 +378,13 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
           <History className="size-5 text-primary" /> {c.recent}
         </h2>
-        {recent?.length ? (
+        {recentPending ? (
+          <div className="mt-4">
+            <ListSkeleton rows={2} />
+          </div>
+        ) : recentErr ? (
+          <ErrorState className="mt-4" onRetry={() => void recentRefetch()} />
+        ) : recent.length ? (
           <ul className="mt-4 space-y-3">
             {recent.map((p) => (
               <li
