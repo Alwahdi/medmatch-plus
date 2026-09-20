@@ -359,10 +359,10 @@ function Dashboard() {
       </section>
 
       <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard icon={FileText} value={apps?.length ?? 0} label={c.statApps} to="/activity" />
-        <StatCard icon={ShieldCheck} value={approved} label={c.statCreds} to="/profile" />
-        <StatCard icon={CalendarClock} value={upcomingBookings.length} label={c.statShifts} to="/activity" />
-        <StatCard icon={Sparkles} value={profile?.years_experience ?? 0} label={c.statYears} to="/profile" />
+        <StatCard icon={FileText} value={apps?.length ?? 0} pending={appsPending} label={c.statApps} to="/activity" />
+        <StatCard icon={ShieldCheck} value={approved} pending={credsPending} label={c.statCreds} to="/profile" />
+        <StatCard icon={CalendarClock} value={upcomingBookings.length} pending={bookingsPending} label={c.statShifts} to="/activity" />
+        <StatCard icon={Sparkles} value={profile?.years_experience ?? 0} pending={profilePending} label={c.statYears} to="/profile" />
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
