@@ -165,7 +165,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       const userIds = Array.from(new Set((apps ?? []).map((a) => a.user_id)));
       const { data: pros, error: prosError } = await supabase
         .from("healthcare_professionals")
-        .select("user_id,full_name,headline,years_experience,country,city,is_verified")
+        .select("user_id,full_name,headline,years_experience,country,city,is_verified,avatar_url")
         .in("user_id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"]);
       if (prosError) throw prosError;
 
