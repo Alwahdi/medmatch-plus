@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { JobCard, type JobRow } from "@/components/job-card";
 import { ErrorState } from "@/components/error-state";
+import { ListSkeleton } from "@/components/list-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { publicJobsQuery, withSpecialties } from "@/lib/public-listings";
 import { useRoles, useSession } from "@/lib/auth";
@@ -153,7 +155,7 @@ function Dashboard() {
     },
   });
 
-  const { data: creds, isError: credsErr, refetch: credsRefetch } = useQuery({
+  const { data: creds, isError: credsErr, isPending: credsPending, refetch: credsRefetch } = useQuery({
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -359,16 +361,20 @@ function Dashboard() {
       </section>
 
       <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard icon={FileText} value={apps?.length ?? 0} label={c.statApps} to="/activity" />
-        <StatCard icon={ShieldCheck} value={approved} label={c.statCreds} to="/profile" />
-        <StatCard icon={CalendarClock} value={upcomingBookings.length} label={c.statShifts} to="/activity" />
-        <StatCard icon={Sparkles} value={profile?.years_experience ?? 0} label={c.statYears} to="/profile" />
+        <StatCard icon={FileText} value={apps?.length ?? 0} pending={appsPending} label={c.statApps} to="/activity" />
+        <StatCard icon={ShieldCheck} value={approved} pending={credsPending} label={c.statCreds} to="/profile" />
+        <StatCard icon={CalendarClock} value={upcomingBookings.length} pending={bookingsPending} label={c.statShifts} to="/activity" />
+        <StatCard icon={Sparkles} value={profile?.years_experience ?? 0} pending={profilePending} label={c.statYears} to="/profile" />
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
         <section className="rounded-lg border border-border bg-card p-5 shadow-card">
           <SectionHeading title={c.latestApps} action={<Button variant="link" size="sm" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.viewAll}</Link></Button>} />
-          {apps?.length ? (
+          {appsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : apps?.length ? (
             <ul className="mt-4 space-y-3">
               {apps.slice(0, 4).map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0">
@@ -388,7 +394,11 @@ function Dashboard() {
 
         <section className="rounded-lg border border-border bg-card p-5 shadow-card">
           <SectionHeading title={c.upcomingShifts} action={<Button variant="link" size="sm" asChild><Link to="/activity" search={{ tab: "shifts" }}>{c.viewAll}</Link></Button>} />
-          {upcomingBookings.length ? (
+          {bookingsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : upcomingBookings.length ? (
             <ul className="mt-4 space-y-3">
               {upcomingBookings.slice(0, 4).map((b) => (
                 <li key={b.id} className="border-b border-border pb-3 last:border-0">
@@ -426,17 +436,24 @@ function StatCard({
   value,
   label,
   to,
+  pending = false,
 }: {
   icon: typeof FileText;
   value: number;
   label: string;
   to: "/activity" | "/profile";
+  /** While loading we reserve the number's space instead of showing a false 0. */
+  pending?: boolean;
 }) {
   return (
     <Link to={to} className="grid min-h-28 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-colors hover:border-primary/35">
       <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><Icon className="size-5" /></span>
       <span className="min-w-0">
-        <span className="block text-2xl font-extrabold tabular-nums">{value}</span>
+        {pending ? (
+          <Skeleton className="my-1 block h-6 w-10" />
+        ) : (
+          <span className="block text-2xl font-extrabold tabular-nums">{value}</span>
+        )}
         <span className="block text-xs leading-5 text-muted-foreground">{label}</span>
       </span>
     </Link>

@@ -5,6 +5,8 @@ import { Briefcase, Building2, CalendarClock, Check, MailOpen, ShieldCheck, X } 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,7 +86,7 @@ function InvitationsPage() {
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
 
-  const { data } = useQuery({
+  const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ["my-invitations", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -113,6 +115,11 @@ function InvitationsPage() {
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
   });
 
+  // Only the row (and action) actually running shows a spinner.
+  const busy = respond.isPending ? respond.variables : undefined;
+
+
+
   async function act(id: string, status: "accepted" | "declined") {
     const ok = await confirm({
       title: status === "accepted" ? c.confirmAcceptTitle : c.confirmDeclineTitle,
@@ -128,7 +135,13 @@ function InvitationsPage() {
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{c.subtitle}</p>
 
-      {data?.length ? (
+      {isPending ? (
+        <div className="mt-6">
+          <ListSkeleton rows={3} />
+        </div>
+      ) : isError ? (
+        <ErrorState className="mt-8" error={error} onRetry={() => void refetch()} />
+      ) : data.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((inv) => {
             const f = inv.facilities;
@@ -195,14 +208,20 @@ function InvitationsPage() {
 
                   {inv.status === "pending" ? (
                     <>
-                      <Button size="sm" onClick={() => act(inv.id, "accepted")} loading={respond.isPending}>
+                      <Button
+                        size="sm"
+                        onClick={() => act(inv.id, "accepted")}
+                        loading={busy?.id === inv.id && busy.status === "accepted"}
+                        disabled={!!busy && busy.id !== inv.id}
+                      >
                         <Check className="size-4" /> {c.accept}
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => act(inv.id, "declined")}
-                        loading={respond.isPending}
+                        loading={busy?.id === inv.id && busy.status === "declined"}
+                        disabled={!!busy && busy.id !== inv.id}
                       >
                         <X className="size-4" /> {c.decline}
                       </Button>

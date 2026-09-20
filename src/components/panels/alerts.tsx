@@ -22,6 +22,7 @@ import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/f
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 import { toastUndo } from "@/lib/undo";
@@ -115,7 +116,12 @@ export function AlertsPanel() {
     },
   });
 
-  const { data: alerts, isError: alertsErr, refetch: alertsRefetch } = useQuery({
+  const {
+    data: alerts = [],
+    isPending: alertsPending,
+    isError: alertsErr,
+    refetch: alertsRefetch,
+  } = useQuery({
     queryKey: ["job-alerts", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -280,8 +286,14 @@ export function AlertsPanel() {
         </Button>
       </div>
 
+      {alertsPending && (
+        <div className="mt-6">
+          <ListSkeleton rows={2} />
+        </div>
+      )}
+
       <ul className="mt-6 space-y-3">
-        {alerts?.map((a) => (
+        {alerts.map((a) => (
           <li
             key={a.id}
             className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4"
@@ -325,9 +337,11 @@ export function AlertsPanel() {
         ))}
       </ul>
 
-      {!alerts?.length && (
+      {alertsErr ? (
+        <ErrorState className="mt-6" onRetry={() => void alertsRefetch()} />
+      ) : !alertsPending && !alerts.length ? (
         <EmptyState className="mt-6" icon={Bell} title={c.empty} />
-      )}
+      ) : null}
     </div>
   );
 }

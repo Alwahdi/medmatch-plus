@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
@@ -178,7 +179,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: recent, isError: recentErr, refetch: recentRefetch } = useQuery({
+  const {
+    data: recent = [],
+    isPending: recentPending,
+    isError: recentErr,
+    refetch: recentRefetch,
+  } = useQuery({
     queryKey: ["past-collaborators", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -219,7 +225,11 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     },
   });
 
-  const { data: sentInvites, isError: sentInvitesErr, refetch: sentInvitesRefetch } = useQuery({
+  const {
+    data: sentInvites = [],
+    isError: sentInvitesErr,
+    refetch: sentInvitesRefetch,
+  } = useQuery({
     queryKey: ["invitations-sent", facility?.id, jobId, shiftId],
     enabled: !!facility,
     queryFn: async () => {
@@ -378,7 +388,13 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
           <History className="size-5 text-primary" /> {c.recent}
         </h2>
-        {recent?.length ? (
+        {recentPending ? (
+          <div className="mt-4">
+            <ListSkeleton rows={2} />
+          </div>
+        ) : recentErr ? (
+          <ErrorState className="mt-4" onRetry={() => void recentRefetch()} />
+        ) : recent.length ? (
           <ul className="mt-4 space-y-3">
             {recent.map((p) => (
               <li
@@ -492,7 +508,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         )}
       </section>
 
-      {sentInvites?.length ? (
+      {sentInvitesErr ? (
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-extrabold">{c.sentTitle}</h2>
+          <ErrorState className="mt-4" onRetry={() => void sentInvitesRefetch()} />
+        </section>
+      ) : sentInvites.length ? (
         <section className="mt-10">
           <h2 className="font-display text-xl font-extrabold">{c.sentTitle}</h2>
           <ul className="mt-4 space-y-2">

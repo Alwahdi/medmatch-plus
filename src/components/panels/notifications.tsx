@@ -3,6 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { formatDateTime } from "@/lib/format";
@@ -41,7 +43,7 @@ export function NotificationsPanel({ embedded = false }: { embedded?: boolean })
   const c = TXT[lang];
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { items, unreadCount } = useNotifications(user, 100);
+  const { items, unreadCount, isPending, isError, error, refetch } = useNotifications(user, 100);
 
   return (
     <div className={embedded ? "" : "mx-auto max-w-3xl px-4 py-10"}>
@@ -75,7 +77,11 @@ export function NotificationsPanel({ embedded = false }: { embedded?: boolean })
       </div>
 
       <div className="mt-6 space-y-3">
-        {items.length === 0 ? (
+        {isPending ? (
+          <ListSkeleton rows={4} />
+        ) : isError ? (
+          <ErrorState error={error} onRetry={() => void refetch()} />
+        ) : items.length === 0 ? (
           <EmptyState icon={Bell} title={c.empty} description={c.emptyBody} />
         ) : (
           items.map((n) => (

@@ -884,3 +884,46 @@ sender direct UPDATE denied, non-participant read RPC → `NOT_A_PARTICIPANT` an
 touches 0 rows, recipient delivered RPC stamps the incoming message only, read RPC sets
 delivered+read on incoming only, and repeat calls affect 0 rows with the original timestamps
 preserved. Typecheck clean.
+
+## Phase 73 — Loading / error / empty correctness sweep (DONE)
+
+A "nothing here" message must mean the backend actually returned zero rows. Every screen below
+now renders three distinct states: skeleton while loading, `ErrorState` + Retry on failure, and
+the genuine empty state only after a successful `[]`.
+
+**Invitations** (`_authenticated/invitations.tsx`) — the reported bug. It destructured `data`
+only, so both loading and a failed query rendered "No invitations yet". Now
+`isPending → ListSkeleton`, `isError → ErrorState` with retry, empty only on a successful
+empty array. Accept/Decline busy state is per row and per action (`respond.variables`): the
+other rows' buttons are disabled but not spinning, instead of every button in the list showing
+a spinner. Errors stay friendly via `friendlyError` — no raw backend text.
+
+**Second-pass sweep** (repo-wide, public + authenticated routes and panels):
+- `useNotifications` (`src/lib/notifications.ts`) now also returns `isPending`, `isError`,
+  `error` and `refetch`; the notifications panel renders a skeleton / error+retry instead of
+  "No notifications" on a failed fetch.
+- `_public.facilities.$facilityId.tsx` — the jobs and shifts child queries each get their own
+  section-level skeleton and retry, so one failing half no longer reads as
+  "No published jobs" / "No open shifts" while the rest of the profile is fine.
+- `panels/alerts.tsx` — `isError` was destructured but never rendered; now error+retry and a
+  loading skeleton gate the alerts empty state.
+- `panels/invite.tsx` — "past collaborators" gets skeleton + retry; the "sent invitations"
+  section no longer vanishes silently on error, it shows the section with a retry.
+- `panels/cv.tsx` — the credentials block no longer prints "no credentials" on a complete
+  profile while that query is loading or failing.
+- `dashboard.tsx` — stat cards reserve the number's space with a skeleton instead of showing a
+  false `0` before load, and the "latest applications" / "upcoming shifts" mini-lists show a
+  skeleton instead of their empty copy during the initial fetch. Hard failures were already
+  caught by the page-level error gate; no new full-page spinners were added.
+
+**Documented cosmetic exception.** `useUnread` stays fail-soft: it drives chrome only (nav badge
+and per-row counters) and degrades to "no badge", which claims nothing, while the messages page
+itself still shows a real error state with retry for the conversation and message lists. This is
+written into the hook's doc comment.
+
+Verified: public facility profile renders correctly with a working backend and with the jobs
+request blocked — no horizontal overflow at 390 and no console errors. **Not verified in the
+browser:** the authenticated screens (invitations, dashboard, notifications, invite, CV) — no
+signed-in session can be minted in this environment, the same standing blocker as the admin
+account. Their states were changed by the same three-branch pattern used by the already-correct
+panels. Typecheck clean.

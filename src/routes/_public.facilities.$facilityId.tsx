@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { RatingStars } from "@/components/rating-stars";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,7 +118,12 @@ function FacilityProfilePage() {
     },
   });
 
-  const { data: jobs } = useQuery({
+  const {
+    data: jobs = [],
+    isPending: jobsPending,
+    isError: jobsError,
+    refetch: refetchJobs,
+  } = useQuery({
     queryKey: ["public-facility-jobs", facilityId],
     enabled: !!facility,
     queryFn: async () => {
@@ -134,7 +140,12 @@ function FacilityProfilePage() {
     },
   });
 
-  const { data: shifts } = useQuery({
+  const {
+    data: shifts = [],
+    isPending: shiftsPending,
+    isError: shiftsError,
+    refetch: refetchShifts,
+  } = useQuery({
     queryKey: ["public-facility-shifts", facilityId],
     enabled: !!facility,
     queryFn: async () => {
@@ -279,7 +290,13 @@ function FacilityProfilePage() {
 
         <div className="card-lift rounded-lg border border-border bg-card p-6">
           <h2 className="text-lg font-bold">{c.jobs}</h2>
-          {jobs?.length ? (
+          {jobsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : jobsError ? (
+            <ErrorState className="mt-4" onRetry={() => void refetchJobs()} />
+          ) : jobs.length ? (
             <ul className="mt-4 space-y-3">
               {jobs.map((j) => (
                 <li key={j.id}>
@@ -308,7 +325,13 @@ function FacilityProfilePage() {
 
         <div className="card-lift rounded-lg border border-border bg-card p-6">
           <h2 className="text-lg font-bold">{c.shifts}</h2>
-          {shifts?.length ? (
+          {shiftsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : shiftsError ? (
+            <ErrorState className="mt-4" onRetry={() => void refetchShifts()} />
+          ) : shifts.length ? (
             <ul className="mt-4 space-y-3">
               {shifts.map((s) => (
                 <li key={s.id}>
