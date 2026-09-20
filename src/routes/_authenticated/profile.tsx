@@ -203,7 +203,6 @@ function ProfileOverview() {
     license_country: "",
     license_number: "",
     is_open_to_shifts: true,
-    is_searchable: true,
   });
   const [avatar, setAvatar] = useState("");
 
@@ -233,7 +232,6 @@ function ProfileOverview() {
       license_country: profile.license_country ?? "",
       license_number: profile.license_number ?? "",
       is_open_to_shifts: profile.is_open_to_shifts ?? true,
-      is_searchable: profile.is_searchable ?? true,
     });
   }, [profile]);
 
@@ -260,7 +258,6 @@ function ProfileOverview() {
         license_country: form.license_country || null,
         license_number: form.license_number.trim() || null,
         is_open_to_shifts: form.is_open_to_shifts,
-        is_searchable: form.is_searchable,
         avatar_url: avatar || null,
       };
 
