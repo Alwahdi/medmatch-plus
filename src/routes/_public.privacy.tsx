@@ -73,13 +73,13 @@ const TXT = {
         ],
       },
       {
-        h: "٥. الرسائل داخل المنصة",
+        h: "٦. الرسائل داخل المنصة",
         p: [
           "الرسائل بينك وبين المنشأة مرئية لطرفَي المحادثة فقط، وقد يطّلع عليها فريق الدعم عند بلاغ إساءة.",
         ],
       },
       {
-        h: "٦. الاحتفاظ بالبيانات وحقوقك",
+        h: "٧. الاحتفاظ بالبيانات وحقوقك",
         p: [
           "نحتفظ ببياناتك ما دام حسابك نشطاً.",
           "لك الحق في الوصول إلى بياناتك أو تصحيحها، وفي طلب حذف حسابك من الإعدادات (الحساب والخصوصية) أو عبر صفحة التواصل.",
@@ -87,11 +87,11 @@ const TXT = {
         ],
       },
       {
-        h: "٧. ملفات الارتباط",
+        h: "٨. ملفات الارتباط",
         p: ["نستخدم ملفات ارتباط أساسية لتسجيل الدخول وحفظ تفضيلات اللغة فقط."],
       },
       {
-        h: "٨. تحديث السياسة",
+        h: "٩. تحديث السياسة",
         p: ["قد نحدّث هذه السياسة، وتظهر التغييرات مع تحديث تاريخ آخر تعديل، وقد نوضّحها داخل المنصة عند الاقتضاء."],
       },
     ],
@@ -144,13 +144,13 @@ const TXT = {
         ],
       },
       {
-        h: "5. In-platform messages",
+        h: "6. In-platform messages",
         p: [
           "Messages between you and a facility are visible only to both parties in the conversation, and may be reviewed by our support team when a report of abuse is filed.",
         ],
       },
       {
-        h: "6. Data retention and your rights",
+        h: "7. Data retention and your rights",
         p: [
           "We retain your data as long as your account is active.",
           "You have the right to access and correct your data, and to request account deletion from Settings (Account & privacy) or the contact page.",
@@ -158,11 +158,11 @@ const TXT = {
         ],
       },
       {
-        h: "7. Cookies",
+        h: "8. Cookies",
         p: ["We use only essential cookies for sign-in and to remember your language preference."],
       },
       {
-        h: "8. Policy updates",
+        h: "9. Policy updates",
         p: ["We may update this policy; changes are reflected with an updated date and may be communicated in-product where appropriate."],
       },
     ],
