@@ -355,22 +355,30 @@ function MessagesPage() {
       if (body.length > 2000) userError(c.tooLong);
 
       let attachment: Record<string, unknown> = {};
+      let uploadedPath: string | null = null;
       if (upload) {
         const controller = new AbortController();
         uploadAbort.current = controller;
         setUploadPct(0);
+        const plannedPath = chatPath(active!.id, upload);
         try {
           const path = await uploadChatFile(active!.id, upload, {
             onProgress: setUploadPct,
             signal: controller.signal,
+            path: plannedPath,
           });
+          uploadedPath = path;
           attachment = {
             attachment_path: path,
-            // نفس القيود المطبّقة في قاعدة البيانات: اسم <=255 ونوع MIME أساسي.
+            // النوع والحجم يُعاد اشتقاقهما من التخزين في قاعدة البيانات؛ هذه قيم عرض أولية.
             attachment_name: (upload.name || "file").slice(-255),
             attachment_type: baseMime(upload) ?? "application/octet-stream",
             attachment_size: upload.size,
           };
+        } catch (e) {
+          // قد يكون الرفع اكتمل قبل الإلغاء — تنظيف احتياطي للمسار المعروف.
+          await removeChatFile(plannedPath);
+          throw e;
         } finally {
           uploadAbort.current = null;
           setUploadPct(null);
@@ -383,7 +391,12 @@ function MessagesPage() {
         body,
         ...attachment,
       });
-      if (error) throw error;
+      if (error) {
+        // لا نترك ملفاً يتيماً في التخزين عند فشل حفظ الرسالة.
+        if (uploadedPath) await removeChatFile(uploadedPath);
+        throw error;
+      }
+
     },
     onSuccess: () => {
       setDraft("");
