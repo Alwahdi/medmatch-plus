@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUpload } from "@/components/image-upload";
+import { LocationPicker } from "@/components/location-picker";
+import { AvailabilityPicker, availabilityLabel, parseAvailability } from "@/components/availability-picker";
 import { supabase } from "@/integrations/supabase/client";
 import { assertOk } from "@/lib/query-errors";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
