@@ -22,13 +22,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { fieldLabel, changeValueLabel, isOpaqueChangeValue, useSpecialtyList } from "@/components/change-request";
-import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel, experienceLabel } from "@/lib/format";
+import { credentialLabel, facilityDocTypeLabel, formatDate, formatDateTime, countryLabel, experienceLabel, facilityTypeLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
 import { AdminDeletionQueue } from "@/components/admin-deletion-queue";
 import { AdminSafetyReports } from "@/components/admin-safety-reports";
 import { AdminReadiness } from "@/components/admin-readiness";
 import { VerificationPanel, type DocState, type RequiredDoc } from "@/components/admin-verification";
+import { AdminReviewQueue, type ReviewOwner } from "@/components/admin-review-queue";
 import { friendlyError } from "@/lib/user-errors";
 import { useSessionAal2, useVerifiedTotp } from "@/lib/admin-mfa";
 import { VALIDITY_TXT, isExpired, isValidEvidence } from "@/lib/doc-validity";
@@ -92,6 +93,11 @@ const TXT = {
     bulkPartial: (ok: number, fail: number) => `تم اعتماد ${ok}، وتعذّر ${fail}`,
     pendingCount: (n: number) => `${n} قيد المراجعة`,
     fileLabel: "الملف",
+    detailLocation: "الموقع",
+    detailHeadline: "المسمى",
+    detailExperience: "الخبرة",
+    detailType: "نوع المنشأة",
+    detailRating: "التقييم",
     facilityUpdated: "تم تحديث حالة المنشأة",
     proUpdated: "تم تحديث حالة الكادر",
     autoVerify: "يُوثَّق الكادر تلقائياً عند اعتماد ترخيص مزاولة المهنة وبطاقة الهوية / الجواز معاً.",
@@ -150,6 +156,11 @@ const TXT = {
     bulkPartial: (ok: number, fail: number) => `${ok} approved, ${fail} failed`,
     pendingCount: (n: number) => `${n} pending`,
     fileLabel: "File",
+    detailLocation: "Location",
+    detailHeadline: "Headline",
+    detailExperience: "Experience",
+    detailType: "Facility type",
+    detailRating: "Rating",
     facilityUpdated: "Facility status updated",
     proUpdated: "Professional status updated",
     autoVerify: "Professionals are verified automatically once both their practice license and ID / passport are approved.",
@@ -582,10 +593,59 @@ function AdminPage() {
     return [...map.entries()].map(([name, items]) => ({ name, items }));
   }
 
-  const proNameByUser = new Map((pros ?? []).map((p) => [p.user_id, p.full_name]));
   const unknownOwner = lang === "ar" ? "حساب غير معروف" : "Unknown account";
-  const credGroups = groupDocs(shownDocs, (cr) => proNameByUser.get(cr.user_id) ?? unknownOwner);
-  const facDocGroups = groupDocs(shownFacDocs, (fd) => fd.facilities?.name_ar ?? unknownOwner);
+  const proByUser = new Map((pros ?? []).map((p) => [p.user_id, p]));
+  const facById = new Map((facilities ?? []).map((f) => [f.id, f]));
+  const joinMeta = (parts: (string | null | undefined)[]) => parts.filter((p) => !!p && p !== "").join(" · ");
+
+  /** صف واحد لكل كادر رفع وثائق، ومستنداته تحته في ملفه. */
+  const credOwners: ReviewOwner[] = groupDocs(shownDocs, (cr) => cr.user_id).map(({ name: userId, items }) => {
+    const p = proByUser.get(userId);
+    const place = p ? joinMeta([p.city, countryLabel(p.country, lang)]).replace(" · ", "، ") : "";
+    return {
+      key: userId,
+      name: p?.full_name ?? unknownOwner,
+      meta: joinMeta([p?.headline, place]),
+      verified: !!p?.is_verified,
+      details: p
+        ? [
+            ...(p.headline ? [{ label: c.detailHeadline, value: p.headline }] : []),
+            ...(place ? [{ label: c.detailLocation, value: place }] : []),
+            { label: c.detailExperience, value: experienceLabel(p.years_experience, lang) },
+            ...(p.rating_count > 0
+              ? [{ label: c.detailRating, value: c.rating(Number(p.rating_avg), p.rating_count) }]
+              : []),
+          ]
+        : [],
+      docs: items,
+      required: proRequiredDocs(userId),
+    };
+  });
+
+  /** صف واحد لكل منشأة رفعت مستندات. */
+  const facDocOwners: ReviewOwner[] = groupDocs(shownFacDocs, (fd) => fd.facility_id).map(
+    ({ name: facilityId, items }) => {
+      const f = facById.get(facilityId);
+      const place = f ? `${f.city}، ${countryLabel(f.country, lang)}` : "";
+      return {
+        key: facilityId,
+        name: f?.name_ar ?? items[0]?.facilities?.name_ar ?? unknownOwner,
+        meta: joinMeta([f ? facilityTypeLabel(f.facility_type, lang) : null, place]),
+        verified: !!f?.is_verified,
+        details: f
+          ? [
+              { label: c.detailType, value: facilityTypeLabel(f.facility_type, lang) },
+              { label: c.detailLocation, value: place },
+              ...(f.rating_count > 0
+                ? [{ label: c.detailRating, value: c.rating(Number(f.rating_avg), f.rating_count) }]
+                : []),
+            ]
+          : [],
+        docs: items,
+        required: facilityRequiredDocs(facilityId),
+      };
+    },
+  );
 
   const pendingChanges = (changeReqs ?? []).filter((r) => r.status === "pending");
   const openReports = (safetyReports ?? []).filter((r) => r.status === "open").length;
@@ -704,118 +764,19 @@ function AdminPage() {
               {c.noDocs}
             </p>
           ) : (
-            <div className="mt-4 space-y-6">
-              {credGroups.map((group) => (
-                <section key={group.name}>
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-bold">{group.name}</h2>
-                    <Badge variant="secondary">
-                      {c.pendingCount(group.items.filter((r) => r.status === "pending").length)}
-                    </Badge>
-                    {group.items.some((r) => r.status === "pending") && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="ms-auto"
-                        loading={bulkApprove.isPending && bulkApprove.variables?.groupKey === `cred:${group.name}`}
-                        disabled={bulkApprove.isPending}
-                        onClick={() => {
-                          const ids = group.items.filter((r) => r.status === "pending").map((r) => r.id);
-                          if (!window.confirm(c.approveAllConfirm(group.name, ids.length))) return;
-                          bulkApprove.mutate({ ids, kind: "cred", groupKey: `cred:${group.name}` });
-                        }}
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {c.approveAll(group.items.filter((r) => r.status === "pending").length)}
-                      </Button>
-                    )}
-                  </div>
-                  <ul className="space-y-3">
-              {group.items.map((cr) => (
-                <li key={cr.id} className="rounded-lg border border-border bg-card p-4">
-
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-bold">{credentialLabel(cr.doc_type, lang)}</p>
-                      {(cr.file_name || cr.title) && (
-                        <p className="mt-1 truncate text-xs text-muted-foreground" title={cr.file_name ?? cr.title}>
-                          {c.fileLabel}: {cr.file_name ?? cr.title}
-                        </p>
-                      )}
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {cr.issuer ? `${cr.issuer} · ` : ""}
-                        {cr.expiry_date ? `${c.expires(formatDate(cr.expiry_date, lang))} · ` : ""}
-                        {formatDate(cr.created_at, lang)}
-                      </p>
-                      {cr.review_note && (
-                        <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">{cr.review_note}</p>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {isExpired(cr.expiry_date) ? (
-                        <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
-                      ) : null}
-                      <Badge
-                        variant={
-                          cr.status === "approved" ? "default" : cr.status === "rejected" ? "destructive" : "secondary"
-                        }
-                      >
-                        {credentialLabel(cr.status, lang)}
-                      </Badge>
-                      <Button size="sm" variant="outline" onClick={() => openFile(cr.file_path)}>
-                        <FileText className="size-4" /> {c.view}
-                      </Button>
-                      <Button
-                        size="sm"
-                        loading={review.isPending}
-                        onClick={() => review.mutate({ id: cr.id, status: "approved" })}
-                      >
-                        <CheckCircle2 className="size-4" /> {c.approve}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setRejectId(rejectId === cr.id ? null : cr.id);
-                          setNote(cr.review_note ?? "");
-                        }}
-                      >
-                        <XCircle className="size-4" /> {c.reject}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {rejectId === cr.id && (
-                    <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3">
-                      <label className="text-xs font-medium" htmlFor={`note-${cr.id}`}>
-                        {c.noteLabel}
-                      </label>
-                      <Textarea aria-label={c.notePlaceholder}
-                        id={`note-${cr.id}`}
-                        rows={2}
-                        className="mt-2 bg-background"
-                        value={note}
-                        placeholder={c.notePlaceholder}
-                        onChange={(e) => setNote(e.target.value)}
-                      />
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="mt-2"
-                        loading={review.isPending}
-                        onClick={() => review.mutate({ id: cr.id, status: "rejected", reviewNote: note.trim() })}
-                      >
-                        {c.reject}
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-
+            <AdminReviewQueue
+              lang={lang}
+              owners={credOwners}
+              docLabel={(t) => credentialLabel(t, lang)}
+              statusLabel={(s) => credentialLabel(s, lang)}
+              onOpenFile={openFile}
+              onApprove={(id) => review.mutate({ id, status: "approved" })}
+              onReject={(id, reviewNote) => review.mutate({ id, status: "rejected", reviewNote })}
+              onApproveAll={(owner, ids) => bulkApprove.mutate({ ids, kind: "cred", groupKey: owner.key })}
+              reviewPending={review.isPending}
+              bulkPendingKey={bulkApprove.isPending ? bulkApprove.variables?.groupKey ?? null : null}
+              autoVerifyNote={c.autoVerify}
+            />
           )}
         </TabsContent>
 
@@ -839,117 +800,19 @@ function AdminPage() {
               {c.noFacDocs}
             </p>
           ) : (
-            <div className="mt-4 space-y-6">
-              {facDocGroups.map((group) => (
-                <section key={group.name}>
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-bold">{group.name}</h2>
-                    <Badge variant="secondary">
-                      {c.pendingCount(group.items.filter((r) => r.status === "pending").length)}
-                    </Badge>
-                    {group.items.some((r) => r.status === "pending") && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="ms-auto"
-                        loading={bulkApprove.isPending && bulkApprove.variables?.groupKey === `facdoc:${group.name}`}
-                        disabled={bulkApprove.isPending}
-                        onClick={() => {
-                          const ids = group.items.filter((r) => r.status === "pending").map((r) => r.id);
-                          if (!window.confirm(c.approveAllConfirm(group.name, ids.length))) return;
-                          bulkApprove.mutate({ ids, kind: "facdoc", groupKey: `facdoc:${group.name}` });
-                        }}
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {c.approveAll(group.items.filter((r) => r.status === "pending").length)}
-                      </Button>
-                    )}
-                  </div>
-                  <ul className="space-y-3">
-              {group.items.map((fd) => (
-                <li key={fd.id} className="rounded-lg border border-border bg-card p-4">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="break-words font-bold">{facilityDocTypeLabel(fd.doc_type, lang)}</p>
-                        {(fd.file_name || fd.title) && (
-                          <p className="mt-1 truncate text-xs text-muted-foreground" title={fd.file_name ?? fd.title}>
-                            {c.fileLabel}: {fd.file_name ?? fd.title}
-                          </p>
-                        )}
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {fd.issuer ? `${fd.issuer} · ` : ""}
-                          {fd.expiry_date ? `${c.expires(formatDate(fd.expiry_date, lang))} · ` : ""}
-                          {formatDate(fd.created_at, lang)}
-                        </p>
-                        {fd.review_note && (
-                          <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">
-                            {fd.review_note}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex shrink-0 flex-wrap items-center gap-2">
-                        {isExpired(fd.expiry_date) ? (
-                          <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
-                        ) : null}
-                        <Badge
-                          variant={
-                            fd.status === "approved" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"
-                          }
-                        >
-                          {credentialLabel(fd.status, lang)}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
-                      <Button size="sm" variant="outline" onClick={() => openFacilityFile(fd.file_path)}>
-                        <FileText className="size-4" /> {c.view}
-                      </Button>
-                      <Button
-                        size="sm"
-                        loading={reviewFacDoc.isPending}
-                        onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "approved" })}
-                      >
-                        <CheckCircle2 className="size-4" /> {c.approve}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setRejectId(rejectId === fd.id ? null : fd.id);
-                          setNote(fd.review_note ?? "");
-                        }}
-                      >
-                        <XCircle className="size-4" /> {c.reject}
-                      </Button>
-                    </div>
-                  </div>
-                  {rejectId === fd.id && (
-                    <div className="mt-4 space-y-2">
-                      <p className="text-xs font-medium">{c.noteLabel}</p>
-                      <Textarea
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        placeholder={c.notePlaceholder}
-                        rows={3}
-                      />
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        loading={reviewFacDoc.isPending}
-                        onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "rejected", reviewNote: note })}
-                      >
-                        {c.reject}
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-
+            <AdminReviewQueue
+              lang={lang}
+              owners={facDocOwners}
+              docLabel={(t) => facilityDocTypeLabel(t, lang)}
+              statusLabel={(s) => credentialLabel(s, lang)}
+              onOpenFile={openFacilityFile}
+              onApprove={(id) => reviewFacDoc.mutate({ id, status: "approved" })}
+              onReject={(id, reviewNote) => reviewFacDoc.mutate({ id, status: "rejected", reviewNote })}
+              onApproveAll={(owner, ids) => bulkApprove.mutate({ ids, kind: "facdoc", groupKey: owner.key })}
+              reviewPending={reviewFacDoc.isPending}
+              bulkPendingKey={bulkApprove.isPending ? bulkApprove.variables?.groupKey ?? null : null}
+              autoVerifyNote={c.autoVerifyFac}
+            />
           )}
         </TabsContent>
 
