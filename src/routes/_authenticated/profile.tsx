@@ -205,6 +205,12 @@ function ProfileOverview() {
     license_country: "",
     license_number: "",
     is_open_to_shifts: true,
+    lat: null as number | null,
+    lng: null as number | null,
+    availability: [] as number[],
+    search_radius_km: "",
+    preferred_rate: "",
+    preferred_rate_period: "hour",
   });
   const [avatar, setAvatar] = useState("");
 
