@@ -204,7 +204,10 @@ function FacilityDashboard() {
     : subState === "inactive" ? c.subNoteInactive
     : subState === "none" ? c.subNoteNone
     : null;
-  const activeJobs = (jobs ?? []).filter((j) => j.is_active).length;
+  // الوظيفة تستهلك حصة النشر فقط إذا كانت مفتوحة ولم ينتهِ موعد التقديم.
+  const jobAccepting = (j: { is_active: boolean; expires_at?: string | null }) =>
+    j.is_active && (!j.expires_at || new Date(j.expires_at).getTime() > Date.now());
+  const activeJobs = (jobs ?? []).filter(jobAccepting).length;
   const activeShifts = (shifts ?? []).filter((s) => s.status === "open").length;
   const newApplicants = (jobs ?? []).reduce(
     (count, job) => count + (job.applications ?? []).filter((application) => application.status === "submitted").length,
@@ -569,7 +572,7 @@ function FacilityDashboard() {
                   title={j.title}
                   to="/jobs/$jobId"
                   params={{ jobId: j.slug ?? j.id }}
-                  status={j.is_active ? "published" : "closed"}
+                  status={!j.is_active ? "closed" : jobAccepting(j) ? "published" : "expired"}
                   meta={
                     <>
                       {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
@@ -596,7 +599,7 @@ function FacilityDashboard() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-52">
-                          {j.is_active && (
+                          {jobAccepting(j) && (
                             <DropdownMenuItem
                               className="min-h-11 gap-2"
                               onSelect={() => setInviteTarget({ kind: "job", id: j.id })}
