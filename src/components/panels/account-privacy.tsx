@@ -148,9 +148,11 @@ export function AccountPrivacyPanel() {
 
   const submit = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.rpc("request_account_deletion", {
-        _reason: reason.trim() || undefined,
-      });
+      const trimmed = reason.trim();
+      const { error } = await supabase.rpc(
+        "request_account_deletion",
+        trimmed ? { _reason: trimmed } : {},
+      );
       if (error) throw error;
     },
     onSuccess: () => {
