@@ -16,6 +16,10 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider, useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { installRecoveryProofWatcher } from "@/lib/recovery-proof";
+
+// نثبّت مراقب إثبات الاستعادة مبكراً قدر الإمكان حتى لا يفوتنا حدث PASSWORD_RECOVERY.
+if (typeof window !== "undefined") installRecoveryProofWatcher();
 
 function NotFoundComponent() {
   const { lang } = useLang();
