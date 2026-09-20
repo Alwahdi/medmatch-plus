@@ -200,6 +200,8 @@ function FacilityProfile() {
           city: form.city.trim(),
           website: form.website.trim() || null,
           logo_url: form.logo_url.trim() || null,
+          lat: form.lat,
+          lng: form.lng,
           description: form.description.trim() || null,
         })
         .eq("id", facility!.id);
