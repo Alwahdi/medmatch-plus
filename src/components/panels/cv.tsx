@@ -161,7 +161,7 @@ export function CvPanel() {
             </ul>
           ) : (
             <p className="text-muted-foreground">
-              {c.noCreds} <Link to="/credentials" className="text-primary underline">{c.addNow}</Link>
+              {c.noCreds} <Link to="/profile" search={{ tab: "credentials" }} className="text-primary underline">{c.addNow}</Link>
             </p>
           )}
         </Section>
