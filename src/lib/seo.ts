@@ -171,7 +171,8 @@ export function jobSeoText(m: PublicJobMeta) {
       ? `راتب ${num(m.salaryMin)} – ${num(m.salaryMax)} ${m.currency} شهرياً`
       : null,
   ].filter(Boolean);
-  const description = `${m.title}: ${parts.join(" · ")}. قدّم مباشرة عبر SyndeoCare.`;
+  const summary = parts.length ? `${m.title}: ${parts.join(" · ")}` : m.title;
+  const description = `${summary}. قدّم مباشرة عبر SyndeoCare.`;
   return { title, description: description.slice(0, 300) };
 }
 
@@ -190,6 +191,7 @@ export function shiftSeoText(m: PublicShiftMeta) {
     when ? `تبدأ ${when}` : null,
     m.hourlyRate && m.currency ? `${num(m.hourlyRate)} ${m.currency} للساعة` : null,
   ].filter(Boolean);
-  const description = `مناوبة ${m.title}: ${parts.join(" · ")}. احجزها مباشرة عبر SyndeoCare.`;
+  const summary = parts.length ? `${m.title}: ${parts.join(" · ")}` : m.title;
+  const description = `مناوبة ${summary}. احجزها مباشرة عبر SyndeoCare.`;
   return { title, description: description.slice(0, 300) };
 }
