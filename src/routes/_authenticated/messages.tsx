@@ -221,14 +221,12 @@ function MessagesPage() {
   function pickFile(input: HTMLInputElement) {
     const f = input.files?.[0];
     if (!f) return;
-    const invalid = checkUpload(f, "chat", lang);
-    if (invalid) {
-      toast.error(f.size > CHAT_MAX_BYTES ? c.tooBig : invalid);
-      input.value = "";
-      return;
-    }
-    setFile(f);
+    input.value = "";
+    void prepareUpload(f, "chat", lang)
+      .then((ready) => setFile(ready))
+      .catch((e: Error) => toast.error(f.size > CHAT_MAX_BYTES ? c.tooBig : e.message));
   }
+
   const active = conversations.find((c) => c.id === activeId) ?? conversations[0] ?? null;
   const { map: unread } = useUnread(user);
 
