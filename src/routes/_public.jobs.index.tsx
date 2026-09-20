@@ -1,27 +1,35 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, SlidersHorizontal, ArrowLeft, Briefcase, RotateCcw, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { JobCard, type JobRow } from "@/components/job-card";
-import { ShiftCard, type ShiftRow } from "@/components/shift-card";
+import { JobCard } from "@/components/job-card";
+import { ShiftCard } from "@/components/shift-card";
 import { useSignedIn } from "@/components/page-chrome";
 import { engagementErrorText } from "@/lib/engagement-errors";
 import { supabase } from "@/integrations/supabase/client";
-import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
 import { useSession } from "@/lib/auth";
 import { countryLabel, employmentLabel, EMPLOYMENT_LABELS, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { useLang } from "@/lib/i18n";
-import { useSpecialtyScope, inScope, type Scope } from "@/lib/specialty-filter";
+import { useSpecialtyScope, type Scope } from "@/lib/specialty-filter";
 import { labelCityWithCountry } from "@/lib/geo";
-import { matchesQuery } from "@/lib/search";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { ErrorState } from "@/components/error-state";
 import { canonical, shareMeta } from "@/lib/seo";
+import {
+  PAGE_SIZE_MIXED,
+  PAGE_SIZE_SINGLE,
+  fetchListingPlaces,
+  searchPublicJobs,
+  searchPublicShifts,
+  type SearchFilters,
+  type SearchJobRow,
+  type SearchShiftRow,
+} from "@/lib/public-search";
 
 
 type JobsSearch = {
@@ -113,6 +121,10 @@ const TXT = {
     booked: "تم حجز المناوبة — ستجدها في صفحة مناوباتي",
     bookFailed: "تعذّر الحجز، ربما حُجزت المناوبة للتو",
     mySub: "مرتّبة حسب التخصص والموقع المسجلين في ملفك.",
+    loadMore: "عرض المزيد",
+    loading: "جارٍ التحميل…",
+    showing: (x: number, y: number) => `عرض ${x} من ${y}`,
+    appended: (n: number) => `تمت إضافة ${n} فرصة إلى القائمة`,
   },
   en: {
     badge: "Permanent roles and instant shifts in one place",
@@ -155,6 +167,10 @@ const TXT = {
     booked: "Shift booked — you'll find it under My shifts",
     bookFailed: "Booking failed, the shift may have just been taken",
     mySub: "Ordered using the specialty and location saved in your profile.",
+    loadMore: "Load more",
+    loading: "Loading…",
+    showing: (x: number, y: number) => `Showing ${x} of ${y}`,
+    appended: (n: number) => `${n} more opportunities added to the list`,
   },
 } as const;
 
@@ -180,6 +196,17 @@ function JobsPage() {
   const kind = sp.kind === "job" || sp.kind === "shift" ? sp.kind : ALL;
   const setKind = (v: string) => setParams({ kind: v, type: v === "shift" ? "" : (sp.type ?? "") });
   const setQ = (v: string) => setParams({ q: v });
+  // كلمة البحث محلية مع تأخير بسيط حتى لا نضرب الرابط/الشبكة مع كل حرف.
+  const [qInput, setQInput] = useState(q);
+  useEffect(() => {
+    setQInput(q);
+  }, [q]);
+  useEffect(() => {
+    if (qInput === q) return;
+    const t = setTimeout(() => setParams({ q: qInput }), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qInput]);
   const setCity = (v: string) => setParams({ city: v });
   const setSpecialty = (v: string) => setParams({ specialty: v });
   const setType = (v: string) => setParams({ type: v, kind: v === ALL ? (sp.kind ?? "") : "job" });
@@ -197,26 +224,6 @@ function JobsPage() {
     },
   });
 
-  const { data: jobs, isLoading, isError: jobsErr, error: jobsErrObj, refetch: jobsRefetch } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: async () => {
-      const { data, error } = await publicJobsQuery().order("created_at", { ascending: false });
-      if (error) throw error;
-      return withSpecialties(data) as unknown as (JobRow & {
-        specialty_id: string | null;
-        required_license: string | null;
-      })[];
-    },
-  });
-
-  const { data: shifts, isLoading: shiftsLoading, isError: shiftsErr, error: shiftsErrObj, refetch: shiftsRefetch } = useQuery({
-    queryKey: ["shifts"],
-    queryFn: async () => {
-      const { data, error } = await publicShiftsQuery().order("starts_at", { ascending: true });
-      if (error) throw error;
-      return withSpecialties(data) as unknown as (ShiftRow & { specialty_id: string | null })[];
-    },
-  });
 
   const queryClient = useQueryClient();
   const book = useMutation({
@@ -226,12 +233,12 @@ function JobsPage() {
     },
     onSuccess: () => {
       toast.success(c.booked);
-      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["search-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
     },
     onError: (e: Error) => {
       toast.error(engagementErrorText(e.message, lang));
-      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["search-shifts"] });
     },
   });
 
@@ -269,15 +276,21 @@ function JobsPage() {
     : profile ? "match" : "new";
   const hideApplied = signedIn && sp.hideApplied !== "0";
 
+  // معرفات ما قدّم عليه المستخدم نفسه فقط، بسقف معقول، وتُمرَّر كاستثناء للخادم.
   const { data: appliedIds } = useQuery({
     queryKey: ["my-applied-job-ids", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("applications").select("job_id").eq("user_id", user!.id);
+      const { data, error } = await supabase
+        .from("applications")
+        .select("job_id")
+        .eq("user_id", user!.id)
+        .limit(500);
       if (error) throw error;
-      return new Set((data ?? []).map((r) => r.job_id));
+      return (data ?? []).map((r) => r.job_id);
     },
   });
+  const appliedSet = useMemo(() => new Set(appliedIds ?? []), [appliedIds]);
 
   const { data: savedIds } = useQuery({
     queryKey: ["my-saved-job-ids", user?.id],
@@ -293,18 +306,25 @@ function JobsPage() {
     setParams({ scope: next });
   };
 
+  // قوائم الدول/المدن تأتي من مصدر عام مستقل حتى لا تعتمد على الصفحة المعروضة.
+  const { data: places } = useQuery({
+    queryKey: ["public-listing-places"],
+    queryFn: fetchListingPlaces,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const countries = useMemo(
-    () => Array.from(new Set([...(jobs ?? []), ...(shifts ?? [])].map((j) => j.country))),
-    [jobs, shifts],
+    () => Array.from(new Set((places ?? []).map((p) => p.country))),
+    [places],
   );
 
   const cities = useMemo(
     () =>
       Array.from(
         new Set(
-          [...(jobs ?? []), ...(shifts ?? [])]
-            .filter((j) => country === ALL || j.country === country)
-            .map((j) => j.city)
+          (places ?? [])
+            .filter((p) => country === ALL || p.country === country)
+            .map((p) => p.city)
             .filter((x): x is string => Boolean(x)),
         ),
       )
@@ -314,81 +334,109 @@ function JobsPage() {
           label: country === ALL ? labelCityWithCountry(x, lang) : x,
           keywords: [x, labelCityWithCountry(x, lang)],
         })),
-    [jobs, shifts, country, lang],
+    [places, country, lang],
   );
 
   const relevanceOf = (j: { specialty_id: string | null; country: string }) =>
     Number(!!profile?.specialty_id && j.specialty_id === profile.specialty_id) * 2 +
     Number(!!profile?.country && j.country === profile.country);
 
-  const filtered = (jobs ?? [])
-    .filter((j) => {
-      if (country !== ALL && j.country !== country) return false;
-      if (city !== ALL && j.city !== city) return false;
-      if (specialty !== ALL && j.specialty_id !== specialty) return false;
-      if (specialty === ALL && !inScope(scope, j.specialty_id, mySpecialtyId, fieldIds)) return false;
-      if (type !== ALL && j.employment_type !== type) return false;
-      if (
-        q &&
-        !matchesQuery(
-          [
-            j.title,
-            j.specialties?.name_ar,
-            j.specialties?.name_en,
-            j.city,
-            j.country,
-            countryLabel(j.country, lang),
-            employmentLabel(j.employment_type, lang),
-          ],
-          q,
-        )
-      )
-        return false;
-      if (hideApplied && appliedIds?.has(j.id)) return false;
-      return true;
-    })
-    .sort((a, b) => {
-      if (sort === "match" && profile) return relevanceOf(b) - relevanceOf(a);
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+  // نطاق التخصص ليس تفويضاً — مجرد تصفية تُمرَّر إلى الخادم.
+  const scopeIds =
+    specialty !== ALL
+      ? null
+      : scope === "mine"
+        ? mySpecialtyId
+          ? [mySpecialtyId]
+          : null
+        : scope === "field"
+          ? fieldIds.length
+            ? fieldIds
+            : null
+          : null;
 
-  const filteredShifts = (kind === "job" ? [] : shifts ?? []).filter((sh) => {
-    if (country !== ALL && sh.country !== country) return false;
-    if (city !== ALL && sh.city !== city) return false;
-    if (specialty !== ALL && sh.specialty_id !== specialty) return false;
-    if (specialty === ALL && !inScope(scope, sh.specialty_id, mySpecialtyId, fieldIds)) return false;
-    if (
-      q &&
-      !matchesQuery(
-        [sh.title, sh.notes, sh.city, sh.country, countryLabel(sh.country, lang), sh.specialties?.name_ar, sh.specialties?.name_en],
-        q,
-      )
-    )
-      return false;
-    return true;
+  const excludeJobIds = hideApplied && appliedIds?.length ? appliedIds : null;
+
+  const filters: SearchFilters = {
+    q,
+    country: country === ALL ? null : country,
+    city: city === ALL ? null : city,
+    specialtyId: specialty === ALL ? null : specialty,
+    specialtyIds: scopeIds,
+    type: type === ALL ? null : type,
+    sort: sort === "match" && profile ? "match" : "new",
+    prefSpecialtyId: sort === "match" ? (profile?.specialty_id ?? null) : null,
+    prefCountry: sort === "match" ? (profile?.country ?? null) : null,
+    excludeJobIds,
+  };
+
+  // في تبويب «الكل» نعرض المناوبات القادمة أولاً ثم أحدث الوظائف، وكل مصدر
+  // يُقسَّم إلى صفحات مستقلة حتى لا يتكرر أو يضيع أي صف عند «عرض المزيد».
+  const pageSize = kind === ALL ? PAGE_SIZE_MIXED : PAGE_SIZE_SINGLE;
+  const filterKey = JSON.stringify({ ...filters, pageSize });
+
+  const jobsQuery = useInfiniteQuery({
+    queryKey: ["search-jobs", filterKey],
+    enabled: kind !== "shift",
+    initialPageParam: 0,
+    queryFn: ({ pageParam, signal }) => searchPublicJobs(filters, pageParam, pageSize, signal),
+    getNextPageParam: (last) =>
+      last.offset + last.rows.length < last.total ? last.offset + pageSize : undefined,
   });
+
+  const shiftsQuery = useInfiniteQuery({
+    queryKey: ["search-shifts", filterKey],
+    enabled: kind !== "job",
+    initialPageParam: 0,
+    queryFn: ({ pageParam, signal }) => searchPublicShifts(filters, pageParam, pageSize, signal),
+    getNextPageParam: (last) =>
+      last.offset + last.rows.length < last.total ? last.offset + pageSize : undefined,
+  });
+
+  const loadedJobs: SearchJobRow[] =
+    kind === "shift" ? [] : (jobsQuery.data?.pages.flatMap((p) => p.rows) ?? []);
+  const loadedShifts: SearchShiftRow[] =
+    kind === "job" ? [] : (shiftsQuery.data?.pages.flatMap((p) => p.rows) ?? []);
+
+  const jobsTotal = kind === "shift" ? 0 : (jobsQuery.data?.pages[0]?.total ?? 0);
+  const shiftsTotal = kind === "job" ? 0 : (shiftsQuery.data?.pages[0]?.total ?? 0);
+  const total = jobsTotal + shiftsTotal;
 
   type Item =
-    | { kind: "job"; id: string; sortAt: number; job: (typeof filtered)[number] }
-    | { kind: "shift"; id: string; sortAt: number; shift: (typeof filteredShifts)[number] };
+    | { kind: "job"; id: string; job: SearchJobRow }
+    | { kind: "shift"; id: string; shift: SearchShiftRow };
 
   const items: Item[] = [
-    ...(kind === "shift" ? [] : filtered).map<Item>((j) => ({
-      kind: "job",
-      id: j.id,
-      sortAt: new Date(j.created_at).getTime(),
-      job: j,
-    })),
-    ...filteredShifts.map<Item>((sh) => ({
-      kind: "shift",
-      id: sh.id,
-      sortAt: new Date(sh.starts_at).getTime(),
-      shift: sh,
-    })),
-  ].sort((a, b) => {
-    if (kind === ALL && a.kind !== b.kind) return a.kind === "shift" ? -1 : 1;
-    return a.kind === "shift" ? a.sortAt - b.sortAt : b.sortAt - a.sortAt;
-  });
+    ...loadedShifts.map<Item>((sh) => ({ kind: "shift", id: sh.id, shift: sh })),
+    ...loadedJobs.map<Item>((j) => ({ kind: "job", id: j.id, job: j })),
+  ];
+
+  const isLoading =
+    (kind !== "shift" && jobsQuery.isPending) || (kind !== "job" && shiftsQuery.isPending);
+  const listError = jobsQuery.error ?? shiftsQuery.error;
+  const hasError = (kind !== "shift" && jobsQuery.isError) || (kind !== "job" && shiftsQuery.isError);
+  const hasMore = Boolean(
+    (kind !== "job" && shiftsQuery.hasNextPage) || (kind !== "shift" && jobsQuery.hasNextPage),
+  );
+  const loadingMore = shiftsQuery.isFetchingNextPage || jobsQuery.isFetchingNextPage;
+
+  const [appendedNote, setAppendedNote] = useState("");
+  const countBeforeLoad = useRef(0);
+  const loadMore = () => {
+    countBeforeLoad.current = items.length;
+    const next =
+      kind !== "job" && shiftsQuery.hasNextPage
+        ? shiftsQuery.fetchNextPage()
+        : jobsQuery.fetchNextPage();
+    void next.then(() => setAppendedNote(""));
+  };
+  useEffect(() => {
+    if (!loadingMore && countBeforeLoad.current && items.length > countBeforeLoad.current) {
+      setAppendedNote(c.appended(items.length - countBeforeLoad.current));
+      countBeforeLoad.current = 0;
+    }
+  }, [loadingMore, items.length, c]);
+
 
   const reset = () => {
     void navigate({ to: "/jobs", search: {}, replace: true });
@@ -502,8 +550,11 @@ function JobsPage() {
                   <div className="relative mt-1.5">
                     <Search className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-muted-foreground end-3" />
                     <Input
-                      value={q}
-                      onChange={(e) => setQ(e.target.value)}
+                      value={qInput}
+                      onChange={(e) => setQInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") setQ(qInput);
+                      }}
                       placeholder={c.search}
                       className="h-11 pe-9"
                       maxLength={80}
@@ -595,7 +646,7 @@ function JobsPage() {
                   <RotateCcw className="size-4" /> {c.reset}
                 </Button>
                 <Button className="w-full lg:hidden" onClick={() => setShowFilters(false)}>
-                  {c.applyFilters} · {c.count(items.length)}
+                  {c.applyFilters} · {c.count(total)}
                 </Button>
               </div>
             </div>
@@ -657,7 +708,7 @@ function JobsPage() {
               <div>
                 <p className="section-label">{c.results}</p>
                 <h2 className="mt-1 font-display text-xl font-extrabold">
-                  {c.count(items.length)}
+                  {c.count(total)}
                 </h2>
                 <FilterBar
                   className="mt-2"
@@ -702,7 +753,7 @@ function JobsPage() {
                     ))}
                   </div>
                 )}
-                {!!appliedIds?.size && (
+                {appliedSet.size > 0 && (
                    <Button
                     type="button"
                      variant="ghost"
@@ -719,16 +770,16 @@ function JobsPage() {
               </div>
             )}
 
-            {jobsErr || shiftsErr ? (
+            {hasError ? (
               <ErrorState
                 className="mt-6"
-                error={jobsErrObj ?? shiftsErrObj}
+                error={listError}
                 onRetry={() => {
-                  void jobsRefetch();
-                  void shiftsRefetch();
+                  void jobsQuery.refetch();
+                  void shiftsQuery.refetch();
                 }}
               />
-            ) : isLoading || shiftsLoading ? (
+            ) : isLoading ? (
               <div className="mt-6 space-y-3">
                 {[...Array(6)].map((_, i) => (
                   <Skeleton key={i} className="h-28 rounded-lg" />
@@ -742,35 +793,54 @@ function JobsPage() {
                 </Button>
               </div>
             ) : (
-              <div className="mt-6 space-y-3">
-                {items.map((item) =>
-                  item.kind === "job" ? (
-                    <JobCard
-                      key={`job-${item.id}`}
-                      job={item.job}
-                      applied={!!appliedIds?.has(item.id)}
-                      saved={!!savedIds?.has(item.id)}
-                      recommended={signedIn && relevanceOf(item.job) > 0}
-                    />
-                  ) : (
-                    <ShiftCard
-                      key={`shift-${item.id}`}
-                      shift={item.shift}
-                      busy={book.isPending}
-                      mine={!!bookedShiftIds?.has(item.id)}
-                      recommended={signedIn && !!mySpecialtyId && item.shift.specialty_id === mySpecialtyId}
-                      onBook={() => {
-                        if (!user) {
-                          void navigate({ to: "/auth" });
-                          return;
-                        }
-                        book.mutate(item.id);
-                      }}
-                    />
-                  ),
-                )}
-              </div>
+              <>
+                <div className="mt-6 space-y-3">
+                  {items.map((item) =>
+                    item.kind === "job" ? (
+                      <JobCard
+                        key={`job-${item.id}`}
+                        job={item.job}
+                        applied={appliedSet.has(item.id)}
+                        saved={!!savedIds?.has(item.id)}
+                        recommended={signedIn && relevanceOf(item.job) > 0}
+                      />
+                    ) : (
+                      <ShiftCard
+                        key={`shift-${item.id}`}
+                        shift={item.shift}
+                        busy={book.isPending}
+                        mine={!!bookedShiftIds?.has(item.id)}
+                        recommended={signedIn && !!mySpecialtyId && item.shift.specialty_id === mySpecialtyId}
+                        onBook={() => {
+                          if (!user) {
+                            void navigate({ to: "/auth" });
+                            return;
+                          }
+                          book.mutate(item.id);
+                        }}
+                      />
+                    ),
+                  )}
+                </div>
+                <div className="mt-6 flex flex-col items-center gap-3">
+                  <p className="text-sm text-muted-foreground">{c.showing(items.length, total)}</p>
+                  {hasMore && (
+                    <Button
+                      variant="outline"
+                      className="min-h-11 w-full sm:w-auto"
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                    >
+                      {loadingMore ? c.loading : c.loadMore}
+                    </Button>
+                  )}
+                  <p className="sr-only" aria-live="polite">
+                    {appendedNote}
+                  </p>
+                </div>
+              </>
             )}
+
 
           </div>
         </div>

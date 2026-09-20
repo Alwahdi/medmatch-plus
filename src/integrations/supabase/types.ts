@@ -1946,6 +1946,13 @@ export type Database = {
           user_agent: string
         }[]
       }
+      public_listing_places: {
+        Args: never
+        Returns: {
+          city: string
+          country: string
+        }[]
+      }
       push_notification: {
         Args: {
           _body_ar?: string
@@ -2035,6 +2042,82 @@ export type Database = {
           specialty_id: string
           user_id: string
           years_experience: number
+        }[]
+      }
+      search_public_jobs: {
+        Args: {
+          _city?: string
+          _country?: string
+          _exclude_ids?: string[]
+          _limit?: number
+          _offset?: number
+          _pref_country?: string
+          _pref_specialty_id?: string
+          _q?: string
+          _sort?: string
+          _specialty_id?: string
+          _specialty_ids?: string[]
+          _type?: string
+        }
+        Returns: {
+          applications_count: number
+          city: string
+          country: string
+          created_at: string
+          currency: string
+          description: string
+          employment_type: Database["public"]["Enums"]["employment_type"]
+          expires_at: string
+          facility_id: string
+          facility_verified: boolean
+          id: string
+          is_featured: boolean
+          min_experience: number
+          required_license: string
+          salary_max: number
+          salary_min: number
+          slug: string
+          specialty_id: string
+          specialty_name_ar: string
+          specialty_name_en: string
+          title: string
+          total_count: number
+          vacancies: number
+        }[]
+      }
+      search_public_shifts: {
+        Args: {
+          _city?: string
+          _country?: string
+          _limit?: number
+          _offset?: number
+          _pref_country?: string
+          _pref_specialty_id?: string
+          _q?: string
+          _sort?: string
+          _specialty_id?: string
+          _specialty_ids?: string[]
+        }
+        Returns: {
+          applications_count: number
+          city: string
+          country: string
+          created_at: string
+          currency: string
+          ends_at: string
+          facility_id: string
+          facility_verified: boolean
+          hourly_rate: number
+          id: string
+          is_urgent: boolean
+          notes: string
+          specialty_id: string
+          specialty_name_ar: string
+          specialty_name_en: string
+          starts_at: string
+          status: Database["public"]["Enums"]["shift_status"]
+          title: string
+          total_count: number
         }[]
       }
       send_candidate_invitation: {
