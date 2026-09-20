@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FacilityInterviewBlock } from "@/components/interview";
 import { EmptyState } from "@/components/empty-state";
 import { ReviewDialog } from "@/components/review-dialog";
+import { RehireDialog } from "@/components/rehire-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { countryLabel, relativeTime, experienceLabel } from "@/lib/format";
