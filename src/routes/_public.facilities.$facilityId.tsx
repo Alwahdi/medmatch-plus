@@ -117,7 +117,12 @@ function FacilityProfilePage() {
     },
   });
 
-  const { data: jobs } = useQuery({
+  const {
+    data: jobs = [],
+    isPending: jobsPending,
+    isError: jobsError,
+    refetch: refetchJobs,
+  } = useQuery({
     queryKey: ["public-facility-jobs", facilityId],
     enabled: !!facility,
     queryFn: async () => {
