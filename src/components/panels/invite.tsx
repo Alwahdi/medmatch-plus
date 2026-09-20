@@ -297,13 +297,19 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       if (shiftId) args._shift_id = shiftId;
       if (message.trim()) args._message = message.trim();
       const { error } = await supabase.rpc("send_candidate_invitation", args);
-      if (error) throw new UserFacingError(error.message.includes("INVITATION_EXISTS") ? c.duplicate : c.failed);
+      if (error) throw error.message.includes("INVITATION_EXISTS") ? new UserFacingError(c.duplicate) : error;
     },
     onSuccess: () => {
       toast.success(c.sent);
       queryClient.invalidateQueries({ queryKey: ["invitations-sent"] });
     },
-    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
+    onError: (e: Error, professionalUserId) => {
+      toast.error(friendlyError(e, lang, c.failed));
+      // سباق: المختص قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
+      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_INVITE_NOT_ALLOWED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
+        setResults((rows) => (rows ? rows.filter((r) => r.user_id !== professionalUserId) : rows));
+      }
+    },
   });
 
   /** سحب دعوة معلّقة — الحالة فقط، والباقي يفرضه الخادم. */
@@ -493,6 +499,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             <Search className="size-4" /> {search.isPending ? c.searching : c.searchBtn}
           </Button>
         </div>
+        )}
 
         {results && (
           <ul className="mt-4 space-y-3">
