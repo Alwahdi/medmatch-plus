@@ -175,6 +175,9 @@ const TXT = {
     candidateNote: "Candidate note",
     failed: "The action could not be completed",
     joinLink: "Meeting link",
+    beforeShift: (t: string) => `The interview must end before the shift starts (${t}).`,
+    noWindow: "There isn't enough time left before the shift starts to hold an interview.",
+    windowInvalid: "Pick a time that ends before the shift starts.",
   },
 } as const;
 
