@@ -147,7 +147,6 @@ export function ApplicationsPanel() {
               {c.confirmWithdraw}
             </Button>
           </DialogFooter>
-        </DialogFooter>
         </DialogContent>
       </Dialog>
       {isLoading ? (
