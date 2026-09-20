@@ -20,6 +20,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { RatingStars } from "@/components/rating-stars";
 import { ImageUpload } from "@/components/image-upload";
+import { LocationPicker } from "@/components/location-picker";
 import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { supabase } from "@/integrations/supabase/client";
