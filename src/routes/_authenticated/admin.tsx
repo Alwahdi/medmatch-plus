@@ -289,8 +289,7 @@ function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-change-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-change-log"] });
     },
-    onError: (e: Error) => {
-      console.error("[admin] review change request failed", e);
+    onError: () => {
       toast.error(c.updateFailed);
     },
   });

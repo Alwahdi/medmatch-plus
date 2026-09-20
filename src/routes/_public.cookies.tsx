@@ -6,36 +6,37 @@ import { canonical, shareMeta } from "@/lib/seo";
 const TXT = {
   ar: {
     badge: "الشفافية",
-    title: "ملفات الارتباط (Cookies)",
-    sub: "نشرح هنا ما نستخدمه من ملفات ارتباط ولماذا، وكيف يمكنك التحكم بها.",
+    title: "التخزين في المتصفح وملفات الارتباط",
+    sub: "نشرح هنا ما يحفظه متصفحك أثناء استخدام المنصة ولماذا، وكيف يمكنك التحكم به.",
     updated: "آخر تحديث: سبتمبر 2026",
     sections: [
       {
-        h: "ما هي ملفات الارتباط؟",
+        h: "ما المقصود بالتخزين في المتصفح؟",
         p: [
-          "ملفات صغيرة يحفظها متصفحك عند زيارة الموقع، تساعدنا على تذكّر تسجيل دخولك ولغتك المفضلة.",
+          "بيانات صغيرة يحفظها متصفحك عند زيارة الموقع، سواء في مساحة التخزين المحلية أو تخزين الجلسة أو ملفات الارتباط.",
+          "نستخدمها لإبقائك مسجّل الدخول ولتذكّر لغتك المفضلة.",
         ],
       },
       {
         h: "ما الذي نستخدمه؟",
         p: [
-          "ملفات ضرورية: لتسجيل الدخول وحفظ الجلسة وحماية الحساب. لا يعمل الموقع بدونها.",
-          "ملفات التفضيلات: لتذكّر اللغة (عربي/إنجليزي) وبعض خيارات العرض.",
-          "قياس الأداء: إحصاءات مجمّعة عن الصفحات الأكثر زيارة، دون ربطها بهويتك.",
+          "تخزين أساسي للجلسة: للحفاظ على تسجيل الدخول وحماية الحساب، إضافة إلى أي ملفات ارتباط ضرورية تفرضها بنية المصادقة. لا يعمل الموقع بدونها.",
+          "تفضيل اللغة: يُحفظ محلياً في متصفحك لتذكّر اختيارك بين العربية والإنجليزية.",
         ],
       },
       {
         h: "ما الذي لا نفعله",
         p: [
-          "لا نبيع بياناتك ولا نشارك ملفات الارتباط مع معلنين خارجيين.",
-          "لا نستخدم ملفات ارتباط لتتبعك عبر مواقع أخرى.",
+          "لا نستخدم أدوات تحليلات أو قياس أداء داخل المنصة.",
+          "لا نبيع بياناتك ولا نشاركها مع معلنين خارجيين.",
+          "لا نتتبعك عبر مواقع أخرى.",
         ],
       },
       {
-        h: "كيف تتحكم بها؟",
+        h: "كيف تتحكم به؟",
         p: [
-          "يمكنك حذف ملفات الارتباط أو منعها من إعدادات متصفحك في أي وقت.",
-          "منع الملفات الضرورية سيمنعك من تسجيل الدخول واستخدام لوحة التحكم.",
+          "يمكنك حذف بيانات الموقع وملفات الارتباط أو منعها من إعدادات متصفحك في أي وقت.",
+          "منع التخزين الأساسي سيمنعك من تسجيل الدخول واستخدام لوحة التحكم.",
         ],
       },
     ],
@@ -46,36 +47,37 @@ const TXT = {
   },
   en: {
     badge: "Transparency",
-    title: "Cookies",
-    sub: "Here we explain which cookies we use, why, and how you can control them.",
+    title: "Browser storage & cookies",
+    sub: "Here we explain what your browser stores while you use the platform, why, and how you can control it.",
     updated: "Last updated: September 2026",
     sections: [
       {
-        h: "What are cookies?",
+        h: "What is browser storage?",
         p: [
-          "Small files your browser stores when you visit the site; they help us remember your sign-in and preferred language.",
+          "Small pieces of data your browser keeps when you visit the site — in local storage, session storage, or cookies.",
+          "We use it to keep you signed in and to remember your preferred language.",
         ],
       },
       {
         h: "What we use",
         p: [
-          "Essential cookies: sign-in, session storage and account protection. The site cannot work without them.",
-          "Preference cookies: remembering your language (Arabic/English) and some display options.",
-          "Performance measurement: aggregated statistics about the most visited pages, not linked to your identity.",
+          "Essential session storage: keeping you signed in and protecting your account, plus any essential cookies required by the authentication infrastructure. The site cannot work without it.",
+          "Language preference: stored locally in your browser so we remember your choice between Arabic and English.",
         ],
       },
       {
         h: "What we don't do",
         p: [
-          "We don't sell your data and we don't share cookies with external advertisers.",
-          "We don't use cookies to track you across other websites.",
+          "We run no analytics or performance-measurement tools in the product.",
+          "We don't sell your data and we don't share it with external advertisers.",
+          "We don't track you across other websites.",
         ],
       },
       {
-        h: "How to control them",
+        h: "How to control it",
         p: [
-          "You can delete or block cookies from your browser settings at any time.",
-          "Blocking essential cookies will prevent you from signing in and using the dashboard.",
+          "You can delete or block site data and cookies from your browser settings at any time.",
+          "Blocking essential storage will prevent you from signing in and using the dashboard.",
         ],
       },
     ],
@@ -89,13 +91,13 @@ const TXT = {
 export const Route = createFileRoute("/_public/cookies")({
   head: () => ({
     meta: [
-      { title: "سياسة ملفات الارتباط | Cookie Policy | SyndeoCare" },
+      { title: "التخزين في المتصفح وملفات الارتباط | Browser Storage & Cookies | SyndeoCare" },
       {
         name: "description",
-        content: "ما هي ملفات الارتباط التي تستخدمها SyndeoCare ولماذا، وكيف تتحكم بها من متصفحك.",
+        content: "ما الذي يحفظه متصفحك أثناء استخدام SyndeoCare ولماذا، وكيف تتحكم به.",
       },
-      { property: "og:title", content: "سياسة ملفات الارتباط | Cookie Policy | SyndeoCare" },
-      { property: "og:description", content: "تفاصيل استخدام ملفات الارتباط على منصة SyndeoCare." },
+      { property: "og:title", content: "التخزين في المتصفح وملفات الارتباط | SyndeoCare" },
+      { property: "og:description", content: "تفاصيل التخزين في المتصفح وملفات الارتباط على منصة SyndeoCare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       ...shareMeta("/cookies"),

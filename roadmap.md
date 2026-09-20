@@ -1116,3 +1116,11 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - روابط الإشعارات من قاعدة البيانات صارت رسمية: `notify_application` → `/activity?tab=applications`، `notify_credential` → `/profile?tab=credentials`، `cancel_facility_shift` → `/activity?tab=shifts`، مع تحديث لمرة واحدة للإشعارات المحفوظة سابقاً بالمسارات القديمة. صلاحيات least-privilege أُعيد تطبيقها على `cancel_facility_shift`.
 - المسارات القديمة بقيت موجودة كتحويلات فقط لدعم الروابط/الإشارات المرجعية الخارجية؛ يُحفظ فقط معامل `tab` المدعوم ولا يوجد تحويل مفتوح لأي عنوان خارجي.
 - اختبار متصفح: `/shifts` → `/jobs?kind=shift` و`/pricing` → `/for-facilities`، والرجوع يعود إلى `/jobs` لا إلى المسار القديم؛ المسارات المحمية القديمة تصل إلى `/auth?next=<الوجهة الرسمية>`. البناء وفحص الأنواع نظيفان.
+
+## Phase83 — Browser-storage policy accuracy + client error hygiene
+- /cookies retitled "Browser storage & cookies" / "التخزين في المتصفح وملفات الارتباط"; describes localStorage/session/auth storage functionally; removed unsupported performance-measurement/analytics claim (no analytics SDK in package.json).
+- Privacy section 8 aligned: essential browser storage + cookies for session/preferences, no ads or cross-site tracking.
+- No consent banner added (essential storage only).
+- Removed console.error(error) from root ErrorComponent; reportLovableError is the single reporting path. Removed raw error log in admin change-request onError.
+- Remaining console.* are server-only (start.ts, server.ts, *.server.ts, api routes, sitemap) or the error-capture pipeline.
+- Footer link label updated. Tests: language persists after reload, AR/EN copy accurate, no console errors, tsgo clean.
