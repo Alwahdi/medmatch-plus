@@ -288,9 +288,9 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     mutationFn: async (target: { userId?: string; candidateId?: string }) => {
       if (!facility || (!jobId && !shiftId)) throw new UserFacingError(c.noTarget);
       const args: Record<string, string> = {};
-      if (jobId) args._job_id = jobId;
-      if (shiftId) args._shift_id = shiftId;
-      if (message.trim()) args._message = message.trim();
+      if (jobId) args["_job_id"] = jobId;
+      if (shiftId) args["_shift_id"] = shiftId;
+      if (message.trim()) args["_message"] = message.trim();
       const { error } = target.candidateId
         ? await supabase.rpc("send_candidate_invitation_from_search", {
             ...args,
@@ -355,7 +355,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       <Button
         size="sm"
         disabled={invite.isPending || (!jobId && !shiftId)}
-        onClick={() => invite.mutate(userId ? { userId } : { candidateId })}
+        onClick={() => invite.mutate(userId ? { userId } : { candidateId: candidateId! })}
       >
         <Send className="size-4" /> {c.invite}
       </Button>
