@@ -139,31 +139,10 @@ export const parseCv = createServerFn({ method: "POST" })
     if (!args) return { profile: null, error: "AI_FAILED" };
 
     try {
-      const parsed = JSON.parse(args) as Record<string, unknown>;
-      // حدود صارمة على مخرجات النموذج حتى لا يُنتج قيماً غير منطقية.
-      const str = (v: unknown, max: number) => {
-        if (typeof v !== "string") return null;
-        const t = v.replace(/\s+/g, " ").trim();
-        return t ? t.slice(0, max) : null;
-      };
-      const yearsRaw = parsed["years_experience"];
-      const years =
-        typeof yearsRaw === "number" && Number.isFinite(yearsRaw)
-          ? Math.min(60, Math.max(0, Math.round(yearsRaw)))
-          : null;
-      return {
-        profile: {
-          full_name: str(parsed["full_name"], 120),
-          headline: str(parsed["headline"], 160),
-          years_experience: years,
-          country: str(parsed["country"], 60),
-          city: str(parsed["city"], 60),
-          bio: str(parsed["bio"], 1000),
-          license_country: str(parsed["license_country"], 60),
-          license_number: str(parsed["license_number"], 60),
-          specialty_hint: str(parsed["specialty_hint"], 80),
-        },
-      };
+      // تحقق صارم بـZod: كل الحقول اختيارية/nullable ومقصوصة على حدود قاعدة البيانات.
+      const result = parsedCvSchema.safeParse(JSON.parse(args));
+      if (!result.success) return { profile: null, error: "AI_FAILED" };
+      return { profile: result.data };
     } catch {
       return { profile: null, error: "AI_FAILED" };
     }
