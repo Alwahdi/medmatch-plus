@@ -335,3 +335,26 @@ export function facilityDisplayName(
   const primary = lang === "en" ? en || ar : ar || en;
   return primary || (lang === "en" ? "Employer" : "منشأة");
 }
+
+/** أنواع المنشآت المعتمدة — نفس القيم التي تتحقق منها قاعدة البيانات. */
+export const FACILITY_TYPES = [
+  { value: "hospital", ar: "مستشفى", en: "Hospital" },
+  { value: "clinic", ar: "عيادة", en: "Clinic" },
+  { value: "polyclinic", ar: "مجمع عيادات", en: "Polyclinic" },
+  { value: "pharmacy", ar: "صيدلية", en: "Pharmacy" },
+  { value: "lab", ar: "مختبر", en: "Laboratory" },
+] as const;
+
+export function facilityTypeLabel(value: string | null | undefined, lang: Lang = "ar") {
+  const row = FACILITY_TYPES.find((t) => t.value === value);
+  if (!row) return value || "";
+  return lang === "en" ? row.en : row.ar;
+}
+
+export function facilityTypeOptions(lang: Lang = "ar") {
+  return FACILITY_TYPES.map((t) => ({
+    value: t.value,
+    label: lang === "en" ? t.en : t.ar,
+    keywords: [t.ar, t.en],
+  }));
+}
