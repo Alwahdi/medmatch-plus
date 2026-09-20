@@ -131,7 +131,7 @@ function AuthenticatedLayout() {
     return () => {
       active = false;
     };
-  }, [navigate, attempt]);
+  }, [navigate, attempt, accessToken]);
 
 
   // حارس الأدوار: كل دور يصل إلى صفحاته فقط.
