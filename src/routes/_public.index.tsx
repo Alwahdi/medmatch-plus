@@ -27,6 +27,7 @@ import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/publi
 import { GUIDES } from "@/content/guides";
 import { DICT, useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
+import { canonical, shareMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
@@ -43,7 +44,9 @@ export const Route = createFileRoute("/_public/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta("/"),
     ],
+  links: canonical("/"),
   }),
   component: Home,
 });

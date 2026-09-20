@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -97,7 +98,9 @@ export const Route = createFileRoute("/_public/cookies")({
       { property: "og:description", content: "تفاصيل استخدام ملفات الارتباط على منصة SyndeoCare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      ...shareMeta("/cookies"),
     ],
+  links: canonical("/cookies"),
   }),
   component: CookiesPage,
 });

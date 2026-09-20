@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/error-state";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -56,7 +57,9 @@ export const Route = createFileRoute("/_public/specialties/")({
       { property: "og:description", content: "فرص عمل طبية مصنّفة حسب التخصص." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta("/specialties"),
     ],
+  links: canonical("/specialties"),
   }),
   component: SpecialtiesIndex,
 });

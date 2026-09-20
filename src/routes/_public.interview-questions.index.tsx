@@ -3,6 +3,7 @@ import { HelpCircle, ArrowLeft } from "lucide-react";
 import { QUESTION_BANKS } from "@/content/question-banks";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -58,7 +59,9 @@ export const Route = createFileRoute("/_public/interview-questions/")({
       { property: "og:description", content: "استعد لمقابلتك القادمة بأسئلة حقيقية وإرشادات إجابة." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      ...shareMeta("/interview-questions"),
     ],
+  links: canonical("/interview-questions"),
   }),
   component: BanksIndex,
 });

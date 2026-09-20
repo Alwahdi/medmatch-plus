@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/privacy")({
   head: () => ({
@@ -16,7 +17,9 @@ export const Route = createFileRoute("/_public/privacy")({
       { property: "og:description", content: "تفاصيل جمع البيانات واستخدامها وحقوقك في SyndeoCare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      ...shareMeta("/privacy"),
     ],
+  links: canonical("/privacy"),
   }),
   component: Privacy,
 });
