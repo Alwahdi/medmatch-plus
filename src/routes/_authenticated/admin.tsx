@@ -27,6 +27,7 @@ import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
 import { AdminDeletionQueue } from "@/components/admin-deletion-queue";
 import { AdminSafetyReports } from "@/components/admin-safety-reports";
+import { AdminReadiness } from "@/components/admin-readiness";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -40,16 +41,6 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-const READINESS_LABEL: Record<string, { ar: string; en: string }> = {
-  live_admin_count: { ar: "حسابات إدارة فعّالة", en: "Live admin accounts" },
-  orphan_roles: { ar: "صلاحيات لحسابات محذوفة", en: "Roles for deleted accounts" },
-  orphan_profiles: { ar: "ملفات بلا حساب (محفوظة لسجل العمل)", en: "Profiles without an account (kept for history)" },
-  orphan_professionals: { ar: "ملفات كوادر بلا حساب (مخفية عن البحث)", en: "Professional profiles without an account (hidden)" },
-  professional_role_without_profile: { ar: "صلاحية كادر بلا ملف", en: "Professional role without a profile" },
-  facility_role_without_profile: { ar: "صلاحية منشأة بلا ملف", en: "Facility role without a profile" },
-  unclaimed_facilities: { ar: "منشآت بلا مالك (إدراج عام مقصود)", en: "Facilities with no owner (intentional listings)" },
-  test_accounts: { ar: "حسابات اختبار متبقية", en: "Remaining test accounts" },
-};
 
 const TXT = {
   ar: {
@@ -273,21 +264,6 @@ function AdminPage() {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(300);
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
-  const {
-    data: readiness,
-    isError: readinessErr,
-    isLoading: readinessLoading,
-    refetch: readinessRefetch,
-  } = useQuery({
-    queryKey: ["admin-readiness"],
-    enabled: !!isAdmin,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("release_readiness_report");
       if (error) throw error;
       return data ?? [];
     },
@@ -1006,28 +982,7 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="readiness" className="mt-6">
-          {readinessErr ? (
-            <ErrorState onRetry={() => void readinessRefetch()} />
-          ) : readinessLoading ? (
-            <ListSkeleton rows={4} />
-          ) : (
-            <ul className="space-y-2">
-              {(readiness ?? []).map((r) => (
-                <li
-                  key={r.check_code}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
-                >
-                  <span className="min-w-0">
-                    <b className="block">{READINESS_LABEL[r.check_code]?.[lang] ?? r.check_code}</b>
-                    <span className="text-xs text-muted-foreground">{r.detail}</span>
-                  </span>
-                  <Badge variant={r.severity === "blocker" ? "destructive" : r.severity === "warning" ? "secondary" : "outline"}>
-                    {r.value}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
-          )}
+          <AdminReadiness />
         </TabsContent>
       </Tabs>
     </div>
