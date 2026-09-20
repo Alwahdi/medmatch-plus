@@ -14,6 +14,11 @@ export async function resolveLanding(userId: string): Promise<LandingPath> {
     supabase.from("healthcare_professionals").select("id").eq("user_id", userId).maybeSingle(),
   ]);
 
+  // فشل أي طلب هنا يعني توجيهاً خاطئاً صامتاً (مدير يُرسل إلى الإعداد) — نرمي بدل التخمين.
+  if (rolesRes.error) throw rolesRes.error;
+  if (facRes.error) throw facRes.error;
+  if (proRes.error) throw proRes.error;
+
   const roles = (rolesRes.data ?? []).map((r) => r.role as string);
   if (roles.includes("admin")) return "/admin";
   if (facRes.data) return "/facility";

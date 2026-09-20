@@ -64,17 +64,21 @@ export function useNotifications(user: User | null | undefined, limit = 30) {
 }
 
 export async function markNotificationRead(id: string) {
-  await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("id", id);
+  assertOk(
+    await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("id", id),
+  );
 }
 
 export async function markAllNotificationsRead(userId: string) {
-  await supabase
+  assertOk(
+    await supabase
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
-    .eq("user_id", userId)
-    .is("read_at", null);
+      .eq("user_id", userId)
+      .is("read_at", null),
+  );
 }
 
 export async function clearNotifications(userId: string) {
-  await supabase.from("notifications").delete().eq("user_id", userId);
+  assertOk(await supabase.from("notifications").delete().eq("user_id", userId));
 }
