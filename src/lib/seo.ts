@@ -192,6 +192,6 @@ export function shiftSeoText(m: PublicShiftMeta) {
     m.hourlyRate && m.currency ? `${num(m.hourlyRate)} ${m.currency} للساعة` : null,
   ].filter(Boolean);
   const summary = parts.length ? `${m.title}: ${parts.join(" · ")}` : m.title;
-  const description = `مناوبة ${summary}. احجزها مباشرة عبر SyndeoCare.`;
+  const description = `${summary}. احجزها مباشرة عبر SyndeoCare.`;
   return { title, description: description.slice(0, 300) };
 }
