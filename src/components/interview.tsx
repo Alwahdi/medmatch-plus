@@ -516,7 +516,20 @@ export function FacilityInterviewBlock({
           <div className="space-y-4">
             <div>
               <Label htmlFor="iv-when">{c.when}</Label>
-              <Input id="iv-when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+              <Input
+                id="iv-when"
+                type="datetime-local"
+                value={when}
+                {...(latestStartMs !== null
+                  ? { max: toLocalInput(new Date(latestStartMs)), "aria-describedby": "iv-when-hint" }
+                  : {})}
+                onChange={(e) => setWhen(e.target.value)}
+              />
+              {shiftStartsAt && (
+                <p id="iv-when-hint" className="mt-1 text-xs text-muted-foreground">
+                  {c.beforeShift(formatDateTime(shiftStartsAt, lang))}
+                </p>
+              )}
             </div>
             {!isReschedule && (
               <>
