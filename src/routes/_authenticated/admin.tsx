@@ -199,7 +199,9 @@ function AdminPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("healthcare_professionals")
-        .select("id,user_id,full_name,headline,years_experience,country,city,is_verified,rating_avg,rating_count")
+        .select(
+          "id,user_id,full_name,headline,years_experience,country,city,is_verified,rating_avg,rating_count,verification_suspended_at,verification_suspension_reason",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
