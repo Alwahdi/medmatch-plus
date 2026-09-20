@@ -67,9 +67,10 @@ async function extractPdf(file: File, onProgress?: (pct: number) => void): Promi
   pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 
   const buffer = await file.arrayBuffer();
+  const task = pdfjs.getDocument({ data: new Uint8Array(buffer) });
   let doc;
   try {
-    doc = await pdfjs.getDocument({ data: new Uint8Array(buffer), isEvalSupported: false }).promise;
+    doc = await task.promise;
   } catch (e) {
     const name = (e as { name?: string })?.name ?? "";
     if (name === "PasswordException") throw new CvExtractError("PDF_ENCRYPTED");
@@ -77,7 +78,7 @@ async function extractPdf(file: File, onProgress?: (pct: number) => void): Promi
   }
 
   if (doc.numPages > CV_FILE_LIMITS.maxPdfPages) {
-    void doc.destroy();
+    void task.destroy();
     throw new CvExtractError("PDF_TOO_MANY_PAGES");
   }
 
@@ -92,7 +93,7 @@ async function extractPdf(file: File, onProgress?: (pct: number) => void): Promi
     page.cleanup();
     onProgress?.(Math.round((i / doc.numPages) * 100));
   }
-  void doc.destroy();
+  void task.destroy();
   return parts.join("\n");
 }
 
