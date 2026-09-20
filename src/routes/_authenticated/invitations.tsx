@@ -128,7 +128,13 @@ function InvitationsPage() {
       <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{c.subtitle}</p>
 
-      {data?.length ? (
+      {isPending ? (
+        <div className="mt-6">
+          <ListSkeleton rows={3} />
+        </div>
+      ) : isError ? (
+        <ErrorState className="mt-8" error={error} onRetry={() => void refetch()} />
+      ) : data.length ? (
         <ul className="mt-6 space-y-4">
           {data.map((inv) => {
             const f = inv.facilities;
