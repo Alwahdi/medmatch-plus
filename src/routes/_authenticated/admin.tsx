@@ -736,12 +736,16 @@ function AdminPage() {
 
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-bold">{cr.file_name ?? cr.title}</p>
+                      <p className="font-bold">{credentialLabel(cr.doc_type, lang)}</p>
+                      {(cr.file_name || cr.title) && (
+                        <p className="mt-1 truncate text-xs text-muted-foreground" title={cr.file_name ?? cr.title}>
+                          {c.fileLabel}: {cr.file_name ?? cr.title}
+                        </p>
+                      )}
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {credentialLabel(cr.doc_type, lang)}
-                        {cr.issuer ? ` · ${cr.issuer}` : ""}
-                        {cr.expiry_date ? ` · ${c.expires(formatDate(cr.expiry_date, lang))}` : ""}
-                        {` · ${formatDate(cr.created_at, lang)}`}
+                        {cr.issuer ? `${cr.issuer} · ` : ""}
+                        {cr.expiry_date ? `${c.expires(formatDate(cr.expiry_date, lang))} · ` : ""}
+                        {formatDate(cr.created_at, lang)}
                       </p>
                       {cr.review_note && (
                         <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">{cr.review_note}</p>
