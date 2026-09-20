@@ -113,12 +113,7 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{var l=localStorage.getItem('syndeocare-lang');if(l==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}",
-          }}
-        />
+        <script src="/lang-boot.js" />
         <HeadContent />
       </head>
       <body>
