@@ -204,6 +204,8 @@ export function FacilityBookingsPanel({
             <FacilityInterviewBlock
               shiftBookingId={b.id}
               candidateName={b.pro?.full_name ?? c.healthcarePro}
+              {...(shiftStartsAt ? { shiftStartsAt } : {})}
+              shiftLive={shiftStatus === "booked"}
             />
           )}
         </li>
