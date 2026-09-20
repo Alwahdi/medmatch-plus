@@ -106,6 +106,8 @@ export const TXT = {
     shiftTitlePlaceholder: "مثال: مناوبة ليلية — طوارئ",
     shiftStartsAt: "البداية",
     shiftEndsAt: "النهاية",
+    localTimeHint: "بتوقيتك المحلي",
+    endAdjusted: "عدّلنا وقت النهاية ليتوافق مع البداية الجديدة — راجعه.",
     hourlyRate: "الأجر بالساعة",
     notes: "ملاحظات",
     publishShift: "نشر المناوبة",
