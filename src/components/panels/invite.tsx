@@ -516,7 +516,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
           <ul className="mt-4 space-y-3">
             {results.map((cand) => (
               <li
-                key={cand.user_id}
+                key={cand.id}
                 className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4"
               >
                 <RemoteAvatar value={null} icon={UserRound} className="size-10 rounded-lg" />
@@ -536,7 +536,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
                   </p>
                 </div>
                 <div className="ms-auto">
-                  <InviteButton userId={cand.user_id} />
+                  <InviteButton candidateId={cand.id} />
                 </div>
               </li>
             ))}
