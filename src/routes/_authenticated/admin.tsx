@@ -656,7 +656,7 @@ function AdminPage() {
 
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-bold">{cr.title}</p>
+                      <p className="font-bold">{cr.file_name ?? cr.title}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {credentialLabel(cr.doc_type, lang)}
                         {cr.issuer ? ` · ${cr.issuer}` : ""}
