@@ -128,7 +128,7 @@ function InvitationsPage() {
 
   // The target can go stale purely by clock before any maintenance write, so
   // availability is recomputed at render time rather than trusted from status.
-  function targetAvailable(inv: (typeof data extends undefined ? never : NonNullable<typeof data>)[number]) {
+  function targetAvailable(inv: NonNullable<typeof data>[number]) {
     if (inv.job_id) {
       const j = inv.jobs;
       if (!j) return false;
