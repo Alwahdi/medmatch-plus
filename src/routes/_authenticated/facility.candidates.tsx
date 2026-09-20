@@ -101,6 +101,11 @@ const TXT = {
     completeFacility: "أكمل بيانات المنشأة أولاً",
     initialContact: "تواصل مبدئي",
     anonymousNote: "الاسم والصورة والنبذة تظهر بعد بدء المحادثة.",
+    lockedTitle: "وثّق منشأتك لاستخدام البحث عن المرشحين",
+    lockedBody: "البحث عن الكوادر والتواصل معهم مباشرة متاح للمنشآت الموثّقة فقط. ارفع وثائق منشأتك وبعد اعتمادها يُفتح البحث. لن يُحتسب أي بحث من حصتك قبل ذلك.",
+    lockedApplicants: "في هذه الأثناء يمكنك استقبال المتقدمين على وظائفك ومناوباتك وإدارتهم من صفحة المتقدمين كالمعتاد.",
+    lockedCta: "توثيق المنشأة",
+    lockedApplicantsCta: "المتقدمون",
   },
   en: {
     errors: {
@@ -138,6 +143,11 @@ const TXT = {
     completeFacility: "Complete your facility profile first",
     initialContact: "Initial contact",
     anonymousNote: "Name, photo and bio appear after you start the conversation.",
+    lockedTitle: "Verify your facility to use candidate search",
+    lockedBody: "Searching professionals and contacting them directly is for verified facilities only. Upload your facility documents and search opens once they are approved. Nothing is deducted from your search allowance until then.",
+    lockedApplicants: "In the meantime you can keep receiving and managing applicants to your jobs and shifts from the Applicants page as usual.",
+    lockedCta: "Facility verification",
+    lockedApplicantsCta: "Applicants",
   },
 } as const;
 
@@ -179,7 +189,7 @@ function Candidates() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facilities")
-        .select("id,name_ar")
+        .select("id,name_ar,is_verified")
         .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -243,7 +253,13 @@ function Candidates() {
       toast.success(c.chatOpened);
       navigate({ to: "/messages" });
     },
-    onError: () => toast.error(c.chatFailed),
+    onError: (e: Error, candidateUserId) => {
+      toast.error(friendlyError(e, lang, c.chatFailed));
+      // سباق: المرشح قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
+      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
+        setResults((rows) => (rows ? rows.filter((r) => r.user_id !== candidateUserId) : rows));
+      }
+    },
   });
 
   const activeFilters: ActiveFilter[] = [
@@ -275,6 +291,31 @@ function Candidates() {
     plan && typeof quota?.searches_used === "number"
       ? Math.max(plan.candidate_searches - quota.searches_used, 0)
       : null;
+
+  // بوابة التوثيق: البحث الاستباقي عن الكوادر للمنشآت الموثّقة فقط.
+  if (facility && !facility.is_verified) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <WorkspaceHeading title={c.title} description={c.subtitle} />
+        <div className="mt-6 rounded-lg border border-border bg-card p-5 shadow-card">
+          <h2 className="flex items-center gap-2 text-base font-bold">
+            <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
+            {c.lockedTitle}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">{c.lockedBody}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{c.lockedApplicants}</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button asChild className="min-h-11">
+              <Link to="/facility/verification">{c.lockedCta}</Link>
+            </Button>
+            <Button asChild variant="outline" className="min-h-11">
+              <Link to="/facility" search={{ tab: "applicants" }}>{c.lockedApplicantsCta}</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
