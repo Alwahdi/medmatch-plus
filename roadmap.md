@@ -549,3 +549,13 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - الواجهة: `src/lib/listing-privacy.ts` فحص مبدئي مطابق، نص إرشادي تحت وصف الوظيفة وملاحظات المناوبة، ملاحظة خصوصية هادئة في شاشة المراجعة، رسالة ودية AR/EN، والمسودة تبقى محفوظة عند الرفض.
 - اختبارات (rollback فقط): وصف طبي عادي مقبول؛ اسم المنشأة/بريد/https/www/واتساب+رقم/+967 مرفوضة؛ 20 وظيفة قائمة تمر بلا فشل. (4 مناوبات قديمة تفشل على قيد `shifts_duration_valid` السابق — غير متعلق بهذه المرحلة.)
 - typecheck/build نظيفان؛ /jobs و/shifts بلا overflow ولا أخطاء على 320/390/1440.
+
+## Phase 54 — Technical SEO, crawl hygiene & share metadata (مكتملة)
+- robots.txt: السماح بالصفحات العامة ومنع المسارات الخاصة/الحسابية + Sitemap directive.
+- sitemap.xml ديناميكي (/sitemap.xml): صفحات ثابتة + مدونة/أدلة/أسئلة + تخصصات + وظائف عامة (slug) + مناوبات مستقبلية. لا مسارات خاصة ولا /pricing ولا /shifts (تحويلات).
+- src/lib/seo.ts: SITE_URL=https://syndeocare.ai، OG_IMAGE=/og-cover.png، canonical/shareMeta/NOINDEX/jobCanonicalPath (UUID → slug).
+- canonical + og:url + og:image على كل الصفحات العامة (leaf فقط).
+- noindex,nofollow على /auth /register /register/employer /reset-password /mfa-challenge وملف المنشأة العام و_authenticated/*.
+- JSON-LD واقعي فقط: WebSite/Organization للرئيسية، BlogPosting للمقالات. لا JobPosting لأن هوية صاحب العمل مخفية عمداً.
+- public/og-cover.png 1200x630 بهوية المنصة (لا صور مستخدمين/منشآت).
+- تصحيح ادعاء غير موثق في المدونة (زمن التوظيف «خلال أيام»).

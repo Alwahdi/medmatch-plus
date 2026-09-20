@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -40,7 +41,9 @@ export const Route = createFileRoute("/_public/blog/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta("/blog"),
     ],
+  links: canonical("/blog"),
   }),
   component: BlogIndex,
 });

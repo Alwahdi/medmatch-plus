@@ -3,6 +3,7 @@ import { CalendarClock, ClipboardList, ShieldCheck, Users, Sparkles, ArrowLeft, 
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
 import { useMyFacility, useSession } from "@/lib/auth";
+import { canonical, shareMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/for-facilities")({
   head: () => ({
@@ -17,7 +18,9 @@ export const Route = createFileRoute("/_public/for-facilities")({
       { property: "og:description", content: "غطِّ مناوباتك خلال ساعات مع حالة توثيق ظاهرة لكل مرشح." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta("/for-facilities"),
     ],
+  links: canonical("/for-facilities"),
   }),
   component: ForFacilities,
 });

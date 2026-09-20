@@ -21,6 +21,7 @@ import { labelCityWithCountry } from "@/lib/geo";
 import { matchesQuery } from "@/lib/search";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { ErrorState } from "@/components/error-state";
+import { canonical, shareMeta } from "@/lib/seo";
 
 
 type JobsSearch = {
@@ -61,7 +62,9 @@ export const Route = createFileRoute("/_public/jobs/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta("/jobs"),
     ],
+  links: canonical("/jobs"),
   }),
   component: JobsPage,
 });

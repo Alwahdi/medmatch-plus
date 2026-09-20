@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { getBank } from "@/content/question-banks";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -174,7 +175,7 @@ export const Route = createFileRoute("/_public/interview-questions/$slug")({
     if (!bank) throw notFound();
     return bank;
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, params }) => ({
     meta: loaderData
       ? [
           { title: `${loaderData.title} | SyndeoCare` },
@@ -183,8 +184,10 @@ export const Route = createFileRoute("/_public/interview-questions/$slug")({
           { property: "og:description", content: loaderData.description },
           { property: "og:type", content: "article" },
           { name: "twitter:card", content: "summary" },
+          ...shareMeta(`/interview-questions/${params.slug}`),
         ]
       : [{ title: "أسئلة المقابلات | SyndeoCare" }],
+    links: canonical(`/interview-questions/${params.slug}`),
   }),
   errorComponent: () => {
     const { lang } = useLang();

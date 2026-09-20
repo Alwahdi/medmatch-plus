@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { HeartPulse, ShieldCheck, Sparkles, Users, ArrowLeft, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
@@ -16,7 +17,9 @@ export const Route = createFileRoute("/_public/about")({
       { property: "og:description", content: "رسالتنا: توظيف صحي أسرع وأكثر شفافية في العالم العربي." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta("/about"),
     ],
+  links: canonical("/about"),
   }),
   component: About,
 });

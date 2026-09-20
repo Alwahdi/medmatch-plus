@@ -4,6 +4,7 @@ import { GUIDES } from "@/content/guides";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -66,7 +67,9 @@ export const Route = createFileRoute("/_public/guides/")({
       { property: "og:description", content: "محتوى عملي يساعدك على الحصول على الوظيفة الصحية المناسبة." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      ...shareMeta("/guides"),
     ],
+  links: canonical("/guides"),
   }),
   component: GuidesIndex,
 });

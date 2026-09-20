@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/contact")({
   head: () => ({
@@ -23,7 +24,9 @@ export const Route = createFileRoute("/_public/contact")({
       { property: "og:description", content: "فريق SyndeoCare جاهز للرد على استفساراتك." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      ...shareMeta("/contact"),
     ],
+  links: canonical("/contact"),
   }),
   component: Contact,
 });

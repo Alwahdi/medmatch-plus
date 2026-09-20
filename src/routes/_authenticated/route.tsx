@@ -7,11 +7,13 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { roleHome, useRoles, useSession } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { NOINDEX } from "@/lib/seo";
 
 // ملاحظة: فحص الجلسة يتم بعد الترطيب (داخل المكوّن) وليس في beforeLoad،
 // حتى لا يحدث تعارض Hydration عند تحويل الزائر غير المسجّل إلى /auth.
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  head: () => ({ meta: [NOINDEX] }),
   component: AuthenticatedLayout,
 });
 

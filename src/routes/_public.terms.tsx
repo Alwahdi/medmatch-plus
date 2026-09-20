@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { FileText, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/terms")({
   head: () => ({
@@ -16,7 +17,9 @@ export const Route = createFileRoute("/_public/terms")({
       { property: "og:description", content: "الشروط المنظّمة لاستخدام منصة SyndeoCare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      ...shareMeta("/terms"),
     ],
+  links: canonical("/terms"),
   }),
   component: Terms,
 });

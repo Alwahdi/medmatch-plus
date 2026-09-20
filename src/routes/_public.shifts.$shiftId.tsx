@@ -30,6 +30,7 @@ import {
 } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -121,7 +122,7 @@ const TXT = {
 } as const;
 
 export const Route = createFileRoute("/_public/shifts/$shiftId")({
-  head: () => ({
+  head: ({ params }) => ({
     meta: [
       { title: "تفاصيل المناوبة | Shift details | SyndeoCare" },
       {
@@ -132,7 +133,9 @@ export const Route = createFileRoute("/_public/shifts/$shiftId")({
       { property: "og:description", content: "اطّلع على تفاصيل المناوبة واحجزها مباشرة." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta(`/shifts/${params.shiftId}`),
     ],
+    links: canonical(`/shifts/${params.shiftId}`),
   }),
   component: ShiftDetail,
   notFoundComponent: () => {

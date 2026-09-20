@@ -27,6 +27,7 @@ import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/publi
 import { GUIDES } from "@/content/guides";
 import { DICT, useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
+import { canonical, shareMeta, absoluteUrl, OG_IMAGE } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
@@ -43,6 +44,22 @@ export const Route = createFileRoute("/_public/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta("/"),
+    ],
+    links: canonical("/"),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "SyndeoCare",
+          url: absoluteUrl("/"),
+          inLanguage: ["ar", "en"],
+          image: OG_IMAGE,
+          publisher: { "@type": "Organization", name: "SyndeoCare", url: absoluteUrl("/") },
+        }),
+      },
     ],
   }),
   component: Home,

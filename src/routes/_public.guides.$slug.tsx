@@ -4,6 +4,7 @@ import { GUIDES, getGuide } from "@/content/guides";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { canonical, shareMeta } from "@/lib/seo";
 
 const TXT = {
   ar: {
@@ -180,7 +181,7 @@ export const Route = createFileRoute("/_public/guides/$slug")({
     if (!guide) throw notFound();
     return guide;
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, params }) => ({
     meta: loaderData
       ? [
           { title: `${loaderData.title} | SyndeoCare` },
@@ -189,8 +190,10 @@ export const Route = createFileRoute("/_public/guides/$slug")({
           { property: "og:description", content: loaderData.description },
           { property: "og:type", content: "article" },
           { name: "twitter:card", content: "summary" },
+          ...shareMeta(`/guides/${params.slug}`),
         ]
       : [{ title: "دليل | SyndeoCare" }],
+    links: canonical(`/guides/${params.slug}`),
   }),
   errorComponent: () => {
     const { lang } = useLang();
