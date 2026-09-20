@@ -1963,6 +1963,10 @@ export type Database = {
         Args: { _city: string; _country: string }
         Returns: boolean
       }
+      job_accepting_applications: {
+        Args: { _expires_at: string; _is_active: boolean }
+        Returns: boolean
+      }
       mark_conversation_read: {
         Args: { _conversation_id: string }
         Returns: number
