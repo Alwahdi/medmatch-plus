@@ -190,7 +190,7 @@ export function FacilityVerificationPanel() {
     queryFn: async (): Promise<FacilityDoc[]> => {
       const { data, error } = await supabase
         .from("facility_documents")
-        .select("id,doc_type,title,issuer,issue_date,expiry_date,file_path,status,review_note,created_at")
+        .select("id,doc_type,title,file_name,issuer,issue_date,expiry_date,file_path,status,review_note,created_at")
         .eq("facility_id", facility!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -231,7 +231,7 @@ export function FacilityVerificationPanel() {
 
     onSuccess: () => {
       toast.success(c.uploaded);
-      setForm({ doc_type: "", title: "", issuer: "", issue_date: "", expiry_date: "" });
+      setForm({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
       setFile(null);
       void queryClient.invalidateQueries({ queryKey: ["facility-docs"] });
     },
@@ -463,7 +463,7 @@ export function FacilityVerificationPanel() {
           <Input
             id="fd-file"
             type="file"
-            accept="application/pdf,image/jpeg,image/png,image/webp"
+            accept={ACCEPT.document}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
         </div>
@@ -487,7 +487,7 @@ export function FacilityVerificationPanel() {
                 <div className="flex min-w-0 items-start gap-3">
                   <FileText className="mt-0.5 size-5 text-primary" />
                   <div className="min-w-0">
-                    <p className="font-medium">{doc.title}</p>
+                    <p className="font-medium">{doc.file_name ?? doc.title}</p>
                     <p className="text-xs text-muted-foreground">
                       {facilityDocTypeLabel(doc.doc_type, lang)}
                       {doc.issuer ? ` · ${doc.issuer}` : ""}
