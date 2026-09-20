@@ -24,6 +24,7 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyFacility, useRoles, useSession } from "@/lib/auth";
+import { facilityDisplayName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
