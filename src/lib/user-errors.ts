@@ -9,6 +9,12 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // المرحلة 83: دورة حياة الدعوة تتبع توفر الفرصة
+  {
+    test: /INVITATION_TARGET_UNAVAILABLE/i,
+    ar: "لم تعد هذه الفرصة متاحة، لذا لا يمكن قبول الدعوة. حدّثنا القائمة لك.",
+    en: "This opportunity is no longer available, so the invitation can't be accepted. The list has been refreshed.",
+  },
   // المرحلة 82: شارة التوثيق مبنية على أدلة
   {
     test: /VERIFICATION_REQUIREMENTS_NOT_MET/i,

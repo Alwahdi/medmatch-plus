@@ -53,6 +53,9 @@ const TXT = {
     failed: "تعذّر تحديث الدعوة",
     goMessages: "الذهاب للمحادثة",
     verified: "موثّقة",
+    unavailable: "الفرصة لم تعد متاحة",
+    unavailableBody: "أُغلقت هذه الفرصة أو انتهى وقتها، فلم يعد بالإمكان قبول الدعوة. يمكنك رفضها لإزالتها من قائمتك.",
+    viewClosed: "عرض التفاصيل",
   },
   en: {
     title: "Invitations",
@@ -76,6 +79,9 @@ const TXT = {
     failed: "Could not update the invitation",
     goMessages: "Go to messages",
     verified: "Verified",
+    unavailable: "Opportunity unavailable",
+    unavailableBody: "This opportunity closed or its time passed, so the invitation can no longer be accepted. You can decline it to clear it from your list.",
+    viewClosed: "View details",
   },
 } as const;
 
@@ -93,7 +99,7 @@ function InvitationsPage() {
       const { data: rows, error } = await supabase
         .from("invitations")
         .select(
-          "id,status,message,created_at,job_id,shift_id,facility_id,facilities(id,name_ar,city,country,is_verified,logo_url),jobs(id,title,slug),shifts(id,title,starts_at)",
+          "id,status,message,created_at,job_id,shift_id,facility_id,facilities(id,name_ar,city,country,is_verified,logo_url),jobs(id,title,slug,is_active,expires_at),shifts(id,title,starts_at,status)",
         )
         .eq("professional_user_id", user!.id)
         .order("created_at", { ascending: false });
@@ -112,8 +118,29 @@ function InvitationsPage() {
       queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: (e: Error) => toast.error(friendlyError(e, lang, c.failed)),
+    onError: (e: Error) => {
+      // A stale target is a data-freshness problem: refresh so the row stops
+      // offering Accept, then explain factually.
+      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
+      toast.error(friendlyError(e, lang, c.failed));
+    },
   });
+
+  // The target can go stale purely by clock before any maintenance write, so
+  // availability is recomputed at render time rather than trusted from status.
+  function targetAvailable(inv: NonNullable<typeof data>[number]) {
+    if (inv.job_id) {
+      const j = inv.jobs;
+      if (!j) return false;
+      return j.is_active && (!j.expires_at || new Date(j.expires_at).getTime() > Date.now());
+    }
+    if (inv.shift_id) {
+      const s = inv.shifts;
+      if (!s) return false;
+      return s.status === "open" && new Date(s.starts_at).getTime() > Date.now();
+    }
+    return true;
+  }
 
   // Only the row (and action) actually running shows a spinner.
   const busy = respond.isPending ? respond.variables : undefined;
@@ -146,6 +173,7 @@ function InvitationsPage() {
           {data.map((inv) => {
             const f = inv.facilities;
             const isJob = !!inv.job_id;
+            const available = inv.status !== "pending" || targetAvailable(inv);
             return (
               <li key={inv.id} className="rounded-lg border border-border bg-card p-5">
                 <div className="flex flex-wrap items-start gap-3">
@@ -185,6 +213,13 @@ function InvitationsPage() {
                   </Badge>
                 </div>
 
+                {inv.status === "pending" && !available && (
+                  <p className="mt-3 rounded-lg border border-border bg-surface p-3 text-sm leading-relaxed">
+                    <span className="font-semibold">{c.unavailable}</span>
+                    <span className="block text-muted-foreground">{c.unavailableBody}</span>
+                  </p>
+                )}
+
                 {inv.message && (
                   <p className="mt-3 rounded-lg bg-surface p-3 text-sm leading-relaxed">
                     {inv.message}
@@ -195,19 +230,20 @@ function InvitationsPage() {
                   {isJob && inv.jobs ? (
                     <Button asChild size="sm" variant="outline">
                       <Link to="/jobs/$jobId" params={{ jobId: inv.jobs.slug ?? inv.jobs.id }}>
-                        {c.view}
+                        {available ? c.view : c.viewClosed}
                       </Link>
                     </Button>
                   ) : inv.shifts ? (
                     <Button asChild size="sm" variant="outline">
                       <Link to="/shifts/$shiftId" params={{ shiftId: inv.shifts.id }}>
-                        {c.view}
+                        {available ? c.view : c.viewClosed}
                       </Link>
                     </Button>
                   ) : null}
 
                   {inv.status === "pending" ? (
                     <>
+                      {available && (
                       <Button
                         size="sm"
                         onClick={() => act(inv.id, "accepted")}
@@ -216,6 +252,7 @@ function InvitationsPage() {
                       >
                         <Check className="size-4" /> {c.accept}
                       </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="ghost"
