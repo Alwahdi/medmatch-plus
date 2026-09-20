@@ -739,7 +739,7 @@ function JobsPage() {
                     ))}
                   </div>
                 )}
-                {!!appliedIds?.size && (
+                {appliedSet.size > 0 && (
                    <Button
                     type="button"
                      variant="ghost"
