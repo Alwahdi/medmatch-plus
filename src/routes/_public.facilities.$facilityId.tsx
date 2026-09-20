@@ -279,7 +279,13 @@ function FacilityProfilePage() {
 
         <div className="card-lift rounded-lg border border-border bg-card p-6">
           <h2 className="text-lg font-bold">{c.jobs}</h2>
-          {jobs?.length ? (
+          {jobsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : jobsError ? (
+            <ErrorState className="mt-4" onRetry={() => void refetchJobs()} />
+          ) : jobs.length ? (
             <ul className="mt-4 space-y-3">
               {jobs.map((j) => (
                 <li key={j.id}>
