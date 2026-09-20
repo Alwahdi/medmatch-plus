@@ -187,6 +187,15 @@ export function html(title: string, text: string, url: string) {
 </body></html>`;
 }
 
+/** Every DB read/write is fail-closed: a backend error is never "no data". */
+function ok<T>(result: { data: T; error: { message: string } | null }, step: string): T {
+  if (result.error) {
+    console.error(`[alerts] ${step} failed`, result.error.message);
+    throw new DispatchError(`alerts_${step}_failed`);
+  }
+  return result.data;
+}
+
 export async function dispatchAlerts(options?: { limit?: number }): Promise<DispatchSummary> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const configured = alertChannelStatus();
@@ -200,16 +209,18 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
     retried: 0,
   };
 
-  const { data: alertRows } = await supabaseAdmin
-    .from("job_alerts")
-    .select("id,user_id,specialty_id,country,city,employment_type,channel,whatsapp_phone,last_sent_at")
-    .eq("is_active", true);
-  const alerts = (alertRows ?? []) as Alert[];
+  const alerts = (ok(
+    await supabaseAdmin
+      .from("job_alerts")
+      .select("id,user_id,specialty_id,country,city,employment_type,channel,whatsapp_phone,last_sent_at")
+      .eq("is_active", true),
+    "read_alerts",
+  ) ?? []) as Alert[];
   summary.alerts = alerts.length;
   if (!alerts.length) return summary;
 
   const since = new Date(Date.now() - 14 * 86400000).toISOString();
-  const [{ data: jobRows }, { data: shiftRows }] = await Promise.all([
+  const [jobRes, shiftRes] = await Promise.all([
     supabaseAdmin
       .from("jobs")
       .select("id,slug,title,city,country,specialty_id,employment_type,salary_min,salary_max,currency,created_at")
@@ -225,19 +236,24 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
       .order("created_at", { ascending: false })
       .limit(options?.limit ?? 200),
   ]);
-  const jobs = (jobRows ?? []) as Job[];
-  const shifts = (shiftRows ?? []) as Shift[];
+  const jobs = (ok(jobRes, "read_jobs") ?? []) as Job[];
+  const shifts = (ok(shiftRes, "read_shifts") ?? []) as Shift[];
 
-  const { data: deliveredRows } = await supabaseAdmin
-    .from("alert_deliveries")
-    .select("id,alert_id,job_id,shift_id,channel,status,attempt_count,last_attempt_at")
-    .in("alert_id", alerts.map((a) => a.id));
+  // A failed read here would look like "nothing delivered yet" and resend
+  // everything, so it must abort before any provider call.
+  const deliveredRows = ok(
+    await supabaseAdmin
+      .from("alert_deliveries")
+      .select("id,alert_id,job_id,shift_id,channel,status,attempt_count,last_attempt_at")
+      .in("alert_id", alerts.map((a) => a.id)),
+    "read_deliveries",
+  ) ?? [];
 
   const key = (alertId: string, jobId: string | null, shiftId: string | null, channel: string) =>
     `${alertId}:${jobId ?? ""}:${shiftId ?? ""}:${channel}`;
 
   const existingByKey = new Map<string, DeliveryRow>();
-  for (const row of (deliveredRows ?? []) as Array<
+  for (const row of deliveredRows as Array<
     DeliveryRow & { alert_id: string; job_id: string | null; shift_id: string | null; channel: string }
   >) {
     existingByKey.set(key(row.alert_id, row.job_id, row.shift_id, row.channel), {
@@ -257,7 +273,11 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
     if (alert.channel === "whatsapp") {
       recipient = alert.whatsapp_phone;
     } else {
-      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(alert.user_id);
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.getUserById(alert.user_id);
+      if (authError) {
+        console.error("[alerts] read_recipient failed", authError.message);
+        throw new DispatchError("alerts_read_recipient_failed");
+      }
       recipient = authUser?.user?.email ?? null;
     }
 
@@ -287,6 +307,65 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
     let sentForAlert = 0;
 
     for (const item of pending.slice(0, 10)) {
+      const stamp = new Date().toISOString();
+
+      // --- Atomic claim -------------------------------------------------
+      // Nothing is sent before this run owns the row. The partial unique
+      // indexes plus the compare-and-set guard mean two concurrent cron runs
+      // can never both reach the provider for the same (alert, listing,
+      // channel) pair. No transaction is held across the provider call.
+      let deliveryId: string;
+      if (item.existing) {
+        const previous = item.existing;
+        let claim = supabaseAdmin
+          .from("alert_deliveries")
+          .update({
+            status: "processing",
+            attempt_count: (previous.attempt_count ?? 1) + 1,
+            last_attempt_at: stamp,
+          } as never)
+          .eq("id", previous.id)
+          .eq("status", previous.status);
+        claim =
+          previous.attempt_count === null
+            ? claim.is("attempt_count", null)
+            : claim.eq("attempt_count", previous.attempt_count);
+        const claimed = ok(await claim.select("id"), "claim_delivery") ?? [];
+        if (!claimed.length) {
+          // Another concurrent run owns this attempt.
+          summary.skipped += 1;
+          continue;
+        }
+        summary.retried += 1;
+        deliveryId = previous.id;
+      } else {
+        const inserted = await supabaseAdmin
+          .from("alert_deliveries")
+          .insert({
+            alert_id: alert.id,
+            job_id: item.jobId,
+            shift_id: item.shiftId,
+            channel: alert.channel,
+            recipient,
+            status: "processing",
+            attempt_count: 1,
+            last_attempt_at: stamp,
+          } as never)
+          .select("id")
+          .single();
+        if (inserted.error) {
+          if ((inserted.error as { code?: string }).code === "23505") {
+            // Another concurrent run inserted the same claim first.
+            summary.skipped += 1;
+            continue;
+          }
+          console.error("[alerts] claim_delivery failed", inserted.error.message);
+          throw new DispatchError("alerts_claim_delivery_failed");
+        }
+        deliveryId = (inserted.data as { id: string }).id;
+      }
+
+      // --- Provider send ------------------------------------------------
       let result: SendResult;
       if (!recipient) {
         result = { status: "failed", error: "missing_recipient" };
@@ -301,6 +380,29 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
         });
       }
 
+      // --- Finalize -----------------------------------------------------
+      // If persistence fails after a real send, the run fails loudly instead
+      // of reporting success: the claim row stays `processing` and is only
+      // retried after PROCESSING_TIMEOUT_MS, so no blind immediate resend.
+      const finalStamp = new Date().toISOString();
+      const { error: finalError } = await supabaseAdmin
+        .from("alert_deliveries")
+        .update({
+          status: result.status,
+          error: result.error ? sanitizeProviderError(result.error) : null,
+          recipient,
+          last_attempt_at: finalStamp,
+          ...(result.status === "sent" ? { sent_at: finalStamp } : {}),
+        } as never)
+        .eq("id", deliveryId);
+      if (finalError) {
+        console.error(
+          `[alerts] persist_delivery failed after provider status=${result.status}`,
+          finalError.message,
+        );
+        throw new DispatchError("alerts_persist_delivery_failed");
+      }
+
       if (result.status === "sent") {
         summary.sent += 1;
         sentForAlert += 1;
@@ -309,42 +411,20 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
       } else {
         summary.skipped += 1;
       }
-
-      const stamp = new Date().toISOString();
-      if (item.existing) {
-        summary.retried += 1;
-        await supabaseAdmin
-          .from("alert_deliveries")
-          .update({
-            status: result.status,
-            error: result.error ?? null,
-            recipient,
-            attempt_count: (item.existing.attempt_count ?? 1) + 1,
-            last_attempt_at: stamp,
-            ...(result.status === "sent" ? { sent_at: stamp } : {}),
-          } as never)
-          .eq("id", item.existing.id);
-      } else {
-        await supabaseAdmin.from("alert_deliveries").insert({
-          alert_id: alert.id,
-          job_id: item.jobId,
-          shift_id: item.shiftId,
-          channel: alert.channel,
-          recipient,
-          status: result.status,
-          error: result.error ?? null,
-          attempt_count: 1,
-          last_attempt_at: stamp,
-        } as never);
-      }
     }
 
-    // Only a real delivery advances the alert's "last sent" timestamp.
+    // Only a real delivery advances the alert's "last sent" timestamp. This is
+    // display state: `alert_deliveries` remains the source of truth, so a
+    // failure here cannot cause a duplicate send.
     if (sentForAlert > 0) {
-      await supabaseAdmin
+      const { error: stampError } = await supabaseAdmin
         .from("job_alerts")
         .update({ last_sent_at: new Date().toISOString() })
         .eq("id", alert.id);
+      if (stampError) {
+        console.error("[alerts] update_last_sent_at failed", stampError.message);
+        throw new DispatchError("alerts_update_last_sent_at_failed");
+      }
     }
   }
 
