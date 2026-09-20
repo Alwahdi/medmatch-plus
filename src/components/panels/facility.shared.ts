@@ -9,6 +9,14 @@ export const TXT = {
     applicants: "المتقدمون",
     trial: "تجربة مجانية",
     expired: "منتهية",
+    subStateTrial: "تجربة نشطة",
+    subStateActive: "اشتراك نشط",
+    subStateExpired: "انتهت المدة",
+    subStateInactive: "غير نشط",
+    subStateNone: "لا يوجد اشتراك",
+    subNoteExpired: "انتهت مدة وصولك، فتوقف النشر والبحث عن مرشحين. تواصل مع الدعم لإعادة التفعيل.",
+    subNoteInactive: "وصول هذا الحساب غير نشط حالياً، فالنشر والبحث عن مرشحين متوقفان. تواصل مع الدعم للمراجعة.",
+    subNoteNone: "لا يوجد اشتراك مرتبط بهذه المنشأة بعد، لذا النشر والبحث عن مرشحين غير متاحين. تواصل مع الدعم لتفعيل الوصول.",
     endsAt: (d: string) => `تنتهي في ${d}`,
     activeSub: "الاستخدام التجريبي متاح",
     activeJobsCount: (a: number, b: number) => `الوظائف النشطة ${a}/${b}`,
@@ -172,6 +180,14 @@ export const TXT = {
     applicants: "Applicants",
     trial: "Free trial",
     expired: "Expired",
+    subStateTrial: "Trial active",
+    subStateActive: "Active",
+    subStateExpired: "Ended",
+    subStateInactive: "Inactive",
+    subStateNone: "No subscription",
+    subNoteExpired: "Your access period ended, so posting and candidate search are paused. Contact support to reactivate.",
+    subNoteInactive: "This account's access is not active right now, so posting and candidate search are paused. Contact support for a review.",
+    subNoteNone: "No subscription is linked to this facility yet, so posting and candidate search are unavailable. Contact support to activate access.",
     endsAt: (d: string) => `Ends on ${d}`,
     activeSub: "Trial access available",
     activeJobsCount: (a: number, b: number) => `Active jobs ${a}/${b}`,
@@ -346,6 +362,23 @@ export type SubRow = {
   searches_used: number;
   subscription_plans: PlanRow | null;
 };
+
+export type SubLifecycle = "none" | "trial" | "active" | "expired" | "inactive";
+
+/** حالة الاشتراك الواحدة المستخدمة في كل الواجهة — لا تُشتق من التاريخ وحده. */
+export function subscriptionLifecycle(
+  sub: { status: string; ends_at: string | null } | null | undefined,
+  isTrialPlan?: boolean,
+): SubLifecycle {
+  if (!sub) return "none";
+  if (sub.status !== "active" && sub.status !== "trialing") return "inactive";
+  if (!sub.ends_at || new Date(sub.ends_at).getTime() <= Date.now()) return "expired";
+  return sub.status === "trialing" || isTrialPlan ? "trial" : "active";
+}
+
+export function subscriptionAllowsAccess(state: SubLifecycle) {
+  return state === "trial" || state === "active";
+}
 
 /** رسائل واضحة بدل أكواد قاعدة البيانات. */
 export function shiftErrorText(raw: string, lang: "ar" | "en") {
