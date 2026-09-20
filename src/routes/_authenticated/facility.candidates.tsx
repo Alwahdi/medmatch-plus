@@ -23,6 +23,7 @@ import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
 import { WorkspaceHeading } from "@/components/workspace-ui";
+import { subscriptionAllowsAccess, subscriptionLifecycle } from "@/components/panels/facility.shared";
 import { UserFacingError } from "@/lib/user-errors";
 
 type CandidatesSearch = { specialty?: string; country?: string; city?: string; minExp?: string };
@@ -71,6 +72,9 @@ const TXT = {
       SEARCH_QUOTA_EXCEEDED: "استهلكت حصة البحث التجريبية. تواصل مع الدعم إذا كنت تحتاج متابعة البحث.",
     },
     searchFailed: "تعذّر تنفيذ البحث",
+    subNoteExpired: "انتهت مدة وصولك، فتوقف البحث عن مرشحين. تواصل مع الدعم لإعادة التفعيل.",
+    subNoteInactive: "وصول هذا الحساب غير نشط حالياً، فالبحث عن مرشحين متوقف. تواصل مع الدعم للمراجعة.",
+    subNoteNone: "لا يوجد اشتراك مرتبط بهذه المنشأة بعد، لذا البحث عن مرشحين غير متاح. تواصل مع الدعم لتفعيل الوصول.",
     title: "بحث المرشحين",
     subtitle: "هوية المرشح الكاملة تظهر بعد بدء المحادثة معه.",
     remaining: "المتبقي من حصة البحث:",
@@ -105,6 +109,9 @@ const TXT = {
       SEARCH_QUOTA_EXCEEDED: "You've used the trial search allowance. Contact support if you need to continue.",
     },
     searchFailed: "Failed to run the search",
+    subNoteExpired: "Your access period ended, so candidate search is paused. Contact support to reactivate.",
+    subNoteInactive: "This account's access is not active right now, so candidate search is paused. Contact support for a review.",
+    subNoteNone: "No subscription is linked to this facility yet, so candidate search is unavailable. Contact support to activate access.",
     title: "Candidate search",
     subtitle: "The candidate's full identity is revealed once you start a conversation.",
     remaining: "Remaining search quota:",
@@ -180,13 +187,13 @@ function Candidates() {
     },
   });
 
-  const { data: quota, refetch: refetchQuota } = useQuery({
+  const { data: quota, isPending: quotaPending, refetch: refetchQuota } = useQuery({
     queryKey: ["search-quota", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facility_subscriptions")
-        .select("searches_used,plan_code,subscription_plans(candidate_searches,name_ar)")
+        .select("status,ends_at,searches_used,plan_code,subscription_plans(candidate_searches,name_ar,is_trial)")
         .eq("facility_id", facility!.id)
         .maybeSingle();
       if (error) throw error;
@@ -254,6 +261,15 @@ function Candidates() {
     minExp ? { key: "minExp", label: `${minExp}+`, onClear: () => setMinExp("") } : null,
   ].filter(Boolean) as ActiveFilter[];
 
+  const subState = subscriptionLifecycle(quota, quota?.subscription_plans?.is_trial);
+  // Never claim "no access" before the plan state is known.
+  const planStateKnown = !!facility && !quotaPending;
+  const searchAllowed = !planStateKnown || subscriptionAllowsAccess(subState);
+  const subStateNote = !planStateKnown ? null :
+    subState === "expired" ? c.subNoteExpired
+    : subState === "inactive" ? c.subNoteInactive
+    : subState === "none" ? c.subNoteNone
+    : null;
   const plan = quota?.subscription_plans;
   const remaining =
     plan && typeof quota?.searches_used === "number"
@@ -312,10 +328,19 @@ function Candidates() {
           value={minExp}
           onChange={(e) => setMinExp(e.target.value)}
         />
-        <Button className="w-full sm:col-span-2 md:col-span-4" onClick={() => search.mutate()} loading={search.isPending}>
+        <Button
+          className="w-full sm:col-span-2 md:col-span-4"
+          onClick={() => search.mutate()}
+          loading={search.isPending}
+          disabled={!searchAllowed}
+        >
           <Search className="size-4" /> {search.isPending ? c.searching : c.searchBtn}
         </Button>
       </div>
+
+      {subStateNote && (
+        <p className="mt-3 rounded-lg bg-destructive/10 p-3 text-xs text-destructive">{subStateNote}</p>
+      )}
 
       {activeFilters.length > 0 && (
         <FilterBar

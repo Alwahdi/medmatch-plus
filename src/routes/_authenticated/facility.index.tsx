@@ -72,7 +72,15 @@ import { useUnread } from "@/lib/unread";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { TXT, shiftErrorText, type FacilitySearch, type PlanRow, type SubRow } from "@/components/panels/facility.shared";
+import {
+  TXT,
+  shiftErrorText,
+  subscriptionAllowsAccess,
+  subscriptionLifecycle,
+  type FacilitySearch,
+  type PlanRow,
+  type SubRow,
+} from "@/components/panels/facility.shared";
 import { ErrorState } from "@/components/error-state";
 import { friendlyError, userError } from "@/lib/user-errors";
 
@@ -164,7 +172,7 @@ function FacilityDashboard() {
     },
   });
 
-  const { data: sub, isError: subErr, refetch: subRefetch } = useQuery({
+  const { data: sub, isError: subErr, isPending: subPending, refetch: subRefetch } = useQuery({
     queryKey: ["facility-sub", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -179,10 +187,21 @@ function FacilityDashboard() {
   });
 
   const plan = sub?.subscription_plans ?? null;
-  const subActive =
-    !!sub &&
-    (sub.status === "active" || sub.status === "trialing") &&
-    (!sub.ends_at || new Date(sub.ends_at) > new Date());
+  const subState = subscriptionLifecycle(sub, plan?.is_trial);
+  // Treat an unknown plan state as "not blocked yet" rather than showing a false block.
+  const subStateKnown = !!facility && !subPending && !subErr;
+  const subActive = !subStateKnown || subscriptionAllowsAccess(subState);
+  const subStateLabel =
+    subState === "trial" ? c.subStateTrial
+    : subState === "active" ? c.subStateActive
+    : subState === "expired" ? c.subStateExpired
+    : subState === "inactive" ? c.subStateInactive
+    : c.subStateNone;
+  const subStateNote = !subStateKnown ? null :
+    subState === "expired" ? c.subNoteExpired
+    : subState === "inactive" ? c.subNoteInactive
+    : subState === "none" ? c.subNoteNone
+    : null;
   const activeJobs = (jobs ?? []).filter((j) => j.is_active).length;
   const activeShifts = (shifts ?? []).filter((s) => s.status === "open").length;
   const newApplicants = (jobs ?? []).reduce(
@@ -382,7 +401,7 @@ function FacilityDashboard() {
                   specialties={specialties ?? []}
                   defaults={{ country: facility.country, city: facility.city }}
                   quotaReached={!!plan && activeJobs >= plan.active_jobs}
-                  expired={!!sub && !subActive}
+                  expired={!subActive}
                   onCreated={(id) => setJustPublished({ kind: "job", id })}
                 />
               )}
@@ -393,7 +412,7 @@ function FacilityDashboard() {
                   specialties={specialties ?? []}
                   defaults={{ country: facility.country, city: facility.city }}
                   quotaReached={!!plan && activeShifts >= plan.active_shifts}
-                  expired={!!sub && !subActive}
+                  expired={!subActive}
                   onCreated={(id) => setJustPublished({ kind: "shift", id })}
                 />
               )}
@@ -466,14 +485,24 @@ function FacilityDashboard() {
         <DashboardMetric icon={CalendarClock} value={activeShifts} label={c.openShifts} />
       </div>
 
+      {!plan && subStateKnown && (
+        <div className="mt-6 rounded-lg border border-border bg-surface p-4">
+          <div className="flex flex-wrap items-center gap-2 font-bold">
+            <Sparkles className="size-5 shrink-0 text-primary" />
+            {c.trialUsage}
+            <Badge variant="destructive">{subStateLabel}</Badge>
+          </div>
+          {subStateNote && <p className="mt-2 text-xs text-destructive">{subStateNote}</p>}
+        </div>
+      )}
+
       {plan && (
         <div className="mt-6 flex flex-col gap-4 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 font-bold">
               <Sparkles className="size-5 shrink-0 text-primary" />
               {c.trialUsage}
-              {plan.is_trial && <Badge variant="secondary">{c.trial}</Badge>}
-              {!subActive && <Badge variant="destructive">{c.expired}</Badge>}
+              <Badge variant={subActive ? "secondary" : "destructive"}>{subStateLabel}</Badge>
             </div>
 
             <p className="mt-1 text-xs text-muted-foreground">
@@ -481,6 +510,7 @@ function FacilityDashboard() {
                · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
                {searchesRemaining !== null ? ` · ${c.searchesRemaining(searchesRemaining)}` : ""}
             </p>
+            {subStateNote && <p className="mt-2 text-xs text-destructive">{subStateNote}</p>}
           </div>
         </div>
       )}

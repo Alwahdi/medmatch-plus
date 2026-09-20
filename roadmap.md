@@ -1012,3 +1012,11 @@ a signed-in session to exercise end to end, which this environment cannot mint.
 - Candidate results now show an honest "Not yet verified" state instead of silence.
 - Privacy policy gained a visibility section (opt-in, exact fields shown, reversible).
 - Verified in a rolled-back transaction: default off, consent-less visibility rejected, no client column writes, anon cannot execute the RPC, opt-in/opt-out states, search filter present, legacy function gone. Live data unchanged.
+
+## Phase 77 — Consistent subscription lifecycle enforcement
+- `private.subscription_is_live(status, ends_at)` + `private.facility_subscription_access(facility_id)` as the single eligibility source (internal, not client-executable).
+- `enforce_plan_limits()` now requires status active/trialing AND future `ends_at`; distinct `NO_ACTIVE_SUBSCRIPTION` / `SUBSCRIPTION_INACTIVE` / `SUBSCRIPTION_EXPIRED`; facility-scoped advisory lock + `FOR UPDATE` so concurrent inserts cannot both pass a quota of 1.
+- `consume_candidate_search()` and `search_candidates_idempotent()` reuse the same predicate; legacy `search_candidates_atomic` dropped.
+- CHECK constraints validated: status/billing_period known values, `searches_used >= 0`. Explicit REVOKE/GRANT per Phase 60.
+- UI: shared `subscriptionLifecycle()` / `subscriptionAllowsAccess()` in `facility.shared.ts`; facility dashboard and candidate search now show Trial active / Active / Ended / Inactive / No subscription with factual support-contact copy (no checkout, payments stay disabled). Unknown/loading state never renders a false block.
+- Tests (rollback-only): trialing+future allowed, active+future allowed, cancelled+future blocked (INACTIVE), active+past blocked (EXPIRED), unknown status rejected, at-quota insert blocked. 13 trialing rows unchanged.
