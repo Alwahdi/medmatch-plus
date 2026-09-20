@@ -22,7 +22,7 @@ const TXT = {
 
 /** إشعار موحّد يشرح سبب منع التقديم/الحجز ويوجّه للخطوة التالية. */
 export function VerificationGateNotice({ hasProfile }: { hasProfile: boolean }) {
-  const lang = useLang();
+  const { lang } = useLang();
   const c = TXT[lang];
   return (
     <div className="mt-4 rounded-lg border border-warning/40 bg-warning/10 p-4">
@@ -34,7 +34,7 @@ export function VerificationGateNotice({ hasProfile }: { hasProfile: boolean }) 
         </div>
       </div>
       <Button className="mt-4 w-full" variant="secondary" asChild>
-        <Link to="/profile" search={hasProfile ? { tab: "credentials" } : undefined}>
+        <Link to="/profile" search={{ tab: hasProfile ? "credentials" : "overview" }}>
           {hasProfile ? c.ctaDocs : c.ctaProfile}
         </Link>
       </Button>

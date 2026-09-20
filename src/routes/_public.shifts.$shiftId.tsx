@@ -21,6 +21,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { publicShiftsQuery, toPublicShift, OWNER_SHIFT_COLUMNS } from "@/lib/public-listings";
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
+import { VerificationGateNotice } from "@/components/verification-gate-notice";
+import { useProfessionalVerificationGate } from "@/lib/verification-gate";
 import {
   countryLabel,
   facilityDisplayName,
@@ -182,6 +184,7 @@ function ShiftDetail() {
   const { shiftId } = Route.useParams();
   const { user } = useSession();
   const { data: myFacility } = useMyFacility(user);
+  const proGate = useProfessionalVerificationGate(myFacility ? undefined : user?.id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
@@ -452,6 +455,8 @@ function ShiftDetail() {
                     <Link to="/auth">{c.signIn}</Link>
                   </Button>
                 </>
+              ) : proGate.blocked ? (
+                <VerificationGateNotice hasProfile={proGate.hasProfile} />
               ) : booking ? (
                 <div className="mt-4 rounded-lg border border-success/30 bg-success/10 p-4">
                   <div className="flex items-start gap-3">

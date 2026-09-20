@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminPlatformSettings } from "@/components/admin-platform-settings";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { fieldLabel, changeValueLabel, isOpaqueChangeValue, useSpecialtyList } from "@/components/change-request";
@@ -737,6 +738,9 @@ function AdminPage() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="settings" className="shrink-0">
+              {lang === "ar" ? "إعدادات المنصة" : "Platform settings"}
+            </TabsTrigger>
             <TabsTrigger value="readiness" className="shrink-0">
               {lang === "ar" ? "جاهزية الإطلاق" : "Release readiness"}
             </TabsTrigger>
@@ -1091,6 +1095,10 @@ function AdminPage() {
 
         <TabsContent value="safety" className="mt-6">
           <AdminSafetyReports />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <AdminPlatformSettings />
         </TabsContent>
 
         <TabsContent value="readiness" className="mt-6">
