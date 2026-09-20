@@ -17,6 +17,7 @@ const TXT = {
     browse: "تصفح الوظائف",
     error: "تعذّر تحميل الوظائف المحفوظة.",
     retry: "إعادة المحاولة",
+    closed: "لم تعد هذه الوظيفة متاحة للتقديم",
   },
   en: {
     title: "Saved jobs",
@@ -24,6 +25,7 @@ const TXT = {
     browse: "Browse jobs",
     error: "We couldn't load saved jobs.",
     retry: "Try again",
+    closed: "This job is no longer open for applications",
   },
 } as const;
 
