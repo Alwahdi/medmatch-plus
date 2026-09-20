@@ -354,7 +354,7 @@ export function CredentialsPanel() {
               <div className="flex items-center gap-3">
                 <FileCheck2 className="size-5 text-primary" />
                 <div>
-                  <p className="font-medium">{cred.title}</p>
+                  <p className="font-medium">{cred.file_name ?? cred.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {docTypeLabel(cred.doc_type, lang)}
                     {cred.expiry_date ? c.expiresOn(formatDate(cred.expiry_date, lang)) : ""}
