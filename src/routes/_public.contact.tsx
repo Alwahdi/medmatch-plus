@@ -35,7 +35,7 @@ const TXT = {
   ar: {
     badge: "فريق الدعم جاهز",
     title: "تواصل معنا",
-    sub: "عندك استفسار أو ملاحظة أو مشكلة في حسابك؟ اكتب لنا وسنرد خلال يوم عمل واحد.",
+    sub: "عندك استفسار أو ملاحظة أو مشكلة في حسابك؟ اكتب لنا وسنرد عليك في أقرب وقت ممكن.",
     topicsLabel: "مواضيع الدعم",
     topicsTitle: "كيف نقدر نساعدك؟",
     topics: [
@@ -60,7 +60,7 @@ const TXT = {
   en: {
     badge: "Support team ready to help",
     title: "Contact us",
-    sub: "Have a question, feedback, or an issue with your account? Write to us and we'll reply within one business day.",
+    sub: "Have a question, feedback, or an issue with your account? Write to us and we'll get back to you as soon as possible.",
     topicsLabel: "Support topics",
     topicsTitle: "How can we help?",
     topics: [
@@ -101,7 +101,6 @@ function Contact() {
         _subject: subject.trim() || "",
       });
       if (error) {
-        console.error("[contact] submit failed", error);
         throw new Error("failed");
       }
       return data as string;

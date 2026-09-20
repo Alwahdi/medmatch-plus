@@ -152,10 +152,10 @@ export const DICT: Dict = {
   },
   "home.steps.employer2.title": { ar: "استقبل الطلبات", en: "Receive applications" },
   "home.steps.employer2.text": {
-    ar: "الكوادر المؤهّلة تبدأ بالتقديم خلال دقائق من النشر، وترى حالة توثيق كل ملف.",
-    en: "Qualified candidates start applying within minutes, and you see each profile's verification status.",
+    ar: "تستقبل طلبات الكوادر المؤهّلة في مكان واحد، وترى حالة توثيق كل ملف.",
+    en: "Applications from qualified candidates arrive in one place, and you see each profile's verification status.",
   },
-  "home.steps.employer3.title": { ar: "تنبيهات فورية عند كل طلب", en: "Instant application alerts" },
+  "home.steps.employer3.title": { ar: "تنبيه داخل المنصة عند كل طلب", en: "In-app application alerts" },
   "home.steps.employer3.text": {
     ar: "يصلك تنبيه لحظة تقدّم أي مرشّح — دون الحاجة لمتابعة لوحة التحكم.",
     en: "Get notified the moment any candidate applies — no need to keep checking the dashboard.",
