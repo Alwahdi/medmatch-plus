@@ -2053,15 +2053,6 @@ export type Database = {
         }
         Returns: string
       }
-      submit_contact_message: {
-        Args: {
-          _email: string
-          _message: string
-          _name: string
-          _subject?: string
-        }
-        Returns: string
-      }
       submit_contact_message_internal: {
         Args: {
           _email: string

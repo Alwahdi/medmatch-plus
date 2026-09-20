@@ -36,7 +36,9 @@ REVOKE ALL ON FUNCTION public.<f>(...) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.<f>(...) TO authenticated, service_role;
 ```
 
-Only `public.submit_contact_message` is intentionally executable by `anon`.
+No public function is executable by `anon` (Phase 69 dropped the last one). Guest contact
+submission goes through the `submitContactMessage` server function, which calls the
+service_role-only `public.submit_contact_message_internal(...)`.
 Admin-only reports must call `public.require_mfa()` and check
 `public.has_role(auth.uid(), 'admin')` inside the body.
 

@@ -737,3 +737,46 @@ reporter and admins. AR/EN copy in place; typecheck clean, build OK.
 
 Open: the admin-side triage flow could not be exercised end to end because no real admin
 account is assigned yet (existing launch blocker).
+
+## Phase 65 — Backend errors must never render as empty states (DONE)
+
+New `src/lib/query-errors.ts` helpers (`unwrap`, `unwrapRows`, `unwrapCount`, `assertOk`) so a
+failed request throws instead of returning an empty list, a null row, or a zero count.
+
+Fixed: specialty detail (`Promise.all` ignored both errors and rendered "0 jobs / no shifts"),
+post-login landing resolution (a failed roles read could send an admin to onboarding), messages
+and conversation lookups, facility candidate profile, invite panel, notification read/clear,
+delivery/read receipts, and the role-claim calls after profile creation. The MFA challenge and
+the authenticated layout now fail closed with an error + retry instead of letting a failed
+status read through. Raw errors are reported, never printed in the user's browser; fail-soft
+was kept only where the fallback is truthful (avatar initial instead of a photo).
+
+## Phase 67 — Harden public contact submission (DONE)
+
+Guest contact no longer calls a privileged DB function from the browser. `submitContactMessage`
+(`createServerFn`, POST, covered by the global CSRF middleware) validates with Zod
+(name 2–120, email <=200, subject <=160, message 10–2000), drops honeypot and sub-second
+submissions with a neutral success-like response, and calls the service_role-only
+`public.submit_contact_message_internal(...)`.
+
+That function keeps dedupe (same email + body within 24h), per-email 3/hour, and adds a global
+circuit breaker of 30 accepted messages / 10 minutes, all inside one advisory lock. No IP or
+fingerprint is stored. Outcomes map to `ok` / `rate_limited` / `invalid`; duplicates show the
+same success copy.
+
+## Phase 69 — Remove the obsolete contact RPC (DONE)
+
+Confirmed the app calls only `submit_contact_message_internal`, then dropped
+`public.submit_contact_message(text,text,text,text)` outright — no alias, no wrapper. It was
+already service_role-only after Phase 67, but it carried weaker rules (4000-char message, no
+global circuit breaker, no advisory lock) and was dead privileged code.
+
+`release_privilege_audit()` was updated in the same migration: its SECURITY DEFINER check no
+longer excepts `submit_contact_message` (no public function is anon-executable any more), and
+`safety_reports` was added to the server-managed table list. `supabase/PRIVILEGE-SAFETY.md`
+updated accordingly.
+
+Verified on the live database: the old name is undefined for anon and authenticated;
+`submit_contact_message_internal` is permission denied for both; a service_role call still
+returns `ok` and writes one row (QA row deleted). Generated types no longer offer the old RPC.
+Typecheck clean, build OK.
