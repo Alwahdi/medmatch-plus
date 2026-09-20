@@ -211,7 +211,7 @@ export function LockedField({
 }) {
   const { lang } = useLang();
   const c = T[lang];
-  const ct = comboText[lang];
+  const ct = comboText(lang);
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
