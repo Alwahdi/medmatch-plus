@@ -899,117 +899,19 @@ function AdminPage() {
               {c.noFacDocs}
             </p>
           ) : (
-            <div className="mt-4 space-y-6">
-              {facDocGroups.map((group) => (
-                <section key={group.name}>
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-bold">{group.name}</h2>
-                    <Badge variant="secondary">
-                      {c.pendingCount(group.items.filter((r) => r.status === "pending").length)}
-                    </Badge>
-                    {group.items.some((r) => r.status === "pending") && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="ms-auto"
-                        loading={bulkApprove.isPending && bulkApprove.variables?.groupKey === `facdoc:${group.name}`}
-                        disabled={bulkApprove.isPending}
-                        onClick={() => {
-                          const ids = group.items.filter((r) => r.status === "pending").map((r) => r.id);
-                          if (!window.confirm(c.approveAllConfirm(group.name, ids.length))) return;
-                          bulkApprove.mutate({ ids, kind: "facdoc", groupKey: `facdoc:${group.name}` });
-                        }}
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {c.approveAll(group.items.filter((r) => r.status === "pending").length)}
-                      </Button>
-                    )}
-                  </div>
-                  <ul className="space-y-3">
-              {group.items.map((fd) => (
-                <li key={fd.id} className="rounded-lg border border-border bg-card p-4">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="break-words font-bold">{facilityDocTypeLabel(fd.doc_type, lang)}</p>
-                        {(fd.file_name || fd.title) && (
-                          <p className="mt-1 truncate text-xs text-muted-foreground" title={fd.file_name ?? fd.title}>
-                            {c.fileLabel}: {fd.file_name ?? fd.title}
-                          </p>
-                        )}
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {fd.issuer ? `${fd.issuer} · ` : ""}
-                          {fd.expiry_date ? `${c.expires(formatDate(fd.expiry_date, lang))} · ` : ""}
-                          {formatDate(fd.created_at, lang)}
-                        </p>
-                        {fd.review_note && (
-                          <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">
-                            {fd.review_note}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex shrink-0 flex-wrap items-center gap-2">
-                        {isExpired(fd.expiry_date) ? (
-                          <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
-                        ) : null}
-                        <Badge
-                          variant={
-                            fd.status === "approved" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"
-                          }
-                        >
-                          {credentialLabel(fd.status, lang)}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
-                      <Button size="sm" variant="outline" onClick={() => openFacilityFile(fd.file_path)}>
-                        <FileText className="size-4" /> {c.view}
-                      </Button>
-                      <Button
-                        size="sm"
-                        loading={reviewFacDoc.isPending}
-                        onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "approved" })}
-                      >
-                        <CheckCircle2 className="size-4" /> {c.approve}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setRejectId(rejectId === fd.id ? null : fd.id);
-                          setNote(fd.review_note ?? "");
-                        }}
-                      >
-                        <XCircle className="size-4" /> {c.reject}
-                      </Button>
-                    </div>
-                  </div>
-                  {rejectId === fd.id && (
-                    <div className="mt-4 space-y-2">
-                      <p className="text-xs font-medium">{c.noteLabel}</p>
-                      <Textarea
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        placeholder={c.notePlaceholder}
-                        rows={3}
-                      />
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        loading={reviewFacDoc.isPending}
-                        onClick={() => reviewFacDoc.mutate({ id: fd.id, status: "rejected", reviewNote: note })}
-                      >
-                        {c.reject}
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-
+            <AdminReviewQueue
+              lang={lang}
+              owners={facDocOwners}
+              docLabel={(t) => facilityDocTypeLabel(t, lang)}
+              statusLabel={(s) => credentialLabel(s, lang)}
+              onOpenFile={openFacilityFile}
+              onApprove={(id) => reviewFacDoc.mutate({ id, status: "approved" })}
+              onReject={(id, reviewNote) => reviewFacDoc.mutate({ id, status: "rejected", reviewNote })}
+              onApproveAll={(owner, ids) => bulkApprove.mutate({ ids, kind: "facdoc", groupKey: owner.key })}
+              reviewPending={reviewFacDoc.isPending}
+              bulkPendingKey={bulkApprove.isPending ? bulkApprove.variables?.groupKey ?? null : null}
+              autoVerifyNote={c.autoVerifyFac}
+            />
           )}
         </TabsContent>
 
