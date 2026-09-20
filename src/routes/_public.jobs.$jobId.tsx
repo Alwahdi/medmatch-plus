@@ -142,23 +142,48 @@ const TXT = {
 } as const;
 
 export const Route = createFileRoute("/_public/jobs/$jobId")({
-  // المسار الأساسي يعتمد الـslug دائماً حتى لا يتكرر نفس الإعلان برابطين.
-  loader: async ({ params }) => ({ canonicalPath: await jobCanonicalPath(params.jobId) }),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: "تفاصيل الوظيفة | Job details | SyndeoCare" },
-      {
-        name: "description",
-        content: "تفاصيل الوظيفة الطبية: المنشأة، الموقع، نطاق الراتب، المتطلبات، والتقديم المباشر.",
-      },
-      { property: "og:title", content: "تفاصيل الوظيفة | Job details | SyndeoCare" },
-      { property: "og:description", content: "تعرّف على تفاصيل الوظيفة وقدّم عليها مباشرة." },
-      { property: "og:type", content: "article" },
-      { name: "twitter:card", content: "summary_large_image" },
-      ...shareMeta(loaderData?.canonicalPath ?? "/jobs"),
-    ],
-    links: canonical(loaderData?.canonicalPath ?? "/jobs"),
-  }),
+  // المسار الأساسي يعتمد الـslug دائماً حتى لا يتكرر نفس الإعلان برابطين،
+  // والبيانات الوصفية تُبنى من العرض المنقّح فقط (بدون هوية الناشر).
+  loader: async ({ params }) => {
+    const meta = await fetchPublicJobMeta(params.jobId);
+    return {
+      canonicalPath: meta?.slug ? `/jobs/${meta.slug}` : await jobCanonicalPath(params.jobId),
+      seo: meta ? jobSeoText(meta) : null,
+    };
+  },
+  head: ({ loaderData }) => {
+    const path = loaderData?.canonicalPath ?? "/jobs";
+    const seo = loaderData?.seo;
+    // وظيفة مغلقة أو غير عامة: لا نسرّب عنوانها القديم ولا نطلب فهرستها.
+    if (!seo)
+      return {
+        meta: [
+          { title: "هذه الوظيفة لم تعد متاحة | SyndeoCare" },
+          { name: "description", content: "هذه الفرصة لم تعد متاحة. تصفّح الوظائف الطبية المتاحة حالياً على SyndeoCare." },
+          { property: "og:title", content: "هذه الوظيفة لم تعد متاحة | SyndeoCare" },
+          { property: "og:description", content: "تصفّح الوظائف الطبية المتاحة حالياً على SyndeoCare." },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary_large_image" },
+          NOINDEX,
+          ...shareMeta("/jobs"),
+        ],
+        links: canonical("/jobs"),
+      };
+    return {
+      meta: [
+        { title: seo.title },
+        { name: "description", content: seo.description },
+        { property: "og:title", content: seo.title },
+        { property: "og:description", content: seo.description },
+        { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: seo.title },
+        { name: "twitter:description", content: seo.description },
+        ...shareMeta(path),
+      ],
+      links: canonical(path),
+    };
+  },
   component: JobDetail,
   notFoundComponent: () => {
     const { lang } = useLang();
