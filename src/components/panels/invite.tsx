@@ -45,6 +45,9 @@ export const INVITE_TXT = {
     recentEmpty: "لا يوجد مختصون سابقون بعد",
     recentEmptyBody: "بعد توظيف مختص أو تأكيد مناوبة معه سيظهر هنا لدعوته بنقرة واحدة.",
     searchTitle: "ابحث عن مختصين جدد",
+    lockedTitle: "وثّق منشأتك لاستخدام البحث عن المرشحين",
+    lockedBody: "البحث عن كوادر جديدة ودعوتهم متاح للمنشآت الموثّقة فقط، ولن يُحتسب أي بحث من حصتك قبل التوثيق. يمكنك الآن دعوة من عمل معك سابقاً، ومتابعة المتقدمين على فرصك من صفحة المتقدمين.",
+    lockedCta: "توثيق المنشأة",
     specialty: "التخصص",
     allSpecialties: "كل التخصصات",
     country: "الدولة",
@@ -90,6 +93,9 @@ export const INVITE_TXT = {
     recentEmpty: "No past professionals yet",
     recentEmptyBody: "Once you hire someone or confirm a shift, they appear here for one-click invites.",
     searchTitle: "Find new professionals",
+    lockedTitle: "Verify your facility to use candidate search",
+    lockedBody: "Searching and inviting new professionals is for verified facilities only, and nothing is deducted from your allowance until then. You can still invite people who worked with you before, and manage applicants from the Applicants page.",
+    lockedCta: "Facility verification",
     specialty: "Specialty",
     allSpecialties: "All specialties",
     country: "Country",
@@ -156,7 +162,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facilities")
-        .select("id,name_ar")
+        .select("id,name_ar,is_verified")
         .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -430,6 +436,18 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
           <Search className="size-5 text-primary" /> {c.searchTitle}
         </h2>
+        {facility && !facility.is_verified ? (
+          <div className="mt-4 rounded-lg border border-border bg-card p-5">
+            <h3 className="flex items-center gap-2 text-base font-bold">
+              <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
+              {c.lockedTitle}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">{c.lockedBody}</p>
+            <Button asChild className="mt-4 min-h-11">
+              <Link to="/facility/verification">{c.lockedCta}</Link>
+            </Button>
+          </div>
+        ) : (
         <div className="mt-4 grid gap-3 rounded-lg border border-border bg-card p-5 md:grid-cols-4">
           <Combobox
             options={[
