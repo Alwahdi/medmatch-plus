@@ -974,6 +974,10 @@ function AdminPage() {
           )}
         </TabsContent>
 
+        <TabsContent value="deletions" className="mt-6">
+          <AdminDeletionQueue />
+        </TabsContent>
+
         <TabsContent value="readiness" className="mt-6">
           {readinessErr ? (
             <ErrorState onRetry={() => void readinessRefetch()} />
