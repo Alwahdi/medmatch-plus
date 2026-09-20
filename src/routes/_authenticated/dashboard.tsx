@@ -13,6 +13,7 @@ import { publicJobsQuery, withSpecialties } from "@/lib/public-listings";
 import { useRoles, useSession } from "@/lib/auth";
 import { applicationLabel, formatDateTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
+import { isProfessionalProfileComplete } from "@/lib/profile-completeness";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -293,7 +294,7 @@ function Dashboard() {
             className="h-28 animate-pulse rounded-lg border border-border bg-muted/40"
             aria-hidden="true"
           />
-        ) : !profile ? (
+        ) : !isProfessionalProfileComplete(profile) ? (
           <NextStepCard
             icon={UserRound}
             label={c.nextStep}
