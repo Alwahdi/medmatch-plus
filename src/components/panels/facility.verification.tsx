@@ -289,9 +289,17 @@ export function FacilityVerificationPanel() {
 
   const list = docs ?? [];
   const approvedRequired = FACILITY_REQUIRED_DOCS.filter((t) =>
-    list.some((d) => d.doc_type === t && d.status === "approved"),
+    list.some((d) => d.doc_type === t && isValidEvidence(d)),
   ).length;
   const pct = Math.round((approvedRequired / FACILITY_REQUIRED_DOCS.length) * 100);
+  const requiredExpired = list.some(
+    (d) => FACILITY_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
+  );
+  const requiredExpiringSoon = list.some(
+    (d) => FACILITY_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
+  );
+  const v = VALIDITY_TXT[lang];
+
 
   const loadErrors = [
     { err: facilityErr, retry: facilityRefetch },
