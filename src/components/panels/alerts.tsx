@@ -22,6 +22,7 @@ import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/f
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, filterCityOptions } from "@/lib/geo";
 import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { useLang } from "@/lib/i18n";
 import { getChannelStatus } from "@/lib/notifications.functions";
 import { toastUndo } from "@/lib/undo";
