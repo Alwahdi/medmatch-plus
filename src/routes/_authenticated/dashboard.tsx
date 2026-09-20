@@ -368,7 +368,11 @@ function Dashboard() {
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
         <section className="rounded-lg border border-border bg-card p-5 shadow-card">
           <SectionHeading title={c.latestApps} action={<Button variant="link" size="sm" asChild><Link to="/activity" search={{ tab: "applications" }}>{c.viewAll}</Link></Button>} />
-          {apps?.length ? (
+          {appsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : apps?.length ? (
             <ul className="mt-4 space-y-3">
               {apps.slice(0, 4).map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0">
