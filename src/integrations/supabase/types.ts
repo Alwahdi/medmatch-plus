@@ -2048,6 +2048,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      refresh_verification_expiry: { Args: never; Returns: Json }
       release_privilege_audit: {
         Args: never
         Returns: {
