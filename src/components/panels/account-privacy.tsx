@@ -130,12 +130,7 @@ export function AccountPrivacyPanel() {
     queryKey: ["account-deletion-request", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("account_deletion_requests")
-        .select("id,status,reason,admin_note,requested_at")
-        .eq("user_id", user!.id)
-        .order("requested_at", { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.rpc("my_account_deletion_request");
       if (error) throw error;
       return data?.[0] ?? null;
     },
