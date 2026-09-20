@@ -23,8 +23,9 @@ import { friendlyError, UserFacingError } from "@/lib/user-errors";
 
 const ANY = "any";
 
+// Search results stay anonymous: only the professional-profile id, never an auth user id.
 type Candidate = {
-  user_id: string;
+  id: string;
   headline: string | null;
   specialty_id: string | null;
   years_experience: number;
@@ -32,6 +33,7 @@ type Candidate = {
   city: string | null;
   is_verified: boolean;
 };
+
 
 export const INVITE_TXT = {
   ar: {
