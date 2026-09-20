@@ -75,6 +75,9 @@ const TXT = {
     revealTitle: "بدء المحادثة مع المرشح؟",
     revealDesc: "عند بدء المحادثة سيظهر اسم منشأتك لهذا المرشح حتى تكون المحادثة واضحة للطرفين.",
     revealCta: "ابدأ المحادثة",
+    withdrawnBadge: "سحب المتقدم طلبه",
+    withdrawnNote: "سحب المتقدم طلبه، ويبقى السجل للمراجعة فقط.",
+    filterWithdrawn: "طلبات مسحوبة",
   },
   en: {
     title: "Applicants",
@@ -116,6 +119,9 @@ const TXT = {
     revealTitle: "Start a conversation with this candidate?",
     revealDesc: "Starting the conversation reveals your facility name to this candidate so both sides know who they are speaking with.",
     revealCta: "Start conversation",
+    withdrawnBadge: "Withdrawn by candidate",
+    withdrawnNote: "The candidate withdrew this application; it stays as an audit record only.",
+    filterWithdrawn: "Withdrawn",
   },
 } as const;
 
@@ -151,7 +157,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       if (ids.length === 0) return { facilityId, rows: [], job: null };
       const { data: apps, error } = await supabase
         .from("applications")
-        .select("id,status,created_at,cover_letter,user_id,job_id")
+        .select("id,status,created_at,withdrawn_at,cover_letter,user_id,job_id")
         .in("job_id", ids)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -187,7 +193,10 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
   const seatsLeft = Math.max(vacancies - hiredCount, 0);
 
   const visible = useMemo(
-    () => (stageFilter === "all" ? rows : rows.filter((r) => applicationStage(r.status) === stageFilter)),
+    () =>
+      stageFilter === "all"
+        ? rows.filter((r) => r.status !== "withdrawn")
+        : rows.filter((r) => applicationStage(r.status) === stageFilter),
     [rows, stageFilter],
   );
 
@@ -284,7 +293,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{c.filterAll}</SelectItem>
-              {[...APPLICATION_STAGES, "rejected"].map((s) => (
+              {[...APPLICATION_STAGES, "rejected", "withdrawn"].map((s) => (
                 <SelectItem key={s} value={s}>{applicationLabel(s, lang)}</SelectItem>
               ))}
             </SelectContent>
@@ -301,8 +310,9 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
           {visible.map((a) => {
             const stage = applicationStage(a.status);
             const isHired = stage === "hired";
+            const isWithdrawn = a.status === "withdrawn";
             const rowBusy = busyId === a.id;
-            const canSelect = jobOpen && !isHired && seatsLeft > 0 && !!job;
+            const canSelect = jobOpen && !isHired && !isWithdrawn && seatsLeft > 0 && !!job;
             return (
               <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
@@ -310,6 +320,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                     <div className="flex flex-wrap items-center gap-2 font-bold">
                       <span className="min-w-0 truncate">{a.pro?.full_name ?? c.healthcarePro}</span>
                       {a.pro?.is_verified && <Badge variant="secondary">{c.verified}</Badge>}
+                      {isWithdrawn && <Badge variant="outline">{c.withdrawnBadge}</Badge>}
                       {isHired && (
                         <Badge className="gap-1 bg-success text-success-foreground">
                           <CheckCircle2 className="size-3.5" /> {c.selected}
@@ -395,7 +406,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       />
                     )}
 
-                    {!isHired && jobOpen && (
+                    {!isHired && !isWithdrawn && jobOpen && (
                       <Select
                         value={stage}
                         disabled={rowBusy}
@@ -422,7 +433,7 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       </Select>
                     )}
 
-                    {!isHired && !jobOpen && (
+                    {!isHired && (isWithdrawn || !jobOpen) && (
                       <Badge variant="outline">{applicationLabel(a.status, lang)}</Badge>
                     )}
                   </div>
