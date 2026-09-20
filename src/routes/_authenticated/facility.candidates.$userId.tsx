@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { unwrap, unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime, experienceLabel } from "@/lib/format";
+import { friendlyError } from "@/lib/user-errors";
 import { useLang } from "@/lib/i18n";
 import { OnlineDotClass, useOnlineUsers } from "@/lib/presence";
 import { ListSkeleton } from "@/components/list-skeleton";
