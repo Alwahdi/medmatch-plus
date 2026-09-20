@@ -308,7 +308,13 @@ function FacilityProfilePage() {
 
         <div className="card-lift rounded-lg border border-border bg-card p-6">
           <h2 className="text-lg font-bold">{c.shifts}</h2>
-          {shifts?.length ? (
+          {shiftsPending ? (
+            <div className="mt-4">
+              <ListSkeleton rows={2} />
+            </div>
+          ) : shiftsError ? (
+            <ErrorState className="mt-4" onRetry={() => void refetchShifts()} />
+          ) : shifts.length ? (
             <ul className="mt-4 space-y-3">
               {shifts.map((s) => (
                 <li key={s.id}>
