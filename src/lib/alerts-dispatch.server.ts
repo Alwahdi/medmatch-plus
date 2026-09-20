@@ -118,10 +118,12 @@ export function shouldAttempt(
   if (!existing) return true;
   if (existing.status === "sent") return false;
   if (existing.status === "not_configured") return channelConfigured;
+  const last = existing.last_attempt_at ? Date.parse(existing.last_attempt_at) : 0;
+  // A row another run is currently working on: only recover abandoned claims.
+  if (existing.status === "processing") return now - last >= PROCESSING_TIMEOUT_MS;
   // failed (or any other non-terminal state): bounded backoff
   const attempts = existing.attempt_count ?? 1;
   if (attempts >= MAX_ATTEMPTS) return false;
-  const last = existing.last_attempt_at ? Date.parse(existing.last_attempt_at) : 0;
   return now - last >= RETRY_INTERVAL_MS;
 }
 
