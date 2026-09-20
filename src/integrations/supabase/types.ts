@@ -424,6 +424,8 @@ export type Database = {
           rating_count: number
           updated_at: string
           user_id: string | null
+          verification_suspended_at: string | null
+          verification_suspension_reason: string | null
           website: string | null
         }
         Insert: {
@@ -441,6 +443,8 @@ export type Database = {
           rating_count?: number
           updated_at?: string
           user_id?: string | null
+          verification_suspended_at?: string | null
+          verification_suspension_reason?: string | null
           website?: string | null
         }
         Update: {
@@ -458,6 +462,8 @@ export type Database = {
           rating_count?: number
           updated_at?: string
           user_id?: string | null
+          verification_suspended_at?: string | null
+          verification_suspension_reason?: string | null
           website?: string | null
         }
         Relationships: []
@@ -592,6 +598,8 @@ export type Database = {
           specialty_id: string | null
           updated_at: string
           user_id: string
+          verification_suspended_at: string | null
+          verification_suspension_reason: string | null
           years_experience: number
         }
         Insert: {
@@ -616,6 +624,8 @@ export type Database = {
           specialty_id?: string | null
           updated_at?: string
           user_id: string
+          verification_suspended_at?: string | null
+          verification_suspension_reason?: string | null
           years_experience?: number
         }
         Update: {
@@ -640,6 +650,8 @@ export type Database = {
           specialty_id?: string | null
           updated_at?: string
           user_id?: string
+          verification_suspended_at?: string | null
+          verification_suspension_reason?: string | null
           years_experience?: number
         }
         Relationships: [
@@ -1818,11 +1830,11 @@ export type Database = {
         Returns: boolean
       }
       admin_set_facility_verified: {
-        Args: { _facility_id: string; _value: boolean }
+        Args: { _facility_id: string; _reason?: string; _value: boolean }
         Returns: undefined
       }
       admin_set_professional_verified: {
-        Args: { _professional_id: string; _value: boolean }
+        Args: { _professional_id: string; _reason?: string; _value: boolean }
         Returns: undefined
       }
       admin_update_account_deletion: {
