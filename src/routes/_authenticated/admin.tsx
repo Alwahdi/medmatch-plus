@@ -506,6 +506,24 @@ function AdminPage() {
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
   const pendingFacDocs = (facDocs ?? []).filter((d) => d.status === "pending");
   const shownFacDocs = pendingOnly ? pendingFacDocs : facDocs ?? [];
+
+  /** يُعرض لكل منشأة/مختص عنوان واحد تحته مستنداته، بدل قائمة مسطّحة. */
+  function groupDocs<T>(rows: T[], ownerName: (row: T) => string) {
+    const map = new Map<string, T[]>();
+    for (const row of rows) {
+      const key = ownerName(row);
+      const list = map.get(key);
+      if (list) list.push(row);
+      else map.set(key, [row]);
+    }
+    return [...map.entries()].map(([name, items]) => ({ name, items }));
+  }
+
+  const proNameByUser = new Map((pros ?? []).map((p) => [p.user_id, p.full_name]));
+  const unknownOwner = lang === "ar" ? "حساب غير معروف" : "Unknown account";
+  const credGroups = groupDocs(shownDocs, (cr) => proNameByUser.get(cr.user_id) ?? unknownOwner);
+  const facDocGroups = groupDocs(shownFacDocs, (fd) => fd.facilities?.name_ar ?? unknownOwner);
+
   const pendingChanges = (changeReqs ?? []).filter((r) => r.status === "pending");
   const openReports = (safetyReports ?? []).filter((r) => r.status === "open").length;
   const shownChanges = pendingOnly ? pendingChanges : changeReqs ?? [];
