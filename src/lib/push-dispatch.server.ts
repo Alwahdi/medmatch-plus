@@ -1,6 +1,6 @@
 import { buildPushPayload } from "@block65/webcrypto-web-push";
 
-import { createSupabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 /**
  * Sends browser push notifications for notification rows that have not been
@@ -35,7 +35,7 @@ export async function dispatchPush() {
     return { skipped: "missing_vapid_keys", sent: 0, pruned: 0, notifications: 0 };
   }
 
-  const supabase = createSupabaseAdmin();
+  const supabase = supabaseAdmin;
 
   const { data: pending, error } = await supabase
     .from("notifications")
