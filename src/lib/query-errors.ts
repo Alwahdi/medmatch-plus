@@ -8,18 +8,18 @@
  */
 
 type Failure = { message: string; code?: string; status?: number } | null;
-type Result<T> = { data: T | null; error: Failure };
+type Ok<T> = { data: T; error: Failure };
 
 /** يعيد الصف (أو null إذا لم يوجد فعلاً) ويرمي إذا فشل الطلب. */
-export function unwrap<T>(res: Result<T>): T | null {
+export function unwrap<R extends Ok<unknown>>(res: R): R["data"] {
   if (res.error) throw res.error;
   return res.data;
 }
 
 /** يعيد القائمة ويرمي إذا فشل الطلب — قائمة فارغة تعني فعلاً لا نتائج. */
-export function unwrapRows<T>(res: Result<T[]>): T[] {
+export function unwrapRows<R extends Ok<unknown[] | null>>(res: R): Exclude<R["data"], null> {
   if (res.error) throw res.error;
-  return res.data ?? [];
+  return (res.data ?? []) as Exclude<R["data"], null>;
 }
 
 /** يعيد العدد ويرمي إذا فشل الطلب — حتى لا يظهر 0 كاذب في بطاقات الإحصاء. */
