@@ -66,9 +66,26 @@ export function baseMime(file: File): string | null {
   return EXT_MIME[ext] ?? null;
 }
 
+/** Extensions allowed to render inline, with the MIME types each one may carry. */
+const PREVIEW_EXT_MIME: Record<string, readonly string[]> = {
+  jpg: ["image/jpeg"],
+  jpeg: ["image/jpeg"],
+  png: ["image/png"],
+  webp: ["image/webp"],
+  gif: ["image/gif"],
+  mp4: ["video/mp4", "audio/mp4"],
+  mov: ["video/quicktime"],
+  webm: ["video/webm", "audio/webm"],
+  ogg: ["audio/ogg", "video/ogg"],
+  oga: ["audio/ogg"],
+  m4a: ["audio/mp4", "audio/x-m4a", "audio/aac"],
+  mp3: ["audio/mpeg"],
+  wav: ["audio/wav", "audio/x-wav"],
+};
+
 /**
  * Inline preview family. The stored MIME is canonical (written from Storage by the
- * database), and the path extension must agree with it — anything else, including
+ * database) and the path extension must agree with it — anything else, including
  * HTML/SVG, falls back to a plain download link.
  */
 export function attachmentKind(
@@ -77,12 +94,13 @@ export function attachmentKind(
 ): "image" | "audio" | "video" | "file" {
   const mime = (type ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
   const ext = (path.split(".").pop() ?? "").toLowerCase();
-  const known = EXT_MIME[ext];
-  if (!known || known !== mime) return "file";
+  const allowed = PREVIEW_EXT_MIME[ext];
+  if (!allowed || !allowed.includes(mime)) return "file";
   const family = mime.split("/")[0];
   if (family === "image" || family === "audio" || family === "video") return family;
   return "file";
 }
+
 
 
 /**
