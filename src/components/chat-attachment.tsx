@@ -110,9 +110,10 @@ export function attachmentKind(
 export async function uploadChatFile(
   conversationId: string,
   file: File,
-  options?: { onProgress?: (percent: number) => void; signal?: AbortSignal },
+  options?: { onProgress?: (percent: number) => void; signal?: AbortSignal; path?: string },
 ) {
-  const path = chatPath(conversationId, file);
+  const path = options?.path ?? chatPath(conversationId, file);
+
   const contentType = baseMime(file);
   if (!contentType) throw new Error("unsupported_file_type");
 
