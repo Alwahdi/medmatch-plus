@@ -30,6 +30,10 @@ const TXT = {
     confirmCta: "نعم، ألغِ الحجز",
     keep: "احتفظ بالحجز",
     empty: "لا مناوبات محجوزة.",
+    cancelledBadge: "حجز ملغى",
+    cancelledOn: (d: string) => `أُلغي في ${d}`,
+    cancelledByFacility: "ألغته المنشأة",
+    cancelledByMe: "ألغيته",
     browse: "تصفح السوق",
     error: "تعذّر تحميل مناوباتك.",
     retry: "إعادة المحاولة",
@@ -47,6 +51,10 @@ const TXT = {
     confirmCta: "Yes, cancel booking",
     keep: "Keep booking",
     empty: "No shifts booked.",
+    cancelledBadge: "Cancelled booking",
+    cancelledOn: (d: string) => `Cancelled on ${d}`,
+    cancelledByFacility: "Cancelled by the facility",
+    cancelledByMe: "Cancelled by you",
     browse: "Browse marketplace",
     error: "We couldn't load your shifts.",
     retry: "Try again",
@@ -72,7 +80,7 @@ export function MyShiftsPanel() {
       const { data, error } = await supabase
         .from("shift_bookings")
         .select(
-          "id,created_at,status,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country,facility_id,status)",
+          "id,created_at,status,cancelled_at,cancellation_actor,shifts(id,title,starts_at,ends_at,hourly_rate,currency,city,country,facility_id,status)",
         )
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
@@ -102,12 +110,13 @@ export function MyShiftsPanel() {
         <ListSkeleton />
       ) : isError ? (
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
-      ) : data?.filter((booking) => booking.status !== "cancelled").length ? (
+      ) : data?.length ? (
         <ul className="space-y-3">
-          {data.filter((booking) => booking.status !== "cancelled").map((b) => {
+          {data.map((b) => {
             const s = b.shifts!;
             const hours = hoursBetween(s.starts_at, s.ends_at);
             const employerGone = inactiveEmployers.has(s.facility_id);
+            const isCancelled = b.status === "cancelled";
             return (
               <li key={b.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
@@ -115,6 +124,12 @@ export function MyShiftsPanel() {
                   <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><CalendarClock className="size-5" /></span>
                   <div className="min-w-0">
                     <p className="truncate font-bold">{s.title}</p>
+                    {isCancelled && (
+                      <p className="mt-1 inline-flex rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                        {c.cancelledBadge}
+                        {b.cancelled_at ? ` · ${c.cancelledOn(formatDateTime(b.cancelled_at, lang))}` : ""}
+                      </p>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       {s.city}، {countryLabel(s.country, lang)}
                     </p>
@@ -137,7 +152,11 @@ export function MyShiftsPanel() {
                       />
                     </div>
                   )}
-                  {new Date(s.starts_at).getTime() > Date.now() ? (
+                  {isCancelled ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {b.cancellation_actor === "facility" ? c.cancelledByFacility : c.cancelledByMe}
+                    </p>
+                  ) : new Date(s.starts_at).getTime() > Date.now() ? (
                     <Button size="sm" variant="ghost"
                       onClick={async () => {
                         const ok = await confirm({
@@ -158,12 +177,12 @@ export function MyShiftsPanel() {
 
                 </div>
                 </div>
-                {employerGone ? (
+                {isCancelled ? null : employerGone ? (
                   <p className="mt-3 rounded-lg bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
                     <span className="font-semibold text-foreground">{emp.unavailable}</span> — {emp.unavailableNote}
                   </p>
                 ) : (
-                  b.status !== "cancelled" && <CandidateInterviewBlock shiftBookingId={b.id} />
+                  <CandidateInterviewBlock shiftBookingId={b.id} />
                 )}
               </li>
             );
