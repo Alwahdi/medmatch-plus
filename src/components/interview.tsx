@@ -613,6 +613,10 @@ export function FacilityInterviewBlock({
                   toast.error(c.needWhen);
                   return;
                 }
+                if (latestStartMs !== null && new Date(when).getTime() > latestStartMs) {
+                  toast.error(c.windowInvalid);
+                  return;
+                }
                 if (!isReschedule && mode === "onsite" && !place.trim()) {
                   toast.error(c.needPlace);
                   return;
@@ -622,7 +626,7 @@ export function FacilityInterviewBlock({
                     toast.error(c.needLink);
                     return;
                   }
-                  if (!/^https?:\/\/\S+/i.test(link.trim())) {
+                  if (!/^https:\/\/\S+$/i.test(link.trim())) {
                     toast.error(c.badLink);
                     return;
                   }
