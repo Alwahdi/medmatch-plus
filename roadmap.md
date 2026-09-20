@@ -780,3 +780,31 @@ Verified on the live database: the old name is undefined for anon and authentica
 `submit_contact_message_internal` is permission denied for both; a service_role call still
 returns `ok` and writes one row (QA row deleted). Generated types no longer offer the old RPC.
 Typecheck clean, build OK.
+
+## Phase 70 — Shift duration cleanup + fully validated invariant (DONE)
+
+Four legacy shifts had impossible durations (1–5 years) and were keeping
+`shifts_duration_valid` in NOT VALID state. Each was pristine: no booking, invitation,
+interview, conversation or review. The tracked migration deletes exactly those four IDs, each
+still guarded by the same `NOT EXISTS` checks plus the duration predicate (no broad delete by
+condition), then runs `ALTER TABLE public.shifts VALIDATE CONSTRAINT shifts_duration_valid`.
+Both steps are no-ops on re-run.
+
+Verified after migration: `shifts_duration_valid` is `convalidated = true`, 0 shifts violate
+the rule (12 remain), and the whole `public` schema now has **0 NOT VALID CHECK constraints**.
+
+Shift form (the only place shift times are entered — there is no separate edit form):
+- Start and end labels now say the time is in the poster's local time.
+- Inline AR/EN errors under the field (`role="alert"`, `aria-invalid`, `aria-describedby`)
+  for a past start, an end at or before the start, and a duration over 24h — shown before
+  submitting, with entered values preserved. The review button stays disabled while either
+  field is invalid, and server-side validation is unchanged as the real boundary.
+- `min` on both inputs (now+1min for start, the start value for end) so the native mobile
+  pickers steer away from invalid values.
+- Moving the start no longer carries a stale end into another day or year: the end is
+  re-derived to start+8h and an explicit "we adjusted the end time — please review it" hint
+  appears, instead of silently changing it.
+- Persisting still converts the local input through `toISOString()` into `timestamptz`,
+  unchanged; both inputs keep the 48px-tall shared Input control at 320/390.
+
+Typecheck clean, build OK.
