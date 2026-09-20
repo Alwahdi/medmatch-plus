@@ -13,10 +13,10 @@ import { ErrorState } from "@/components/error-state";
 import { useLang } from "@/lib/i18n";
 import { WorkspaceHeading } from "@/components/workspace-ui";
 
-type SettingsTab = "general" | "alerts" | "notifications" | "security";
+type SettingsTab = "general" | "alerts" | "notifications" | "security" | "account";
 type SettingsSearch = { tab?: SettingsTab };
 
-const TABS: readonly SettingsTab[] = ["general", "alerts", "notifications", "security"];
+const TABS: readonly SettingsTab[] = ["general", "alerts", "notifications", "security", "account"];
 
 export const Route = createFileRoute("/_authenticated/settings")({
   validateSearch: (search: Record<string, unknown>): SettingsSearch => {
