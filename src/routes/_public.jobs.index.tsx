@@ -213,26 +213,6 @@ function JobsPage() {
     },
   });
 
-  const { data: jobs, isLoading, isError: jobsErr, error: jobsErrObj, refetch: jobsRefetch } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: async () => {
-      const { data, error } = await publicJobsQuery().order("created_at", { ascending: false });
-      if (error) throw error;
-      return withSpecialties(data) as unknown as (JobRow & {
-        specialty_id: string | null;
-        required_license: string | null;
-      })[];
-    },
-  });
-
-  const { data: shifts, isLoading: shiftsLoading, isError: shiftsErr, error: shiftsErrObj, refetch: shiftsRefetch } = useQuery({
-    queryKey: ["shifts"],
-    queryFn: async () => {
-      const { data, error } = await publicShiftsQuery().order("starts_at", { ascending: true });
-      if (error) throw error;
-      return withSpecialties(data) as unknown as (ShiftRow & { specialty_id: string | null })[];
-    },
-  });
 
   const queryClient = useQueryClient();
   const book = useMutation({
