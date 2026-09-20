@@ -32,7 +32,7 @@ import {
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
 import { ReportButton } from "@/components/report-dialog";
-import { canonical, shareMeta } from "@/lib/seo";
+import { canonical, shareMeta, fetchPublicShiftMeta, shiftSeoText, NOINDEX } from "@/lib/seo";
 
 const TXT = {
   ar: {

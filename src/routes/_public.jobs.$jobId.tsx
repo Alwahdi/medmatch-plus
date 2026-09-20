@@ -17,7 +17,7 @@ import { employmentLabel, experienceLabel, facilityDisplayName, formatDate, form
 import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
-import { canonical, shareMeta, jobCanonicalPath } from "@/lib/seo";
+import { canonical, shareMeta, jobCanonicalPath, fetchPublicJobMeta, jobSeoText, NOINDEX } from "@/lib/seo";
 import { ReportButton } from "@/components/report-dialog";
 
 const TXT = {
