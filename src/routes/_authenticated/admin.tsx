@@ -789,33 +789,37 @@ function AdminPage() {
                   <ul className="space-y-3">
               {group.items.map((fd) => (
                 <li key={fd.id} className="rounded-lg border border-border bg-card p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-bold">{fd.file_name ?? fd.title}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {facilityDocTypeLabel(fd.doc_type, lang)}
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words font-bold">{fd.file_name ?? fd.title}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {facilityDocTypeLabel(fd.doc_type, lang)}
 
-                        {fd.issuer ? ` · ${fd.issuer}` : ""}
-                        {fd.expiry_date ? ` · ${c.expires(formatDate(fd.expiry_date, lang))}` : ""}
-                        {` · ${formatDate(fd.created_at, lang)}`}
-                      </p>
-                      {fd.review_note && (
-                        <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">
-                          {fd.review_note}
+                          {fd.issuer ? ` · ${fd.issuer}` : ""}
+                          {fd.expiry_date ? ` · ${c.expires(formatDate(fd.expiry_date, lang))}` : ""}
+                          {` · ${formatDate(fd.created_at, lang)}`}
                         </p>
-                      )}
+                        {fd.review_note && (
+                          <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">
+                            {fd.review_note}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex shrink-0 flex-wrap items-center gap-2">
+                        {isExpired(fd.expiry_date) ? (
+                          <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
+                        ) : null}
+                        <Badge
+                          variant={
+                            fd.status === "approved" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"
+                          }
+                        >
+                          {credentialLabel(fd.status, lang)}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {isExpired(fd.expiry_date) ? (
-                        <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
-                      ) : null}
-                      <Badge
-                        variant={
-                          fd.status === "approved" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"
-                        }
-                      >
-                        {credentialLabel(fd.status, lang)}
-                      </Badge>
+                    <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
                       <Button size="sm" variant="outline" onClick={() => openFacilityFile(fd.file_path)}>
                         <FileText className="size-4" /> {c.view}
                       </Button>

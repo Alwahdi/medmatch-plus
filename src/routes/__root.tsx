@@ -138,7 +138,11 @@ function RootComponent() {
         <LanguageDocumentSync />
         <AuthSync />
         <Outlet />
-        <Toaster position="top-center" />
+        <Toaster
+          position="top-center"
+          offset={{ top: "calc(env(safe-area-inset-top, 0px) + 4.75rem)" }}
+          mobileOffset={{ top: "calc(env(safe-area-inset-top, 0px) + 4.25rem)", left: "0.75rem", right: "0.75rem" }}
+        />
       </LanguageProvider>
     </QueryClientProvider>
   );

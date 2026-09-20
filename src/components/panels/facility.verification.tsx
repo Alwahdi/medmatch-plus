@@ -250,7 +250,7 @@ export function FacilityVerificationPanel() {
       toast.success(c.deleted);
       void queryClient.invalidateQueries({ queryKey: ["facility-docs"] });
     },
-    onError: () => toast.error(c.saveFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
 
   async function openFile(path: string | null) {
@@ -466,6 +466,11 @@ export function FacilityVerificationPanel() {
             accept={ACCEPT.document}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
+          {file ? (
+            <p className="mt-1 truncate text-xs text-muted-foreground" dir="ltr" title={file.name}>
+              {file.name}
+            </p>
+          ) : null}
         </div>
         <Button className="w-full sm:w-auto" onClick={() => add.mutate()} loading={add.isPending}>
           <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
