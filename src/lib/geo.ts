@@ -39,7 +39,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     code: "SA",
-    ar: "المملكة العربية السعودية",
+    ar: "السعودية",
     en: "Saudi Arabia",
     regions: [
       r("الرياض", "Riyadh", [
@@ -70,7 +70,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     code: "AE",
-    ar: "الإمارات العربية المتحدة",
+    ar: "الإمارات",
     en: "United Arab Emirates",
     regions: [
       r("دبي", "Dubai", [
@@ -107,7 +107,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     code: "OM",
-    ar: "عمان",
+    ar: "عُمان",
     en: "Oman",
     regions: [
       r("مسقط", "Muscat", [["مسقط", "Muscat"], ["السيب", "Seeb"]]),
