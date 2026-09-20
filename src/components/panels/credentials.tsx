@@ -322,11 +322,6 @@ export function CredentialsPanel() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="title">{c.docTitle}</Label>
-            <Input id="title" maxLength={120} value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })} />
-          </div>
-          <div>
             <Label htmlFor="issuer">{c.issuer}</Label>
             <Input id="issuer" maxLength={120} placeholder={c.issuerPh}
               value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
@@ -339,9 +334,11 @@ export function CredentialsPanel() {
         </div>
         <div>
           <Label htmlFor="file">{c.file}</Label>
-          <Input id="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"
+          <Input id="file" type="file" accept={ACCEPT.document}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          {file ? <p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p> : null}
         </div>
+
         <Button onClick={() => add.mutate()} loading={add.isPending}>
           <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
         </Button>
