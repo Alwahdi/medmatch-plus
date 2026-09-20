@@ -122,11 +122,28 @@ export function AlertsPanel() {
   const [channel, setChannel] = useState<"email" | "whatsapp">("email");
   const [phone, setPhone] = useState("");
 
-  const { data: channels, isError: channelsErr, refetch: channelsRefetch } = useQuery({
+  const {
+    data: channels,
+    isPending: channelsPending,
+    isError: channelsErr,
+    refetch: channelsRefetch,
+  } = useQuery({
     queryKey: ["alert-channels"],
     queryFn: () => getChannelStatus(),
     staleTime: 5 * 60_000,
   });
+
+  // Fail closed: while the status is unknown (loading or failed) no channel is
+  // treated as deliverable, so we never promise a send we cannot make.
+  const ready = { email: channels?.email === true, whatsapp: channels?.whatsapp === true };
+  const anyReady = ready.email || ready.whatsapp;
+  const channelReady = channel === "whatsapp" ? ready.whatsapp : ready.email;
+
+  // If exactly one channel can deliver, select it instead of leaving the user
+  // on a dead option.
+  useEffect(() => {
+    if (ready.email !== ready.whatsapp) setChannel(ready.email ? "email" : "whatsapp");
+  }, [ready.email, ready.whatsapp]);
 
   const { data: specialties, isError: specialtiesErr, refetch: specialtiesRefetch } = useQuery({
     queryKey: ["specialties"],
