@@ -51,7 +51,7 @@ export const PROCESSING_TIMEOUT_MS = 10 * 60 * 1000;
 
 /** Internal dispatcher failure; the HTTP layer turns this into a generic 500. */
 export class DispatchError extends Error {
-  constructor(message: string, readonly cause?: unknown) {
+  constructor(message: string) {
     super(message);
     this.name = "DispatchError";
   }
