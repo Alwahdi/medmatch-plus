@@ -1264,6 +1264,31 @@ function ShiftForm({
     onError: (e: Error) => toast.error(friendlyError(e, lang, c.publishFailed)),
   });
 
+  const [endAdjusted, setEndAdjusted] = useState(false);
+
+  /** قيمة datetime-local من تاريخ محلي (بلا تحويل منطقة زمنية). */
+  function toLocalInput(d: Date) {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  const startMsField = form.starts_at ? new Date(form.starts_at).getTime() : Number.NaN;
+  const endMsField = form.ends_at ? new Date(form.ends_at).getTime() : Number.NaN;
+  const startFieldError =
+    form.starts_at && Number.isFinite(startMsField) && startMsField <= Date.now() ? c.startInPast : null;
+  const endFieldError =
+    !form.ends_at || !Number.isFinite(endMsField)
+      ? null
+      : !Number.isFinite(startMsField)
+        ? null
+        : endMsField <= startMsField
+          ? c.endAfterStart
+          : endMsField - startMsField > 24 * 3600_000
+            ? c.tooLong
+            : null;
+
+
+
   if (step === "review") {
     const hours = form.starts_at && form.ends_at
       ? ((new Date(form.ends_at).getTime() - new Date(form.starts_at).getTime()) / 3600_000).toFixed(1)
