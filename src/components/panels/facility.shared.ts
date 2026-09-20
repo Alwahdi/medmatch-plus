@@ -124,6 +124,11 @@ export const TXT = {
     reviewTitle: "راجع التفاصيل قبل النشر",
     reviewSub: "تأكد من صحة البيانات. يمكنك الرجوع والتعديل قبل النشر.",
     draftSaved: "تُحفظ المسودة تلقائياً على هذا الجهاز",
+    privacyHint:
+      "هوية المنشأة مخفية حتى تسمح بكشفها، لذا لا تكتب اسم المنشأة أو رقم هاتف أو واتساب أو بريداً أو رابط موقع داخل النص.",
+    privacyReview: "سيُنشر النص دون اسم المنشأة أو أي وسيلة تواصل مباشرة.",
+    privacyBlocked:
+      "النص يحتوي على اسم المنشأة أو وسيلة تواصل مباشرة (رابط أو بريد أو رقم). احذفها ثم أعد المحاولة.",
     backToEdit: "رجوع وتعديل",
     confirmPublish: "تأكيد النشر",
     notSet: "غير محدد",
@@ -280,6 +285,11 @@ export const TXT = {
     reviewTitle: "Review the details before publishing",
     reviewSub: "Check everything is correct. You can go back and edit before publishing.",
     draftSaved: "Draft saves automatically on this device",
+    privacyHint:
+      "Your facility identity stays hidden until you reveal it, so don't include the facility name, a phone or WhatsApp number, an email, or a website in the text.",
+    privacyReview: "This will publish without your facility name or any direct contact details.",
+    privacyBlocked:
+      "The text includes your facility name or a direct contact detail (link, email, or number). Remove it and try again.",
     backToEdit: "Back to edit",
     confirmPublish: "Confirm and publish",
     notSet: "Not set",
