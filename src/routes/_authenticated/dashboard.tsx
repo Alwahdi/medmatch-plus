@@ -153,7 +153,7 @@ function Dashboard() {
     },
   });
 
-  const { data: creds, isError: credsErr, refetch: credsRefetch } = useQuery({
+  const { data: creds, isError: credsErr, isPending: credsPending, refetch: credsRefetch } = useQuery({
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
     queryFn: async () => {
