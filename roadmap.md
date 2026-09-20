@@ -1309,3 +1309,13 @@ No invented metrics, testimonials, or customer counts. AR/EN parity checked; tsg
 - المدن: تبقى بقيم عربية مخزّنة وتُعرض بالإنجليزية عند توفر التسمية؛ لا تحويل لنص مدينة مخصص.
 - اختبارات: كل الدول الـ18 تظهر في التسجيل والتعديل والفلاتر (سوريا/فلسطين/السودان/ليبيا مشمولة)؛ «المملكة العربية السعودية» و«عمان» و«UAE» و«Saudi Arabia» و«سورية» تُطبَّع للقيمة المعتمدة؛ الإنجليزية تعطي تسمية لكل دولة بلا رجوع للعربية؛ نص دولة مخصص يبقى كما هو. لا صفوف تغيّرت في القاعدة (البيانات كانت معتمدة أصلاً).
 - فحص الأنواع والبناء نظيفان. تحذيرات linter: 60 كما هي (لا جديد؛ الدالة الجديدة IMMUTABLE وليست SECURITY DEFINER).
+
+## Phase 103 — التوثيق ينتهي بانتهاء صلاحية المستند المطلوب (مكتملة)
+- قاعدة صلاحية واحدة: المستند دليل صالح فقط إذا `status='approved' AND (expiry_date IS NULL OR expiry_date >= current_date)` — أي أنه صالح حتى نهاية يوم الانتهاء.
+- `private.pro_verification_evidence_ok` و`private.facility_verification_evidence_ok` تطبّقان القاعدة، كل نوع على مستنداته المطلوبة فقط؛ المستندات الاختيارية المنتهية لا تؤثر.
+- `trg_sync_facility_verification` أُعيد إنشاؤه على `AFTER INSERT OR DELETE OR UPDATE` بدل `UPDATE OF status`، فتعديل تاريخ الانتهاء وحده يعيد الحساب فوراً (كما هو الحال في credentials).
+- `public.refresh_verification_expiry()` (SECURITY DEFINER، EXECUTE لـservice_role فقط، idempotent، تحدّث الصفوف المختلفة فقط) تعيد حساب `is_verified` من الدليل الحالي وحالة الإيقاف الإداري، وتُشغَّل ضمن `/api/public/dispatch-alerts` القائمة وعبر `/api/public/refresh-verification` بمفتاح الكرون نفسه — بلا pg_cron جديد.
+- الإيقاف الإداري يبقى مسيطراً: `is_verified = evidence_ok AND verification_suspended_at IS NULL`.
+- الواجهة: `src/lib/doc-validity.ts` (EXPIRY_SOON_DAYS=30) + لوحات مستندات الكادر والمنشأة تعرض تاريخ الانتهاء بوضوح، وشارة «منتهي الصلاحية»/«قارب على الانتهاء»، وحالة «انتهت صلاحية مستند مطلوب — ارفع مستنداً سارياً لاستعادة التوثيق».
+- الإدارة: حالة المستند تعرض «منتهي الصلاحية» دون إعادة كتابة قرار المراجعة التاريخي؛ المستند البديل يُراجع مراجعة عادية.
+- اختبارات (بيانات QA مؤقتة تراجعت بالكامل): valid=true, today=true, expired=false, بديل ساري=true, موقوف=false, رُفع الإيقاف=true, منشأة صالحة=true, تعديل تاريخ الانتهاء وحده=false, تشغيل الكرون idempotent (0/0). فحص الأنواع والبناء نظيفان.

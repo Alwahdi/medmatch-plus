@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
+import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
+
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
@@ -196,10 +198,18 @@ export function CredentialsPanel() {
 
   const list = items ?? [];
   const approvedRequired = PRO_REQUIRED_DOCS.filter((t) =>
-    list.some((d) => d.doc_type === t && d.status === "approved"),
+    list.some((d) => d.doc_type === t && isValidEvidence(d)),
   ).length;
   const isVerified = approvedRequired === PRO_REQUIRED_DOCS.length;
   const pct = Math.round((approvedRequired / PRO_REQUIRED_DOCS.length) * 100);
+  const requiredExpired = list.some(
+    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
+  );
+  const requiredExpiringSoon = list.some(
+    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
+  );
+  const v = VALIDITY_TXT[lang];
+
 
   const loadErrors = [
     { err: itemsErr, retry: itemsRefetch },
@@ -237,6 +247,17 @@ export function CredentialsPanel() {
         </div>
       </div>
 
+      {requiredExpired ? (
+        <p className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+          {v.requiredExpired}
+        </p>
+      ) : requiredExpiringSoon ? (
+        <p className="mt-3 rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+          {v.requiredExpiringSoon}
+        </p>
+      ) : null}
+
+
       <div className="mt-6 rounded-lg border border-border bg-card p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
@@ -249,32 +270,43 @@ export function CredentialsPanel() {
           {DOC_TYPES.map((type) => {
             const doc = list.find((d) => d.doc_type === type);
             const isRequired = PRO_REQUIRED_DOCS.includes(type);
+            const docExpired = !!doc && doc.status === "approved" && isExpired(doc.expiry_date);
             const Icon =
-              doc?.status === "approved"
-                ? CheckCircle2
-                : doc?.status === "rejected"
-                  ? XCircle
-                  : doc
-                    ? Clock
-                    : ShieldCheck;
+              docExpired
+                ? ShieldAlert
+                : doc?.status === "approved"
+                  ? CheckCircle2
+                  : doc?.status === "rejected"
+                    ? XCircle
+                    : doc
+                      ? Clock
+                      : ShieldCheck;
             const tone =
-              doc?.status === "approved"
-                ? "text-accent"
-                : doc?.status === "rejected"
-                  ? "text-destructive"
+              docExpired || doc?.status === "rejected"
+                ? "text-destructive"
+                : doc?.status === "approved"
+                  ? "text-accent"
                   : "text-muted-foreground";
             return (
               <li key={type} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
                 <Icon className={`size-5 ${tone}`} />
-                <span className="min-w-0 flex-1 truncate text-sm">{docTypeLabel(type, lang)}</span>
+                <span className="min-w-0 flex-1 truncate text-sm">
+                  {docTypeLabel(type, lang)}
+                  {doc?.expiry_date ? (
+                    <span className="block text-xs text-muted-foreground">
+                      {c.expiry}: {formatDate(doc.expiry_date, lang)}
+                    </span>
+                  ) : null}
+                </span>
                 <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
                   {isRequired ? c.required : c.optional}
                 </Badge>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {doc ? credentialLabel(doc.status, lang) : c.missing}
+                <span className={`shrink-0 text-xs ${docExpired ? "text-destructive" : "text-muted-foreground"}`}>
+                  {docExpired ? v.expired : doc ? credentialLabel(doc.status, lang) : c.missing}
                 </span>
               </li>
             );
+
           })}
         </ul>
       </div>
@@ -336,9 +368,15 @@ export function CredentialsPanel() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {isExpired(cred.expiry_date) ? (
+                  <Badge variant="destructive">{v.expired}</Badge>
+                ) : isExpiringSoon(cred.expiry_date) ? (
+                  <Badge variant="outline">{v.expiringSoon}</Badge>
+                ) : null}
                 <Badge variant={cred.status === "approved" ? "default" : "secondary"}>
                   {credentialLabel(cred.status, lang)}
                 </Badge>
+
                 <Button size="sm" variant="outline" onClick={() => openFile(cred.file_path)}>
                   <FileText className="size-4" /> {c.view}
                 </Button>

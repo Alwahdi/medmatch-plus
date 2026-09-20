@@ -31,6 +31,7 @@ import { AdminReadiness } from "@/components/admin-readiness";
 import { VerificationPanel, type DocState, type RequiredDoc } from "@/components/admin-verification";
 import { friendlyError } from "@/lib/user-errors";
 import { useVerifiedTotp } from "@/lib/admin-mfa";
+import { VALIDITY_TXT, isExpired, isValidEvidence } from "@/lib/doc-validity";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -473,10 +474,16 @@ function AdminPage() {
   const PRO_REQUIRED_DOCS = ["ترخيص مزاولة المهنة", "بطاقة الهوية / الجواز"];
   const FACILITY_REQUIRED_DOCS = ["رخصة مزاولة المنشأة", "السجل التجاري"];
 
-  function docState(rows: { doc_type: string; status: string }[], docType: string): DocState {
+  function docState(
+    rows: { doc_type: string; status: string; expiry_date: string | null }[],
+    docType: string,
+  ): DocState {
     const matches = rows.filter((r) => r.doc_type === docType);
     if (matches.length === 0) return "missing";
-    if (matches.some((r) => r.status === "approved")) return "approved";
+    // Evidence validity and the review decision are separate: an approved doc
+    // whose expiry passed stops counting, but stays "approved" in review.
+    if (matches.some((r) => isValidEvidence(r))) return "approved";
+    if (matches.some((r) => r.status === "approved")) return "expired";
     if (matches.some((r) => r.status === "pending")) return "pending";
     return "rejected";
   }
@@ -633,6 +640,9 @@ function AdminPage() {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      {isExpired(cr.expiry_date) ? (
+                        <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
+                      ) : null}
                       <Badge
                         variant={
                           cr.status === "approved" ? "default" : cr.status === "rejected" ? "destructive" : "secondary"
@@ -733,6 +743,9 @@ function AdminPage() {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      {isExpired(fd.expiry_date) ? (
+                        <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
+                      ) : null}
                       <Badge
                         variant={
                           fd.status === "approved" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"

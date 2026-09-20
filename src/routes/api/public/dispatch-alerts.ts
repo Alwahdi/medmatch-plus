@@ -28,7 +28,15 @@ export const Route = createFileRoute("/api/public/dispatch-alerts")({
         if (denied) return withNoStore(denied);
 
         const { dispatchAlerts } = await import("@/lib/alerts-dispatch.server");
+        const { refreshVerificationExpiry } = await import("@/lib/verification-refresh.server");
         try {
+          // Idempotent, cheap: keeps verification badges current even if only
+          // the alerts schedule is configured (Phase 103).
+          try {
+            await refreshVerificationExpiry();
+          } catch (e) {
+            console.error("[verification] refresh failed during alert dispatch", e);
+          }
           const summary = await dispatchAlerts();
           return Response.json(summary, { headers: NO_STORE });
         } catch (e) {

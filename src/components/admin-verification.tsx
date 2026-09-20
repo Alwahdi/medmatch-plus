@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { Lang } from "@/lib/i18n";
 
-export type DocState = "approved" | "pending" | "rejected" | "missing";
+export type DocState = "approved" | "expired" | "pending" | "rejected" | "missing";
 
 export type RequiredDoc = { label: string; state: DocState };
 
@@ -15,6 +15,7 @@ const COPY = {
     pending: "قيد المراجعة",
     rejected: "مرفوض",
     missing: "لم يُرفع",
+    expired: "منتهي الصلاحية",
     autoNote: "يُمنح التوثيق تلقائياً فور اعتماد كل المستندات المطلوبة — لا يمكن منحه يدوياً.",
     reviewDocs: "مراجعة المستندات",
     revoke: "سحب التوثيق",
@@ -35,6 +36,7 @@ const COPY = {
     pending: "Under review",
     rejected: "Rejected",
     missing: "Not uploaded",
+    expired: "Expired",
     autoNote:
       "Verification is granted automatically once every required document is approved — it cannot be granted manually.",
     reviewDocs: "Review documents",
@@ -58,6 +60,7 @@ function StateChip({ doc, lang }: { doc: RequiredDoc; lang: Lang }) {
     approved: { icon: CheckCircle2, cls: "text-accent", label: t.approved },
     pending: { icon: Clock, cls: "text-muted-foreground", label: t.pending },
     rejected: { icon: XCircle, cls: "text-destructive", label: t.rejected },
+    expired: { icon: AlertTriangle, cls: "text-destructive", label: t.expired },
     missing: { icon: AlertTriangle, cls: "text-muted-foreground", label: t.missing },
   } as const;
   const { icon: Icon, cls, label } = map[doc.state];
