@@ -756,16 +756,16 @@ function JobsPage() {
               </div>
             )}
 
-            {jobsErr || shiftsErr ? (
+            {hasError ? (
               <ErrorState
                 className="mt-6"
-                error={jobsErrObj ?? shiftsErrObj}
+                error={listError}
                 onRetry={() => {
-                  void jobsRefetch();
-                  void shiftsRefetch();
+                  void jobsQuery.refetch();
+                  void shiftsQuery.refetch();
                 }}
               />
-            ) : isLoading || shiftsLoading ? (
+            ) : isLoading ? (
               <div className="mt-6 space-y-3">
                 {[...Array(6)].map((_, i) => (
                   <Skeleton key={i} className="h-28 rounded-lg" />
@@ -779,35 +779,54 @@ function JobsPage() {
                 </Button>
               </div>
             ) : (
-              <div className="mt-6 space-y-3">
-                {items.map((item) =>
-                  item.kind === "job" ? (
-                    <JobCard
-                      key={`job-${item.id}`}
-                      job={item.job}
-                      applied={!!appliedIds?.has(item.id)}
-                      saved={!!savedIds?.has(item.id)}
-                      recommended={signedIn && relevanceOf(item.job) > 0}
-                    />
-                  ) : (
-                    <ShiftCard
-                      key={`shift-${item.id}`}
-                      shift={item.shift}
-                      busy={book.isPending}
-                      mine={!!bookedShiftIds?.has(item.id)}
-                      recommended={signedIn && !!mySpecialtyId && item.shift.specialty_id === mySpecialtyId}
-                      onBook={() => {
-                        if (!user) {
-                          void navigate({ to: "/auth" });
-                          return;
-                        }
-                        book.mutate(item.id);
-                      }}
-                    />
-                  ),
-                )}
-              </div>
+              <>
+                <div className="mt-6 space-y-3">
+                  {items.map((item) =>
+                    item.kind === "job" ? (
+                      <JobCard
+                        key={`job-${item.id}`}
+                        job={item.job}
+                        applied={appliedSet.has(item.id)}
+                        saved={!!savedIds?.has(item.id)}
+                        recommended={signedIn && relevanceOf(item.job) > 0}
+                      />
+                    ) : (
+                      <ShiftCard
+                        key={`shift-${item.id}`}
+                        shift={item.shift}
+                        busy={book.isPending}
+                        mine={!!bookedShiftIds?.has(item.id)}
+                        recommended={signedIn && !!mySpecialtyId && item.shift.specialty_id === mySpecialtyId}
+                        onBook={() => {
+                          if (!user) {
+                            void navigate({ to: "/auth" });
+                            return;
+                          }
+                          book.mutate(item.id);
+                        }}
+                      />
+                    ),
+                  )}
+                </div>
+                <div className="mt-6 flex flex-col items-center gap-3">
+                  <p className="text-sm text-muted-foreground">{c.showing(items.length, total)}</p>
+                  {hasMore && (
+                    <Button
+                      variant="outline"
+                      className="min-h-11 w-full sm:w-auto"
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                    >
+                      {loadingMore ? c.loading : c.loadMore}
+                    </Button>
+                  )}
+                  <p className="sr-only" aria-live="polite">
+                    {appendedNote}
+                  </p>
+                </div>
+              </>
             )}
+
 
           </div>
         </div>
