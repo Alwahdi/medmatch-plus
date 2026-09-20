@@ -237,6 +237,8 @@ function AdminPage() {
     },
   });
 
+  const { data: specialtyList } = useSpecialtyList();
+
   const { data: changeReqs, isError: changeReqsErr, refetch: changeReqsRefetch } = useQuery({
     queryKey: ["admin-change-requests"],
     enabled: !!isAdmin,
