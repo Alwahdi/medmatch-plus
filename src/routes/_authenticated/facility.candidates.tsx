@@ -53,9 +53,9 @@ export const Route = createFileRoute("/_authenticated/facility/candidates")({
 
 const ANY = "any";
 
+// Pre-contact results carry only the opaque professional-profile id, never an auth user id.
 type Candidate = {
   id: string;
-  user_id: string;
   specialty_id: string | null;
   years_experience: number;
   country: string | null;
@@ -63,6 +63,7 @@ type Candidate = {
   is_open_to_shifts: boolean;
   is_verified: boolean;
 };
+
 
 const TXT = {
   ar: {
@@ -241,10 +242,10 @@ function Candidates() {
   });
 
   const startChat = useMutation({
-    mutationFn: async (candidateUserId: string) => {
+    mutationFn: async (candidateId: string) => {
       if (!facility) throw new UserFacingError(c.completeFacility);
-      const { error } = await supabase.rpc("start_candidate_conversation", {
-        _professional_user_id: candidateUserId,
+      const { error } = await supabase.rpc("start_candidate_conversation_from_search", {
+        _candidate_id: candidateId,
         _subject: c.initialContact,
       });
       if (error) throw error;
@@ -253,14 +254,15 @@ function Candidates() {
       toast.success(c.chatOpened);
       navigate({ to: "/messages" });
     },
-    onError: (e: Error, candidateUserId) => {
+    onError: (e: Error, candidateId) => {
       toast.error(friendlyError(e, lang, c.chatFailed));
       // سباق: المرشح قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
       if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_SEARCH_ACCESS_EXPIRED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
-        setResults((rows) => (rows ? rows.filter((r) => r.user_id !== candidateUserId) : rows));
+        setResults((rows) => (rows ? rows.filter((r) => r.id !== candidateId) : rows));
       }
     },
   });
+
 
   const activeFilters: ActiveFilter[] = [
     specialty !== ANY
@@ -434,7 +436,7 @@ function Candidates() {
                     {cand.is_open_to_shifts ? c.openToShifts : ""}
                   </p>
                 </div>
-                <Button size="sm" className="w-full sm:w-auto" onClick={() => startChat.mutate(cand.user_id)} loading={startChat.isPending}>
+                <Button size="sm" className="w-full sm:w-auto" onClick={() => startChat.mutate(cand.id)} loading={startChat.isPending}>
                   <MessageSquare className="size-4" /> {c.contact}
                 </Button>
               </div>

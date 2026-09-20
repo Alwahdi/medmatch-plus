@@ -23,8 +23,9 @@ import { friendlyError, UserFacingError } from "@/lib/user-errors";
 
 const ANY = "any";
 
+// Search results stay anonymous: only the professional-profile id, never an auth user id.
 type Candidate = {
-  user_id: string;
+  id: string;
   headline: string | null;
   specialty_id: string | null;
   years_experience: number;
@@ -32,6 +33,7 @@ type Candidate = {
   city: string | null;
   is_verified: boolean;
 };
+
 
 export const INVITE_TXT = {
   ar: {
@@ -283,34 +285,41 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
   });
 
   const invite = useMutation({
-    mutationFn: async (professionalUserId: string) => {
+    mutationFn: async (target: { userId?: string; candidateId?: string }) => {
       if (!facility || (!jobId && !shiftId)) throw new UserFacingError(c.noTarget);
-      const args: {
-        _professional_user_id: string;
-        _job_id?: string;
-        _shift_id?: string;
-        _message?: string;
-      } = {
-        _professional_user_id: professionalUserId,
-      };
-      if (jobId) args._job_id = jobId;
-      if (shiftId) args._shift_id = shiftId;
-      if (message.trim()) args._message = message.trim();
-      const { error } = await supabase.rpc("send_candidate_invitation", args);
+      const args: Record<string, string> = {};
+      if (jobId) args["_job_id"] = jobId;
+      if (shiftId) args["_shift_id"] = shiftId;
+      if (message.trim()) args["_message"] = message.trim();
+      const { error } = target.candidateId
+        ? await supabase.rpc("send_candidate_invitation_from_search", {
+            ...args,
+            _candidate_id: target.candidateId,
+          })
+        : await supabase.rpc("send_candidate_invitation", {
+            ...args,
+            _professional_user_id: target.userId!,
+          });
       if (error) throw error.message.includes("INVITATION_EXISTS") ? new UserFacingError(c.duplicate) : error;
     },
     onSuccess: () => {
       toast.success(c.sent);
       queryClient.invalidateQueries({ queryKey: ["invitations-sent"] });
     },
-    onError: (e: Error, professionalUserId) => {
+    onError: (e: Error, target) => {
       toast.error(friendlyError(e, lang, c.failed));
       // سباق: المختص قد يكون أوقف ظهوره بعد تحميل النتائج — أزِله من القائمة.
-      if (/CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_SEARCH_ACCESS_EXPIRED|CANDIDATE_INVITE_NOT_ALLOWED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(e.message)) {
-        setResults((rows) => (rows ? rows.filter((r) => r.user_id !== professionalUserId) : rows));
+      if (
+        target.candidateId &&
+        /CANDIDATE_NO_LONGER_SEARCHABLE|CANDIDATE_SEARCH_ACCESS_EXPIRED|CANDIDATE_INVITE_NOT_ALLOWED|CANDIDATE_CONTACT_NOT_ALLOWED/i.test(
+          e.message,
+        )
+      ) {
+        setResults((rows) => (rows ? rows.filter((r) => r.id !== target.candidateId) : rows));
       }
     },
   });
+
 
   /** سحب دعوة معلّقة — الحالة فقط، والباقي يفرضه الخادم. */
   const cancelInvite = useMutation({
@@ -335,8 +344,9 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     if (ok) cancelInvite.mutate(id);
   }
 
-  function InviteButton({ userId }: { userId: string }) {
-    const st = statusOf(userId);
+  // Engaged professionals are addressed by user id; anonymous search hits by candidate id only.
+  function InviteButton({ userId, candidateId }: { userId?: string; candidateId?: string }) {
+    const st = userId ? statusOf(userId) : null;
     if (st === "accepted") return <Badge className="bg-success text-success-foreground">{c.accepted}</Badge>;
     if (st === "declined") return <Badge variant="secondary">{c.declined}</Badge>;
     if (st === "cancelled") return <Badge variant="secondary">{c.statuses.cancelled}</Badge>;
@@ -345,12 +355,13 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
       <Button
         size="sm"
         disabled={invite.isPending || (!jobId && !shiftId)}
-        onClick={() => invite.mutate(userId)}
+        onClick={() => invite.mutate(userId ? { userId } : { candidateId: candidateId! })}
       >
         <Send className="size-4" /> {c.invite}
       </Button>
     );
   }
+
 
   const loadErrors = [
     { err: specialtiesErr, retry: specialtiesRefetch },
@@ -505,7 +516,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
           <ul className="mt-4 space-y-3">
             {results.map((cand) => (
               <li
-                key={cand.user_id}
+                key={cand.id}
                 className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4"
               >
                 <RemoteAvatar value={null} icon={UserRound} className="size-10 rounded-lg" />
@@ -525,7 +536,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
                   </p>
                 </div>
                 <div className="ms-auto">
-                  <InviteButton userId={cand.user_id} />
+                  <InviteButton candidateId={cand.id} />
                 </div>
               </li>
             ))}
