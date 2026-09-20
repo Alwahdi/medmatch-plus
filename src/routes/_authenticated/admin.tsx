@@ -764,118 +764,19 @@ function AdminPage() {
               {c.noDocs}
             </p>
           ) : (
-            <div className="mt-4 space-y-6">
-              {credGroups.map((group) => (
-                <section key={group.name}>
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-bold">{group.name}</h2>
-                    <Badge variant="secondary">
-                      {c.pendingCount(group.items.filter((r) => r.status === "pending").length)}
-                    </Badge>
-                    {group.items.some((r) => r.status === "pending") && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="ms-auto"
-                        loading={bulkApprove.isPending && bulkApprove.variables?.groupKey === `cred:${group.name}`}
-                        disabled={bulkApprove.isPending}
-                        onClick={() => {
-                          const ids = group.items.filter((r) => r.status === "pending").map((r) => r.id);
-                          if (!window.confirm(c.approveAllConfirm(group.name, ids.length))) return;
-                          bulkApprove.mutate({ ids, kind: "cred", groupKey: `cred:${group.name}` });
-                        }}
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {c.approveAll(group.items.filter((r) => r.status === "pending").length)}
-                      </Button>
-                    )}
-                  </div>
-                  <ul className="space-y-3">
-              {group.items.map((cr) => (
-                <li key={cr.id} className="rounded-lg border border-border bg-card p-4">
-
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-bold">{credentialLabel(cr.doc_type, lang)}</p>
-                      {(cr.file_name || cr.title) && (
-                        <p className="mt-1 truncate text-xs text-muted-foreground" title={cr.file_name ?? cr.title}>
-                          {c.fileLabel}: {cr.file_name ?? cr.title}
-                        </p>
-                      )}
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {cr.issuer ? `${cr.issuer} · ` : ""}
-                        {cr.expiry_date ? `${c.expires(formatDate(cr.expiry_date, lang))} · ` : ""}
-                        {formatDate(cr.created_at, lang)}
-                      </p>
-                      {cr.review_note && (
-                        <p className="mt-2 rounded-lg bg-muted/60 p-2 text-xs text-muted-foreground">{cr.review_note}</p>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {isExpired(cr.expiry_date) ? (
-                        <Badge variant="destructive">{VALIDITY_TXT[lang].expired}</Badge>
-                      ) : null}
-                      <Badge
-                        variant={
-                          cr.status === "approved" ? "default" : cr.status === "rejected" ? "destructive" : "secondary"
-                        }
-                      >
-                        {credentialLabel(cr.status, lang)}
-                      </Badge>
-                      <Button size="sm" variant="outline" onClick={() => openFile(cr.file_path)}>
-                        <FileText className="size-4" /> {c.view}
-                      </Button>
-                      <Button
-                        size="sm"
-                        loading={review.isPending}
-                        onClick={() => review.mutate({ id: cr.id, status: "approved" })}
-                      >
-                        <CheckCircle2 className="size-4" /> {c.approve}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setRejectId(rejectId === cr.id ? null : cr.id);
-                          setNote(cr.review_note ?? "");
-                        }}
-                      >
-                        <XCircle className="size-4" /> {c.reject}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {rejectId === cr.id && (
-                    <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3">
-                      <label className="text-xs font-medium" htmlFor={`note-${cr.id}`}>
-                        {c.noteLabel}
-                      </label>
-                      <Textarea aria-label={c.notePlaceholder}
-                        id={`note-${cr.id}`}
-                        rows={2}
-                        className="mt-2 bg-background"
-                        value={note}
-                        placeholder={c.notePlaceholder}
-                        onChange={(e) => setNote(e.target.value)}
-                      />
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="mt-2"
-                        loading={review.isPending}
-                        onClick={() => review.mutate({ id: cr.id, status: "rejected", reviewNote: note.trim() })}
-                      >
-                        {c.reject}
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-
+            <AdminReviewQueue
+              lang={lang}
+              owners={credOwners}
+              docLabel={(t) => credentialLabel(t, lang)}
+              statusLabel={(s) => credentialLabel(s, lang)}
+              onOpenFile={openFile}
+              onApprove={(id) => review.mutate({ id, status: "approved" })}
+              onReject={(id, reviewNote) => review.mutate({ id, status: "rejected", reviewNote })}
+              onApproveAll={(owner, ids) => bulkApprove.mutate({ ids, kind: "cred", groupKey: owner.key })}
+              reviewPending={review.isPending}
+              bulkPendingKey={bulkApprove.isPending ? bulkApprove.variables?.groupKey ?? null : null}
+              autoVerifyNote={c.autoVerify}
+            />
           )}
         </TabsContent>
 
