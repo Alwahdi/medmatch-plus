@@ -233,12 +233,12 @@ function JobsPage() {
     },
     onSuccess: () => {
       toast.success(c.booked);
-      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["search-shifts"] });
       queryClient.invalidateQueries({ queryKey: ["my-shifts"] });
     },
     onError: (e: Error) => {
       toast.error(engagementErrorText(e.message, lang));
-      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["search-shifts"] });
     },
   });
 
