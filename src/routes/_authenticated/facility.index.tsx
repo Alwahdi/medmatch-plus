@@ -397,6 +397,19 @@ function FacilityDashboard() {
                 )}
               </div>
             </div>
+          ) : requireFacilityVerification && !facility.is_verified ? (
+            <NextStepCard
+              icon={ShieldAlert}
+              label={c.attention}
+              title={c.publishBlockedTitle}
+              description={c.publishBlockedBody}
+              tone="warning"
+              action={
+                <Button variant="secondary" asChild>
+                  <Link to="/facility/profile" search={{ tab: "verification" }}>{c.verifyNow}</Link>
+                </Button>
+              }
+            />
           ) : (
             <>
               {createMode === "job" && (
