@@ -45,6 +45,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { hasIdentityDisclosure } from "@/lib/listing-privacy";
+import { FACILITY_JOB_COLUMNS, FACILITY_SHIFT_COLUMNS } from "@/lib/public-listings";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -151,7 +152,7 @@ function FacilityDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*,applications(id,status)")
+        .select(`${FACILITY_JOB_COLUMNS},applications(id,status)`)
         .eq("facility_id", facility!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -165,7 +166,7 @@ function FacilityDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shifts")
-        .select("*,shift_bookings(id,status)")
+        .select(`${FACILITY_SHIFT_COLUMNS},shift_bookings(id,status)`)
         .eq("facility_id", facility!.id)
         .order("starts_at", { ascending: true });
       if (error) throw error;
