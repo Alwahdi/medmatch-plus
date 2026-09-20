@@ -24,7 +24,7 @@ import { useSession } from "@/lib/auth";
 import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
 
-import { checkUpload } from "@/lib/storage";
+import { ACCEPT, prepareUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -113,7 +113,7 @@ export function CredentialsPanel() {
 
   const { user } = useSession();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ title: "", doc_type: "", issuer: "", expiry_date: "" });
+  const [form, setForm] = useState({ doc_type: "", issuer: "", expiry_date: "" });
   const [file, setFile] = useState<File | null>(null);
 
   const schema = z.object({
