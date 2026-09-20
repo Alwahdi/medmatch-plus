@@ -19,6 +19,8 @@ import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
 import { canonical, shareMeta, jobCanonicalPath, fetchPublicJobMeta, jobSeoText, NOINDEX } from "@/lib/seo";
 import { ReportButton } from "@/components/report-dialog";
+import { VerificationGateNotice } from "@/components/verification-gate-notice";
+import { useProfessionalVerificationGate } from "@/lib/verification-gate";
 
 const TXT = {
   ar: {
@@ -487,6 +489,8 @@ function JobDetail() {
                     <Link to="/auth">{c.signInCta}</Link>
                   </Button>
                 </>
+              ) : proGate.blocked ? (
+                <VerificationGateNotice hasProfile={proGate.hasProfile} />
               ) : existing && existing.status === "withdrawn" ? (
                 <div className="mt-4">
                   <div className="rounded-lg border border-border bg-muted/50 p-4">

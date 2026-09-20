@@ -9,6 +9,22 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // اشتراط التوثيق قبل النشر والتقديم (قابل للتحكم من لوحة الإدارة)
+  {
+    test: /FACILITY_NOT_VERIFIED/i,
+    ar: "نشر الوظائف والمناوبات متاح للمنشآت الموثّقة فقط. ارفع مستندات منشأتك من صفحة «توثيق المنشأة» وانتظر الاعتماد.",
+    en: "Only verified facilities can publish jobs and shifts. Upload your facility documents on the Verification page and wait for approval.",
+  },
+  {
+    test: /PROFESSIONAL_NOT_VERIFIED/i,
+    ar: "التقديم على الوظائف وحجز المناوبات متاح للكوادر الموثّقة فقط. ارفع مستنداتك من صفحة «التوثيق» وانتظر الاعتماد.",
+    en: "Only verified professionals can apply to jobs and book shifts. Upload your documents on the Verification page and wait for approval.",
+  },
+  {
+    test: /UNKNOWN_SETTING/i,
+    ar: "هذا الإعداد غير معروف.",
+    en: "Unknown setting.",
+  },
   // المرحلة 100: التحقق بخطوتين إلزامي لحسابات الإدارة
   {
     test: /ADMIN_MFA_ENROLLMENT_REQUIRED/i,

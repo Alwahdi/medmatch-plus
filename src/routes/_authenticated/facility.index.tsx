@@ -71,6 +71,7 @@ import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
+import { useRequireFacilityVerification } from "@/lib/platform-settings";
 import { isFacilityProfileComplete } from "@/lib/profile-completeness";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -105,6 +106,7 @@ export const Route = createFileRoute("/_authenticated/facility/")({
 function FacilityDashboard() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const requireFacilityVerification = useRequireFacilityVerification();
   const { confirm, confirmDialog } = useConfirm();
   const rawTab = Route.useSearch().tab ?? "all";
   // توافق خلفي: الروابط القديمة new-job/new-shift تفتح القسم الصحيح مع نافذة الإنشاء.
@@ -397,6 +399,19 @@ function FacilityDashboard() {
                 )}
               </div>
             </div>
+          ) : requireFacilityVerification && !facility.is_verified ? (
+            <NextStepCard
+              icon={ShieldAlert}
+              label={c.attention}
+              title={c.publishBlockedTitle}
+              description={c.publishBlockedBody}
+              tone="warning"
+              action={
+                <Button variant="secondary" asChild>
+                  <Link to="/facility/profile" search={{ tab: "verification" }}>{c.verifyNow}</Link>
+                </Button>
+              }
+            />
           ) : (
             <>
               {createMode === "job" && (
