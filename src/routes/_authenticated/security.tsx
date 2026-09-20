@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_authenticated/security")({
       {
         name: "description",
         content:
-          "غيّر كلمة المرور، اربط حساب جوجل، فعّل التحقق بخطوتين والبصمة، وراجع جلسات الدخول النشطة.",
+          "غيّر كلمة المرور، اربط حساب جوجل، فعّل التحقق بخطوتين، وراجع جلسات الدخول النشطة.",
       },
       { property: "og:title", content: "الأمان وتسجيل الدخول | SyndeoCare" },
       {
