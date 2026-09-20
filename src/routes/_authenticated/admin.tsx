@@ -348,27 +348,35 @@ function AdminPage() {
   });
 
   const verifyFacility = useMutation({
-    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.rpc("admin_set_facility_verified", { _facility_id: id, _value: value });
+    mutationFn: async ({ id, value, reason }: { id: string; value: boolean; reason?: string }) => {
+      const { error } = await supabase.rpc("admin_set_facility_verified", {
+        _facility_id: id,
+        _value: value,
+        ...(reason ? { _reason: reason } : {}),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.facilityUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   const verifyPro = useMutation({
-    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
-      const { error } = await supabase.rpc("admin_set_professional_verified", { _professional_id: id, _value: value });
+    mutationFn: async ({ id, value, reason }: { id: string; value: boolean; reason?: string }) => {
+      const { error } = await supabase.rpc("admin_set_professional_verified", {
+        _professional_id: id,
+        _value: value,
+        ...(reason ? { _reason: reason } : {}),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.proUpdated);
       queryClient.invalidateQueries({ queryKey: ["admin-pros"] });
     },
-    onError: () => toast.error(c.updateFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang) || c.updateFailed),
   });
 
   const handleMsg = useMutation({
