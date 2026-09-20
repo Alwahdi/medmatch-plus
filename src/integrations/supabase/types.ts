@@ -1358,6 +1358,9 @@ export type Database = {
       }
       shift_bookings: {
         Row: {
+          cancellation_actor: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
           created_at: string
           id: string
           shift_id: string
@@ -1365,6 +1368,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cancellation_actor?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string
           id?: string
           shift_id: string
@@ -1372,6 +1378,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cancellation_actor?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string
           id?: string
           shift_id?: string
@@ -1382,14 +1391,14 @@ export type Database = {
           {
             foreignKeyName: "shift_bookings_shift_id_fkey"
             columns: ["shift_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "public_shifts"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "shift_bookings_shift_id_fkey"
             columns: ["shift_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
@@ -1762,7 +1771,7 @@ export type Database = {
         Returns: undefined
       }
       cancel_my_shift_booking: {
-        Args: { _booking_id: string }
+        Args: { _booking_id: string; _reason?: string }
         Returns: string
       }
       claim_facility_role: { Args: never; Returns: boolean }
