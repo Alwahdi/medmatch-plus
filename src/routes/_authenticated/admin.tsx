@@ -807,13 +807,17 @@ function AdminPage() {
                       {p.rating_count > 0 ? ` · ${c.rating(Number(p.rating_avg), p.rating_count)}` : ""}
                     </p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant={p.is_verified ? "outline" : "default"}
-                    onClick={() => verifyPro.mutate({ id: p.id, value: !p.is_verified })}
-                  >
-                    {p.is_verified ? c.unverify : c.verify}
-                  </Button>
+                  <VerificationPanel
+                    lang={lang}
+                    verified={p.is_verified}
+                    suspended={!!p.verification_suspended_at}
+                    suspensionReason={p.verification_suspension_reason}
+                    docs={proRequiredDocs(p.user_id)}
+                    pending={verifyPro.isPending}
+                    onReviewDocs={() => setTab("docs")}
+                    onRestore={() => verifyPro.mutate({ id: p.id, value: true })}
+                    onRevoke={(reason) => verifyPro.mutate({ id: p.id, value: false, reason })}
+                  />
                 </li>
               ))}
             </ul>
