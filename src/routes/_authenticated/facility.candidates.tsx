@@ -88,6 +88,7 @@ const TXT = {
     candidateIn: (spec: string) => `مرشح في ${spec}`,
     genericSpecialty: "تخصص طبي",
     verified: "موثّق",
+    notVerified: "لم يُوثَّق بعد",
     experience: (n: number) => experienceLabel(n, "ar"),
     openToShifts: " · متاح للمناوبات",
     contact: "تواصل",
@@ -121,6 +122,7 @@ const TXT = {
     candidateIn: (spec: string) => `Candidate in ${spec}`,
     genericSpecialty: "medical specialty",
     verified: "Verified",
+    notVerified: "Not yet verified",
     experience: (n: number) => experienceLabel(n, "en"),
     openToShifts: " · Available for shifts",
     contact: "Contact",
@@ -350,9 +352,13 @@ function Candidates() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2 font-bold">
                     {c.candidateIn(specialtyName(specialties?.find((s) => s.id === cand.specialty_id), lang) || c.genericSpecialty)}
-                    {cand.is_verified && (
+                    {cand.is_verified ? (
                       <Badge variant="secondary" className="gap-1">
                         <ShieldCheck className="size-3" /> {c.verified}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="font-normal text-muted-foreground">
+                        {c.notVerified}
                       </Badge>
                     )}
                   </div>
