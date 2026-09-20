@@ -49,6 +49,7 @@ const TXT = {
     withdrawn: "تم سحب الطلب",
     withdrawnAt: (t: string) => `سُحب ${t}`,
     reapply: "التقديم من جديد",
+    updatedAfter: (t: string) => `حُدّثت تفاصيل الوظيفة بعد تقديمك (${t})`,
   },
   en: {
     title: "My applications",
