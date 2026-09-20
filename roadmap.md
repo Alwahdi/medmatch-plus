@@ -541,3 +541,11 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - تبويب «طلبات حذف الحساب» في /admin عبر RPC فقط، بلا حذف مستخدمين.
 - تصحيح نصوص الشروط (بند 8) والخصوصية (بند 6 و8).
 - اختبارات DB: idempotent، عزل المستخدم الآخر، إلغاء pending، منع إلغاء processing، منع غير الإدارة — ونُظّفت بيانات QA.
+
+## Phase 53 — Public listing identity-leak prevention in free text ✅
+- `guard_public_listing_identity()` + triggers على `jobs` (title/description) و`shifts` (title/notes): رفض الروابط (`http://`, `https://`, `www.`)، البريد الإلكتروني، الأرقام الطويلة (9+ بعد إزالة الفواصل) أو `+` دولي، وكلمات واتساب/تلجرام مع رقم 7+، واسم المنشأة (ar/en، طوله ≥3، مقارنة مطبّعة) ونطاق موقعها. رمز الخطأ `LISTING_IDENTITY_DISCLOSURE`. `required_license` (رمز دولة) لا يُفحص. لا استثناء للإدارة لأن النتيجة عامة.
+- الأرقام العادية (سنوات الخبرة، 2026، الرواتب في حقولها) غير متأثرة — الحد 9 أرقام متتالية اختير لتجنب false positives.
+- `private.owner_account_exists()` بدل استعلام `auth.users` داخل `public_jobs`/`public_shifts` (إغلاق تنبيه Exposed Auth Users بلا تغيير سلوك).
+- الواجهة: `src/lib/listing-privacy.ts` فحص مبدئي مطابق، نص إرشادي تحت وصف الوظيفة وملاحظات المناوبة، ملاحظة خصوصية هادئة في شاشة المراجعة، رسالة ودية AR/EN، والمسودة تبقى محفوظة عند الرفض.
+- اختبارات (rollback فقط): وصف طبي عادي مقبول؛ اسم المنشأة/بريد/https/www/واتساب+رقم/+967 مرفوضة؛ 20 وظيفة قائمة تمر بلا فشل. (4 مناوبات قديمة تفشل على قيد `shifts_duration_valid` السابق — غير متعلق بهذه المرحلة.)
+- typecheck/build نظيفان؛ /jobs و/shifts بلا overflow ولا أخطاء على 320/390/1440.
