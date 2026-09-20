@@ -7,6 +7,7 @@ import { JobCard, type JobRow } from "@/components/job-card";
 import { ShiftCard, type ShiftRow } from "@/components/shift-card";
 import { supabase } from "@/integrations/supabase/client";
 import { publicJobsQuery, publicShiftsQuery, withSpecialties } from "@/lib/public-listings";
+import { unwrapRows } from "@/lib/query-errors";
 import { specialtyName } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { canonical, shareMeta } from "@/lib/seo";
@@ -85,7 +86,8 @@ function SpecialtyPage() {
       if (specialtyError) throw specialtyError;
       if (!specialty) throw notFound();
 
-      const [{ data: jobs }, { data: shifts }] = await Promise.all([
+      // أي فشل في أحد الطلبين يُرمى: العدد 0 يجب أن يعني "لا نتائج" لا "فشل الطلب".
+      const [jobsRes, shiftsRes] = await Promise.all([
         publicJobsQuery()
           .eq("specialty_id", specialty.id)
           .order("created_at", { ascending: false })
@@ -95,6 +97,8 @@ function SpecialtyPage() {
           .order("starts_at", { ascending: true })
           .limit(6),
       ]);
+      const jobs = unwrapRows(jobsRes);
+      const shifts = unwrapRows(shiftsRes);
 
       return {
         specialty,

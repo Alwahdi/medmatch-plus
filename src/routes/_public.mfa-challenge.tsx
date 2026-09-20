@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/error-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,7 +54,7 @@ const T = {
   },
 } as const;
 
-type Phase = "checking" | "ready" | "none";
+type Phase = "checking" | "ready" | "none" | "failed";
 
 function MfaChallengePage() {
   const { lang } = useLang();
@@ -61,6 +62,7 @@ function MfaChallengePage() {
   const t = (key: keyof typeof T) => T[key][lang === "ar" ? "ar" : "en"];
 
   const [phase, setPhase] = useState<Phase>("checking");
+  const [attempt, setAttempt] = useState(0);
   const [factorId, setFactorId] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -76,18 +78,28 @@ function MfaChallengePage() {
 
   useEffect(() => {
     let active = true;
+    setPhase("checking");
     void (async () => {
-      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      // فشل قراءة حالة التحقق ليس "لا يوجد تحقق": لا نسمح بالمرور، بل نعرض خطأ.
+      const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (!active) return;
+      if (aalError) {
+        setPhase("failed");
+        return;
+      }
       if (!aal || aal.nextLevel !== "aal2" || aal.currentLevel === "aal2") {
         // لا حاجة لتحدٍّ: إمّا لا يوجد عامل موثّق أو الجلسة مؤكَّدة أصلاً.
         setPhase("none");
         leave();
         return;
       }
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const totp = factors?.totp?.find((f) => f.status === "verified");
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (!active) return;
+      if (factorsError) {
+        setPhase("failed");
+        return;
+      }
+      const totp = factors?.totp?.find((f) => f.status === "verified");
       if (!totp) {
         setPhase("none");
         leave();
@@ -99,7 +111,7 @@ function MfaChallengePage() {
     return () => {
       active = false;
     };
-  }, [leave]);
+  }, [leave, attempt]);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -130,6 +142,14 @@ function MfaChallengePage() {
     }
     leave();
   };
+
+  if (phase === "failed") {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background px-4">
+        <ErrorState className="w-full max-w-sm" onRetry={() => setAttempt((n) => n + 1)} />
+      </div>
+    );
+  }
 
   if (phase !== "ready") {
     return (

@@ -7,6 +7,7 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { assertOk } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { parseCv, type ParsedCv } from "@/lib/cv.functions";
 import { useLang } from "@/lib/i18n";
@@ -143,7 +144,7 @@ export function CvImportPanel() {
       );
       if (error) throw error;
       // تفعيل دور الكادر بعد إنشاء الملف — حتى لا يعود المستخدم لشاشة الإعداد.
-      await supabase.rpc("claim_professional_role");
+      assertOk(await supabase.rpc("claim_professional_role"));
     },
     onSuccess: () => {
       toast.success(c.saved);

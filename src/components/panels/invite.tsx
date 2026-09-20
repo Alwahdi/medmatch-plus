@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/empty-state";
 import { useConfirm } from "@/components/confirm-dialog";
 import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { countryLabel, specialtyName, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
@@ -181,12 +182,12 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
     queryKey: ["past-collaborators", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
-      const [{ data: jobs }, { data: shifts }] = await Promise.all([
+      const [jobsRes, shiftsRes] = await Promise.all([
         supabase.from("jobs").select("id").eq("facility_id", facility!.id),
         supabase.from("shifts").select("id").eq("facility_id", facility!.id),
       ]);
-      const jobIds = (jobs ?? []).map((j) => j.id);
-      const shiftIds = (shifts ?? []).map((s) => s.id);
+      const jobIds = unwrapRows(jobsRes).map((j) => j.id);
+      const shiftIds = unwrapRows(shiftsRes).map((s) => s.id);
       const ids = new Set<string>();
       if (jobIds.length) {
         const { data, error } = await supabase
@@ -207,11 +208,14 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         for (const b of data ?? []) ids.add(b.user_id);
       }
       if (ids.size === 0) return [];
-      const { data: pros } = await supabase
-        .from("healthcare_professionals")
-        .select("user_id,full_name,headline,specialty_id,years_experience,country,city,is_verified,avatar_url")
-        .in("user_id", Array.from(ids));
-      return pros ?? [];
+      return unwrapRows(
+        await supabase
+          .from("healthcare_professionals")
+          .select(
+            "user_id,full_name,headline,specialty_id,years_experience,country,city,is_verified,avatar_url",
+          )
+          .in("user_id", Array.from(ids)),
+      );
     },
   });
 
@@ -224,8 +228,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         .select("id,professional_user_id,status,created_at")
         .eq("facility_id", facility!.id);
       q = jobId ? q.eq("job_id", jobId) : shiftId ? q.eq("shift_id", shiftId) : q;
-      const { data } = await q.order("created_at", { ascending: false });
-      return data ?? [];
+      return unwrapRows(await q.order("created_at", { ascending: false }));
     },
   });
 

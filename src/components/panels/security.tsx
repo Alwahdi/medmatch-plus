@@ -236,7 +236,8 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       if (newPw.length > 72) userError(c.pwLong);
       if (newPw !== confirmPw) userError(c.pwMismatch);
       const email = user?.email;
-      const { data: idents } = await supabase.auth.getUserIdentities();
+      const { data: idents, error: identsError } = await supabase.auth.getUserIdentities();
+      if (identsError) throw identsError;
       const hasPassword = !!idents?.identities?.some((i) => i.provider === "email");
       if (!hasPassword || !email) userError(c.pwOauthBody);
       if (!currentPw) userError(c.pwCurrentRequired);
@@ -245,7 +246,8 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       if (!ok) userError(c.pwCurrentWrong);
       const { error } = await supabase.auth.updateUser({ password: newPw });
       if (error) throw error;
-      await supabase.auth.signOut({ scope: "others" });
+      const { error: signOutError } = await supabase.auth.signOut({ scope: "others" });
+      if (signOutError) throw signOutError;
     },
     onSuccess: () => {
       setCurrentPw("");

@@ -18,6 +18,7 @@ import { RemoteAvatar } from "@/components/remote-avatar";
 
 import { ReviewDialog } from "@/components/review-dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { unwrap, unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { applicationLabel, countryLabel, formatDate, formatMoney, relativeTime, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
@@ -104,40 +105,38 @@ function CandidateProfile() {
     queryKey: ["candidate-profile", userId, user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data: facility } = await supabase
-        .from("facilities")
-        .select("id,name_ar")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      const { data: pro } = await supabase
-        .from("healthcare_professionals")
-        .select("*, specialty:specialty_id(name_ar,name_en)")
-        .eq("user_id", userId)
-        .maybeSingle();
+      const facility = unwrap(
+        await supabase.from("facilities").select("id,name_ar").eq("user_id", user!.id).maybeSingle(),
+      );
+      const pro = unwrap(
+        await supabase
+          .from("healthcare_professionals")
+          .select("*, specialty:specialty_id(name_ar,name_en)")
+          .eq("user_id", userId)
+          .maybeSingle(),
+      );
       if (!pro) return { pro: null, facility, apps: [], bookings: [], reviews: [] };
 
-      const [{ data: jobs }, { data: shifts }] = await Promise.all([
+      const [jobsRes, shiftsRes] = await Promise.all([
         supabase.from("jobs").select("id,title").eq("facility_id", facility?.id ?? ""),
         supabase.from("shifts").select("id,title,starts_at").eq("facility_id", facility?.id ?? ""),
       ]);
-      const jobIds = (jobs ?? []).map((j) => j.id);
-      const shiftIds = (shifts ?? []).map((s) => s.id);
+      const jobs = unwrapRows(jobsRes);
+      const shifts = unwrapRows(shiftsRes);
+      const jobIds = jobs.map((j) => j.id);
+      const shiftIds = shifts.map((s) => s.id);
 
-      const [{ data: apps }, { data: bookings }, { data: reviews }] = await Promise.all([
-        jobIds.length
-          ? supabase
-              .from("applications")
-              .select("id,status,created_at,job_id")
-              .eq("user_id", userId)
-              .in("job_id", jobIds)
-          : Promise.resolve({ data: [] as never[] }),
-        shiftIds.length
-          ? supabase
-              .from("shift_bookings")
-              .select("id,status,created_at,shift_id")
-              .eq("user_id", userId)
-              .in("shift_id", shiftIds)
-          : Promise.resolve({ data: [] as never[] }),
+      const [appsRes, bookingsRes, reviewsRes] = await Promise.all([
+        supabase
+          .from("applications")
+          .select("id,status,created_at,job_id")
+          .eq("user_id", userId)
+          .in("job_id", jobIds),
+        supabase
+          .from("shift_bookings")
+          .select("id,status,created_at,shift_id")
+          .eq("user_id", userId)
+          .in("shift_id", shiftIds),
         supabase
           .from("reviews")
           .select("id,rating,comment,created_at")
@@ -145,16 +144,19 @@ function CandidateProfile() {
           .eq("professional_user_id", userId)
           .order("created_at", { ascending: false }),
       ]);
+      const apps = unwrapRows(appsRes);
+      const bookings = unwrapRows(bookingsRes);
+      const reviews = unwrapRows(reviewsRes);
 
       return {
         pro,
         facility,
-        apps: (apps ?? []).map((a) => ({ ...a, title: jobs?.find((j) => j.id === a.job_id)?.title ?? "" })),
-        bookings: (bookings ?? []).map((b) => ({
+        apps: apps.map((a) => ({ ...a, title: jobs.find((j) => j.id === a.job_id)?.title ?? "" })),
+        bookings: bookings.map((b) => ({
           ...b,
-          shift: shifts?.find((s) => s.id === b.shift_id) ?? null,
+          shift: shifts.find((s) => s.id === b.shift_id) ?? null,
         })),
-        reviews: reviews ?? [],
+        reviews,
       };
     },
   });

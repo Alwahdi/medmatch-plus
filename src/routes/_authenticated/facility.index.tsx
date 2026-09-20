@@ -54,6 +54,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { assertOk } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions, currencyOptions } from "@/lib/geo";
@@ -764,7 +765,7 @@ function FacilityForm() {
         website: form.website.trim() || null,
       });
       if (error) throw error;
-      await supabase.rpc("claim_facility_role");
+      assertOk(await supabase.rpc("claim_facility_role"));
     },
     onSuccess: () => {
       toast.success(c.createdFacility);

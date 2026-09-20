@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { assertOk } from "@/lib/query-errors";
 import type { User } from "@supabase/supabase-js";
 
 export type UnreadMap = Record<string, number>;
@@ -55,19 +56,23 @@ export function useUnread(user: User | null | undefined) {
 }
 
 export async function markConversationRead(conversationId: string, userId: string) {
-  await supabase
-    .from("messages")
-    .update({ read_at: new Date().toISOString() })
-    .eq("conversation_id", conversationId)
-    .neq("sender_id", userId)
-    .is("read_at", null);
+  assertOk(
+    await supabase
+      .from("messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("conversation_id", conversationId)
+      .neq("sender_id", userId)
+      .is("read_at", null),
+  );
 }
 
 /** Marks every incoming message as delivered (recipient is online / app is open). */
 export async function markDelivered(userId: string) {
-  await supabase
-    .from("messages")
-    .update({ delivered_at: new Date().toISOString() })
-    .neq("sender_id", userId)
-    .is("delivered_at", null);
+  assertOk(
+    await supabase
+      .from("messages")
+      .update({ delivered_at: new Date().toISOString() })
+      .neq("sender_id", userId)
+      .is("delivered_at", null),
+  );
 }

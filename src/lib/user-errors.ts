@@ -1,3 +1,4 @@
+import { reportLovableError } from "@/lib/lovable-error-reporting";
 import type { Lang } from "@/lib/i18n";
 
 /**
@@ -270,7 +271,9 @@ export function userError(message: string): never {
  * تُترجم؛ وأي خطأ آخر (Supabase/RPC/تخزين) يُسجَّل تقنياً ويُعرض بنص عام.
  */
 export function friendlyError(error: unknown, lang: Lang, fallback?: string): string {
-  if (error) console.error("[error]", error);
+  // لا نطبع الخطأ الخام في وحدة التحكم (قد يحمل بيانات مستخدم أو تفاصيل خادم):
+  // يُرسل إلى تقارير الأخطاء فقط، ويُعرض للمستخدم نص عام.
+  if (error && !(error instanceof UserFacingError)) reportLovableError(error, { source: "handled" });
   if (error instanceof UserFacingError && error.message.trim()) return error.message;
 
   const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
