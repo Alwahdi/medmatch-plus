@@ -16,7 +16,6 @@ import { SITE_URL } from "@/lib/seo";
 const STATIC_PATHS = [
   "/",
   "/jobs",
-  "/shifts",
   "/specialties",
   "/for-facilities",
   "/about",
