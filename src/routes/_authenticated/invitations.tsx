@@ -84,7 +84,7 @@ function InvitationsPage() {
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
 
-  const { data } = useQuery({
+  const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ["my-invitations", user?.id],
     enabled: !!user,
     queryFn: async () => {
