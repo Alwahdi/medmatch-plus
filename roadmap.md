@@ -559,3 +559,9 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - JSON-LD واقعي فقط: WebSite/Organization للرئيسية، BlogPosting للمقالات. لا JobPosting لأن هوية صاحب العمل مخفية عمداً.
 - public/og-cover.png 1200x630 بهوية المنصة (لا صور مستخدمين/منشآت).
 - تصحيح ادعاء غير موثق في المدونة (زمن التوظيف «خلال أيام»).
+
+## Phase 55 — نوع حساب واحد لكل مستخدم (مكتملة)
+- migration مطابقة للـhotfix: guard_single_account_type() على healthcare_professionals وfacilities (INSERT/UPDATE OF user_id)، غير قابلة للاستدعاء من anon/authenticated؛ المنشآت بلا مالك (user_id IS NULL) مسموحة.
+- claim_professional_role/claim_facility_role يرفضان وجود النوع المعاكس (ملف أو دور) بخطأ ACCOUNT_TYPE_CONFLICT؛ EXECUTE لauthenticated/service_role فقط. دور admin يبقى إضافياً.
+- UI: رسالة عربية/إنجليزية لـACCOUNT_TYPE_CONFLICT؛ onboarding يعرض ExistingTypeNotice لمن يملك ملفاً (بلا اختيار النوع المعاكس) مع إعادة محاولة التفعيل لنفس الملف؛ "تغيير نوع الحساب" يبقى لمن لا يملك ملفاً بعد؛ register.employer وcv-import صارا يعرضان الرسالة الودية.
+- اختبارات rollback-only: T1–T8 نجحت (منع النوعين، السماح بنوع واحد، منشأة بلا مالك، admin+نوع واحد). لا تغيير على أي بيانات (2 كادر، 12 منشأة، 7 أدوار، 0 حساب بالنوعين).

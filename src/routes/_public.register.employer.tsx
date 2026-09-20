@@ -262,13 +262,13 @@ function RegisterEmployer() {
       });
       if (facilityError) {
         setBusy(false);
-        toast.error(L.setupFailed);
+        toast.error(friendlyError(facilityError, lang, L.setupFailed));
         return;
       }
       const { data: claimed, error: roleError } = await supabase.rpc("claim_facility_role");
       if (roleError || !claimed) {
         setBusy(false);
-        toast.error(L.setupFailed);
+        toast.error(friendlyError(roleError ?? new Error("CLAIM_FAILED"), lang, L.setupFailed));
         return;
       }
       setBusy(false);

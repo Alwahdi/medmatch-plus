@@ -8,6 +8,12 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // نوع حساب واحد لكل مستخدم (كادر صحي أو منشأة)
+  {
+    test: /ACCOUNT_TYPE_CONFLICT/i,
+    ar: "هذا الحساب مسجّل بنوع واحد فقط (كادر صحي أو منشأة)، ولا يمكن الجمع بين النوعين. استخدم بريداً آخر إذا احتجت النوع الآخر.",
+    en: "This account is registered as one type only (healthcare professional or facility) and can't be both. Use a different email if you need the other type.",
+  },
   // خصوصية هوية المنشأة داخل نصوص الفرص العامة
   {
     test: /LISTING_IDENTITY_DISCLOSURE/i,

@@ -151,7 +151,7 @@ export function CvImportPanel() {
       void queryClient.invalidateQueries({ queryKey: ["my-pro", user?.id] });
       navigate({ to: "/profile" });
     },
-    onError: () => toast.error(c.saveFailed),
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
 
   return (
