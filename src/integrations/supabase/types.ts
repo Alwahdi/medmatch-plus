@@ -588,6 +588,7 @@ export type Database = {
           license_number: string | null
           rating_avg: number
           rating_count: number
+          search_visibility_confirmed_at: string | null
           specialty_id: string | null
           updated_at: string
           user_id: string
@@ -611,6 +612,7 @@ export type Database = {
           license_number?: string | null
           rating_avg?: number
           rating_count?: number
+          search_visibility_confirmed_at?: string | null
           specialty_id?: string | null
           updated_at?: string
           user_id: string
@@ -634,6 +636,7 @@ export type Database = {
           license_number?: string | null
           rating_avg?: number
           rating_count?: number
+          search_visibility_confirmed_at?: string | null
           specialty_id?: string | null
           updated_at?: string
           user_id?: string
@@ -1993,27 +1996,6 @@ export type Database = {
         }
         Returns: string
       }
-      search_candidates: {
-        Args: {
-          _city?: string
-          _country?: string
-          _limit?: number
-          _min_experience?: number
-          _specialty_id?: string
-        }
-        Returns: {
-          bio: string
-          city: string
-          country: string
-          headline: string
-          id: string
-          is_open_to_shifts: boolean
-          is_verified: boolean
-          specialty_id: string
-          user_id: string
-          years_experience: number
-        }[]
-      }
       search_candidates_atomic: {
         Args: {
           _city?: string
@@ -2073,6 +2055,7 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["application_status"]
       }
+      set_search_visibility: { Args: { _visible: boolean }; Returns: string }
       slugify: { Args: { input: string }; Returns: string }
       start_candidate_conversation: {
         Args: {
