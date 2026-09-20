@@ -138,7 +138,11 @@ export function CvPanel() {
         </Section>
 
         <Section title={c.creds}>
-          {creds?.length ? (
+          {credsPending ? (
+            <ListSkeleton rows={2} />
+          ) : credsError ? (
+            <ErrorState onRetry={() => void refetchCreds()} />
+          ) : creds.length ? (
             <ul className="list-disc space-y-1 pe-5">
               {creds.map((cred) => (
                 <li key={cred.id}>
