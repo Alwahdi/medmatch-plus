@@ -110,7 +110,26 @@ function CandidateProfile() {
           .eq("user_id", userId)
           .maybeSingle(),
       );
-      if (!pro) return { pro: null, facility, apps: [], bookings: [], reviews: [] };
+      if (!pro) {
+        let engaged = false;
+        if (facility?.id) {
+          const myJobs = unwrapRows(
+            await supabase.from("jobs").select("id").eq("facility_id", facility.id),
+          );
+          if (myJobs.length) {
+            const engagedApps = unwrapRows(
+              await supabase
+                .from("applications")
+                .select("id")
+                .eq("user_id", userId)
+                .in("job_id", myJobs.map((j) => j.id))
+                .limit(1),
+            );
+            engaged = engagedApps.length > 0;
+          }
+        }
+        return { pro: null, facility, apps: [], bookings: [], reviews: [], engaged };
+      }
 
       const [jobsRes, shiftsRes] = await Promise.all([
         supabase.from("jobs").select("id,title").eq("facility_id", facility?.id ?? ""),
