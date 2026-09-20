@@ -58,7 +58,6 @@ const TXT = {
     requestedOn: (d: string) => `تاريخ الطلب: ${d}`,
     cancelBtn: "إلغاء الطلب",
     cannotCancel: "بدأت معالجة الطلب، لم يعد الإلغاء ممكناً من هنا. تواصل معنا إذا غيّرت رأيك.",
-    adminNote: "ملاحظة الفريق",
     failed: "تعذّر تنفيذ العملية. حاول مرة أخرى.",
   },
   en: {
@@ -100,7 +99,6 @@ const TXT = {
     requestedOn: (d: string) => `Requested on: ${d}`,
     cancelBtn: "Cancel request",
     cannotCancel: "Processing has started, so it can't be cancelled here. Contact us if you changed your mind.",
-    adminNote: "Team note",
     failed: "That didn't work. Please try again.",
   },
 } as const;
@@ -130,12 +128,7 @@ export function AccountPrivacyPanel() {
     queryKey: ["account-deletion-request", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("account_deletion_requests")
-        .select("id,status,reason,admin_note,requested_at")
-        .eq("user_id", user!.id)
-        .order("requested_at", { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.rpc("my_account_deletion_request");
       if (error) throw error;
       return data?.[0] ?? null;
     },
@@ -290,12 +283,8 @@ export function AccountPrivacyPanel() {
             <p className="mt-1 text-sm text-muted-foreground">
               {c.requestedOn(formatDate(active.requested_at, lang))}
             </p>
-            {active.admin_note && (
-              <p className="mt-2 text-sm">
-                <span className="text-muted-foreground">{c.adminNote}: </span>
-                {active.admin_note}
-              </p>
-            )}
+            {/* Internal review notes stay internal: the safe read model excludes them. */}
+
             {active.status === "pending" ? (
               <Button
                 className="mt-4"

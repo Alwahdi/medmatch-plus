@@ -1764,6 +1764,20 @@ export type Database = {
           issue_code: string
         }[]
       }
+      admin_list_account_deletion_requests: {
+        Args: { _status?: string }
+        Returns: {
+          admin_note: string
+          email_snapshot: string
+          id: string
+          processed_at: string
+          reason: string
+          requested_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
       admin_list_safety_reports: {
         Args: { _status?: string }
         Returns: {
@@ -1887,6 +1901,17 @@ export type Database = {
       }
       mark_incoming_messages_delivered: { Args: never; Returns: number }
       mfa_access_ok: { Args: never; Returns: boolean }
+      my_account_deletion_request: {
+        Args: never
+        Returns: {
+          id: string
+          processed_at: string
+          reason: string
+          requested_at: string
+          status: string
+          updated_at: string
+        }[]
+      }
       my_inactive_employers: { Args: never; Returns: string[] }
       my_sessions: {
         Args: never
