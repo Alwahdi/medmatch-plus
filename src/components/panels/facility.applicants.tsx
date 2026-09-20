@@ -39,6 +39,7 @@ const TXT = {
     title: "المتقدمون",
     back: "رجوع للوحة",
     healthcarePro: "كادر صحي",
+    coverTitle: "نص التقديم",
     verified: "موثّق",
     experience: (n: number) => experienceLabel(n, "ar"),
     appliedFor: (title: string, time: string) => `تقدّم لوظيفة: ${title} · ${time}`,
