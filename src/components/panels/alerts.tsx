@@ -320,8 +320,12 @@ export function AlertsPanel() {
         <Select value={channel} onValueChange={(v) => setChannel(v as "email" | "whatsapp")}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="email">{c.email}</SelectItem>
-            <SelectItem value="whatsapp">{c.whatsapp}</SelectItem>
+            <SelectItem value="email" disabled={!ready.email}>
+              {ready.email ? c.email : `${c.email} ${c.unavailableSuffix}`}
+            </SelectItem>
+            <SelectItem value="whatsapp" disabled={!ready.whatsapp}>
+              {ready.whatsapp ? c.whatsapp : `${c.whatsapp} ${c.unavailableSuffix}`}
+            </SelectItem>
           </SelectContent>
         </Select>
         {channel === "whatsapp" && (
@@ -331,7 +335,12 @@ export function AlertsPanel() {
             onChange={(e) => setPhone(e.target.value)}
           />
         )}
-        <Button className="md:col-span-2" onClick={() => create.mutate()} loading={create.isPending}>
+        <Button
+          className="md:col-span-2"
+          onClick={() => create.mutate()}
+          loading={create.isPending}
+          disabled={!channelReady}
+        >
           <BellRing className="size-4" /> {create.isPending ? c.saving : c.add}
         </Button>
       </div>
