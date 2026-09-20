@@ -197,6 +197,12 @@ const RULES: Rule[] = [
     en: "The file must be larger than zero and no more than 10 MB.",
   },
   {
+    test: /ATTACHMENT_NOT_FOUND|ATTACHMENT_NOT_OWNED/i,
+    ar: "تعذّر إرفاق الملف. أعد رفعه من جهازك ثم أرسل الرسالة.",
+    en: "The file couldn't be attached. Upload it again from your device, then send the message.",
+  },
+
+  {
     test: /INVALID_REACTION/i,
     ar: "هذا التفاعل غير صالح. اختر رمزاً من القائمة.",
     en: "That reaction isn't valid. Pick one from the list.",
