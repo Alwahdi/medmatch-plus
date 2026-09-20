@@ -92,26 +92,30 @@ function Contact() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [company, setCompany] = useState("");
+  const openedAt = useRef(Date.now());
+  const submit = useServerFn(submitContactMessage);
 
   const send = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.rpc("submit_contact_message", {
-        _name: name.trim(),
-        _email: email.trim(),
-        _message: message.trim(),
-        _subject: subject.trim() || "",
+      const { result } = await submit({
+        data: {
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+          subject: subject.trim(),
+          company,
+          elapsedMs: Date.now() - openedAt.current,
+        },
       });
-      if (error) {
-        throw new Error("failed");
-      }
-      return data as string;
+      return result;
     },
     onSuccess: (result) => {
       if (result === "rate_limited") {
         toast.error(c.rateLimited);
         return;
       }
-      if (result === "invalid_name" || result === "invalid_email" || result === "invalid_message") {
+      if (result === "invalid") {
         toast.error(c.invalid);
         return;
       }
