@@ -70,6 +70,7 @@ const TXT = {
     tabAlerts: "Job alerts",
     tabNotifications: "Notifications",
     tabSecurity: "Security",
+    tabAccount: "Account & privacy",
     langTitle: "Interface language",
     langBody: "Pick the platform language. Saved automatically on this device.",
     arabic: "العربية",
