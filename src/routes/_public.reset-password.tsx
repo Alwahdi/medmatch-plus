@@ -109,41 +109,60 @@ function ResetPasswordPage() {
 
     // رابط الاستعادة نفسه أبلغ عن خطأ (منتهي/مستخدم مسبقاً).
     if (params.error) {
+      clearRecoveryProof();
       setPhase("invalid");
       return;
     }
 
-    // لا توجد أي إشارة استعادة في الرابط: لا نسمح بتغيير كلمة المرور من هنا
-    // حتى لو كان المستخدم مسجّل الدخول بالفعل.
-    const looksLikeRecovery =
-      Boolean(params.code) || (Boolean(params.tokenHash) && params.type === "recovery");
-    if (!looksLikeRecovery) {
-      setPhase("invalid");
-      return;
-    }
-
-    // مسار token_hash: نتحقق يدوياً. مسار code: عميل Supabase يبدّله تلقائياً.
     const start = async () => {
-      if (params.tokenHash) {
+      // 1) مسار token_hash: نجاح verifyOtp بنوع recovery هو إثبات كافٍ.
+      if (params.tokenHash && params.type === "recovery") {
         const { error } = await supabase.auth.verifyOtp({
           type: "recovery",
           token_hash: params.tokenHash,
         });
         if (cancelled) return;
-        setPhase(error ? "invalid" : "ready");
+        if (error) {
+          clearRecoveryProof();
+          setPhase("invalid");
+          return;
+        }
+        markRecoveryProof();
+        setPhase("ready");
         return;
       }
-      // ننتظر انتهاء تبديل الرمز إلى جلسة استعادة.
-      for (let i = 0; i < 20 && !cancelled; i += 1) {
-        const { data } = await supabase.auth.getSession();
+
+      // 2) مسار code/PKCE: نبدّل الرمز بأنفسنا. إن كان العميل قد بدّله تلقائياً قبل
+      //    تحميل الصفحة فسيفشل التبديل هنا، ولا نقبل إلا علامة PASSWORD_RECOVERY.
+      if (params.code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(params.code);
         if (cancelled) return;
-        if (data.session) {
+        if (!error) {
+          markRecoveryProof();
           setPhase("ready");
           return;
         }
-        await new Promise((resolve) => setTimeout(resolve, 250));
+        const proven = await waitForRecoveryProof();
+        if (cancelled) return;
+        if (!proven) {
+          setPhase("invalid");
+          return;
+        }
+        setPhase("ready");
+        return;
       }
-      if (!cancelled) setPhase("invalid");
+
+      // 3) تدفق implicit (توكنات في الهاش): نقبل فقط إذا أطلق العميل حدث الاستعادة.
+      if (params.type === "recovery") {
+        const proven = await waitForRecoveryProof();
+        if (cancelled) return;
+        setPhase(proven ? "ready" : "invalid");
+        return;
+      }
+
+      // لا يوجد أي إثبات استعادة. وجود جلسة عادية لا يُعدّ إثباتاً إطلاقاً.
+      clearRecoveryProof();
+      setPhase("invalid");
     };
     void start();
 
@@ -151,6 +170,7 @@ function ResetPasswordPage() {
       cancelled = true;
     };
   }, []);
+
 
   return (
     <div className="bg-background px-4 py-10 sm:py-14">
