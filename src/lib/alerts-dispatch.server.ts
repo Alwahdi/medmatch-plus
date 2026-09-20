@@ -40,6 +40,16 @@ export function safeHref(url: string): string {
 
 export const MAX_ATTEMPTS = 5;
 export const RETRY_INTERVAL_MS = 15 * 60 * 1000;
+/** A claim (`status = 'processing'`) older than this is considered abandoned. */
+export const PROCESSING_TIMEOUT_MS = 10 * 60 * 1000;
+
+/** Internal dispatcher failure; the HTTP layer turns this into a generic 500. */
+export class DispatchError extends Error {
+  constructor(message: string, readonly cause?: unknown) {
+    super(message);
+    this.name = "DispatchError";
+  }
+}
 
 type Alert = {
   id: string;
