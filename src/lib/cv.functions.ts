@@ -58,7 +58,7 @@ export const parseCv = createServerFn({ method: "POST" })
     // الميزة خاصة ببناء ملف الكادر الصحي. حسابات المنشآت مرفوضة،
     // بينما يُسمح للحساب الجديد بلا دور لأن التهيئة قد تبدأ باستيراد السيرة.
     const [{ data: facilityRow }, { data: roleRow }] = await Promise.all([
-      context.supabase.from("facilities").select("id").eq("owner_id", context.userId).limit(1).maybeSingle(),
+      context.supabase.from("facilities").select("id").eq("user_id", context.userId).limit(1).maybeSingle(),
       context.supabase
         .from("user_roles")
         .select("role")
