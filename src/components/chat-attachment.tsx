@@ -67,6 +67,25 @@ export function baseMime(file: File): string | null {
 }
 
 /**
+ * Inline preview family. The stored MIME is canonical (written from Storage by the
+ * database), and the path extension must agree with it — anything else, including
+ * HTML/SVG, falls back to a plain download link.
+ */
+export function attachmentKind(
+  path: string,
+  type?: string | null,
+): "image" | "audio" | "video" | "file" {
+  const mime = (type ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
+  const ext = (path.split(".").pop() ?? "").toLowerCase();
+  const known = EXT_MIME[ext];
+  if (!known || known !== mime) return "file";
+  const family = mime.split("/")[0];
+  if (family === "image" || family === "audio" || family === "video") return family;
+  return "file";
+}
+
+
+/**
  * Uploads a chat attachment. When `onProgress` is provided the upload goes through
  * XHR so the UI can show a WhatsApp-style percentage ring; `signal` aborts it.
  */
