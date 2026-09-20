@@ -51,17 +51,10 @@ export const Route = createFileRoute("/_public/")({
       { name: "twitter:card", content: "summary_large_image" },
       ...shareMeta("/"),
     ],
-    links: [
-      ...canonical("/"),
-      {
-        rel: "preload",
-        as: "image",
-        href: hero960,
-        imageSrcSet: HERO_SRCSET,
-        imageSizes: HERO_SIZES,
-        fetchPriority: "high",
-      },
-    ],
+    // No <link rel=preload> for the hero: the <img> is in the SSR HTML with
+    // fetchPriority="high", and the head serializer emitted a duplicate,
+    // href-less preload tag.
+    links: canonical("/"),
     scripts: [
       {
         type: "application/ld+json",
