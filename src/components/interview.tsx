@@ -213,6 +213,14 @@ const ERRORS: Record<string, { ar: string; en: string }> = {
     ar: "لا يمكن إنهاء المقابلة قبل موعدها المجدول.",
     en: "The interview can't be finished before its scheduled time.",
   },
+  SHIFT_INTERVIEW_WINDOW_INVALID: {
+    ar: "يجب أن تنتهي المقابلة قبل بداية المناوبة. اختر موعداً أبكر أو مدة أقصر.",
+    en: "The interview must end before the shift starts. Pick an earlier time or a shorter duration.",
+  },
+  SHIFT_UNAVAILABLE: {
+    ar: "لم تعد هذه المناوبة متاحة (أُلغيت أو انتهت أو تغيّر حجزها).",
+    en: "This shift is no longer available (cancelled, finished, or the booking changed).",
+  },
 };
 
 function errText(raw: string, lang: Lang) {
