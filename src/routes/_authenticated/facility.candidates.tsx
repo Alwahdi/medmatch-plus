@@ -436,7 +436,7 @@ function Candidates() {
                     {cand.is_open_to_shifts ? c.openToShifts : ""}
                   </p>
                 </div>
-                <Button size="sm" className="w-full sm:w-auto" onClick={() => startChat.mutate(cand.user_id)} loading={startChat.isPending}>
+                <Button size="sm" className="w-full sm:w-auto" onClick={() => startChat.mutate(cand.id)} loading={startChat.isPending}>
                   <MessageSquare className="size-4" /> {c.contact}
                 </Button>
               </div>
