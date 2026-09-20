@@ -35,6 +35,26 @@ function env(name: string): string | undefined {
   return v && v.trim() ? v.trim() : undefined;
 }
 
+/**
+ * Provider error text is written to the delivery log, so it must never carry a
+ * credential and must stay short. Redacts bearer/token/key-like patterns and
+ * any configured provider secret, then truncates.
+ */
+export function sanitizeProviderError(raw: string): string {
+  let text = raw.replace(/\s+/g, " ").trim();
+  for (const name of ["RESEND_API_KEY", "WHATSAPP_TOKEN", "LOVABLE_CRON_SECRET"]) {
+    const secret = env(name);
+    if (secret && secret.length >= 8) text = text.split(secret).join("[redacted]");
+  }
+  text = text
+    .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]")
+    .replace(/\b(authorization|api[_-]?key|access[_-]?token|token|secret|password)\b(\s*[:=]\s*)("?)[^"\s,}]+\3/gi,
+      (_m, k: string, sep: string) => `${k}${sep}[redacted]`);
+  return text.slice(0, 300);
+}
+
+
+
 export function channelStatus(): ChannelStatus {
   return {
     email: Boolean(env("RESEND_API_KEY") && env("ALERTS_FROM_EMAIL")),
