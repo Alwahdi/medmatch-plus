@@ -157,6 +157,10 @@ function SettingsPage() {
         <TabsContent value="security" className="mt-6">
           <SecurityPanel embedded />
         </TabsContent>
+
+        <TabsContent value="account" className="mt-6">
+          <AccountPrivacyPanel />
+        </TabsContent>
       </Tabs>
     </div>
   );
