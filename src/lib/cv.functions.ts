@@ -2,22 +2,44 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { PROFILE_LIMITS as L } from "@/lib/profile-schema";
 
 const inputSchema = z.object({
   text: z.string().trim().min(50, "النص قصير جداً").max(20000, "النص طويل جداً"),
 });
 
-export type ParsedCv = {
-  full_name: string | null;
-  headline: string | null;
-  years_experience: number | null;
-  country: string | null;
-  city: string | null;
-  bio: string | null;
-  license_country: string | null;
-  license_number: string | null;
-  specialty_hint: string | null;
-};
+/** تطبيع نص قادم من النموذج: مسافات موحّدة، قصّ على الحد، وفراغ => null. */
+const modelText = (max: number) =>
+  z
+    .unknown()
+    .transform((v) => {
+      if (typeof v !== "string") return null;
+      const t = v.replace(/\s+/g, " ").trim();
+      return t ? t.slice(0, max) : null;
+    })
+    .pipe(z.string().max(max).nullable());
+
+// لا نثق بأي حقل خارج هذا العقد: لا روابط، لا HTML، ولا أي حقل توثيق.
+const parsedCvSchema = z.object({
+  full_name: modelText(L.fullName),
+  headline: modelText(L.headline),
+  years_experience: z
+    .unknown()
+    .transform((v) =>
+      typeof v === "number" && Number.isFinite(v)
+        ? Math.min(L.yearsMax, Math.max(L.yearsMin, Math.round(v)))
+        : null,
+    )
+    .pipe(z.number().int().min(L.yearsMin).max(L.yearsMax).nullable()),
+  country: modelText(L.country),
+  city: modelText(L.city),
+  bio: modelText(L.bio),
+  license_country: modelText(L.licenseCountry),
+  license_number: modelText(L.licenseNumber),
+  specialty_hint: modelText(L.specialtyHint),
+});
+
+export type ParsedCv = z.infer<typeof parsedCvSchema>;
 
 // حدود الاستخدام مطبّقة في قاعدة البيانات (consume_ai_quota): 5/ساعة و20/يوم لكل مستخدم.
 const AI_FEATURE = "cv_parse";
@@ -31,6 +53,21 @@ export const parseCv = createServerFn({ method: "POST" })
   }): Promise<{ profile: ParsedCv | null; error?: string; retryAfterSeconds?: number }> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { profile: null, error: "AI_UNAVAILABLE" };
+
+    // بوابة نوع الحساب قبل استهلاك أي حصة أو الوصول للمزود:
+    // الميزة خاصة ببناء ملف الكادر الصحي. حسابات المنشآت مرفوضة،
+    // بينما يُسمح للحساب الجديد بلا دور لأن التهيئة قد تبدأ باستيراد السيرة.
+    const [{ data: facilityRow }, { data: roleRow }] = await Promise.all([
+      context.supabase.from("facilities").select("id").eq("user_id", context.userId).limit(1).maybeSingle(),
+      context.supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", context.userId)
+        .eq("role", "facility")
+        .limit(1)
+        .maybeSingle(),
+    ]);
+    if (facilityRow || roleRow) return { profile: null, error: "PROFESSIONAL_FEATURE_ONLY" };
 
     // احتساب المحاولة قبل الوصول لمزود الذكاء الاصطناعي — الفشل لاحقاً يبقى محتسباً.
     const { data: quota, error: quotaError } = await context.supabase.rpc("consume_ai_quota", {
@@ -102,31 +139,10 @@ export const parseCv = createServerFn({ method: "POST" })
     if (!args) return { profile: null, error: "AI_FAILED" };
 
     try {
-      const parsed = JSON.parse(args) as Record<string, unknown>;
-      // حدود صارمة على مخرجات النموذج حتى لا يُنتج قيماً غير منطقية.
-      const str = (v: unknown, max: number) => {
-        if (typeof v !== "string") return null;
-        const t = v.replace(/\s+/g, " ").trim();
-        return t ? t.slice(0, max) : null;
-      };
-      const yearsRaw = parsed["years_experience"];
-      const years =
-        typeof yearsRaw === "number" && Number.isFinite(yearsRaw)
-          ? Math.min(60, Math.max(0, Math.round(yearsRaw)))
-          : null;
-      return {
-        profile: {
-          full_name: str(parsed["full_name"], 120),
-          headline: str(parsed["headline"], 160),
-          years_experience: years,
-          country: str(parsed["country"], 60),
-          city: str(parsed["city"], 60),
-          bio: str(parsed["bio"], 1000),
-          license_country: str(parsed["license_country"], 60),
-          license_number: str(parsed["license_number"], 60),
-          specialty_hint: str(parsed["specialty_hint"], 80),
-        },
-      };
+      // تحقق صارم بـZod: كل الحقول اختيارية/nullable ومقصوصة على حدود قاعدة البيانات.
+      const result = parsedCvSchema.safeParse(JSON.parse(args));
+      if (!result.success) return { profile: null, error: "AI_FAILED" };
+      return { profile: result.data };
     } catch {
       return { profile: null, error: "AI_FAILED" };
     }

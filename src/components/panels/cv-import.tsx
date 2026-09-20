@@ -41,8 +41,11 @@ const TXT = {
     cooldownMin: (m: number) => `بلغت الحد المسموح لتحليل السيرة الذاتية مؤقتاً. جرّب بعد ${m} دقيقة. نصّك المكتوب محفوظ كما هو.`,
     cooldownHour: (h: number) => `بلغت الحد المسموح لتحليل السيرة الذاتية اليوم. جرّب بعد ${h} ساعة. نصّك المكتوب محفوظ كما هو.`,
     noCredits: "رصيد الذكاء الاصطناعي غير كافٍ حالياً.",
-    unavailable: "خدمة التحليل غير متاحة حالياً.",
-    failed: "تعذّر تحليل السيرة الذاتية، جرّب نصاً أوضح.",
+    unavailable: "خدمة التحليل غير متاحة حالياً. يمكنك إكمال ملفك يدوياً، ونصّك محفوظ كما هو.",
+    failed: "تعذّر اقتراح البيانات بالذكاء الاصطناعي. يمكنك إكمال ملفك يدوياً، ونصّك محفوظ كما هو.",
+    facilityOnly: "تحليل السيرة الذاتية متاح لحسابات الكوادر الصحية فقط.",
+    aiNotice:
+      "عند استخدام التحليل بالذكاء الاصطناعي، يُرسل نص السيرة إلى خدمة معالجة خارجية لاستخراج بيانات ملفك. راجع النتائج قبل حفظها، ولا يُستخدم التحليل كتأكيد للترخيص. تجنّب إدراج معلومات حساسة غير ضرورية.",
   },
   en: {
     title: "Build your profile from your CV",
@@ -70,8 +73,13 @@ const TXT = {
     cooldownMin: (m: number) => `You've reached the CV analysis limit for now. Try again in ${m} min. Your text is preserved.`,
     cooldownHour: (h: number) => `You've reached today's CV analysis limit. Try again in ${h} h. Your text is preserved.`,
     noCredits: "AI credit is currently insufficient.",
-    unavailable: "The analysis service is currently unavailable.",
-    failed: "Failed to analyze the CV, try clearer text.",
+    unavailable:
+      "The analysis service is currently unavailable. You can still complete your profile manually — your text is preserved.",
+    failed:
+      "The AI suggestion failed. You can still complete your profile manually — your text is preserved.",
+    facilityOnly: "CV analysis is available to healthcare professional accounts only.",
+    aiNotice:
+      "When you use AI analysis, your CV text is sent to an external processing service to extract your profile details. Review the results before saving; the analysis is not a confirmation of licensing. Avoid including unnecessary sensitive information.",
   },
 } as const;
 
@@ -95,6 +103,7 @@ export function CvImportPanel() {
     NO_CREDITS: c.noCredits,
     AI_UNAVAILABLE: c.unavailable,
     AI_FAILED: c.failed,
+    PROFESSIONAL_FEATURE_ONLY: c.facilityOnly,
   };
 
   const { data: specialties } = useQuery({
@@ -170,8 +179,18 @@ export function CvImportPanel() {
         onChange={(e) => setText(e.target.value)}
         placeholder={c.placeholder}
       />
+      <p
+        id="cv-ai-notice"
+        className="mt-3 rounded-lg border border-border bg-surface p-3 text-xs leading-relaxed text-muted-foreground"
+      >
+        {c.aiNotice}
+      </p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <Button onClick={() => analyze.mutate()} loading={analyze.isPending}>
+        <Button
+          onClick={() => analyze.mutate()}
+          loading={analyze.isPending}
+          aria-describedby="cv-ai-notice"
+        >
           <Sparkles className="size-4" /> {analyze.isPending ? c.analyzing : c.analyze}
         </Button>
         <Button variant="outline" asChild>
