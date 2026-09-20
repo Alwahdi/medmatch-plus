@@ -280,8 +280,14 @@ export function AlertsPanel() {
         </Button>
       </div>
 
+      {alertsPending && (
+        <div className="mt-6">
+          <ListSkeleton rows={2} />
+        </div>
+      )}
+
       <ul className="mt-6 space-y-3">
-        {alerts?.map((a) => (
+        {alerts.map((a) => (
           <li
             key={a.id}
             className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4"
