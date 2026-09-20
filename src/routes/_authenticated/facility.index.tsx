@@ -172,7 +172,7 @@ function FacilityDashboard() {
     },
   });
 
-  const { data: sub, isError: subErr, refetch: subRefetch } = useQuery({
+  const { data: sub, isError: subErr, isPending: subPending, refetch: subRefetch } = useQuery({
     queryKey: ["facility-sub", facility?.id],
     enabled: !!facility,
     queryFn: async () => {
@@ -188,14 +188,16 @@ function FacilityDashboard() {
 
   const plan = sub?.subscription_plans ?? null;
   const subState = subscriptionLifecycle(sub, plan?.is_trial);
-  const subActive = subscriptionAllowsAccess(subState);
+  // Treat an unknown plan state as "not blocked yet" rather than showing a false block.
+  const subStateKnown = !!facility && !subPending && !subErr;
+  const subActive = !subStateKnown || subscriptionAllowsAccess(subState);
   const subStateLabel =
     subState === "trial" ? c.subStateTrial
     : subState === "active" ? c.subStateActive
     : subState === "expired" ? c.subStateExpired
     : subState === "inactive" ? c.subStateInactive
     : c.subStateNone;
-  const subStateNote =
+  const subStateNote = !subStateKnown ? null :
     subState === "expired" ? c.subNoteExpired
     : subState === "inactive" ? c.subNoteInactive
     : subState === "none" ? c.subNoteNone
@@ -483,7 +485,7 @@ function FacilityDashboard() {
         <DashboardMetric icon={CalendarClock} value={activeShifts} label={c.openShifts} />
       </div>
 
-      {!plan && !subErr && (
+      {!plan && subStateKnown && (
         <div className="mt-6 rounded-lg border border-border bg-surface p-4">
           <div className="flex flex-wrap items-center gap-2 font-bold">
             <Sparkles className="size-5 shrink-0 text-primary" />
