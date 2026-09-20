@@ -9,6 +9,11 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { NOINDEX } from "@/lib/seo";
+import {
+  clearRecoveryProof,
+  markRecoveryProof,
+  waitForRecoveryProof,
+} from "@/lib/recovery-proof";
 
 export const Route = createFileRoute("/_public/reset-password")({
   head: () => ({
@@ -66,6 +71,7 @@ const T = {
   },
   requestNew: { ar: "طلب رابط جديد", en: "Request a new link" },
   backToAuth: { ar: "العودة لتسجيل الدخول", en: "Back to sign in" },
+  toHome: { ar: "الصفحة الرئيسية", en: "Home page" },
 } as const;
 
 type Phase = "checking" | "ready" | "invalid" | "done";
@@ -109,41 +115,60 @@ function ResetPasswordPage() {
 
     // رابط الاستعادة نفسه أبلغ عن خطأ (منتهي/مستخدم مسبقاً).
     if (params.error) {
+      clearRecoveryProof();
       setPhase("invalid");
       return;
     }
 
-    // لا توجد أي إشارة استعادة في الرابط: لا نسمح بتغيير كلمة المرور من هنا
-    // حتى لو كان المستخدم مسجّل الدخول بالفعل.
-    const looksLikeRecovery =
-      Boolean(params.code) || (Boolean(params.tokenHash) && params.type === "recovery");
-    if (!looksLikeRecovery) {
-      setPhase("invalid");
-      return;
-    }
-
-    // مسار token_hash: نتحقق يدوياً. مسار code: عميل Supabase يبدّله تلقائياً.
     const start = async () => {
-      if (params.tokenHash) {
+      // 1) مسار token_hash: نجاح verifyOtp بنوع recovery هو إثبات كافٍ.
+      if (params.tokenHash && params.type === "recovery") {
         const { error } = await supabase.auth.verifyOtp({
           type: "recovery",
           token_hash: params.tokenHash,
         });
         if (cancelled) return;
-        setPhase(error ? "invalid" : "ready");
+        if (error) {
+          clearRecoveryProof();
+          setPhase("invalid");
+          return;
+        }
+        markRecoveryProof();
+        setPhase("ready");
         return;
       }
-      // ننتظر انتهاء تبديل الرمز إلى جلسة استعادة.
-      for (let i = 0; i < 20 && !cancelled; i += 1) {
-        const { data } = await supabase.auth.getSession();
+
+      // 2) مسار code/PKCE: نبدّل الرمز بأنفسنا. إن كان العميل قد بدّله تلقائياً قبل
+      //    تحميل الصفحة فسيفشل التبديل هنا، ولا نقبل إلا علامة PASSWORD_RECOVERY.
+      if (params.code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(params.code);
         if (cancelled) return;
-        if (data.session) {
+        if (!error) {
+          markRecoveryProof();
           setPhase("ready");
           return;
         }
-        await new Promise((resolve) => setTimeout(resolve, 250));
+        const proven = await waitForRecoveryProof();
+        if (cancelled) return;
+        if (!proven) {
+          setPhase("invalid");
+          return;
+        }
+        setPhase("ready");
+        return;
       }
-      if (!cancelled) setPhase("invalid");
+
+      // 3) تدفق implicit (توكنات في الهاش): نقبل فقط إذا أطلق العميل حدث الاستعادة.
+      if (params.type === "recovery") {
+        const proven = await waitForRecoveryProof();
+        if (cancelled) return;
+        setPhase(proven ? "ready" : "invalid");
+        return;
+      }
+
+      // لا يوجد أي إثبات استعادة. وجود جلسة عادية لا يُعدّ إثباتاً إطلاقاً.
+      clearRecoveryProof();
+      setPhase("invalid");
     };
     void start();
 
@@ -151,6 +176,7 @@ function ResetPasswordPage() {
       cancelled = true;
     };
   }, []);
+
 
   return (
     <div className="bg-background px-4 py-10 sm:py-14">
@@ -182,9 +208,10 @@ function ResetPasswordPage() {
                 <Link to="/auth">{t("requestNew")}</Link>
               </Button>
               <Button asChild variant="outline" className="h-11 w-full rounded-lg">
-                <Link to="/">{t("backToAuth")}</Link>
+                <Link to="/">{t("toHome")}</Link>
               </Button>
             </div>
+
           </div>
         ) : (
           <>
@@ -204,15 +231,19 @@ function ResetPasswordPage() {
                   // نُنهي جلسة الاستعادة بعد نجاح التغيير حتى لا تبقى مفتوحة من الرابط،
                   // ونمسح معاملات الرابط من العنوان دون إعادة تحميل الصفحة.
                   window.sessionStorage.setItem(DONE_KEY, "1");
+                  clearRecoveryProof();
                   setPhase("done");
                   window.history.replaceState(null, "", "/reset-password");
-                  await supabase.auth.signOut();
+                  // إنهاء كل الجلسات القديمة للحساب بعد الاستعادة (global مدعوم في عميل Supabase).
+                  const { error } = await supabase.auth.signOut({ scope: "global" });
+                  if (error) await supabase.auth.signOut();
                 }}
               />
             )}
           </>
         )}
       </div>
+
     </div>
   );
 }
