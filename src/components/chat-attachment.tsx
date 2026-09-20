@@ -356,9 +356,11 @@ export function ChatAttachment({ path, name, type, size, mine }: Props) {
     },
   });
 
-  const isImage = (type ?? "").startsWith("image/");
-  const isAudio = (type ?? "").startsWith("audio/");
-  const isVideo = (type ?? "").startsWith("video/");
+  const kind = attachmentKind(path, type);
+  const isImage = kind === "image";
+  const isAudio = kind === "audio";
+  const isVideo = kind === "video";
+
 
   if (isLoading) {
     return (
