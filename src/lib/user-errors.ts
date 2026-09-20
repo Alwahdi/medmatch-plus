@@ -8,6 +8,12 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // خصوصية هوية المنشأة داخل نصوص الفرص العامة
+  {
+    test: /LISTING_IDENTITY_DISCLOSURE/i,
+    ar: "لا يمكن نشر النص لأنه يحتوي على اسم المنشأة أو وسيلة تواصل مباشرة (رابط أو بريد أو رقم). احذفها ثم أعد المحاولة.",
+    en: "We can't publish this text because it includes your facility name or a direct contact detail (link, email, or number). Remove it and try again.",
+  },
   // طلبات حذف الحساب
   {
     test: /REASON_TOO_LONG/i,
