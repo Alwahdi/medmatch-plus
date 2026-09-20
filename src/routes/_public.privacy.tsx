@@ -175,7 +175,14 @@ const TXT = {
         ],
       },
       {
-        h: "9. Policy updates",
+        h: "9. AI-assisted CV parsing (optional)",
+        p: [
+          "If you choose to use CV analysis, the text you paste is sent to our configured AI processing service for one purpose: to suggest fields for your professional profile. The results are shown to you for review and are only saved to your profile when you confirm them.",
+          "The analysis is a suggestion only and is never a verification of your licence or documents; verification is done by human review of evidence. We advise you not to include unnecessary sensitive information in the text you paste.",
+        ],
+      },
+      {
+        h: "10. Policy updates",
         p: ["We may update this policy; changes are reflected with an updated date and may be communicated in-product where appropriate."],
       },
     ],
