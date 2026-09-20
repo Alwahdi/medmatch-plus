@@ -25,7 +25,7 @@ import { RemoteAvatar } from "@/components/remote-avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/components/change-request";
 import { useSession } from "@/lib/auth";
-import { countryLabel } from "@/lib/format";
+import { countryLabel, facilityTypeLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions } from "@/lib/geo";
 import { useLang } from "@/lib/i18n";
