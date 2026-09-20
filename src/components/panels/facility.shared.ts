@@ -202,6 +202,9 @@ export const TXT = {
     publish: "Publish opportunity",
     verifyNow: "Complete facility verification",
     verifyBody: "Upload the required documents so professionals can trust your verified facility badge.",
+    publishBlockedTitle: "Publishing unlocks after verification",
+    publishBlockedBody:
+      "Upload your facility documents for review. Once approved you can publish jobs and shifts right away.",
     completeProfile: "Complete your facility's core details",
     completeProfileBody: "Name, facility type, country and city are required before publishing jobs or shifts or contacting candidates.",
     completeProfileCta: "Complete facility details",
