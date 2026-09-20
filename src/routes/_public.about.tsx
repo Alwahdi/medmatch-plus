@@ -60,7 +60,7 @@ const TXT = {
       { title: "Trust first", text: "We review uploaded licenses and documents, and the “verified” badge means an actual approval by our team." },
       { title: "Privacy for both sides", text: "The facility's identity isn't revealed until serious contact or an accepted application." },
       { title: "Pay transparency", text: "Every listing clearly shows the salary range or hourly pay." },
-      { title: "Urgent coverage", text: "Urgent shifts are published immediately to matching registered professionals." },
+      { title: "Urgent coverage", text: "Once published, urgent shifts appear to matching registered professionals." },
     ],
     readyTitle: "Ready to get started?",
     readyText: "Sign-up is free for healthcare professionals and facilities in the current release.",
