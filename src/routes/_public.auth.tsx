@@ -74,8 +74,8 @@ const TXT = {
   p2: { ar: "تقدّم من دون تكرار بياناتك", en: "Apply without re-entering your data" },
   p3: { ar: "حافظ على خصوصية ملفك وسيرتك الذاتية", en: "Keep your profile and CV private" },
   secure: {
-    ar: "بيانات حسابك محمية بتشفير قوي في جميع مساحات عمل SyndeoCare.",
-    en: "Your account data is protected with strong encryption across SyndeoCare.",
+    ar: "نحمي حسابك بضوابط وصول صارمة، وتتحكم أنت فيمن يرى بياناتك.",
+    en: "We protect your account with strict access controls, and you decide who can see your data.",
   },
   welcome: { ar: "مرحباً بعودتك", en: "Welcome back" },
   welcomeSub: { ar: "سجّل دخولك إلى حسابك في SyndeoCare", en: "Sign in to your SyndeoCare account" },

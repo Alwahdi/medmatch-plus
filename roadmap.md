@@ -612,3 +612,15 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 - `public.public_jobs` / `public.public_shifts` recreated to call the facility-scoped helper; no owner user id is exposed in either view.
 - Verified as anon: public_jobs readable (3 rows), public_shifts readable, 12 active jobs of ownerless/seed facilities excluded; old helper call from `authenticated` fails.
 - Audit: remaining SECURITY DEFINER functions taking a user uuid are `can_view_facility_identity` (self-scoped) and the admin-gated role RPCs — no arbitrary-user existence probes remain.
+
+## Phase 62 — Brand consistency & evidence-based product copy (done)
+- Repo-wide sweep for `MediConnect` / `MedMatch` / old domains: no runtime or user-visible reference remains (only historical roadmap text and the auto-generated `previewAuthStorage.ts` preview-host check, which must stay).
+- Contact page: removed the unbacked "within one business day" SLA (now "سنرد عليك في أقرب وقت ممكن / as soon as possible") and removed the raw backend error `console.error`; users still get a generic friendly message.
+- Auth/register: replaced the unsubstantiated "strong encryption" claim with a factual access-control statement.
+- For-facilities / home copy: removed "in hours, not weeks", "booked within minutes", "candidates start applying within minutes"; alerts described accurately as in-app.
+- Verification copy unchanged where already accurate (badge = actual approval by the team).
+- Canonical/SEO/email links keep `https://syndeocare.ai`; OAuth redirect still uses the current origin so preview/dev keep working.
+
+### Release checklist (open, owner action)
+- [ ] Lovable Project Description still shows the old `MediConnect Hub...` text. No setter is exposed to the agent, so the owner must update it manually to:
+  `SyndeoCare is a healthcare recruitment and workforce platform connecting healthcare professionals with healthcare facilities through jobs, shifts, applications, interviews, secure messaging, credential verification, and structured hiring workflows.`

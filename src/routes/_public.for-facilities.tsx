@@ -28,11 +28,11 @@ export const Route = createFileRoute("/_public/for-facilities")({
 const TXT = {
   ar: {
     badge: "للمستشفيات والعيادات والمجمعات الطبية",
-    title: "غطِّ نقص الكوادر خلال ساعات، لا أسابيع",
+    title: "غطِّ نقص الكوادر بقناة مباشرة إلى الكوادر الصحية",
     sub: "SyndeoCare يمنح المستشفيات والعيادات والمجمعات الطبية قناة مباشرة إلى الكوادر الصحية، مع حالة توثيق ظاهرة لكل مرشح — للوظائف الدائمة وللمناوبات العاجلة معاً.",
     registerFree: "سجّل منشأتك مجاناً",
     stepsLabel: "كيف تعمل المنصة",
-    stepsTitle: "أربع خطوات للتوظيف السريع",
+    stepsTitle: "أربع خطوات من النشر إلى التعيين",
     steps: [
       { title: "سجّل منشأتك", text: "أنشئ ملف المنشأة: النوع، المدينة، ونبذة تعريفية." },
       { title: "انشر وظيفة أو مناوبة", text: "حدّد التخصص ونطاق الراتب أو الأجر بالساعة." },
@@ -43,9 +43,9 @@ const TXT = {
     whyTitle: "لماذا تنشر على SyndeoCare؟",
     benefits: [
       ["حالة توثيق واضحة", "الوثائق المرفوعة يراجعها فريقنا، وشارة «موثّق» لا تظهر إلا بعد الاعتماد الفعلي."],
-      ["تغطية مناوبات فورية", "انشر المناوبة الليلة، واحصل على حجز خلال دقائق."],
+      ["نشر مناوبات عاجلة", "انشر مناوبة الليلة وتظهر فوراً للكوادر المسجّلة المطابقة."],
       ["تكلفة أقل من الوساطة", "بدون عمولات وكالات التوظيف التقليدية."],
-      ["تنبيهات فورية", "يصلك تنبيه لحظة تقدّم أي مرشّح مناسب."],
+      ["تنبيهات داخل المنصة", "يصلك تنبيه داخل المنصة لحظة تقدّم أي مرشّح."],
       ["خصوصية هوية المنشأة", "اكشف اسم منشأتك فقط عند التواصل الجاد مع المرشح."],
       ["بيانات ومطابقة ذكية", "قارن المرشحين بناءً على التخصص والخبرة والترخيص."],
     ],
@@ -54,11 +54,11 @@ const TXT = {
   },
   en: {
     badge: "For hospitals, clinics, and medical complexes",
-    title: "Cover staffing shortages in hours, not weeks",
+    title: "Cover staffing shortages through a direct channel to healthcare professionals",
     sub: "SyndeoCare gives hospitals, clinics, and medical complexes a direct channel to healthcare professionals, with each candidate's verification status shown up front — for permanent jobs and urgent shifts alike.",
     registerFree: "Register your facility for free",
     stepsLabel: "How it works",
-    stepsTitle: "Four steps to fast hiring",
+    stepsTitle: "Four steps from posting to hire",
     steps: [
       { title: "Register your facility", text: "Create your facility profile: type, city, and a short description." },
       { title: "Post a job or shift", text: "Set the specialty and the salary range or hourly pay." },
@@ -69,9 +69,9 @@ const TXT = {
     whyTitle: "Why post on SyndeoCare?",
     benefits: [
       ["Clear verification status", "Uploaded documents are reviewed by our team, and the “verified” badge only appears after actual approval."],
-      ["Instant shift coverage", "Post tonight's shift and get it booked within minutes."],
+      ["Urgent shift posting", "Post tonight's shift and it appears immediately to matching registered professionals."],
       ["Lower cost than agencies", "No traditional recruitment agency commissions."],
-      ["Instant alerts", "Get notified the moment a qualified candidate applies."],
+      ["In-app alerts", "Get an in-app notification the moment a candidate applies."],
       ["Facility identity privacy", "Only reveal your facility's name once you seriously engage with a candidate."],
       ["Smart data & matching", "Compare candidates by specialty, experience, and license."],
     ],
