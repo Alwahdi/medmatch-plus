@@ -115,6 +115,7 @@ function SettingsPage() {
             )}
             <TabsTrigger value="notifications" className="shrink-0">{c.tabNotifications}</TabsTrigger>
             <TabsTrigger value="security" className="shrink-0">{c.tabSecurity}</TabsTrigger>
+            <TabsTrigger value="account" className="shrink-0">{c.tabAccount}</TabsTrigger>
           </TabsList>
         </div>
 
