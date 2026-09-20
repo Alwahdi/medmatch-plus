@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AlertsPanel } from "@/components/panels/alerts";
 import { NotificationsPanel } from "@/components/panels/notifications";
 import { SecurityPanel } from "@/components/panels/security";
+import { PushToggle } from "@/components/push-toggle";
 import { AccountPrivacyPanel } from "@/components/panels/account-privacy";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
