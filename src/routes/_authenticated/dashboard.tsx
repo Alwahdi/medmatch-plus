@@ -426,17 +426,24 @@ function StatCard({
   value,
   label,
   to,
+  pending = false,
 }: {
   icon: typeof FileText;
   value: number;
   label: string;
   to: "/activity" | "/profile";
+  /** While loading we reserve the number's space instead of showing a false 0. */
+  pending?: boolean;
 }) {
   return (
     <Link to={to} className="grid min-h-28 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-colors hover:border-primary/35">
       <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><Icon className="size-5" /></span>
       <span className="min-w-0">
-        <span className="block text-2xl font-extrabold tabular-nums">{value}</span>
+        {pending ? (
+          <Skeleton className="my-1 block h-6 w-10" />
+        ) : (
+          <span className="block text-2xl font-extrabold tabular-nums">{value}</span>
+        )}
         <span className="block text-xs leading-5 text-muted-foreground">{label}</span>
       </span>
     </Link>
