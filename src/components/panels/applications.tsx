@@ -71,6 +71,7 @@ const TXT = {
     withdrawn: "Application withdrawn",
     withdrawnAt: (t: string) => `Withdrawn ${t}`,
     reapply: "Apply again",
+    updatedAfter: (t: string) => `Job details were updated after you applied (${t})`,
   },
 } as const;
 
