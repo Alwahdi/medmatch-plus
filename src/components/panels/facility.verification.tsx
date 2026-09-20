@@ -423,9 +423,8 @@ export function FacilityVerificationPanel() {
             </Select>
           </div>
           <div>
-
-          <div>
             <Label htmlFor="fd-issuer">{c.issuer}</Label>
+
             <Input
               id="fd-issuer"
               maxLength={120}
