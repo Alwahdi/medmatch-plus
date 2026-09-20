@@ -75,8 +75,13 @@ export function SavedPanel() {
         <EmptyState className="mt-6" icon={AlertCircle} title={c.error} action={<Button variant="outline" onClick={() => void refetch()}>{c.retry}</Button>} />
       ) : data?.length ? (
         <div className="grid gap-3">
-          {data.map((job) => (
-            <JobCard key={job.id} job={job} />
+          {data.map(({ job, isAvailable }) => (
+            <div key={job.id}>
+              <JobCard job={job} />
+              {!isAvailable ? (
+                <p className="mt-1 text-xs text-muted-foreground">{c.closed}</p>
+              ) : null}
+            </div>
           ))}
         </div>
       ) : (
