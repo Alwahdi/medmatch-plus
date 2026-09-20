@@ -43,7 +43,7 @@ const TXT = {
     whyTitle: "لماذا تنشر على SyndeoCare؟",
     benefits: [
       ["حالة توثيق واضحة", "الوثائق المرفوعة يراجعها فريقنا، وشارة «موثّق» لا تظهر إلا بعد الاعتماد الفعلي."],
-      ["نشر مناوبات عاجلة", "انشر مناوبة الليلة وتظهر فوراً للكوادر المسجّلة المطابقة."],
+      ["نشر مناوبات عاجلة", "انشر مناوبة الليلة لتظهر للكوادر المسجّلة المطابقة بعد النشر."],
       ["تكلفة أقل من الوساطة", "بدون عمولات وكالات التوظيف التقليدية."],
       ["تنبيهات داخل المنصة", "يصلك تنبيه داخل المنصة لحظة تقدّم أي مرشّح."],
       ["خصوصية هوية المنشأة", "اكشف اسم منشأتك فقط عند التواصل الجاد مع المرشح."],
@@ -69,7 +69,7 @@ const TXT = {
     whyTitle: "Why post on SyndeoCare?",
     benefits: [
       ["Clear verification status", "Uploaded documents are reviewed by our team, and the “verified” badge only appears after actual approval."],
-      ["Urgent shift posting", "Post tonight's shift and it appears immediately to matching registered professionals."],
+      ["Urgent shift posting", "Post tonight's shift and it appears to matching registered professionals once published."],
       ["Lower cost than agencies", "No traditional recruitment agency commissions."],
       ["In-app alerts", "Get an in-app notification the moment a candidate applies."],
       ["Facility identity privacy", "Only reveal your facility's name once you seriously engage with a candidate."],
