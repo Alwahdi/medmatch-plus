@@ -637,3 +637,30 @@ External dependencies still unavailable: transactional email and WhatsApp delive
 
 ### Release gate (open)
 - [ ] Switch `content-security-policy-report-only` to enforcing `content-security-policy` only after observing the production host for report-only violations (signed storage URLs, OAuth broker, realtime WSS), and after a nonce is available for the framework's inline hydration script.
+
+## Phase 64 — Mobile-first performance & interaction acceptance (done, measured)
+Measurement tool: Playwright + CDP on the **dev server** (4x CPU throttling, ~1.6 Mbps / 150 ms RTT, 390x844 DPR3 mobile emulation). Lighthouse against a production build is not runnable from this sandbox, so JS transfer numbers below are dev (unbundled) figures and are **not** representative of production bundles — treated as a known measurement gap, not a result.
+
+Before -> after (home `/`, same profile):
+- Image bytes: **346 KB -> 98 KB** (-72%).
+- CLS 0.003 -> 0.003; `/jobs` and `/auth` CLS 0.
+- LCP: 2848 ms -> 2672 ms (dev SSR module loading dominates; FCP == LCP == DCL on every run, so LCP here tracks dev compile time, not image weight). `/jobs` 704 -> 668 ms, `/auth` 712 -> 656 ms.
+- Console errors: 0 on `/`, `/jobs`, `/auth`.
+
+Changes:
+- Replaced `hero.jpg` / `for-professionals.jpg` / `for-employers.jpg` (1600x1104 and 1280x960 JPEG, 128/112/113 KB) with responsive WebP sets: hero 640/960/1280/1600 (15/25/36/49 KB) and card images 640/1024 (~17/30 KB). Old JPEGs deleted.
+- Hero: `srcSet` + `sizes="100vw"`, explicit width/height, `fetchPriority="high"`, `decoding="async"`, never lazy. At 390px DPR3 the browser correctly picks `hero-1280.webp`.
+- Card images: `srcSet` + `sizes="(min-width: 768px) 50vw, 100vw"`, `loading="lazy"`, `decoding="async"`.
+- Dropped the head `<link rel=preload>` for the hero: the head serializer emitted a duplicate href-less preload tag, and the `<img>` is already in the SSR HTML with high priority.
+
+Verified, no change needed (already correct from earlier phases):
+- Fonts: Cairo via Google Fonts with `display=swap` + preconnect; weights 400/500/600/700/800 all in use (`font-medium/semibold/bold/extrabold` + body). Not self-hosted — no font files copied, no license ambiguity.
+- Overflow sweep at 320/360/390/430 over `/`, `/jobs`, `/auth`, `/for-facilities`, `/pricing`, `/register`: **zero horizontal overflow**.
+- iOS zoom: inputs/textarea use `text-base` (16px) on mobile, `md:text-sm` only from tablet up.
+- Safe areas (`--app-safe-bottom`, `--app-bottom-nav`) and `prefers-reduced-motion` handling already in `src/styles.css`; dialogs are `max-h-[92dvh]` with independent body scroll.
+- Double-submit: auth, register, contact and message composer all disable their submit control while pending.
+- OfflineBanner is status-only (hides no action) and re-invalidates queries when connectivity returns; no fake offline writes exist.
+- Heavy UI modules (`ui/chart`, `ui/carousel`) are imported nowhere outside `src/components/ui`, so they are tree-shaken out of public bundles; routes are file-split by TanStack.
+
+Open (needs production infra):
+- [ ] Re-run LCP/INP on the published production build over a real mobile profile and confirm LCP < 2.5s / CLS < 0.1. Dev-server numbers cannot confirm the target.
