@@ -47,36 +47,37 @@ const TXT = {
   },
   en: {
     badge: "Transparency",
-    title: "Cookies",
-    sub: "Here we explain which cookies we use, why, and how you can control them.",
+    title: "Browser storage & cookies",
+    sub: "Here we explain what your browser stores while you use the platform, why, and how you can control it.",
     updated: "Last updated: September 2026",
     sections: [
       {
-        h: "What are cookies?",
+        h: "What is browser storage?",
         p: [
-          "Small files your browser stores when you visit the site; they help us remember your sign-in and preferred language.",
+          "Small pieces of data your browser keeps when you visit the site — in local storage, session storage, or cookies.",
+          "We use it to keep you signed in and to remember your preferred language.",
         ],
       },
       {
         h: "What we use",
         p: [
-          "Essential cookies: sign-in, session storage and account protection. The site cannot work without them.",
-          "Preference cookies: remembering your language (Arabic/English) and some display options.",
-          "Performance measurement: aggregated statistics about the most visited pages, not linked to your identity.",
+          "Essential session storage: keeping you signed in and protecting your account, plus any essential cookies required by the authentication infrastructure. The site cannot work without it.",
+          "Language preference: stored locally in your browser so we remember your choice between Arabic and English.",
         ],
       },
       {
         h: "What we don't do",
         p: [
-          "We don't sell your data and we don't share cookies with external advertisers.",
-          "We don't use cookies to track you across other websites.",
+          "We run no analytics or performance-measurement tools in the product.",
+          "We don't sell your data and we don't share it with external advertisers.",
+          "We don't track you across other websites.",
         ],
       },
       {
-        h: "How to control them",
+        h: "How to control it",
         p: [
-          "You can delete or block cookies from your browser settings at any time.",
-          "Blocking essential cookies will prevent you from signing in and using the dashboard.",
+          "You can delete or block site data and cookies from your browser settings at any time.",
+          "Blocking essential storage will prevent you from signing in and using the dashboard.",
         ],
       },
     ],
