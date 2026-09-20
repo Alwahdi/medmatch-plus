@@ -39,7 +39,7 @@ import {
   formatDate,
 } from "@/lib/format";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
-import { checkUpload } from "@/lib/storage";
+import { ACCEPT, prepareUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -143,6 +143,8 @@ type FacilityDoc = {
   id: string;
   doc_type: string;
   title: string;
+  file_name: string | null;
+
   issuer: string | null;
   issue_date: string | null;
   expiry_date: string | null;
@@ -161,11 +163,11 @@ export function FacilityVerificationPanel() {
 
   const [form, setForm] = useState({
     doc_type: "",
-    title: "",
     issuer: "",
     issue_date: "",
     expiry_date: "",
   });
+
   const [file, setFile] = useState<File | null>(null);
 
   const { data: facility, isError: facilityErr, refetch: facilityRefetch, isLoading: facLoading } = useQuery({
@@ -188,7 +190,7 @@ export function FacilityVerificationPanel() {
     queryFn: async (): Promise<FacilityDoc[]> => {
       const { data, error } = await supabase
         .from("facility_documents")
-        .select("id,doc_type,title,issuer,issue_date,expiry_date,file_path,status,review_note,created_at")
+        .select("id,doc_type,title,file_name,issuer,issue_date,expiry_date,file_path,status,review_note,created_at")
         .eq("facility_id", facility!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -211,7 +213,7 @@ export function FacilityVerificationPanel() {
       const filePath = `${facility!.id}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("facility-docs")
-        .upload(filePath, ready, { contentType: ready.type || undefined });
+        .upload(filePath, ready, { contentType: ready.type || "application/octet-stream" });
       if (upErr) throw upErr;
 
       const { error } = await supabase.from("facility_documents").insert({
@@ -229,7 +231,7 @@ export function FacilityVerificationPanel() {
 
     onSuccess: () => {
       toast.success(c.uploaded);
-      setForm({ doc_type: "", title: "", issuer: "", issue_date: "", expiry_date: "" });
+      setForm({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
       setFile(null);
       void queryClient.invalidateQueries({ queryKey: ["facility-docs"] });
     },
@@ -461,7 +463,7 @@ export function FacilityVerificationPanel() {
           <Input
             id="fd-file"
             type="file"
-            accept="application/pdf,image/jpeg,image/png,image/webp"
+            accept={ACCEPT.document}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
         </div>
@@ -485,7 +487,7 @@ export function FacilityVerificationPanel() {
                 <div className="flex min-w-0 items-start gap-3">
                   <FileText className="mt-0.5 size-5 text-primary" />
                   <div className="min-w-0">
-                    <p className="font-medium">{doc.title}</p>
+                    <p className="font-medium">{doc.file_name ?? doc.title}</p>
                     <p className="text-xs text-muted-foreground">
                       {facilityDocTypeLabel(doc.doc_type, lang)}
                       {doc.issuer ? ` · ${doc.issuer}` : ""}

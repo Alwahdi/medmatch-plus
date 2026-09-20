@@ -146,7 +146,7 @@ export function CredentialsPanel() {
       const filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("credentials")
-        .upload(filePath, ready, { contentType: ready.type || undefined });
+        .upload(filePath, ready, { contentType: ready.type || "application/octet-stream" });
       if (upErr) throw upErr;
 
       const { error } = await supabase.from("credentials").insert({
