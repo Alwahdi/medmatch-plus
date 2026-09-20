@@ -727,7 +727,11 @@ function AdminPage() {
                   )}
                 </li>
               ))}
-            </ul>
+                  </ul>
+                </section>
+              ))}
+            </div>
+
           )}
         </TabsContent>
 
