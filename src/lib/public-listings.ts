@@ -21,6 +21,17 @@ export const OWNER_JOB_COLUMNS =
 export const OWNER_SHIFT_COLUMNS =
   "id,title,notes,specialty_id,starts_at,ends_at,hourly_rate,currency,country,city,status,is_urgent,facility_verified,applications_count,created_at,facility_id,specialties(name_ar,name_en)";
 
+/**
+ * أعمدة لوحة إدارة المنشأة (Phase 92): كل أعمدة الجدول الأصلي عدا الأعمدة الحاملة للهوية
+ * (`jobs.publisher_name` و`shifts.booked_by`) التي لم تعد ممنوحة للعميل أصلاً.
+ * لا نستخدم select('*') لأنه يفشل عند وجود عمود بلا صلاحية قراءة.
+ */
+export const FACILITY_JOB_COLUMNS =
+  "id,facility_id,title,description,specialty_id,employment_type,country,city,salary_min,salary_max,currency,min_experience,required_license,is_active,created_at,updated_at,is_featured,expires_at,applications_count,facility_verified,slug,vacancies,auto_closed";
+
+export const FACILITY_SHIFT_COLUMNS =
+  "id,facility_id,specialty_id,title,notes,starts_at,ends_at,hourly_rate,currency,country,city,status,created_at,updated_at,is_urgent,applications_count,facility_verified";
+
 type SpecialtyNames = {
   specialty_name_ar?: string | null;
   specialty_name_en?: string | null;
