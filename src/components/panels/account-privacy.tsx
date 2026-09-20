@@ -229,10 +229,10 @@ export function AccountPrivacyPanel() {
                 <Link to="/profile">{c.myProfile}</Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/cv">{c.myCv}</Link>
+                <Link to="/profile" search={{ tab: "cv" }}>{c.myCv}</Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/credentials">{c.myCreds}</Link>
+                <Link to="/profile" search={{ tab: "credentials" }}>{c.myCreds}</Link>
               </Button>
             </>
           )}
