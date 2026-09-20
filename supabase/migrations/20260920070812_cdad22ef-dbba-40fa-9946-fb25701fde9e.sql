@@ -1,0 +1,1 @@
+REVOKE ALL ON public.account_deletion_requests FROM anon;
