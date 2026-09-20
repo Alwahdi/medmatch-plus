@@ -14,6 +14,7 @@ import { useSession } from "@/lib/auth";
 import { countryLabel, relativeTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
+import { employerText } from "@/lib/employer";
 
 export const Route = createFileRoute("/_authenticated/invitations")({
   head: () => ({
@@ -91,6 +92,7 @@ function InvitationsPage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
+  const emp = employerText(lang);
 
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ["my-invitations", user?.id],
@@ -184,7 +186,9 @@ function InvitationsPage() {
                   />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 font-bold">
-                      {f?.name_ar}
+                      {/* Identity is readable only for the invited professional; an
+                          ownerless/withdrawn facility gets the neutral state, never a fake name. */}
+                      {f?.name_ar ?? <span className="text-muted-foreground">{emp.unavailable}</span>}
                       {f?.is_verified && (
                         <Badge variant="secondary" className="gap-1">
                           <ShieldCheck className="size-3" /> {c.verified}
@@ -201,9 +205,14 @@ function InvitationsPage() {
                       {isJob ? inv.jobs?.title : inv.shifts?.title}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {[f?.city, countryLabel(f?.country ?? null, lang)].filter(Boolean).join("، ")} ·{" "}
-                      {relativeTime(inv.created_at, lang)}
+                      {[
+                        [f?.city, countryLabel(f?.country ?? null, lang)].filter(Boolean).join("، "),
+                        relativeTime(inv.created_at, lang),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </p>
+                    {!f && <p className="mt-1 text-xs text-muted-foreground">{emp.unavailableNote}</p>}
                   </div>
                   <Badge
                     className="ms-auto"
