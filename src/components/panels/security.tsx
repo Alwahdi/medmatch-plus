@@ -239,10 +239,9 @@ export function SecurityPanel({ embedded = false }: { embedded?: boolean }) {
       const hasPassword = !!idents?.identities?.some((i) => i.provider === "email");
       if (!hasPassword || !email) userError(c.pwOauthBody);
       if (!currentPw) userError(c.pwCurrentRequired);
-      const reauth = await supabase.auth.signInWithPassword({ email, password: currentPw });
-      if (reauth.error || !reauth.data.user || reauth.data.user.id !== user?.id) {
-        userError(c.pwCurrentWrong);
-      }
+      // تحقق عبر عميل مؤقت حتى لا تُستبدل الجلسة الحالية (خصوصاً المؤكَّدة بخطوتين).
+      const ok = await verifyCurrentPassword(email as string, currentPw, user?.id ?? "");
+      if (!ok) userError(c.pwCurrentWrong);
       const { error } = await supabase.auth.updateUser({ password: newPw });
       if (error) throw error;
       await supabase.auth.signOut({ scope: "others" });
