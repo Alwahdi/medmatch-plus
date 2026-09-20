@@ -379,6 +379,9 @@ function ProfileOverview() {
                     {c.openBadge}
                   </span>
                 )}
+                <span className="rounded-md bg-surface px-3 py-1 text-muted-foreground">
+                  {searchable ? c.visibilityOn : c.visibilityOff}
+                </span>
               </div>
             </div>
           </div>
