@@ -261,6 +261,12 @@ function ProfileOverview() {
         license_number: form.license_number.trim() || null,
         is_open_to_shifts: form.is_open_to_shifts,
         avatar_url: avatar || null,
+        lat: form.lat,
+        lng: form.lng,
+        availability: form.availability,
+        search_radius_km: form.search_radius_km === "" ? null : Math.max(1, Math.min(500, Number(form.search_radius_km))),
+        preferred_rate: form.preferred_rate === "" ? null : Math.max(0, Number(form.preferred_rate)),
+        preferred_rate_period: form.preferred_rate_period,
       };
 
 
