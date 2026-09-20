@@ -202,6 +202,27 @@ function ok<T>(result: { data: T; error: { message: string } | null }, step: str
   return result.data;
 }
 
+/**
+ * Re-check eligibility right before the provider call: a job can be closed or a
+ * shift booked between the initial fetch and the send. A backend error here is
+ * fail-closed (treated as "do not send") rather than an optimistic send.
+ */
+async function stillPublic(
+  client: { from: (t: string) => any },
+  jobId: string | null,
+  shiftId: string | null,
+): Promise<boolean> {
+  const view = jobId ? "public_jobs" : "public_shifts";
+  const id = jobId ?? shiftId;
+  if (!id) return false;
+  const { data, error } = await client.from(view).select("id").eq("id", id).maybeSingle();
+  if (error) {
+    console.error("[alerts] recheck_listing failed", error.message);
+    throw new DispatchError("alerts_recheck_listing_failed");
+  }
+  return !!data;
+}
+
 export async function dispatchAlerts(options?: { limit?: number }): Promise<DispatchSummary> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const configured = alertChannelStatus();
@@ -226,18 +247,20 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
   if (!alerts.length) return summary;
 
   const since = new Date(Date.now() - 14 * 86400000).toISOString();
+  // Source of truth = the same sanitized views the public site renders. They
+  // already enforce live owner + active/non-expired job and open/future shift,
+  // so history kept in the base tables can never leave the platform by email
+  // or WhatsApp.
   const [jobRes, shiftRes] = await Promise.all([
     supabaseAdmin
-      .from("jobs")
+      .from("public_jobs")
       .select("id,slug,title,city,country,specialty_id,employment_type,salary_min,salary_max,currency,created_at")
-      .eq("is_active", true)
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(options?.limit ?? 200),
     supabaseAdmin
-      .from("shifts")
+      .from("public_shifts")
       .select("id,title,city,country,specialty_id,hourly_rate,currency,starts_at,created_at")
-      .eq("status", "open")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(options?.limit ?? 200),
@@ -369,6 +392,39 @@ export async function dispatchAlerts(options?: { limit?: number }): Promise<Disp
           throw new DispatchError("alerts_claim_delivery_failed");
         }
         deliveryId = (inserted.data as { id: string }).id;
+      }
+
+      // --- Eligibility re-check ------------------------------------------
+      // The claim is held, but the listing may have been closed/booked since
+      // the fetch. Release the claim cleanly and never reach the provider.
+      if (!(await stillPublic(supabaseAdmin as never, item.jobId, item.shiftId))) {
+        if (item.existing) {
+          const previous = item.existing;
+          const { error: releaseError } = await supabaseAdmin
+            .from("alert_deliveries")
+            .update({
+              status: previous.status,
+              attempt_count: previous.attempt_count,
+              last_attempt_at: previous.last_attempt_at,
+            } as never)
+            .eq("id", deliveryId);
+          if (releaseError) {
+            console.error("[alerts] release_claim failed", releaseError.message);
+            throw new DispatchError("alerts_release_claim_failed");
+          }
+          summary.retried -= 1;
+        } else {
+          const { error: dropError } = await supabaseAdmin
+            .from("alert_deliveries")
+            .delete()
+            .eq("id", deliveryId);
+          if (dropError) {
+            console.error("[alerts] release_claim failed", dropError.message);
+            throw new DispatchError("alerts_release_claim_failed");
+          }
+        }
+        summary.skipped += 1;
+        continue;
       }
 
       // --- Provider send ------------------------------------------------
