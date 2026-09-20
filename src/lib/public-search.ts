@@ -36,7 +36,8 @@ export type SearchShiftRow = ShiftRow & { specialty_id: string | null };
 
 export type Page<T> = { rows: T[]; total: number; offset: number };
 
-const clean = (v: string | null | undefined) => (v && v !== "all" ? v : null);
+const clean = (v: string | null | undefined) => (v && v !== "all" ? v : undefined);
+const orUndef = <T,>(v: T | null | undefined) => v ?? undefined;
 
 export async function searchPublicJobs(
   f: SearchFilters,
@@ -46,16 +47,16 @@ export async function searchPublicJobs(
 ): Promise<Page<SearchJobRow>> {
   const { data, error } = await supabase
     .rpc("search_public_jobs", {
-      _q: f.q ? f.q.slice(0, 80) : null,
+      _q: f.q ? f.q.slice(0, 80) : undefined,
       _country: clean(f.country),
       _city: clean(f.city),
       _specialty_id: clean(f.specialtyId),
-      _specialty_ids: f.specialtyIds,
+      _specialty_ids: orUndef(f.specialtyIds),
       _type: clean(f.type),
-      _pref_specialty_id: f.prefSpecialtyId,
-      _pref_country: f.prefCountry,
+      _pref_specialty_id: orUndef(f.prefSpecialtyId),
+      _pref_country: orUndef(f.prefCountry),
       _sort: f.sort,
-      _exclude_ids: f.excludeJobIds,
+      _exclude_ids: orUndef(f.excludeJobIds),
       _limit: limit,
       _offset: offset,
     })
@@ -77,13 +78,13 @@ export async function searchPublicShifts(
 ): Promise<Page<SearchShiftRow>> {
   const { data, error } = await supabase
     .rpc("search_public_shifts", {
-      _q: f.q ? f.q.slice(0, 80) : null,
+      _q: f.q ? f.q.slice(0, 80) : undefined,
       _country: clean(f.country),
       _city: clean(f.city),
       _specialty_id: clean(f.specialtyId),
-      _specialty_ids: f.specialtyIds,
-      _pref_specialty_id: f.prefSpecialtyId,
-      _pref_country: f.prefCountry,
+      _specialty_ids: orUndef(f.specialtyIds),
+      _pref_specialty_id: orUndef(f.prefSpecialtyId),
+      _pref_country: orUndef(f.prefCountry),
       _sort: f.sort,
       _limit: limit,
       _offset: offset,
