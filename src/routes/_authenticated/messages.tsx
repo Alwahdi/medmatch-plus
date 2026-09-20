@@ -51,10 +51,13 @@ import { ReportButton } from "@/components/report-dialog";
 import {
   baseMime,
   ChatAttachment,
+  chatPath,
   CHAT_MAX_BYTES,
   formatBytes,
+  removeChatFile,
   uploadChatFile,
 } from "@/components/chat-attachment";
+
 import { supabase } from "@/integrations/supabase/client";
 import { unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
