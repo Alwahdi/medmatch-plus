@@ -52,7 +52,10 @@ const TXT = {
     statusTitle: "حالة طلبك",
     pending: "قيد الانتظار",
     processing: "قيد المعالجة",
-    completed: "تمت المعالجة",
+    completed: "مكتمل",
+    processingNote:
+      "طلبك قيد المعالجة. حسابك ما زال موجوداً ويمكنك الدخول إليه حتى تُنفَّذ عملية الحذف وإخفاء الهوية، وسنُعلمك عند اكتمالها.",
+
     rejected: "مرفوض",
     cancelledS: "ملغى",
     requestedOn: (d: string) => `تاريخ الطلب: ${d}`,
