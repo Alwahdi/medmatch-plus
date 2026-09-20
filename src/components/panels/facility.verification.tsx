@@ -39,7 +39,7 @@ import {
   formatDate,
 } from "@/lib/format";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
-import { checkUpload } from "@/lib/storage";
+import { ACCEPT, prepareUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -143,6 +143,8 @@ type FacilityDoc = {
   id: string;
   doc_type: string;
   title: string;
+  file_name: string | null;
+
   issuer: string | null;
   issue_date: string | null;
   expiry_date: string | null;
@@ -161,11 +163,11 @@ export function FacilityVerificationPanel() {
 
   const [form, setForm] = useState({
     doc_type: "",
-    title: "",
     issuer: "",
     issue_date: "",
     expiry_date: "",
   });
+
   const [file, setFile] = useState<File | null>(null);
 
   const { data: facility, isError: facilityErr, refetch: facilityRefetch, isLoading: facLoading } = useQuery({
