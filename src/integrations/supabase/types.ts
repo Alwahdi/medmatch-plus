@@ -158,6 +158,8 @@ export type Database = {
           status: Database["public"]["Enums"]["application_status"]
           updated_at: string
           user_id: string
+          withdrawal_reason: string | null
+          withdrawn_at: string | null
         }
         Insert: {
           cover_letter?: string | null
@@ -167,6 +169,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["application_status"]
           updated_at?: string
           user_id: string
+          withdrawal_reason?: string | null
+          withdrawn_at?: string | null
         }
         Update: {
           cover_letter?: string | null
@@ -176,6 +180,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["application_status"]
           updated_at?: string
           user_id?: string
+          withdrawal_reason?: string | null
+          withdrawn_at?: string | null
         }
         Relationships: [
           {
@@ -1992,6 +1998,10 @@ export type Database = {
       unhire_applicant: {
         Args: { _application_id: string }
         Returns: undefined
+      }
+      withdraw_job_application: {
+        Args: { _application_id: string; _reason?: string }
+        Returns: string
       }
     }
     Enums: {
