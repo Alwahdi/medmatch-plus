@@ -503,9 +503,14 @@ function ProfileOverview() {
           <div>
             <p className="font-medium">{c.searchableTitle}</p>
             <p className="text-xs text-muted-foreground">{c.searchableText}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{c.searchableOffNote}</p>
           </div>
-          <Switch checked={form.is_searchable}
-            onCheckedChange={(v) => setForm({ ...form, is_searchable: v })} />
+          <Switch
+            checked={searchable}
+            disabled={!profile || setVisibility.isPending}
+            aria-label={c.searchableTitle}
+            onCheckedChange={(v) => setVisibility.mutate(v)}
+          />
         </div>
 
         <div className="flex flex-wrap gap-2">
