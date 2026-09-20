@@ -174,6 +174,9 @@ export function AlertsPanel() {
 
   const create = useMutation({
     mutationFn: async () => {
+      // Guard the write as well as the button: an alert is never stored
+      // against a channel that cannot deliver.
+      if (!channelReady) throw new UserFacingError(channelsErr ? c.statusUnknown : c.noChannels);
       if (channel === "whatsapp" && !/^\+?\d{8,15}$/.test(phone.trim())) {
         throw new UserFacingError(c.invalidPhone);
       }
