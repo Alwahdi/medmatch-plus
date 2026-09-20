@@ -2000,6 +2000,15 @@ export type Database = {
         }
         Returns: string
       }
+      submit_contact_message_internal: {
+        Args: {
+          _email: string
+          _message: string
+          _name: string
+          _subject?: string
+        }
+        Returns: string
+      }
       submit_job_application: {
         Args: { _cover_letter?: string; _job_id: string }
         Returns: string
