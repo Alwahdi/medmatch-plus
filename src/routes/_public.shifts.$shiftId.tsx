@@ -23,6 +23,7 @@ import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import {
   countryLabel,
+  facilityDisplayName,
   formatDateTime,
   formatMoney,
   hoursBetween,
