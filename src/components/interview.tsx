@@ -435,13 +435,19 @@ export function FacilityInterviewBlock({
         </div>
         {!disabled && (
           <div className="flex flex-wrap gap-2">
+            {canSchedule && (
             <Button
               size="sm"
               variant={active ? "outline" : "default"}
               onClick={() => {
                 const base = new Date(Date.now() + 24 * 60 * 60 * 1000);
                 base.setMinutes(0, 0, 0);
-                setWhen(row && isReschedule ? toLocalInput(new Date(row.scheduled_at)) : toLocalInput(base));
+                let start = row && isReschedule ? new Date(row.scheduled_at) : base;
+                if (latestStartMs !== null && start.getTime() > latestStartMs) {
+                  start = new Date(latestStartMs);
+                  start.setSeconds(0, 0);
+                }
+                setWhen(toLocalInput(start));
                 if (row) {
                   setDuration(String(row.duration_minutes));
                   setMode(row.mode);
@@ -454,6 +460,7 @@ export function FacilityInterviewBlock({
             >
               <CalendarClock className="size-4" /> {isReschedule ? c.reschedule : c.schedule}
             </Button>
+            )}
             {active && (
               <>
                 {started && (
