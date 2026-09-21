@@ -32,7 +32,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
           />
         }
       >
-        <ScreenHeader title={t("myListings")} sub={(facility.data as { name?: string } | null)?.name ?? ""} />
+        <ScreenHeader title={t("myListings")} sub={(facility.data as { name_ar?: string; name_en?: string | null } | null)?.[lang === "ar" ? "name_ar" : "name_en"] ?? (facility.data as { name_ar?: string } | null)?.name_ar ?? ""} />
 
         {facility.isPending ? (
           <Loading />

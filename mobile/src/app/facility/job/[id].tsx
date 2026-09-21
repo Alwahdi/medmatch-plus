@@ -1,5 +1,5 @@
-import React from "react";
-import { RefreshControl, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, RefreshControl, Text, View } from "react-native";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
@@ -15,6 +15,21 @@ export default function FacilityJobApplicants() {
   const job = useJob(String(id));
   const applicants = useJobApplicants(String(id));
   const setStage = useSetApplicationStage(String(id));
+  const [changingId, setChangingId] = useState<string | null>(null);
+
+  const changeStage = (applicationId: string, status: typeof STAGES[number]) => {
+    Alert.alert(
+      t("confirmAction"),
+      `${t("actionCannotUndo")}\n${applicationStatusLabel(status, lang)}`,
+      [
+        { text: t("cancel"), style: "cancel" },
+        { text: t("confirmAction"), style: status === "rejected" ? "destructive" : "default", onPress: () => {
+          setChangingId(applicationId);
+          setStage.mutate({ id: applicationId, status }, { onSettled: () => setChangingId(null) });
+        } },
+      ],
+    );
+  };
 
   return (
     <>
@@ -42,6 +57,7 @@ export default function FacilityJobApplicants() {
                 <Badge label={applicationStatusLabel(a.status, lang)} tone="primary" />
               </Row>
               {a.cover_letter ? <Text style={ui.muted}>{a.cover_letter}</Text> : null}
+              <Text style={ui.label}>{t("applicantDecision")}</Text>
               <Row gap={6} wrap>
                 {STAGES.map((s) => (
                   <View key={s}>
@@ -49,8 +65,9 @@ export default function FacilityJobApplicants() {
                       label={applicationStatusLabel(s, lang)}
                       variant={a.status === s ? "primary" : "secondary"}
                       small
-                      loading={setStage.isPending}
-                      onPress={() => setStage.mutate({ id: a.id, status: s })}
+                      loading={setStage.isPending && changingId === a.id}
+                      disabled={a.status === s || (setStage.isPending && changingId !== a.id)}
+                      onPress={() => changeStage(a.id, s)}
                     />
                   </View>
                 ))}
@@ -58,10 +75,6 @@ export default function FacilityJobApplicants() {
             </Card>
           ))
         )}
-
-        <Card>
-          <Text style={ui.muted}>{t("unavailableOnMobile")}</Text>
-        </Card>
       </Screen>
     </>
   );

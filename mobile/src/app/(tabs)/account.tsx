@@ -18,8 +18,8 @@ export default function AccountTab() {
   const facility = useMyFacility();
   const webUrl = (Constants.expoConfig?.extra as { webUrl?: string } | undefined)?.webUrl;
   const p = professional.data as { full_name?: string; headline?: string | null; city?: string | null; is_verified?: boolean } | null;
-  const f = facility.data as { name?: string; city?: string | null; is_verified?: boolean } | null;
-  const displayName = f?.name ?? p?.full_name ?? user?.email ?? "—";
+  const f = facility.data as { name_ar?: string; name_en?: string | null; city?: string | null; is_verified?: boolean } | null;
+  const displayName = (lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "—";
   const detail = f?.city ?? p?.headline ?? p?.city ?? user?.email ?? "";
   const verified = Boolean(f?.is_verified) || Boolean(p?.is_verified);
 

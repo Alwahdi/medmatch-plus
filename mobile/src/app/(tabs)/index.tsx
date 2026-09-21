@@ -62,8 +62,8 @@ export default function HomeTab() {
   const shifts = useShiftSearch({ q: "" });
 
   const p = professional.data as { full_name?: string; headline?: string | null; is_verified?: boolean } | null;
-  const f = facility.data as { name?: string; is_verified?: boolean } | null;
-  const name = (f?.name ?? p?.full_name ?? user?.email ?? "").split("@")[0] ?? "";
+  const f = facility.data as { name_ar?: string; name_en?: string | null; is_verified?: boolean } | null;
+  const name = ((lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "").split("@")[0] ?? "";
   const unread = (notifications.data ?? []).filter((item) => !item.read_at).length;
 
   const nextBooking = useMemo(() => {
@@ -120,9 +120,9 @@ export default function HomeTab() {
         />
         <SectionHeader title={t("quickActions")} />
         <View style={{ gap: 10 }}>
-          <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility")} />
+          <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility/create-job")} />
           <Row gap={10}>
-            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push("/facility")} /></View>
+            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push("/facility/create-shift")} /></View>
             <View style={{ flex: 1 }}><Button label={t("reviewApplicants")} variant="secondary" icon={UsersRound} onPress={() => router.push("/activity")} /></View>
           </Row>
         </View>
