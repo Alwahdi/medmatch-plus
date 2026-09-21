@@ -42,8 +42,8 @@ export default function NotificationsScreen() {
                 <Text style={ui.muted}>{(lang === "ar" ? n.body_ar : n.body_en) ?? ""}</Text>
                 <Text style={ui.muted}>{relativeTime(n.created_at, lang)}</Text>
               </Card>
-            ))
-          )
+            </Pressable>
+          ))
         )}
       </Screen>
     </>
