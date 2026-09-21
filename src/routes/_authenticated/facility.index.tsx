@@ -675,25 +675,38 @@ function FacilityDashboard() {
                               <UserPlus className="size-4" /> {c.invite}
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem
-                            className="min-h-11 gap-2"
-                            disabled={toggleJob.isPending}
-                            onSelect={async () => {
-                              if (j.is_active) {
+                          {j.is_active ? (
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              disabled={closeJob.isPending}
+                              onSelect={async () => {
                                 const ok = await confirm({
                                   title: c.confirmCloseTitle,
-                                  description: c.confirmCloseDesc,
+                                  description: pendingCount
+                                    ? `${c.confirmCloseDesc} ${c.confirmClosePending(pendingCount)}`
+                                    : c.confirmCloseDesc,
                                   confirmLabel: c.confirmCloseCta,
                                   destructive: true,
                                 });
                                 if (!ok) return;
-                              }
-                              toggleJob.mutate({ id: j.id, is_active: !j.is_active });
-                            }}
-                          >
-                            {j.is_active ? <PauseCircle className="size-4" /> : <PlusCircle className="size-4" />}
-                            {j.is_active ? c.close : c.republish}
-                          </DropdownMenuItem>
+                                closeJob.mutate(j.id);
+                              }}
+                            >
+                              <PauseCircle className="size-4" /> {c.close}
+                            </DropdownMenuItem>
+                          ) : filled ? (
+                            <DropdownMenuItem className="min-h-11 gap-2" onSelect={() => copyJobAsNew(j)}>
+                              <PlusCircle className="size-4" /> {c.copyJob}
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              disabled={reopenJob.isPending}
+                              onSelect={() => reopenJob.mutate(j.id)}
+                            >
+                              <PlusCircle className="size-4" /> {c.republish}
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </>
