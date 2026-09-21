@@ -309,6 +309,20 @@ function JobDetail() {
     },
   });
 
+  // إحصاءات المالك: عدد المختارين مقابل الشواغر لعرض حالة «اكتمل العدد» بدقة.
+  const { data: ownerApps } = useQuery({
+    queryKey: ["owner-job-apps", realJobId],
+    enabled: isOwner && !!realJobId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("applications")
+        .select("status")
+        .eq("job_id", realJobId!);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const toggleSave = useMutation({
     mutationFn: async () => {
       if (saved) {
