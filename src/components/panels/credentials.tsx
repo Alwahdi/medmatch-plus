@@ -21,7 +21,8 @@ import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
-import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
+import { credentialLabel, formatDate } from "@/lib/format";
+import { reqName, reqNote, useDocumentRequirements } from "@/lib/document-requirements";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
 
 import { ACCEPT, prepareUpload } from "@/lib/storage";
