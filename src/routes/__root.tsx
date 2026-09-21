@@ -178,6 +178,7 @@ function LanguageDocumentSync() {
 function LiveSync() {
   const { session } = useSession();
   useLiveSync(session?.user ?? null);
+  useHashTarget();
   return null;
 }
 
