@@ -22,7 +22,7 @@ export function Screen({
 }: {
   children: React.ReactNode;
   scroll?: boolean;
-  refreshControl?: React.ReactElement;
+  refreshControl?: React.ReactElement<RefreshControlProps>;
   padded?: boolean;
 }) {
   const inner = padded ? <View style={{ padding: 16, gap: 12 }}>{children}</View> : children;
