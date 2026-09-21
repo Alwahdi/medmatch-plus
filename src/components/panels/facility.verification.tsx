@@ -220,7 +220,7 @@ export function FacilityVerificationPanel() {
       const { error } = await supabase.from("facility_documents").insert({
         facility_id: facility!.id,
         doc_type: form.doc_type,
-        title: facilityDocTypeLabel(form.doc_type, "ar"),
+        title: selectedReq?.name_ar ?? form.doc_type,
         file_name: file.name.slice(0, 200),
         issuer: form.issuer.trim() || null,
         issue_date: form.issue_date || null,
