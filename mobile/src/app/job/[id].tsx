@@ -86,7 +86,7 @@ export default function JobDetail() {
               ) : (
                 <>
                   <Field label={t("coverLetter")} value={cover} onChangeText={setCover} multiline />
-                  {error ? <Text style={{ color: "#B3261E" }}>{error}</Text> : null}
+                  {error ? <Text style={ui.error}>{error}</Text> : null}
                   <View>
                     <Button label={t("apply")} onPress={apply} loading={busy} />
                   </View>

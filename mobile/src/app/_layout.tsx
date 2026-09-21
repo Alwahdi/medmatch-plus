@@ -7,6 +7,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { I18nProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { colors } from "@/lib/theme";
+import { useFonts, Cairo_400Regular, Cairo_500Medium, Cairo_600SemiBold, Cairo_700Bold } from "@expo-google-fonts/cairo";
+import { Loading } from "@/components/ui";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,6 +17,8 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({ Cairo_400Regular, Cairo_500Medium, Cairo_600SemiBold, Cairo_700Bold });
+  if (!fontsLoaded) return <Loading />;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
@@ -26,7 +30,9 @@ export default function RootLayout() {
                 screenOptions={{
                   headerStyle: { backgroundColor: colors.surface },
                   headerTintColor: colors.text,
-                  headerTitleStyle: { fontWeight: "700" },
+                  headerTitleStyle: { fontFamily: "Cairo_700Bold" },
+                  headerBackTitle: "",
+                  headerShadowVisible: false,
                   contentStyle: { backgroundColor: colors.bg },
                 }}
               >

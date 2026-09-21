@@ -51,7 +51,7 @@ export default function ProfileScreen() {
         city: city.trim() || null,
         years_experience: Number.isFinite(parsedYears) ? parsedYears : 0,
       })
-      .eq("user_id", user!.id);
+      .eq("user_id", user?.id ?? "");
     setBusy(false);
     if (err) {
       setError(userMessage(err, lang));
@@ -87,7 +87,7 @@ export default function ProfileScreen() {
             <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" />
             <Field label={lang === "ar" ? "المدينة" : "City"} value={city} onChangeText={setCity} />
             <Field label={lang === "ar" ? "نبذة" : "Bio"} value={bio} onChangeText={setBio} multiline />
-            {error ? <Text style={{ color: "#B3261E" }}>{error}</Text> : null}
+            {error ? <Text style={ui.error}>{error}</Text> : null}
             {saved ? <Text style={ui.muted}>{lang === "ar" ? "تم الحفظ." : "Saved."}</Text> : null}
             <View>
               <Button label={t("save")} onPress={save} loading={busy} disabled={!fullName.trim()} />

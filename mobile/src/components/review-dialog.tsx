@@ -59,7 +59,7 @@ export function ReviewDialog({ pending }: { pending: Pending }) {
   return (
     <Card>
       <Row gap={8} wrap>
-        <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>{pending.context_title}</Text>
+        <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{pending.context_title}</Text>
         <Badge label={formatDate(pending.happened_at, lang)} />
       </Row>
       <Text style={ui.muted}>{pending.counterpart_name}</Text>
@@ -76,7 +76,7 @@ export function ReviewDialog({ pending }: { pending: Pending }) {
         ))}
       </Row>
       <Field label={t("comment")} value={comment} onChangeText={setComment} multiline />
-      {error ? <Text style={{ color: "#B3261E" }}>{error}</Text> : null}
+      {error ? <Text style={ui.error}>{error}</Text> : null}
       <View>
         <Button label={t("sendReview")} onPress={submit} loading={busy} />
       </View>

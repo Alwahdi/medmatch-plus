@@ -71,7 +71,7 @@ export default function ActivityTab() {
             return (
               <Card key={a.id}>
                 <Row gap={8} wrap>
-                  <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>{job?.title ?? "—"}</Text>
+                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{job?.title ?? "—"}</Text>
                   <Badge label={applicationStatusLabel(a.status, lang)} tone="primary" />
                 </Row>
                 <Text style={ui.muted}>{formatDate(a.created_at, lang)}</Text>
@@ -98,7 +98,7 @@ export default function ActivityTab() {
             return (
               <Card key={b.id}>
                 <Row gap={8} wrap>
-                  <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>{shift?.title ?? "—"}</Text>
+                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{shift?.title ?? "—"}</Text>
                   <Badge label={bookingStatusLabel(b.status, lang)} />
                 </Row>
                 <Text style={ui.muted}>{formatDateTime(shift?.starts_at ?? null, lang)}</Text>
@@ -128,7 +128,7 @@ export default function ActivityTab() {
             return (
               <Card key={inv.id}>
                 <Row gap={8} wrap>
-                  <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>{title}</Text>
+                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{title}</Text>
                   <Badge label={inv.status} />
                 </Row>
                 {inv.message ? <Text style={ui.muted}>{inv.message}</Text> : null}

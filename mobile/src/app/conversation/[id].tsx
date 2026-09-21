@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { relativeTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { colors, radii } from "@/lib/theme";
+import { Send } from "lucide-react-native";
 
 export default function Conversation() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -60,8 +61,8 @@ export default function Conversation() {
                     gap: 4,
                   }}
                 >
-                  <Text style={{ color: mine ? "#FFFFFF" : colors.text, fontSize: 15 }}>{item.body}</Text>
-                  <Text style={{ color: mine ? "#D6F2EE" : colors.textMuted, fontSize: 11 }}>
+                   <Text style={[ui.body, { color: mine ? colors.primaryText : colors.text }]}>{item.body}</Text>
+                   <Text style={[ui.muted, { color: mine ? colors.messageOnPrimary : colors.textMuted, fontSize: 11 }]}>
                     {relativeTime(item.created_at, lang)}
                   </Text>
                 </View>
@@ -103,7 +104,7 @@ export default function Conversation() {
               opacity: body.trim() && !send.isPending ? 1 : 0.5,
             }}
           >
-            <Text style={{ color: "#FFFFFF", fontWeight: "700" }}>{t("send")}</Text>
+             <Send size={22} color={colors.primaryText}/>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
