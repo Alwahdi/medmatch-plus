@@ -41,17 +41,26 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
           <EmptyState icon={Building2} text={t("completeProfile")} desc={t("nextFac1Sub")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} />
         ) : (
           <>
-            <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility/create-job")} />
             <Row gap={10}>
-              <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push("/facility/create-shift")} /></View>
-              <View style={{ flex: 1 }}><Button label={t("reviewApplicants")} variant="secondary" icon={UsersRound} onPress={() => router.push("/activity")} /></View>
+              <View style={{ flex: 1 }}><Button label={t("publishJob")} icon={FilePlus2} small onPress={() => router.push("/facility/create-job")} /></View>
+              <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} small onPress={() => router.push("/facility/create-shift")} /></View>
             </Row>
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <Card style={{ flex: 1 }}><View style={{ width: 40, height: 40, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}><BriefcaseBusiness size={20} color={colors.primary}/></View><Text style={ui.title}>{jobs.data?.length ?? 0}</Text><Text style={ui.muted}>{t("jobs")}</Text></Card>
-              <Card style={{ flex: 1 }}><View style={{ width: 40, height: 40, borderRadius: radii.md, backgroundColor: colors.accentSoft, alignItems: "center", justifyContent: "center" }}><CalendarClock size={20} color={colors.accent}/></View><Text style={ui.title}>{shifts.data?.length ?? 0}</Text><Text style={ui.muted}>{t("shifts")}</Text></Card>
-            </View>
-            <Card style={{ backgroundColor: colors.primarySoft, borderColor: colors.primarySoft }}><Row gap={10}><ShieldCheck size={22} color={colors.primary}/><View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{(facility.data as { is_verified?: boolean }).is_verified ? t("verified") : (lang === "ar" ? "التوثيق قيد المراجعة" : "Verification under review")}</Text><Text style={ui.muted}>{lang === "ar" ? "تظهر الشارة فقط بعد اعتماد المنشأة." : "The badge appears only after approval."}</Text></View></Row></Card>
+            {(facility.data as { is_verified?: boolean }).is_verified ? null : (
+              <Card style={{ backgroundColor: colors.warningSoft, borderColor: colors.warningSoft }}>
+                <Row gap={10}>
+                  <ShieldCheck size={22} color={colors.warning} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={ui.bodyStrong}>{documents.length === 0 ? (lang === "ar" ? "لم يتم رفع مستندات التوثيق" : "No verification documents yet") : (lang === "ar" ? "التوثيق قيد المراجعة" : "Verification under review")}</Text>
+                    <Text style={ui.muted}>{documents.length === 0 ? (lang === "ar" ? "ارفع رخصة المنشأة والسجل التجاري لتفعيل التوثيق." : "Upload the facility licence and commercial registry to start verification.") : (lang === "ar" ? "تظهر الشارة فقط بعد اعتماد المنشأة." : "The badge appears only after approval.")}</Text>
+                  </View>
+                </Row>
+                {documents.length === 0 ? (
+                  <Button label={lang === "ar" ? "رفع المستندات" : "Upload documents"} small onPress={() => router.push({ pathname: "/verification", params: { target: "facility" } })} />
+                ) : null}
+              </Card>
+            )}
             <Segmented value={tab} onChange={setTab} options={[{ value: "jobs", label: t("jobs"), count: jobs.data?.length }, { value: "shifts", label: t("shifts"), count: shifts.data?.length }]} />
+
 
             {tab === "jobs" ? (
               jobs.isPending ? (
