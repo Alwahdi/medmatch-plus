@@ -71,6 +71,8 @@ import { dayKey, dayLabel, timeLabel, EMOJIS, PICKER_EMOJIS, TXT, type Conversat
 import { friendlyError, userError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/messages")({
+  validateSearch: (search: Record<string, unknown>): { c?: string } =>
+    typeof search["c"] === "string" ? { c: search["c"] } : {},
   head: () => ({
     meta: [
       { title: "الرسائل | SyndeoCare" },
@@ -91,8 +93,10 @@ function MessagesPage() {
   const c = TXT[lang];
   const { user } = useSession();
   const queryClient = useQueryClient();
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const linkedConversation = Route.useSearch().c ?? null;
+  const navigate = useNavigate();
+  const [activeId, setActiveId] = useState<string | null>(linkedConversation);
+  const [mobileOpen, setMobileOpen] = useState(!!linkedConversation);
 
   const [draft, setDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);

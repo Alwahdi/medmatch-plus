@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
+import { useOpenAppLink } from "@/lib/notification-link";
 import { Bell, BellOff, CheckCheck, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -44,7 +45,7 @@ export function NotificationBell() {
   const { user } = useSession();
   const { lang } = useLang();
   const c = TXT[lang];
-  const navigate = useNavigate();
+  const openLink = useOpenAppLink();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const { items, unreadCount } = useNotifications(user, 15);
@@ -57,7 +58,7 @@ export function NotificationBell() {
       await markNotificationRead(n.id);
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     }
-    if (n.link) void navigate({ to: n.link });
+    openLink(n.link);
   }
 
   return (

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useOpenAppLink } from "@/lib/notification-link";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ export function NotificationsPanel({ embedded = false }: { embedded?: boolean })
   const { user } = useSession();
   const { lang } = useLang();
   const c = TXT[lang];
-  const navigate = useNavigate();
+  const openLink = useOpenAppLink();
   const queryClient = useQueryClient();
   const { items, unreadCount, isPending, isError, error, refetch } = useNotifications(user, 100);
 
@@ -93,7 +93,7 @@ export function NotificationsPanel({ embedded = false }: { embedded?: boolean })
                   await markNotificationRead(n.id);
                   void queryClient.invalidateQueries({ queryKey: ["notifications"] });
                 }
-                if (n.link) void navigate({ to: n.link as never });
+                openLink(n.link);
               }}
                className={`flex min-h-20 w-full flex-col gap-1 rounded-lg border border-border p-4 text-start shadow-card transition-colors hover:bg-secondary ${
                 n.read_at ? "bg-card" : "bg-primary/5"
