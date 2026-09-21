@@ -9,6 +9,42 @@ import type { Lang } from "@/lib/i18n";
 type Rule = { test: RegExp; ar: string; en: string };
 
 const RULES: Rule[] = [
+  // متطلبات المستندات التي يضبطها الأدمن
+  {
+    test: /UNKNOWN_DOC_TYPE/i,
+    ar: "نوع المستند غير متاح حالياً. حدّث الصفحة واختر نوعاً من القائمة.",
+    en: "This document type isn't available. Refresh the page and pick a type from the list.",
+  },
+  {
+    test: /DOC_EXPIRY_REQUIRED/i,
+    ar: "تاريخ الانتهاء مطلوب لهذا النوع من المستندات.",
+    en: "An expiry date is required for this document type.",
+  },
+  {
+    test: /DOC_ISSUE_DATE_REQUIRED/i,
+    ar: "تاريخ الإصدار مطلوب لهذا النوع من المستندات.",
+    en: "An issue date is required for this document type.",
+  },
+  {
+    test: /DOC_ISSUER_REQUIRED/i,
+    ar: "جهة الإصدار مطلوبة لهذا النوع من المستندات.",
+    en: "The issuing authority is required for this document type.",
+  },
+  {
+    test: /DOC_REQUIREMENT_INCOMPLETE/i,
+    ar: "أكمل اسم نوع المستند قبل الحفظ.",
+    en: "Complete the document type name before saving.",
+  },
+  {
+    test: /DOC_REQUIREMENT_NOT_FOUND/i,
+    ar: "نوع المستند غير موجود، ربما حُذف. حدّث الصفحة.",
+    en: "This document type no longer exists. Refresh the page.",
+  },
+  {
+    test: /UNKNOWN_DOC_TARGET/i,
+    ar: "جهة المستند غير معروفة.",
+    en: "Unknown document target.",
+  },
   // اشتراط التوثيق قبل النشر والتقديم (قابل للتحكم من لوحة الإدارة)
   {
     test: /FACILITY_NOT_VERIFIED/i,
