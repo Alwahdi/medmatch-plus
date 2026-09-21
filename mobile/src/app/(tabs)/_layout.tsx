@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
 
-function TabIcon({ glyph, color }: { glyph: string; color: string }) {
+function TabIcon({ glyph, color }: { glyph: string; color: ColorValue }) {
   return (
     <View style={{ alignItems: "center", justifyContent: "center" }}>
       <Text style={{ fontSize: 18, color }}>{glyph}</Text>
