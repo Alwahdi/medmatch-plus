@@ -567,17 +567,17 @@ function AdminPage() {
 
   function proRequiredDocs(userId: string): RequiredDoc[] {
     const rows = (creds ?? []).filter((r) => r.user_id === userId);
-    return PRO_REQUIRED_DOCS.map((t) => ({
-      label: credentialLabel(t, lang),
-      state: docState(rows, t),
+    return proReqRows.map((r) => ({
+      label: reqName(r, lang),
+      state: docState(rows, r.code),
     }));
   }
 
   function facilityRequiredDocs(facilityId: string): RequiredDoc[] {
     const rows = (facDocs ?? []).filter((r) => r.facility_id === facilityId);
-    return FACILITY_REQUIRED_DOCS.map((t) => ({
-      label: facilityDocTypeLabel(t, lang),
-      state: docState(rows, t),
+    return facReqRows.map((r) => ({
+      label: reqName(r, lang),
+      state: docState(rows, r.code),
     }));
   }
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
