@@ -433,16 +433,23 @@ export function FacilityVerificationPanel() {
                 <SelectValue placeholder={c.docTypePh} />
               </SelectTrigger>
               <SelectContent>
-                {facilityDocTypes(lang).map((d, i) => (
-                  <SelectItem key={d} value={FACILITY_DOC_TYPES[i]!}>
-                    {d}
+                {requirements.map((r) => (
+                  <SelectItem key={r.code} value={r.code}>
+                    {reqName(r, lang)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {selectedReq && reqNote(selectedReq, lang) ? (
+              <p className="mt-1 text-xs text-muted-foreground">{reqNote(selectedReq, lang)}</p>
+            ) : null}
           </div>
           <div>
-            <Label htmlFor="fd-issuer">{c.issuer}</Label>
+            <Label htmlFor="fd-issuer">
+              {c.issuer}
+              {selectedReq?.requires_issuer ? <span className="text-destructive"> *</span> : null}
+            </Label>
+
 
             <Input
               id="fd-issuer"
