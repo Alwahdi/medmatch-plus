@@ -163,6 +163,13 @@ export function FacilityVerificationPanel() {
   });
 
   const [file, setFile] = useState<File | null>(null);
+  const { data: reqsData } = useDocumentRequirements("facility");
+  const requirements = reqsData ?? [];
+  const selectedReq = requirements.find((r) => r.code === form.doc_type) ?? null;
+  const typeLabel = (code: string) => {
+    const r = requirements.find((x) => x.code === code);
+    return r ? reqName(r, lang) : code;
+  };
 
   const { data: facility, isError: facilityErr, refetch: facilityRefetch, isLoading: facLoading } = useQuery({
     queryKey: ["my-facility-verify", user?.id],
