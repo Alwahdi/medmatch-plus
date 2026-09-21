@@ -157,7 +157,7 @@ const TXT = {
     statusFilled: "Positions filled",
     statusExpired: "Expired",
     statApplicants: "Applicants",
-    statSelected: (h: number, v: number) => `Selected: ${h} of ${v}`,
+    statSelected: "Selected of open positions",
     statDeadline: "Deadline",
     statPosted: "Posted",
     jobData: "Job details",
@@ -444,7 +444,7 @@ function JobDetail() {
               </div>
               <div className="rounded-lg border border-border bg-card p-3 text-center">
                 <div className="font-display text-xl font-extrabold">{hiredCount} / {seats}</div>
-                <div className="mt-0.5 text-xs text-muted-foreground">{c.statSelected(hiredCount, seats).split(":")[0]}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statSelected}</div>
               </div>
               <div className="rounded-lg border border-border bg-card p-3 text-center">
                 <div className="font-display text-sm font-bold leading-7">{job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}</div>
