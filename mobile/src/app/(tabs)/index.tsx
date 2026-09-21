@@ -3,13 +3,11 @@ import { RefreshControl, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import {
   Bell,
-  BriefcaseBusiness,
   Building2,
   CalendarClock,
   ClipboardList,
   MailOpen,
   MessageCircle,
-  Star,
   UserRound,
 } from "lucide-react-native";
 import { Button, EmptyState, IconButton, Row, Screen, SectionHeader, StatTile, styles as ui } from "@/components/ui";
