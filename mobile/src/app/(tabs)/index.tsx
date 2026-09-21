@@ -128,6 +128,20 @@ export default function HomeTab() {
           onPress={() => router.push({ pathname: "/shift/[id]", params: { id: shift.id } })}
         />
       ))}
+
+      <SectionHeader title={t("quickActions")} />
+      <Row gap={10}>
+        <View style={{ flex: 1 }}>
+          <Button label={t("messages")} variant="secondary" icon={MessageCircle} onPress={() => router.push("/messages")} />
+        </View>
+        <View style={{ flex: 1 }}>
+          {isFacility ? (
+            <Button label={t("facilityWorkspace")} variant="secondary" icon={Building2} onPress={() => router.push("/facility")} />
+          ) : (
+            <Button label={t("profile")} variant="secondary" icon={UserRound} onPress={() => router.push("/profile")} />
+          )}
+        </View>
+      </Row>
     </Screen>
   );
 }
