@@ -93,12 +93,6 @@ export default function HomeTab() {
         </View>
       </View>
 
-      <Row gap={10}>
-        <StatTile icon={ClipboardList} value={(applications.data ?? []).length} label={t("statApplications")} onPress={() => router.push("/activity")} />
-        <StatTile icon={CalendarClock} value={(bookings.data ?? []).length} label={t("statBookings")} tone="accent" onPress={() => router.push("/activity")} />
-        <StatTile icon={MailOpen} value={pendingInvites} label={t("statInvitations")} tone="violet" onPress={() => router.push("/activity")} />
-      </Row>
-
       <SectionHeader title={t("nextUp")} />
       {nextBooking?.shift ? (
         <StatusCard
@@ -112,26 +106,10 @@ export default function HomeTab() {
         <EmptyState icon={CalendarClock} text={t("noUpcoming")} desc={isFacility ? undefined : t("emptyBookingsDesc")} />
       )}
 
-      <SectionHeader title={t("quickActions")} />
-      <Row gap={10} wrap>
-        <View style={{ flex: 1, minWidth: 150 }}>
-          <Button label={t("browseJobs")} variant="secondary" icon={BriefcaseBusiness} onPress={() => router.push("/discover")} />
-        </View>
-        <View style={{ flex: 1, minWidth: 150 }}>
-          <Button label={t("messages")} variant="secondary" icon={MessageCircle} onPress={() => router.push("/messages")} />
-        </View>
-        {isFacility ? (
-          <View style={{ flex: 1, minWidth: 150 }}>
-            <Button label={t("facilityWorkspace")} variant="secondary" icon={Building2} onPress={() => router.push("/facility")} />
-          </View>
-        ) : (
-          <View style={{ flex: 1, minWidth: 150 }}>
-            <Button label={t("profile")} variant="secondary" icon={UserRound} onPress={() => router.push("/profile")} />
-          </View>
-        )}
-        <View style={{ flex: 1, minWidth: 150 }}>
-          <Button label={t("pendingReviews")} variant="secondary" icon={Star} onPress={() => router.push("/activity")} />
-        </View>
+      <Row gap={10}>
+        <StatTile icon={ClipboardList} value={(applications.data ?? []).length} label={t("statApplications")} onPress={() => router.push("/activity")} />
+        <StatTile icon={CalendarClock} value={(bookings.data ?? []).length} label={t("statBookings")} tone="accent" onPress={() => router.push("/activity")} />
+        <StatTile icon={MailOpen} value={pendingInvites} label={t("statInvitations")} tone="violet" onPress={() => router.push("/activity")} />
       </Row>
 
       <SectionHeader title={t("latestJobs")} action={<Button label={t("viewAll")} variant="ghost" small onPress={() => router.push("/discover")} />} />
