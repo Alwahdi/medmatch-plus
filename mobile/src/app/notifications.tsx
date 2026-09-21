@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, RefreshControl, Text } from "react-native";
+import { Pressable, RefreshControl, Text, View } from "react-native";
 import { Stack } from "expo-router";
 import { Badge, Card, EmptyState, ErrorState, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
