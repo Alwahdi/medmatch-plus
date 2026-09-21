@@ -30,14 +30,8 @@ import { useConfirm } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import {
-  FACILITY_DOC_TYPES,
-  FACILITY_REQUIRED_DOCS,
-  credentialLabel,
-  facilityDocTypeLabel,
-  facilityDocTypes,
-  formatDate,
-} from "@/lib/format";
+import { credentialLabel, formatDate } from "@/lib/format";
+import { reqName, reqNote, useDocumentRequirements } from "@/lib/document-requirements";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
 import { ACCEPT, prepareUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
