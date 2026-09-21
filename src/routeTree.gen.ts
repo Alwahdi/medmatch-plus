@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as MobileAuthRouteImport } from './routes/mobile-auth'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -74,6 +75,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 } as any)
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MobileAuthRoute = MobileAuthRouteImport.update({
+  id: '/mobile-auth',
+  path: '/mobile-auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -376,6 +382,7 @@ const AuthenticatedFacilityCandidatesUserIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/mobile-auth': typeof MobileAuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/activity': typeof AuthenticatedActivityRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -434,6 +441,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
+  '/mobile-auth': typeof MobileAuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/activity': typeof AuthenticatedActivityRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
+  '/mobile-auth': typeof MobileAuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/activity': typeof AuthenticatedActivityRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -555,6 +564,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/mobile-auth'
     | '/sitemap.xml'
     | '/activity'
     | '/admin'
@@ -613,6 +623,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/mobile-auth'
     | '/sitemap.xml'
     | '/activity'
     | '/admin'
@@ -672,6 +683,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/_public'
+    | '/mobile-auth'
     | '/sitemap.xml'
     | '/_authenticated/activity'
     | '/_authenticated/admin'
@@ -733,6 +745,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
+  MobileAuthRoute: typeof MobileAuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicDispatchAlertsRoute: typeof ApiPublicDispatchAlertsRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
@@ -753,6 +766,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mobile-auth': {
+      id: '/mobile-auth'
+      path: '/mobile-auth'
+      fullPath: '/mobile-auth'
+      preLoaderRoute: typeof MobileAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -1299,6 +1319,7 @@ const PublicRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
+  MobileAuthRoute: MobileAuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicDispatchAlertsRoute: ApiPublicDispatchAlertsRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
