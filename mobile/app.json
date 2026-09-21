@@ -8,7 +8,9 @@
     "scheme": "syndeocare",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "runtimeVersion": { "policy": "appVersion" },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.syndeocare.mobile",
@@ -26,7 +28,10 @@
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -57,8 +62,10 @@
       "supabasePublishableKey": "sb_publishable_nLkZX1a7gWCIR5Q97CkAuQ_wBfSoJLC",
       "webUrl": "https://medmatch-plus.lovable.app",
       "eas": {
-        "projectId": ""
-      }
-    }
+        "projectId": "e3d9791b-a001-4af3-9f80-5c53658350e5"
+      },
+      "router": {}
+    },
+    "owner": "syndeocareplatform"
   }
 }
