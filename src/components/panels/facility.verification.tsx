@@ -522,7 +522,7 @@ export function FacilityVerificationPanel() {
                   <div className="min-w-0">
                     <p className="font-medium">{doc.file_name ?? doc.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {facilityDocTypeLabel(doc.doc_type, lang)}
+                      {typeLabel(doc.doc_type)}
                       {doc.issuer ? ` · ${doc.issuer}` : ""}
                       {doc.issue_date ? c.issuedOn(formatDate(doc.issue_date, lang)) : ""}
                       {doc.expiry_date ? c.expiresOn(formatDate(doc.expiry_date, lang)) : ""}
