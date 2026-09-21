@@ -57,6 +57,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { assertOk } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
+import { PendingReviews } from "@/components/pending-reviews";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions, currencyOptions } from "@/lib/geo";
 import {
