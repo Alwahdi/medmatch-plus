@@ -213,6 +213,11 @@ function Privacy() {
 
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-3xl px-4">
+          {custom ? (
+            <div className="card-lift rounded-lg border border-border bg-card p-6">
+              <LegalBody text={custom} />
+            </div>
+          ) : (
           <div className="space-y-8">
             {c.sections.map((s) => (
               <div key={s.h} className="card-lift rounded-lg border border-border bg-card p-6">
@@ -225,6 +230,7 @@ function Privacy() {
               </div>
             ))}
           </div>
+          )}
           <div className="mt-10 text-center">
             <Button variant="outline" asChild>
               <Link to="/contact">{c.contactUs} <ArrowLeft className="size-4 ltr:rotate-180" /></Link>
