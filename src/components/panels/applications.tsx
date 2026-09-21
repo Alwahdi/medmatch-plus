@@ -178,7 +178,7 @@ export function ApplicationsPanel() {
             const canWithdraw = !withdrawn && !rejected && a.status !== "hired";
             const employerGone = !!a.jobs?.facility_id && inactiveEmployers.has(a.jobs.facility_id);
             return (
-              <li key={a.id} className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-5">
+              <li key={a.id} id={`app-${a.id}`} className="rounded-lg border border-border bg-card p-4 shadow-card transition-shadow sm:p-5">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">

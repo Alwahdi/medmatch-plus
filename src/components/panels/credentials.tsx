@@ -397,7 +397,7 @@ export function CredentialsPanel() {
       ) : items?.length ? (
         <ul className="mt-4 space-y-3">
           {items.map((cred) => (
-            <li key={cred.id} className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4">
+            <li key={cred.id} id={`cred-${cred.id}`} className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 transition-shadow">
               <div className="flex items-center gap-3">
                 <FileCheck2 className="size-5 text-primary" />
                 <div>

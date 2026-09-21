@@ -177,7 +177,7 @@ function InvitationsPage() {
             const isJob = !!inv.job_id;
             const available = inv.status !== "pending" || targetAvailable(inv);
             return (
-              <li key={inv.id} className="rounded-lg border border-border bg-card p-5">
+              <li key={inv.id} id={`inv-${inv.id}`} className="rounded-lg border border-border bg-card p-5 transition-shadow">
                 <div className="flex flex-wrap items-start gap-3">
                   <RemoteAvatar
                     value={f?.logo_url ?? null}
