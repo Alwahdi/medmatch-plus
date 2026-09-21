@@ -438,7 +438,7 @@ export function useScheduleInterview(jobId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ applicationId, scheduledAt, mode, location, meetingUrl, notes }: { applicationId: string; scheduledAt: string; mode: "video" | "phone" | "onsite"; location?: string; meetingUrl?: string; notes?: string }) => {
-      const res = await supabase.rpc("schedule_interview", { _application_id: applicationId, _shift_booking_id: undefined, _scheduled_at: scheduledAt, _duration_minutes: 30, _mode: mode, _location: location || undefined, _meeting_url: meetingUrl || undefined, _notes: notes || undefined });
+      const res = await supabase.rpc("schedule_interview", { _application_id: applicationId, _shift_booking_id: null as never, _scheduled_at: scheduledAt, _duration_minutes: 30, _mode: mode, _location: location || undefined, _meeting_url: meetingUrl || undefined, _notes: notes || undefined });
       if (res.error) throw new Error(res.error.message);
     },
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }); void qc.invalidateQueries({ queryKey: ["facility-interviews"] }); },
