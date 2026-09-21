@@ -738,6 +738,9 @@ function AdminPage() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="requirements" className="shrink-0">
+              {lang === "ar" ? "متطلبات المستندات" : "Document requirements"}
+            </TabsTrigger>
             <TabsTrigger value="settings" className="shrink-0">
               {lang === "ar" ? "إعدادات المنصة" : "Platform settings"}
             </TabsTrigger>
