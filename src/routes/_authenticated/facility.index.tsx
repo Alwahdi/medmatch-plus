@@ -1085,6 +1085,8 @@ function JobForm({
     }
   }
 
+  const consent = useConsentGate("publisher_commitments");
+
   const create = useMutation({
     mutationFn: async () => {
       const parsed = validate();
@@ -1153,6 +1155,7 @@ function JobForm({
         onBack={() => setStep("form")}
         onConfirm={async () => { if (await consent.ensure()) create.mutate(); }}
         pending={create.isPending}
+        extra={consent.node}
       />
     );
   }
@@ -1369,6 +1372,8 @@ function ShiftForm({
     }
   }
 
+  const consent = useConsentGate("publisher_commitments");
+
   const create = useMutation({
     mutationFn: async () => {
       validate();
@@ -1458,6 +1463,7 @@ function ShiftForm({
         onBack={() => setStep("form")}
         onConfirm={async () => { if (await consent.ensure()) create.mutate(); }}
         pending={create.isPending}
+        extra={consent.node}
       />
     );
   }
