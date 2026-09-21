@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { I18nManager } from "react-native";
+import { I18nManager, Platform } from "react-native";
 
 export type Lang = "ar" | "en";
 
@@ -519,9 +519,11 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       rtl: lang === "ar",
       t: (key: TKey) => dict[lang][key] ?? dict.ar[key] ?? String(key),
       setLang: async (next: Lang) => {
+        if (next === lang) return;
         await AsyncStorage.setItem(STORE_KEY, next);
         setLangState(next);
         applyDirection(next);
+        if (Platform.OS === "web" && typeof window !== "undefined") window.location.reload();
       },
     }),
     [lang],
