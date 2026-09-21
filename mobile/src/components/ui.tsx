@@ -1,6 +1,8 @@
 import React from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,7 +23,7 @@ export function Screen({ children, scroll = true, refreshControl, padded = true 
   children: React.ReactNode; scroll?: boolean; refreshControl?: React.ReactElement<RefreshControlProps>; padded?: boolean;
 }) {
   const inner = padded ? <View style={styles.screenInner}>{children}</View> : children;
-  return <SafeAreaView edges={["top"]} style={styles.screen}>{scroll ? <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} {...(refreshControl ? { refreshControl } : {})}>{inner}</ScrollView> : <View style={styles.fill}>{inner}</View>}</SafeAreaView>;
+  return <SafeAreaView edges={["top"]} style={styles.screen}><KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === "ios" ? "padding" : "height"}>{scroll ? <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"} automaticallyAdjustKeyboardInsets showsVerticalScrollIndicator={false} {...(refreshControl ? { refreshControl } : {})}>{inner}</ScrollView> : <View style={styles.fill}>{inner}</View>}</KeyboardAvoidingView></SafeAreaView>;
 }
 
 export function Title({ children, sub, eyebrow }: { children: React.ReactNode; sub?: string; eyebrow?: string }) {
