@@ -30,7 +30,7 @@ export default function JobDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useI18n();
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, isProfessional } = useAuth();
   const job = useJob(String(id));
   const consent = useConsentGate("applicant_commitments");
   const [cover, setCover] = useState("");
@@ -40,6 +40,10 @@ export default function JobDetail() {
 
   const apply = async () => {
     setError(null);
+    if (!isProfessional) {
+      router.push({ pathname: "/profile", params: { returnTo: `/job/${String(id)}` } });
+      return;
+    }
     const ok = await consent.ensure();
     if (!ok) return;
     setBusy(true);
@@ -120,7 +124,7 @@ export default function JobDetail() {
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>
-              <Button label={t("signIn")} onPress={() => router.push("/sign-in")} />
+               <Button label={t("signIn")} onPress={() => router.push({ pathname: "/sign-in", params: { returnTo: `/job/${String(id)}` } })} />
             </>
           )}
         </StickyBar>

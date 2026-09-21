@@ -2,7 +2,8 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { BriefcaseBusiness, CalendarClock, ChevronLeft, Clock3, MapPin, ShieldCheck } from "lucide-react-native";
 import { Badge, Card, Row, styles as ui } from "@/components/ui";
-import { colors, fonts, isRTL, radii, space, type as typo } from "@/lib/theme";
+import { colors, fonts, radii, space, type as typo } from "@/lib/theme";
+import { useI18n } from "@/lib/i18n";
 import { employmentTypeLabel, formatDateTime, formatMoney, formatSalaryRange, relativeTime } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 import type { JobRow, ShiftRow } from "@/lib/queries";
@@ -70,6 +71,7 @@ export function ShiftCard({ shift, lang, urgentLabel, perHour, onPress }: { shif
 export function StatusCard({ title, when, place, note, actionLabel, onPress }: {
   title: string; when: string; place?: string | null; note?: string | null; actionLabel: string; onPress: () => void;
 }) {
+  const { rtl } = useI18n();
   return (
     <View style={s.status}>
       <Text style={s.statusTitle} numberOfLines={2}>{title}</Text>
@@ -87,7 +89,7 @@ export function StatusCard({ title, when, place, note, actionLabel, onPress }: {
         style={({ pressed }) => [s.statusAction, { opacity: pressed ? 0.85 : 1 }]}
       >
         <Text style={s.statusActionLabel}>{actionLabel}</Text>
-        <ChevronLeft size={17} color={colors.primary} style={{ transform: [{ scaleX: isRTL ? 1 : -1 }] }} />
+        <ChevronLeft size={17} color={colors.primary} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} />
       </Pressable>
     </View>
   );
@@ -102,7 +104,7 @@ const s = StyleSheet.create({
   amount: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 26, color: colors.primary, flexShrink: 1 },
   time: { marginStart: "auto" },
   status: { backgroundColor: colors.primary, borderRadius: radii.xl, padding: space.xl, gap: space.md },
-  statusTitle: { fontFamily: fonts.bold, fontSize: 19, lineHeight: 30, color: colors.primaryText },
+  statusTitle: { ...typo.title, color: colors.primaryText },
   statusWhen: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 24, color: colors.messageOnPrimary },
   statusMeta: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 22, color: colors.messageOnPrimary },
   statusAction: { minHeight: 48, borderRadius: radii.md, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6 },

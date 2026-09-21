@@ -2440,6 +2440,10 @@ export type Database = {
         Args: { _accept: boolean; _interview_id: string; _note?: string }
         Returns: string
       }
+      respond_to_invitation: {
+        Args: { _accept: boolean; _invitation_id: string }
+        Returns: string
+      }
       review_change_request: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined

@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts } from "@/lib/theme";
 import { Loading } from "@/components/ui";
-import { useMyInvitations, usePendingReviews } from "@/lib/queries";
+import { useMyInvitations, usePendingReviews, useUnreadMessages } from "@/lib/queries";
 
 function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: ColorValue; focused: boolean }) {
   return (
@@ -21,6 +21,7 @@ export default function TabsLayout() {
   const { t } = useI18n();
   const invitations = useMyInvitations();
   const reviews = usePendingReviews();
+  const unreadMessages = useUnreadMessages();
 
   const activityCount =
     (invitations.data ?? []).filter((i) => i.status === "pending").length +
@@ -63,7 +64,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="messages"
-        options={{ title: t("messages"), tabBarIcon: ({ color, focused }) => <TabIcon icon={MessageCircle} color={color} focused={focused} /> }}
+        options={{ title: t("messages"), tabBarBadge: unreadMessages.data?.length || undefined, tabBarIcon: ({ color, focused }) => <TabIcon icon={MessageCircle} color={color} focused={focused} /> }}
       />
       <Tabs.Screen
         name="account"

@@ -163,10 +163,7 @@ export function useRespondInvitation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
-      const res = await supabase
-        .from("invitations")
-        .update({ status: accept ? "accepted" : "declined", responded_at: new Date().toISOString() })
-        .eq("id", id);
+      const res = await supabase.rpc("respond_to_invitation" as never, { _invitation_id: id, _accept: accept } as never);
       if (res.error) throw new Error(res.error.message);
     },
     onSuccess: () => {
@@ -188,6 +185,25 @@ export function useConversations() {
           .select("id,subject,last_message_at,identity_revealed,facility_id,professional_user_id,job_id,shift_id")
           .order("last_message_at", { ascending: false }),
       ),
+  });
+}
+
+export function useUnreadMessages() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["unread-messages", user?.id],
+    enabled: Boolean(user?.id),
+    refetchInterval: 15000,
+    queryFn: async () => {
+      if (!user?.id) return [];
+      return unwrap(
+        await supabase
+          .from("messages")
+          .select("id,conversation_id")
+          .neq("sender_id", user.id)
+          .is("read_at", null),
+      );
+    },
   });
 }
 
@@ -220,6 +236,7 @@ export function useSendMessage(conversationId: string) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["messages", conversationId] });
       void qc.invalidateQueries({ queryKey: ["conversations"] });
+      void qc.invalidateQueries({ queryKey: ["unread-messages"] });
     },
   });
 }
@@ -305,6 +322,54 @@ export function useMyFacility() {
   });
 }
 
+export type DocumentRequirement = {
+  id: string; target: string; code: string; name_ar: string; name_en: string;
+  is_required: boolean; min_count: number; requires_expiry: boolean;
+  requires_issue_date: boolean; requires_issuer: boolean; note_ar: string | null;
+  note_en: string | null; sort_order: number;
+};
+
+export type VerificationDocument = {
+  id: string; doc_type: string; title: string; issuer: string | null;
+  issue_date: string | null; expiry_date: string | null; file_name: string | null;
+  file_path: string | null; status: "pending" | "approved" | "rejected";
+  review_note: string | null; created_at: string;
+};
+
+export function useDocumentRequirements(target: "professional" | "facility") {
+  return useQuery({
+    queryKey: ["document-requirements", target],
+    staleTime: 1000 * 60 * 15,
+    queryFn: async () => unwrap(await supabase.from("document_requirements")
+      .select("id,target,code,name_ar,name_en,is_required,min_count,requires_expiry,requires_issue_date,requires_issuer,note_ar,note_en,sort_order")
+      .eq("target", target).eq("is_active", true).order("sort_order")) as DocumentRequirement[],
+  });
+}
+
+export function useVerificationDocuments(target: "professional" | "facility", facilityId?: string) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["verification-documents", target, user?.id, facilityId],
+    enabled: target === "professional" ? Boolean(user?.id) : Boolean(facilityId),
+    queryFn: async () => {
+      const base = target === "professional"
+        ? supabase.from("credentials").select("id,doc_type,title,issuer,issue_date,expiry_date,file_name,file_path,status,review_note,created_at").eq("user_id", user?.id ?? "")
+        : supabase.from("facility_documents").select("id,doc_type,title,issuer,issue_date,expiry_date,file_name,file_path,status,review_note,created_at").eq("facility_id", facilityId ?? "");
+      return unwrap(await base.order("created_at", { ascending: false })) as VerificationDocument[];
+    },
+  });
+}
+
+export function useLocations() {
+  return useQuery({
+    queryKey: ["locations"],
+    staleTime: 1000 * 60 * 30,
+    queryFn: async () => unwrap(await supabase.from("locations")
+      .select("id,country,city_ar,city_en,region_ar,region_en,sort_order")
+      .eq("is_active", true).order("sort_order")),
+  });
+}
+
 export function useFacilityJobs(facilityId: string | undefined) {
   return useQuery({
     queryKey: ["facility-jobs", facilityId],
@@ -339,14 +404,18 @@ export function useJobApplicants(jobId: string) {
   return useQuery({
     queryKey: ["job-applicants", jobId],
     enabled: Boolean(jobId),
-    queryFn: async () =>
-      unwrap(
-        await supabase
-          .from("applications")
-          .select("id,status,created_at,cover_letter,user_id")
-          .eq("job_id", jobId)
-          .order("created_at", { ascending: false }),
-      ),
+    queryFn: async () => {
+      const applications = unwrap(await supabase.from("applications")
+        .select("id,status,created_at,cover_letter,user_id")
+        .eq("job_id", jobId).order("created_at", { ascending: false }));
+      const ids = applications.map((item) => item.user_id);
+      if (ids.length === 0) return [];
+      const profiles = unwrap(await supabase.from("healthcare_professionals")
+        .select("user_id,full_name,headline,city,years_experience,is_verified,rating_avg,rating_count,specialties(name_ar,name_en)")
+        .in("user_id", ids));
+      const byUser = new Map(profiles.map((profile) => [profile.user_id, profile]));
+      return applications.map((application) => ({ ...application, professional: byUser.get(application.user_id) ?? null }));
+    },
   });
 }
 
@@ -361,6 +430,49 @@ export function useSetApplicationStage(jobId: string) {
       if (res.error) throw new Error(res.error.message);
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }),
+  });
+}
+
+export function useMyInterviews() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["my-interviews", user?.id], enabled: Boolean(user?.id),
+    queryFn: async () => unwrap(await supabase.from("interviews")
+      .select("id,application_id,shift_booking_id,job_id,shift_id,scheduled_at,duration_minutes,mode,location,meeting_url,notes,status,candidate_note,jobs(title),shifts(title)")
+      .eq("professional_user_id", user?.id ?? "").order("scheduled_at", { ascending: true })),
+  });
+}
+
+export function useRespondInterview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
+      const res = await supabase.rpc("respond_to_interview", { _interview_id: id, _accept: accept });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["my-interviews"] }); void qc.invalidateQueries({ queryKey: ["notifications"] }); },
+  });
+}
+
+export function useScheduleInterview(jobId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ applicationId, scheduledAt, mode, location, meetingUrl, notes }: { applicationId: string; scheduledAt: string; mode: "video" | "phone" | "onsite"; location?: string; meetingUrl?: string; notes?: string }) => {
+      const res = await supabase.rpc("schedule_interview", { _application_id: applicationId, _shift_booking_id: null as never, _scheduled_at: scheduledAt, _duration_minutes: 30, _mode: mode, _location: location || undefined, _meeting_url: meetingUrl || undefined, _notes: notes || undefined });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }); void qc.invalidateQueries({ queryKey: ["facility-interviews"] }); },
+  });
+}
+
+export function useHireApplicant(jobId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (applicationId: string) => {
+      const res = await supabase.rpc("hire_applicant", { _application_id: applicationId });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }); void qc.invalidateQueries({ queryKey: ["facility-jobs"] }); },
   });
 }
 

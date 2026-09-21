@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Platform, Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Link, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, LogIn, Mail, MailCheck } from "lucide-react-native";
 import { Button, ErrorState, Field, styles as ui } from "@/components/ui";
 import { AuthScaffold } from "@/components/auth-scaffold";
@@ -17,6 +17,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export default function SignIn() {
   const { t, lang } = useI18n();
   const router = useRouter();
+  const params = useLocalSearchParams<{ returnTo?: string }>();
   const passwordRef = useRef<TextInput>(null);
   const [step, setStep] = useState<"email" | "password" | "sent">("email");
   const [email, setEmail] = useState("");
@@ -35,6 +36,9 @@ export default function SignIn() {
     setTimeout(() => passwordRef.current?.focus(), 120);
   };
 
+  const destination = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : "/(tabs)";
+  const finish = () => router.replace(destination as never);
+
   const submit = async () => {
     if (!password || busy) return;
     setBusy(true);
@@ -45,7 +49,7 @@ export default function SignIn() {
       if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return setError(userMessage(err, lang));
     }
-    router.replace("/(tabs)");
+    finish();
   };
 
   const google = async () => {
@@ -54,7 +58,7 @@ export default function SignIn() {
     setNotice(null);
     const result = await signInWithGoogle();
     setGoogleBusy(false);
-    if (result.ok) return router.replace("/(tabs)");
+    if (result.ok) return finish();
     if (result.cancelled) return setNotice(t("googleCancelled"));
     setError(result.error ? userMessage(result.error, lang) : t("googleFailed"));
   };

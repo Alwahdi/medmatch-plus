@@ -1,5 +1,5 @@
 import React from "react";
-import { I18nManager, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
 import { FormScreen } from "@/components/keyboard";
 import { Brand } from "@/components/brand";
@@ -26,8 +26,7 @@ export function AuthScaffold({
   onBack?: () => void;
   children: React.ReactNode;
 }) {
-  const { t } = useI18n();
-  const rtl = I18nManager.isRTL;
+  const { t, rtl } = useI18n();
 
   return (
     <FormScreen contentStyle={{ gap: 18, paddingTop: 18 }}>

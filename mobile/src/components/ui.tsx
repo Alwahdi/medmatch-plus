@@ -17,7 +17,7 @@ import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
 import { AlertCircle, ChevronLeft, Eye, EyeOff, Inbox, WifiOff } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, fonts, isRTL, radii, shadow, space, type as typo } from "@/lib/theme";
+import { colors, fonts, radii, shadow, space, type as typo } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
 
 export function Screen({ children, scroll = true, refreshControl, padded = true }: {
@@ -28,7 +28,7 @@ export function Screen({ children, scroll = true, refreshControl, padded = true 
 }
 
 export function Title({ children, sub, eyebrow }: { children: React.ReactNode; sub?: string; eyebrow?: string }) {
-  return <View style={styles.titleWrap}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text style={styles.title}>{children}</Text>{sub ? <Text style={styles.muted}>{sub}</Text> : null}</View>;
+  return <View style={styles.titleWrap}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text accessibilityRole="header" style={styles.title}>{children}</Text>{sub ? <Text style={styles.muted}>{sub}</Text> : null}</View>;
 }
 
 /** One header pattern for every screen: title start-aligned, optional action at the end. */
@@ -36,7 +36,7 @@ export function ScreenHeader({ title, sub, action }: { title: string; sub?: stri
   return (
     <View style={styles.screenHeader}>
       <View style={styles.screenHeaderText}>
-        <Text style={styles.title} numberOfLines={1}>{title}</Text>
+        <Text accessibilityRole="header" style={styles.title} numberOfLines={1}>{title}</Text>
         {sub ? <Text style={styles.muted} numberOfLines={1}>{sub}</Text> : null}
       </View>
       {action}
@@ -45,7 +45,7 @@ export function ScreenHeader({ title, sub, action }: { title: string; sub?: stri
 }
 
 export function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
-  return <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{title}</Text>{action}</View>;
+  return <View style={styles.sectionHeader}><Text accessibilityRole="header" style={styles.sectionTitle}>{title}</Text>{action}</View>;
 }
 
 export function Card({ children, style, elevated = false }: { children: React.ReactNode; style?: ViewStyle; elevated?: boolean }) {
@@ -72,19 +72,20 @@ export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { i
 }
 
 export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary" }: { icon: LucideIcon; title: string; subtitle?: string; onPress?: () => void; tone?: "primary" | "accent" | "violet" | "danger" }) {
+  const { rtl } = useI18n();
   const p = tone === "danger" ? { bg: colors.dangerSoft, fg: colors.danger } : tone === "accent" ? { bg: colors.accentSoft, fg: colors.accent } : tone === "violet" ? { bg: colors.brandVioletSoft, fg: colors.brandViolet } : { bg: colors.primarySoft, fg: colors.primary };
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={2}>{subtitle}</Text> : null}</View><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: isRTL ? 1 : -1 }] }} /></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
 }
 
-export const Field = React.forwardRef<TextInput, TextInputProps & { label?: string; error?: string | null }>(
-  function Field({ label, error, ...props }, ref) {
+export const Field = React.forwardRef<TextInput, TextInputProps & { label?: string; error?: string | null; required?: boolean }>(
+  function Field({ label, error, required, ...props }, ref) {
     const { t } = useI18n();
     const isPassword = Boolean(props.secureTextEntry);
     const [revealed, setRevealed] = React.useState(false);
     const ToggleIcon = revealed ? EyeOff : Eye;
     return (
       <View style={styles.field}>
-        {label ? <Text style={styles.label}>{label}</Text> : null}
+        {label ? <Text style={styles.label}>{label}{required ? <Text style={{ color: colors.danger }}> *</Text> : null}</Text> : null}
         <View style={styles.inputWrap}>
           <TextInput
             ref={ref}
@@ -128,7 +129,7 @@ export function Chip({ label, active, onPress }: { label: string; active?: boole
 
 export function Row({ children, gap = 8, wrap }: { children: React.ReactNode; gap?: number; wrap?: boolean }) { return <View style={{ flexDirection: "row", alignItems: "center", gap, flexWrap: wrap ? "wrap" : "nowrap" }}>{children}</View>; }
 
-export function Loading({ rows = 3 }: { rows?: number }) { return <View accessibilityLabel="Loading" style={styles.skeletonWrap}>{Array.from({ length: rows }).map((_, i) => <View key={i} style={styles.skeletonCard}><View style={styles.skeletonIcon}/><View style={styles.skeletonLines}><View style={[styles.skeletonLine, { width: "68%" }]}/><View style={[styles.skeletonLine, { width: "42%" }]}/></View></View>)}</View>; }
+export function Loading({ rows = 3 }: { rows?: number }) { const { t } = useI18n(); return <View accessibilityLabel={t("loading")} accessibilityLiveRegion="polite" style={styles.skeletonWrap}>{Array.from({ length: rows }).map((_, i) => <View key={i} style={styles.skeletonCard}><View style={styles.skeletonIcon}/><View style={styles.skeletonLines}><View style={[styles.skeletonLine, { width: "68%" }]}/><View style={[styles.skeletonLine, { width: "42%" }]}/></View></View>)}</View>; }
 
 export function PriorityCard({ icon: Icon, eyebrow, title, description, actionLabel, onPress, tone = "primary" }: {
   icon: LucideIcon; eyebrow: string; title: string; description?: string; actionLabel: string; onPress: () => void; tone?: "primary" | "warning" | "accent";
@@ -194,7 +195,7 @@ export function StatTile({ icon: Icon, value, label, tone = "primary", onPress }
   );
 }
 
-export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) { const { t } = useI18n(); return <View style={[styles.state, { borderColor: colors.dangerSoft }]}><View style={[styles.stateIcon, { backgroundColor: colors.dangerSoft }]}><AlertCircle size={28} color={colors.danger}/></View><Text style={styles.stateTitle}>{t("errorTitle")}</Text><Text style={styles.muted}>{message}</Text>{onRetry ? <Button label={t("retry")} variant="secondary" small onPress={onRetry}/> : null}</View>; }
+export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) { const { t } = useI18n(); return <View accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.state, { borderColor: colors.dangerSoft }]}><View style={[styles.stateIcon, { backgroundColor: colors.dangerSoft }]}><AlertCircle size={28} color={colors.danger}/></View><Text style={styles.stateTitle}>{t("errorTitle")}</Text><Text style={styles.muted}>{message}</Text>{onRetry ? <Button label={t("retry")} variant="secondary" small onPress={onRetry}/> : null}</View>; }
 
 export function KeyValue({ k, v }: { k: string; v: string }) { return <View style={styles.keyValue}><Text style={styles.muted}>{k}</Text><Text style={[styles.bodyStrong, styles.keyValueText]}>{v}</Text></View>; }
 

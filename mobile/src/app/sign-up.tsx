@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { I18nManager, Platform, Pressable, Text, TextInput, View } from "react-native";
+import { Platform, Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Link, useRouter } from "expo-router";
 import { Building2, Check, Stethoscope, UserPlus } from "lucide-react-native";
@@ -67,9 +67,8 @@ function RoleCard({ icon: Icon, title, description, active, onPress }: {
 }
 
 export default function SignUp() {
-  const { t, lang } = useI18n();
+  const { t, lang, rtl } = useI18n();
   const router = useRouter();
-  const rtl = I18nManager.isRTL;
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const confirmRef = useRef<TextInput>(null);
@@ -135,12 +134,13 @@ export default function SignUp() {
   };
 
   const google = async () => {
+    if (!role) return setError(t("chooseRoleSub"));
     setGoogleBusy(true);
     setError(null);
     setNotice(null);
-    const result = await signInWithGoogle();
+    const result = await signInWithGoogle(role);
     setGoogleBusy(false);
-    if (result.ok) return router.replace("/(tabs)");
+    if (result.ok) return router.replace({ pathname: "/welcome", params: { role } });
     if (result.cancelled) return setNotice(t("googleCancelled"));
     setError(result.error ? userMessage(result.error, lang) : t("googleFailed"));
   };
@@ -170,6 +170,7 @@ export default function SignUp() {
             <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
           </View>
           <GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} />
+          <Text style={[ui.muted, { textAlign: "center" }]}>{t("googleRoleNotice")}</Text>
         </View>
       ) : null}
 
@@ -277,16 +278,18 @@ export default function SignUp() {
             onSubmitEditing={() => void submit()}
           />
 
-          <Text style={[ui.muted, { textAlign: "center" }]}>
-            {t("agreePrefix")}{" "}
-            <Text style={{ color: colors.primary, fontFamily: fonts.semibold }} onPress={() => router.push("/legal")}>
-              {t("terms")}
-            </Text>{" "}
-            {t("andWord")}{" "}
-            <Text style={{ color: colors.primary, fontFamily: fonts.semibold }} onPress={() => router.push("/legal")}>
-              {t("privacy")}
-            </Text>
-          </Text>
+          <View style={{ alignItems: "center", gap: 2 }}>
+            <Text style={[ui.muted, { textAlign: "center" }]}>{t("agreePrefix")}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 }}>
+              <Pressable accessibilityRole="link" accessibilityLabel={t("terms")} hitSlop={8} onPress={() => router.push("/legal")} style={{ minHeight: 44, justifyContent: "center" }}>
+                <Text style={{ color: colors.primary, fontFamily: fonts.semibold }}>{t("terms")}</Text>
+              </Pressable>
+              <Text style={ui.muted}>{t("andWord")}</Text>
+              <Pressable accessibilityRole="link" accessibilityLabel={t("privacy")} hitSlop={8} onPress={() => router.push("/legal")} style={{ minHeight: 44, justifyContent: "center" }}>
+                <Text style={{ color: colors.primary, fontFamily: fonts.semibold }}>{t("privacy")}</Text>
+              </Pressable>
+            </View>
+          </View>
 
           {error ? <ErrorState message={error} /> : null}
           {notice ? <Text style={ui.muted}>{notice}</Text> : null}

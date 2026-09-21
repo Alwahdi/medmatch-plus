@@ -15,6 +15,13 @@ export default function NotificationsScreen() {
   const list = useNotifications();
   const markRead = useMarkNotificationRead();
   const unreadCount = (list.data ?? []).filter((n) => !n.read_at).length;
+  const openNotification = (rawLink: string | null) => {
+    const link = rawLink?.trim();
+    if (!link?.startsWith("/")) return;
+    if (link.startsWith("/settings")) return router.push("/account");
+    if (link.startsWith("/profile?tab=credentials")) return router.push("/verification");
+    router.push(link as never);
+  };
 
   return (
     <>
@@ -45,8 +52,7 @@ export default function NotificationsScreen() {
               accessibilityLabel={(lang === "ar" ? n.title_ar : n.title_en) || n.title_ar}
               onPress={() => {
                 if (!n.read_at) markRead.mutate(n.id);
-                const link = n.link?.trim();
-                if (link?.startsWith("/")) router.push(link as never);
+                 openNotification(n.link);
               }}
             >
                <Card style={!n.read_at ? { borderColor: colors.primary } : undefined}>

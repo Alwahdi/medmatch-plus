@@ -36,13 +36,13 @@ export default function AccountTab() {
       <Card style={{ gap: 6, padding: 12, borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
         <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: colors.text, paddingHorizontal: 4 }}>{t("completeYourProfile")}</Text>
         {!p?.headline ? <MenuRow icon={Stethoscope} title={t("nextPro1")} subtitle={t("nextPro1Sub")} onPress={() => router.push("/profile")}/> : null}
-        {!verified ? <MenuRow icon={ShieldCheck} title={t("nextPro2")} subtitle={t("nextPro2Sub")} tone="accent" onPress={() => router.push("/profile")}/> : null}
+        {!verified ? <MenuRow icon={ShieldCheck} title={t("nextPro2")} subtitle={t("nextPro2Sub")} tone="accent" onPress={() => router.push({ pathname: "/verification", params: { target: "professional" } })}/> : null}
       </Card>
     ) : null}
     {isFacility && !verified ? (
       <Card style={{ gap: 6, padding: 12, borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
         <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: colors.text, paddingHorizontal: 4 }}>{t("completeYourProfile")}</Text>
-        <MenuRow icon={ShieldCheck} title={t("nextFac2")} subtitle={t("nextFac2Sub")} tone="accent" onPress={() => router.push("/facility")}/>
+        <MenuRow icon={ShieldCheck} title={t("nextFac2")} subtitle={t("nextFac2Sub")} tone="accent" onPress={() => router.push({ pathname: "/verification", params: { target: "facility" } })}/>
       </Card>
     ) : null}
 

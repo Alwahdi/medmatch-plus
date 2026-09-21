@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { Pressable, RefreshControl, Text, View } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useFacilityJobs, useFacilityShifts, useMyFacility } from "@/lib/queries";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
-import { BriefcaseBusiness, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
+import { BriefcaseBusiness, Building2, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
 import { colors, radii } from "@/lib/theme";
 
 export default function FacilityHome({ embedded = false }: { embedded?: boolean }) {
   const { t, lang } = useI18n();
   const router = useRouter();
+  const params = useLocalSearchParams<{ tab?: string }>();
   const facility = useMyFacility();
   const facilityId = (facility.data as { id?: string } | null)?.id;
   const jobs = useFacilityJobs(facilityId);
   const shifts = useFacilityShifts(facilityId);
-  const [tab, setTab] = useState<"jobs" | "shifts">("jobs");
+  const [tab, setTab] = useState<"jobs" | "shifts">(params.tab === "shifts" ? "shifts" : "jobs");
 
   return (
     <>
@@ -37,7 +38,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
         {facility.isPending ? (
           <Loading />
         ) : !facility.data ? (
-          <EmptyState text={t("unavailableOnMobile")} />
+          <EmptyState icon={Building2} text={t("completeProfile")} desc={t("nextFac1Sub")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} />
         ) : (
           <>
             <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility/create-job")} />
@@ -64,6 +65,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
                   <Pressable
                     key={j.id}
                     accessibilityRole="button"
+                    accessibilityLabel={j.title}
                     onPress={() => router.push({ pathname: "/facility/job/[id]", params: { id: j.id } })}
                   >
                     <Card>
