@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Text } from "react-native";
+import { Platform, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter } from "expo-router";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { CalendarClock, CheckCircle2 } from "lucide-react-native";
 import { Button, EmptyState, ErrorState, Loading, Screen, ScreenHeader, styles as ui } from "@/components/ui";
 import { ChoiceField, ListingField, ListingReview } from "@/components/listing-form";
@@ -13,6 +14,14 @@ import { userMessage } from "@/lib/errors";
 type Draft = { title: string; specialtyId: string; startsAt: string; endsAt: string; hourlyRate: string; city: string; country: string; notes: string };
 const blank: Draft = { title: "", specialtyId: "", startsAt: "", endsAt: "", hourlyRate: "", city: "", country: "YE", notes: "" };
 const key = "syndeocare.mobile.shift-draft";
+
+function DateTimeField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const { lang } = useI18n();
+  const [open, setOpen] = useState(false);
+  const date = value ? new Date(value) : new Date(Date.now() + 60 * 60 * 1000);
+  if (Platform.OS === "web") return <ListingField label={label} value={value} onChangeText={onChange} />;
+  return <View style={{ gap: 8 }}><Text style={ui.label}>{label}</Text><Button label={value ? date.toLocaleString(lang === "ar" ? "ar-YE" : "en-US") : (lang === "ar" ? "اختر التاريخ والوقت" : "Choose date and time")} variant="secondary" onPress={() => setOpen(true)} />{open ? <DateTimePicker value={date} mode="datetime" minimumDate={new Date()} onChange={(_, selected) => { setOpen(false); if (selected) onChange(selected.toISOString()); }} /> : null}</View>;
+}
 
 export default function CreateShiftScreen() {
   const { t, lang } = useI18n(); const router = useRouter();
@@ -31,12 +40,11 @@ export default function CreateShiftScreen() {
     <ScreenHeader title={t("publishShift")} sub={t("draftSaved")} />
     <ListingField label={t("shiftTitle")} value={form.title} onChangeText={(v) => update("title", v)} />
     <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).slice(0, 12).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
-    <ListingField label={t("startsAt")} value={form.startsAt} onChangeText={(v) => update("startsAt", v)} />
-    <ListingField label={t("endsAt")} value={form.endsAt} onChangeText={(v) => update("endsAt", v)} />
+    <DateTimeField label={t("startsAt")} value={form.startsAt} onChange={(v) => update("startsAt", v)} />
+    <DateTimeField label={t("endsAt")} value={form.endsAt} onChange={(v) => update("endsAt", v)} />
     <ListingField label={t("hourlyRate")} value={form.hourlyRate} onChangeText={(v) => update("hourlyRate", v)} numeric />
     <ListingField label={t("city")} value={form.city} onChangeText={(v) => update("city", v)} />
     <ListingField label={t("notes")} value={form.notes} onChangeText={(v) => update("notes", v)} multiline />
-    <Text style={ui.muted}>{lang === "ar" ? "استخدم الصيغة 2026-09-22 08:00 للتاريخ والوقت." : "Use 2026-09-22 08:00 format for date and time."}</Text>
     {error ? <ErrorState message={error} /> : null}<Button label={t("reviewPublish")} icon={CheckCircle2} onPress={() => { const problem = validate(); setError(problem); if (!problem) setReviewing(true); }} />
   </>}</Screen></>;
 }
