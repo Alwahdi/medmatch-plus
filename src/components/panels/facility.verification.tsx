@@ -361,14 +361,18 @@ export function FacilityVerificationPanel() {
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
           <span className="text-xs text-muted-foreground">
-            {c.progress(approvedRequired, FACILITY_REQUIRED_DOCS.length)}
+            {c.progress(approvedRequired, requiredReqs.length)}
           </span>
         </div>
         <Progress value={pct} className="mt-3" />
         <ul className="mt-4 space-y-2">
-          {FACILITY_DOC_TYPES.map((type) => {
-            const doc = list.find((d) => d.doc_type === type);
-            const isRequired = FACILITY_REQUIRED_DOCS.includes(type);
+          {requirements.map((r) => {
+            const type = r.code;
+            const uploaded = list.filter((d) => d.doc_type === type);
+            const doc = uploaded[0];
+            const isRequired = r.is_required;
+            const note = reqNote(r, lang);
+            const needMore = r.min_count > 1;
             const docExpired = !!doc && doc.status === "approved" && isExpired(doc.expiry_date);
             const Icon =
               docExpired
@@ -390,7 +394,15 @@ export function FacilityVerificationPanel() {
               <li key={type} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/60 p-3 sm:gap-3">
                 <Icon className={`size-5 shrink-0 ${tone}`} />
                 <span className="min-w-0 flex-1 basis-[60%] text-sm">
-                  <span className="block truncate">{facilityDocTypeLabel(type, lang)}</span>
+                  <span className="block truncate">{reqName(r, lang)}</span>
+                  {needMore ? (
+                    <span className="block text-xs text-muted-foreground">
+                      {lang === "ar"
+                        ? `مطلوب ${r.min_count} ملفات — رفعت ${uploaded.length}`
+                        : `${r.min_count} files required — ${uploaded.length} uploaded`}
+                    </span>
+                  ) : null}
+                  {note ? <span className="block text-xs text-muted-foreground">{note}</span> : null}
                   {doc?.expiry_date ? (
                     <span className="block text-xs text-muted-foreground">
                       {c.expiry}: {formatDate(doc.expiry_date, lang)}
@@ -421,16 +433,23 @@ export function FacilityVerificationPanel() {
                 <SelectValue placeholder={c.docTypePh} />
               </SelectTrigger>
               <SelectContent>
-                {facilityDocTypes(lang).map((d, i) => (
-                  <SelectItem key={d} value={FACILITY_DOC_TYPES[i]!}>
-                    {d}
+                {requirements.map((r) => (
+                  <SelectItem key={r.code} value={r.code}>
+                    {reqName(r, lang)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {selectedReq && reqNote(selectedReq, lang) ? (
+              <p className="mt-1 text-xs text-muted-foreground">{reqNote(selectedReq, lang)}</p>
+            ) : null}
           </div>
           <div>
-            <Label htmlFor="fd-issuer">{c.issuer}</Label>
+            <Label htmlFor="fd-issuer">
+              {c.issuer}
+              {selectedReq?.requires_issuer ? <span className="text-destructive"> *</span> : null}
+            </Label>
+
 
             <Input
               id="fd-issuer"
@@ -442,7 +461,10 @@ export function FacilityVerificationPanel() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="fd-issue">{c.issueDate}</Label>
+              <Label htmlFor="fd-issue">
+                {c.issueDate}
+                {selectedReq?.requires_issue_date ? <span className="text-destructive"> *</span> : null}
+              </Label>
               <Input
                 id="fd-issue"
                 type="date"
@@ -451,7 +473,10 @@ export function FacilityVerificationPanel() {
               />
             </div>
             <div>
-              <Label htmlFor="fd-exp">{c.expiry}</Label>
+              <Label htmlFor="fd-exp">
+                {c.expiry}
+                {selectedReq?.requires_expiry ? <span className="text-destructive"> *</span> : null}
+              </Label>
               <Input
                 id="fd-exp"
                 type="date"
@@ -497,7 +522,7 @@ export function FacilityVerificationPanel() {
                   <div className="min-w-0">
                     <p className="font-medium">{doc.file_name ?? doc.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {facilityDocTypeLabel(doc.doc_type, lang)}
+                      {typeLabel(doc.doc_type)}
                       {doc.issuer ? ` · ${doc.issuer}` : ""}
                       {doc.issue_date ? c.issuedOn(formatDate(doc.issue_date, lang)) : ""}
                       {doc.expiry_date ? c.expiresOn(formatDate(doc.expiry_date, lang)) : ""}

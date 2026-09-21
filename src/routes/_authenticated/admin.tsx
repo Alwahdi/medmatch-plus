@@ -20,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminPlatformSettings } from "@/components/admin-platform-settings";
+import { AdminDocumentRequirements } from "@/components/admin-requirements";
+import { reqName, useAllDocumentRequirements } from "@/lib/document-requirements";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { fieldLabel, changeValueLabel, isOpaqueChangeValue, useSpecialtyList } from "@/components/change-request";
@@ -738,6 +740,9 @@ function AdminPage() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="requirements" className="shrink-0">
+              {lang === "ar" ? "متطلبات المستندات" : "Document requirements"}
+            </TabsTrigger>
             <TabsTrigger value="settings" className="shrink-0">
               {lang === "ar" ? "إعدادات المنصة" : "Platform settings"}
             </TabsTrigger>
@@ -1095,6 +1100,10 @@ function AdminPage() {
 
         <TabsContent value="safety" className="mt-6">
           <AdminSafetyReports />
+        </TabsContent>
+
+        <TabsContent value="requirements" className="mt-6">
+          <AdminDocumentRequirements />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">

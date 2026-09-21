@@ -125,7 +125,9 @@ function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (roles?.includes("facility")) navigate({ to: "/facility", replace: true });
+    if (!roles) return;
+    if (roles.includes("admin")) navigate({ to: "/admin", replace: true });
+    else if (roles.includes("facility")) navigate({ to: "/facility", replace: true });
   }, [roles, navigate]);
 
   const { data: profile, isError: profileErr, isPending: profilePending, refetch: profileRefetch } = useQuery({
