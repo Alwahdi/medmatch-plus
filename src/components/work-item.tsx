@@ -37,6 +37,7 @@ const TXT = {
     shift: "Shift",
     published: "Published",
     closed: "Closed",
+    filled: "Positions filled",
     expired: "Application deadline passed",
     open: "Open",
     booked: "Booked",
