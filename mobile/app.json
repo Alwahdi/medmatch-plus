@@ -45,7 +45,8 @@
           "photosPermission": "نستخدم معرض الصور لاختيار صورة الملف الشخصي أو الوثائق المطلوبة للتوثيق.",
           "cameraPermission": "نستخدم الكاميرا لالتقاط صورة الملف الشخصي أو الوثائق المطلوبة للتوثيق."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": false
