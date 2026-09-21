@@ -171,6 +171,13 @@ function LanguageDocumentSync() {
   return null;
 }
 
+/** التحديث التلقائي الحي لبيانات المستخدم الحالي في كل الشاشات. */
+function LiveSync() {
+  const { session } = useSession();
+  useLiveSync(session?.user ?? null);
+  return null;
+}
+
 function AuthSync() {
   const router = useRouter();
   const { queryClient } = Route.useRouteContext();
