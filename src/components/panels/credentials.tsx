@@ -341,17 +341,40 @@ export function CredentialsPanel() {
             <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
               <SelectTrigger aria-label={c.docType}><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
               <SelectContent>
-                {docTypes(lang).map((d, i) => <SelectItem key={d} value={docTypes("ar")[i]!}>{d}</SelectItem>)}
+                {requirements.map((r) => (
+                  <SelectItem key={r.code} value={r.code}>
+                    {reqName(r, lang)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            {selectedReq && reqNote(selectedReq, lang) ? (
+              <p className="mt-1 text-xs text-muted-foreground">{reqNote(selectedReq, lang)}</p>
+            ) : null}
           </div>
           <div>
-            <Label htmlFor="issuer">{c.issuer}</Label>
+            <Label htmlFor="issuer">
+              {c.issuer}
+              {selectedReq?.requires_issuer ? <span className="text-destructive"> *</span> : null}
+            </Label>
             <Input id="issuer" maxLength={120} placeholder={c.issuerPh}
               value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
           </div>
+          {selectedReq?.requires_issue_date ? (
+            <div>
+              <Label htmlFor="iss-date">
+                {lang === "ar" ? "تاريخ الإصدار" : "Issue date"}
+                <span className="text-destructive"> *</span>
+              </Label>
+              <Input id="iss-date" type="date" value={form.issue_date}
+                onChange={(e) => setForm({ ...form, issue_date: e.target.value })} />
+            </div>
+          ) : null}
           <div>
-            <Label htmlFor="exp">{c.expiry}</Label>
+            <Label htmlFor="exp">
+              {c.expiry}
+              {selectedReq?.requires_expiry ? <span className="text-destructive"> *</span> : null}
+            </Label>
             <Input id="exp" type="date" value={form.expiry_date}
               onChange={(e) => setForm({ ...form, expiry_date: e.target.value })} />
           </div>
