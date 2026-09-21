@@ -685,7 +685,6 @@ function JobDetail() {
                 </>
               )}
             </div>
-            )}
 
             {user && !isOwner && (
               <Button
@@ -700,6 +699,7 @@ function JobDetail() {
             )}
           </div>
         </div>
+        )}
       </div>
 
       {/* Sticky mobile apply bar */}
