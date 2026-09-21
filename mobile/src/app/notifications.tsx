@@ -13,6 +13,7 @@ export default function NotificationsScreen() {
   const { t, lang } = useI18n();
   const list = useNotifications();
   const markRead = useMarkNotificationRead();
+  const unreadCount = (list.data ?? []).filter((n) => !n.read_at).length;
 
   return (
     <>
