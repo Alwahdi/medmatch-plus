@@ -25,6 +25,8 @@ import {
   useFacilityJobs,
   usePendingReviews,
   useRespondInvitation,
+  useMyInterviews,
+  useRespondInterview,
 } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { applicationStatusLabel, bookingStatusLabel, formatDate, formatDateTime } from "@/lib/format";
@@ -32,7 +34,7 @@ import { userMessage } from "@/lib/errors";
 import { ReviewDialog } from "@/components/review-dialog";
 import { colors } from "@/lib/theme";
 
-type Tab = "applications" | "bookings" | "invitations" | "reviews";
+type Tab = "applications" | "bookings" | "invitations" | "interviews" | "reviews";
 type TimeRange = "upcoming" | "past";
 
 export default function ActivityTab() {
@@ -47,14 +49,17 @@ export default function ActivityTab() {
   const invitations = useMyInvitations();
   const reviews = usePendingReviews();
   const respond = useRespondInvitation();
+  const interviews = useMyInterviews();
+  const respondInterview = useRespondInterview();
 
   const refreshing =
-    applications.isFetching || bookings.isFetching || invitations.isFetching || reviews.isFetching;
+    applications.isFetching || bookings.isFetching || invitations.isFetching || interviews.isFetching || reviews.isFetching;
 
   const refetchAll = () => {
     void applications.refetch();
     void bookings.refetch();
     void invitations.refetch();
+    void interviews.refetch();
     void reviews.refetch();
   };
 
@@ -88,6 +93,7 @@ export default function ActivityTab() {
         <Chip label={t("myApplications")} active={tab === "applications"} onPress={() => setTab("applications")} />
         <Chip label={t("myBookings")} active={tab === "bookings"} onPress={() => setTab("bookings")} />
         <Chip label={pendingInvites ? `${t("myInvitations")} (${pendingInvites})` : t("myInvitations")} active={tab === "invitations"} onPress={() => setTab("invitations")} />
+        <Chip label={t("interviews")} active={tab === "interviews"} onPress={() => setTab("interviews")} />
         <Chip label={reviewCount ? `${t("pendingReviews")} (${reviewCount})` : t("pendingReviews")} active={tab === "reviews"} onPress={() => setTab("reviews")} />
       </Row>
 
@@ -216,6 +222,11 @@ export default function ActivityTab() {
           ))
         )
       ) : null}
+      {tab === "interviews" ? interviews.isPending ? <Loading /> : interviews.isError ? <ErrorState message={userMessage(interviews.error, lang)} onRetry={() => void interviews.refetch()} /> : (interviews.data ?? []).length === 0 ? <EmptyState icon={CalendarClock} text={t("noUpcoming")} /> : (interviews.data ?? []).map((interview) => {
+        const context = interview as unknown as { jobs?: { title?: string }; shifts?: { title?: string } };
+        const title = context.jobs?.title ?? context.shifts?.title ?? t("interviewInvite");
+        return <Card key={interview.id}><Row gap={8} wrap><Text style={[ui.bodyStrong, { flex: 1 }]}>{title}</Text><Badge label={interview.status} tone={interview.status === "confirmed" ? "success" : interview.status === "declined" ? "danger" : "warning"} /></Row><Text style={ui.body}>{formatDateTime(interview.scheduled_at, lang)}</Text>{interview.location ? <Text style={ui.muted}>{interview.location}</Text> : null}{interview.status === "scheduled" ? <Row gap={8}><View style={{ flex: 1 }}><Button label={t("accept")} small loading={respondInterview.isPending} onPress={() => respondInterview.mutate({ id: interview.id, accept: true })} /></View><View style={{ flex: 1 }}><Button label={t("decline")} variant="secondary" small onPress={() => respondInterview.mutate({ id: interview.id, accept: false })} /></View></Row> : null}</Card>;
+      }) : null}
     </Screen>
   );
 }

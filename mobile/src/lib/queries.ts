@@ -163,10 +163,7 @@ export function useRespondInvitation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
-      const res = await supabase
-        .from("invitations")
-        .update({ status: accept ? "accepted" : "declined", responded_at: new Date().toISOString() })
-        .eq("id", id);
+      const res = await supabase.rpc("respond_to_invitation" as never, { _invitation_id: id, _accept: accept } as never);
       if (res.error) throw new Error(res.error.message);
     },
     onSuccess: () => {
@@ -387,14 +384,18 @@ export function useJobApplicants(jobId: string) {
   return useQuery({
     queryKey: ["job-applicants", jobId],
     enabled: Boolean(jobId),
-    queryFn: async () =>
-      unwrap(
-        await supabase
-          .from("applications")
-          .select("id,status,created_at,cover_letter,user_id")
-          .eq("job_id", jobId)
-          .order("created_at", { ascending: false }),
-      ),
+    queryFn: async () => {
+      const applications = unwrap(await supabase.from("applications")
+        .select("id,status,created_at,cover_letter,user_id")
+        .eq("job_id", jobId).order("created_at", { ascending: false }));
+      const ids = applications.map((item) => item.user_id);
+      if (ids.length === 0) return [];
+      const profiles = unwrap(await supabase.from("healthcare_professionals")
+        .select("user_id,full_name,headline,city,years_experience,is_verified,rating_avg,rating_count,specialties(name_ar,name_en)")
+        .in("user_id", ids));
+      const byUser = new Map(profiles.map((profile) => [profile.user_id, profile]));
+      return applications.map((application) => ({ ...application, professional: byUser.get(application.user_id) ?? null }));
+    },
   });
 }
 
@@ -409,6 +410,49 @@ export function useSetApplicationStage(jobId: string) {
       if (res.error) throw new Error(res.error.message);
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }),
+  });
+}
+
+export function useMyInterviews() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["my-interviews", user?.id], enabled: Boolean(user?.id),
+    queryFn: async () => unwrap(await supabase.from("interviews")
+      .select("id,application_id,shift_booking_id,job_id,shift_id,scheduled_at,duration_minutes,mode,location,meeting_url,notes,status,candidate_note,jobs(title),shifts(title)")
+      .eq("professional_user_id", user?.id ?? "").order("scheduled_at", { ascending: true })),
+  });
+}
+
+export function useRespondInterview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
+      const res = await supabase.rpc("respond_to_interview", { _interview_id: id, _accept: accept });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["my-interviews"] }); void qc.invalidateQueries({ queryKey: ["notifications"] }); },
+  });
+}
+
+export function useScheduleInterview(jobId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ applicationId, scheduledAt, mode, location, meetingUrl, notes }: { applicationId: string; scheduledAt: string; mode: "video" | "phone" | "onsite"; location?: string; meetingUrl?: string; notes?: string }) => {
+      const res = await supabase.rpc("schedule_interview", { _application_id: applicationId, _shift_booking_id: undefined, _scheduled_at: scheduledAt, _duration_minutes: 30, _mode: mode, _location: location || undefined, _meeting_url: meetingUrl || undefined, _notes: notes || undefined });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }); void qc.invalidateQueries({ queryKey: ["facility-interviews"] }); },
+  });
+}
+
+export function useHireApplicant(jobId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (applicationId: string) => {
+      const res = await supabase.rpc("hire_applicant", { _application_id: applicationId });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }); void qc.invalidateQueries({ queryKey: ["facility-jobs"] }); },
   });
 }
 
