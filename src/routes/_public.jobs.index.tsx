@@ -789,9 +789,19 @@ function JobsPage() {
             ) : items.length === 0 ? (
               <div className="mt-10 rounded-lg border border-border bg-card p-10 text-center shadow-card">
                 <p className="text-muted-foreground">{c.empty}</p>
-                <Button className="mt-4" variant="outline" onClick={reset}>
-                  {c.reset}
-                </Button>
+                {hasSpecialty && scope !== "all" && (
+                  <p className="mt-2 text-sm text-muted-foreground">{c.emptyScope}</p>
+                )}
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  {hasSpecialty && scope !== "all" && (
+                    <Button onClick={() => pickScope(scope === "mine" ? "field" : "all")}>
+                      {scope === "mine" ? c.widenToField : c.widenToAll}
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={reset}>
+                    {c.reset}
+                  </Button>
+                </div>
               </div>
             ) : (
               <>
