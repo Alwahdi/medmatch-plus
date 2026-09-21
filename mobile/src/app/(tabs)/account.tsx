@@ -44,12 +44,14 @@ export default function AccountTab() {
     />
     <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
     <MenuRow icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 12, paddingVertical: 12, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}>
+      <View style={{ width: 44, height: 44, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}><Globe2 size={21} color={colors.primary}/></View>
+      <Text style={[ui.menuTitle, { flex: 1 }]}>{t("language")}</Text>
+      <View style={{ width: 168 }}>
+        <Segmented value={lang} options={[{ value: "ar", label: t("arabic") }, { value: "en", label: t("english") }]} onChange={(v) => void setLang(v)}/>
+      </View>
+    </View>
 
-
-    <Card>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}><Globe2 size={20} color={colors.primary}/><Text style={ui.label}>{t("language")}</Text></View>
-      <Row gap={8}><View style={{ flex: 1 }}><Button label={t("arabic")} small variant={lang === "ar" ? "primary" : "secondary"} onPress={() => void setLang("ar")}/></View><View style={{ flex: 1 }}><Button label={t("english")} small variant={lang === "en" ? "primary" : "secondary"} onPress={() => void setLang("en")}/></View></Row>
-    </Card>
     {webUrl ? <MenuRow icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
     <MenuRow icon={LogOut} title={t("signOut")} tone="danger" onPress={() => void signOut()}/>
   </Screen>;
