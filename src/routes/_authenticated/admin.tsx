@@ -548,8 +548,8 @@ function AdminPage() {
 
   // Evidence checklists mirror the DB rule: verification is granted only when
   // every required document is approved (see sync_pro/facility_verification).
-  const PRO_REQUIRED_DOCS = ["ترخيص مزاولة المهنة", "بطاقة الهوية / الجواز"];
-  const FACILITY_REQUIRED_DOCS = ["رخصة مزاولة المنشأة", "السجل التجاري"];
+  const proReqRows = (proRequirements ?? []).filter((r) => r.is_active && r.is_required);
+  const facReqRows = (facRequirements ?? []).filter((r) => r.is_active && r.is_required);
 
   function docState(
     rows: { doc_type: string; status: string; expiry_date: string | null }[],
