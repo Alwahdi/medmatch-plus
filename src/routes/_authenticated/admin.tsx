@@ -212,7 +212,10 @@ function AdminPage() {
   const [changeNote, setChangeNote] = useState("");
   const [changeRejectId, setChangeRejectId] = useState<string | null>(null);
   const [logQuery, setLogQuery] = useState("");
-  const [tab, setTab] = useState("docs");
+  const adminNavigate = useNavigate();
+  const tab = Route.useSearch().tab ?? "docs";
+  const setTab = (value: string) =>
+    void adminNavigate({ to: "/admin", search: { tab: value }, replace: true });
 
   const { data: proRequirements } = useAllDocumentRequirements("professional");
   const { data: facRequirements } = useAllDocumentRequirements("facility");
