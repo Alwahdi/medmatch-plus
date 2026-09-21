@@ -63,9 +63,11 @@ export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary"
   return <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={1}>{subtitle}</Text> : null}</View><ChevronLeft size={19} color={colors.textSubtle} /></Pressable>;
 }
 
-export function Field({ label, error, ...props }: TextInputProps & { label: string; error?: string | null }) {
-  return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput accessibilityLabel={label} placeholderTextColor={colors.textSubtle} style={[styles.input, props.multiline ? styles.inputMultiline : null, error ? styles.inputError : null]} {...props}/>{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
-}
+export const Field = React.forwardRef<TextInput, TextInputProps & { label: string; error?: string | null }>(
+  function Field({ label, error, ...props }, ref) {
+    return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput ref={ref} accessibilityLabel={label} placeholderTextColor={colors.textSubtle} style={[styles.input, props.multiline ? styles.inputMultiline : null, error ? styles.inputError : null]} {...props}/>{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
+  },
+);
 
 export function Badge({ label, tone = "neutral" }: { label: string; tone?: "neutral" | "success" | "warning" | "danger" | "primary" }) {
   const t = { neutral: { bg: colors.surfaceMuted, fg: colors.textMuted }, success: { bg: colors.successSoft, fg: colors.success }, warning: { bg: colors.warningSoft, fg: colors.warning }, danger: { bg: colors.dangerSoft, fg: colors.danger }, primary: { bg: colors.primarySoft, fg: colors.primary } }[tone];

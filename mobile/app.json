@@ -19,6 +19,7 @@
     "android": {
       "package": "app.syndeocare.mobile",
       "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#F6F8FA",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
