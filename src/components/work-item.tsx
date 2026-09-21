@@ -23,6 +23,7 @@ const TXT = {
     shift: "مناوبة",
     published: "منشورة",
     closed: "مغلقة",
+    filled: "اكتمل العدد",
     expired: "انتهى موعد التقديم",
     open: "متاحة",
     booked: "محجوزة",
