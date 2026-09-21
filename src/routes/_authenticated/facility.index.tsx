@@ -640,7 +640,7 @@ function FacilityDashboard() {
                   title={j.title}
                   to="/jobs/$jobId"
                   params={{ jobId: j.slug ?? j.id }}
-                  status={!j.is_active ? "closed" : jobAccepting(j) ? "published" : "expired"}
+                  status={filled ? "filled" : !j.is_active ? "closed" : jobAccepting(j) ? "published" : "expired"}
                   meta={
                     <>
                       {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
