@@ -117,7 +117,44 @@ export function Row({ children, gap = 8, wrap }: { children: React.ReactNode; ga
 
 export function Loading({ rows = 3 }: { rows?: number }) { return <View accessibilityLabel="Loading" style={styles.skeletonWrap}>{Array.from({ length: rows }).map((_, i) => <View key={i} style={styles.skeletonCard}><View style={styles.skeletonIcon}/><View style={styles.skeletonLines}><View style={[styles.skeletonLine, { width: "68%" }]}/><View style={[styles.skeletonLine, { width: "42%" }]}/></View></View>)}</View>; }
 
-export function EmptyState({ text, action }: { text: string; action?: React.ReactNode }) { return <View style={styles.state}><View style={styles.stateIcon}><Inbox size={28} color={colors.primary} /></View><Text style={styles.stateTitle}>{text}</Text>{action}</View>; }
+export function EmptyState({ text, desc, icon: Icon = Inbox, action }: { text: string; desc?: string; icon?: LucideIcon; action?: React.ReactNode }) { return <View style={styles.state}><View style={styles.stateIcon}><Icon size={28} color={colors.primary} /></View><Text style={styles.stateTitle}>{text}</Text>{desc ? <Text style={[styles.muted, { textAlign: "center" }]}>{desc}</Text> : null}{action}</View>; }
+
+export function Segmented<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string; count?: number }[]; onChange: (v: T) => void }) {
+  return (
+    <View style={styles.segmented}>
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            onPress={() => { if (!active) { if (Platform.OS !== "web") void Haptics.selectionAsync(); onChange(o.value); } }}
+            style={[styles.segment, active ? styles.segmentActive : null]}
+          >
+            <Text numberOfLines={1} style={[styles.segmentLabel, { color: active ? colors.text : colors.textMuted }]}>{o.label}</Text>
+            {o.count ? <View style={styles.segmentCount}><Text style={styles.segmentCountLabel}>{o.count}</Text></View> : null}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+export function StickyBar({ children }: { children: React.ReactNode }) {
+  return <SafeAreaView edges={["bottom"]} style={styles.stickyBar}><View style={styles.stickyInner}>{children}</View></SafeAreaView>;
+}
+
+export function StatTile({ icon: Icon, value, label, tone = "primary", onPress }: { icon: LucideIcon; value: string | number; label: string; tone?: "primary" | "accent" | "violet" | "success"; onPress?: () => void }) {
+  const p = tone === "accent" ? { bg: colors.accentSoft, fg: colors.accent } : tone === "violet" ? { bg: colors.brandVioletSoft, fg: colors.brandViolet } : tone === "success" ? { bg: colors.successSoft, fg: colors.success } : { bg: colors.primarySoft, fg: colors.primary };
+  return (
+    <Pressable accessibilityRole={onPress ? "button" : undefined} onPress={onPress} style={({ pressed }) => [styles.statTile, { opacity: pressed && onPress ? .75 : 1 }]}>
+      <View style={[styles.statIcon, { backgroundColor: p.bg }]}><Icon size={17} color={p.fg} strokeWidth={2.2} /></View>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel} numberOfLines={1}>{label}</Text>
+    </Pressable>
+  );
+}
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) { const { t } = useI18n(); return <View style={[styles.state, { borderColor: colors.dangerSoft }]}><View style={[styles.stateIcon, { backgroundColor: colors.dangerSoft }]}><AlertCircle size={28} color={colors.danger}/></View><Text style={styles.stateTitle}>{t("errorTitle")}</Text><Text style={styles.muted}>{message}</Text>{onRetry ? <Button label={t("retry")} variant="secondary" small onPress={onRetry}/> : null}</View>; }
 
