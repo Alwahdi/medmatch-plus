@@ -212,6 +212,9 @@ function AdminPage() {
   const [logQuery, setLogQuery] = useState("");
   const [tab, setTab] = useState("docs");
 
+  const { data: proRequirements } = useAllDocumentRequirements("professional");
+  const { data: facRequirements } = useAllDocumentRequirements("facility");
+
   const { data: creds, isError: credsErr, refetch: credsRefetch, isLoading: credsLoading } = useQuery({
     queryKey: ["admin-creds"],
     enabled: adminReady,
