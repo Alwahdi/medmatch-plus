@@ -18,7 +18,7 @@ function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: Colo
 
 export default function TabsLayout() {
   const { session, user, roles, loading, isFacility } = useAuth();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const invitations = useMyInvitations();
   const reviews = usePendingReviews();
   const unreadMessages = useUnreadMessages();
@@ -52,7 +52,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="discover"
-        options={{ title: isFacility ? t("myListings") : t("discover"), tabBarIcon: ({ color, focused }) => <TabIcon icon={isFacility ? BriefcaseBusiness : Compass} color={color} focused={focused} /> }}
+        options={{ title: isFacility ? (lang === "ar" ? "فرصي" : "Listings") : t("discover"), tabBarIcon: ({ color, focused }) => <TabIcon icon={isFacility ? BriefcaseBusiness : Compass} color={color} focused={focused} /> }}
       />
       <Tabs.Screen
         name="activity"

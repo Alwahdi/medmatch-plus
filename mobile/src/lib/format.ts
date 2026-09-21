@@ -41,6 +41,29 @@ export function formatDateTime(value: string | null | undefined, lang: Lang) {
   return new Intl.DateTimeFormat(locales[lang], { dateStyle: "medium", timeStyle: "short" }).format(d);
 }
 
+/** الوقت فقط داخل فقاعات المحادثة. */
+export function formatTime(value: string | null | undefined, lang: Lang) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return new Intl.DateTimeFormat(locales[lang], { hour: "2-digit", minute: "2-digit" }).format(d);
+}
+
+export const dayKey = (value: string | null | undefined) => (value ? new Date(value).toDateString() : "");
+
+/** فاصل يومي في المحادثة: اليوم / أمس / تاريخ كامل. */
+export function formatDayLabel(value: string | null | undefined, lang: Lang) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const today = new Date();
+  const yesterday = new Date(today.getTime() - 86_400_000);
+  if (d.toDateString() === today.toDateString()) return lang === "ar" ? "اليوم" : "Today";
+  if (d.toDateString() === yesterday.toDateString()) return lang === "ar" ? "أمس" : "Yesterday";
+  return new Intl.DateTimeFormat(locales[lang], { dateStyle: "long" }).format(d);
+}
+
+
 export function relativeTime(value: string | null | undefined, lang: Lang) {
   if (!value) return "";
   const d = new Date(value).getTime();
