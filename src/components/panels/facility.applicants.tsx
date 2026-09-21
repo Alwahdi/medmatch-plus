@@ -31,6 +31,7 @@ import {
 import { useLang } from "@/lib/i18n";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { RemoteAvatar } from "@/components/remote-avatar";
+import { RatingStars } from "@/components/rating-stars";
 
 /** Stages a facility can set manually. "hired" goes through the select-candidate button. */
 const MANUAL_STAGES = ["submitted", "reviewing", "interview", "rejected"] as const;
