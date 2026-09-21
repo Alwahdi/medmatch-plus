@@ -17,14 +17,24 @@ export default function NotificationsScreen() {
   return (
     <>
       <Stack.Screen options={{ title: t("notifications") }} />
-      <Screen refreshControl={<RefreshControl refreshing={list.isFetching} onRefresh={() => void list.refetch()} />}>
+      <Screen refreshControl={<RefreshControl refreshing={list.isFetching} onRefresh={() => void list.refetch()} tintColor={colors.primary} />}>
         <Title sub={lang === "ar" ? "آخر تحديثات حسابك ونشاطك" : "Latest account and activity updates"}>{t("notifications")}</Title>
+        {unreadCount ? (
+          <Button
+            label={t("markAllRead")}
+            variant="secondary"
+            small
+            onPress={() => {
+              for (const n of list.data ?? []) if (!n.read_at) markRead.mutate(n.id);
+            }}
+          />
+        ) : null}
         {list.isPending ? (
           <Loading />
         ) : list.isError ? (
           <ErrorState message={userMessage(list.error, lang)} onRetry={() => void list.refetch()} />
         ) : (list.data ?? []).length === 0 ? (
-          <EmptyState text={t("emptyNotifications")} />
+          <EmptyState icon={Bell} text={t("emptyNotifications")} desc={t("emptyNotificationsDesc")} />
         ) : (
           (list.data ?? []).map((n) => (
             <Pressable
