@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { CANONICAL_COUNTRIES } from "@/lib/countries";
+import { STORED_COUNTRIES } from "@/lib/countries";
 import { countryLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { LOCATIONS_QUERY_KEY, useAllLocations, type LocationRow } from "@/lib/locations";
@@ -97,7 +97,7 @@ export function AdminLocations() {
   const queryClient = useQueryClient();
   const { data: rows, isLoading } = useAllLocations();
 
-  const [country, setCountry] = useState<string>(CANONICAL_COUNTRIES[0] ?? "اليمن");
+  const [country, setCountry] = useState<string>(STORED_COUNTRIES[0] ?? "اليمن");
   const [term, setTerm] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
 
@@ -168,7 +168,7 @@ export function AdminLocations() {
           onChange={(e) => setCountry(e.target.value)}
           className="h-11 min-w-44 rounded-lg border border-border bg-background px-3 text-sm"
         >
-          {CANONICAL_COUNTRIES.map((n) => (
+          {STORED_COUNTRIES.map((n) => (
             <option key={n} value={n}>{countryLabel(n, lang)}</option>
           ))}
         </select>
