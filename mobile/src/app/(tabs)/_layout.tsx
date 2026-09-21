@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect, Tabs } from "expo-router";
-import { Text, View } from "react-native";
+import { Text, View, type ColorValue } from "react-native";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
