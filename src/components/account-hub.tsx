@@ -85,8 +85,22 @@ export function useAccountIdentity() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("full_name,avatar_url,is_verified")
+        .select("full_name,avatar_url")
         .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  const { data: myProfessional } = useQuery({
+    queryKey: ["my-professional-verification", user?.id],
+    enabled: !!user && !isFacility,
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("healthcare_professionals")
+        .select("is_verified")
+        .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
       return data;
@@ -98,7 +112,7 @@ export function useAccountIdentity() {
     user?.email ||
     "SyndeoCare";
   const image = (isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null;
-  const verified = isFacility ? !!myFacility?.is_verified : !!myProfile?.is_verified;
+  const verified = isFacility ? !!myFacility?.is_verified : !!myProfessional?.is_verified;
 
   return { user, roles, isFacility, name, image, verified };
 }
