@@ -67,7 +67,7 @@ function RoleCard({ icon: Icon, title, description, active, onPress }: {
 }
 
 export default function SignUp() {
-  const { t, lang } = useI18n();
+  const { t, lang, rtl } = useI18n();
   const router = useRouter();
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
