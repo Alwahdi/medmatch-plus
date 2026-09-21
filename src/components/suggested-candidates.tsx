@@ -108,10 +108,12 @@ export function SuggestedCandidates({
 
   const invite = useMutation({
     mutationFn: async (candidateId: string) => {
-      const args: Record<string, string> = { _candidate_id: candidateId };
-      if (jobId) args["_job_id"] = jobId;
-      if (shiftId) args["_shift_id"] = shiftId;
-      if (message?.trim()) args["_message"] = message.trim();
+      const args: { _candidate_id: string; _job_id?: string; _shift_id?: string; _message?: string } = {
+        _candidate_id: candidateId,
+      };
+      if (jobId) args._job_id = jobId;
+      if (shiftId) args._shift_id = shiftId;
+      if (message?.trim()) args._message = message.trim();
       const { error } = await supabase.rpc("send_candidate_invitation_from_search", args);
       if (error) throw error.message.includes("INVITATION_EXISTS") ? new UserFacingError(c.duplicate) : error;
     },
