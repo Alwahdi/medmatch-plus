@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
 import { RemoteAvatar } from "@/components/remote-avatar";
+import { SuggestedCandidates } from "@/components/suggested-candidates";
 import { supabase } from "@/integrations/supabase/client";
 import { unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
