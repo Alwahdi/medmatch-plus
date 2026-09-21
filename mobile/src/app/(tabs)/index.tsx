@@ -121,11 +121,12 @@ export default function HomeTab() {
         <SectionHeader title={t("quickActions")} />
         <View style={{ gap: 10 }}>
           <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility/create-job")} />
-          <Row gap={10}>
+          <View style={{ flexDirection: "row", alignItems: "stretch", gap: 10 }}>
             <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push("/facility/create-shift")} /></View>
-            <View style={{ flex: 1 }}><Button label={t("reviewApplicants")} variant="secondary" icon={UsersRound} onPress={() => router.push("/activity")} /></View>
-          </Row>
+            <View style={{ flex: 1 }}><Button label={t("applicants")} variant="secondary" icon={UsersRound} onPress={() => router.push("/activity")} /></View>
+          </View>
         </View>
+
         <SectionHeader title={t("activeListings")} action={<Button label={t("viewAll")} variant="ghost" small onPress={() => router.push("/discover")} />} />
         <Row gap={10}>
           <StatTile icon={BriefcaseBusiness} value={activeJobs.length} label={t("jobs")} onPress={() => router.push("/discover")} />

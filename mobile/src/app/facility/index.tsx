@@ -3,11 +3,11 @@ import { Pressable, RefreshControl, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useFacilityJobs, useFacilityShifts, useMyFacility } from "@/lib/queries";
+import { useFacilityJobs, useFacilityShifts, useMyFacility, useVerificationDocuments } from "@/lib/queries";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
-import { BriefcaseBusiness, Building2, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
-import { colors, radii } from "@/lib/theme";
+import { Building2, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
+import { colors } from "@/lib/theme";
 
 export default function FacilityHome({ embedded = false }: { embedded?: boolean }) {
   const { t, lang } = useI18n();
@@ -17,7 +17,10 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
   const facilityId = (facility.data as { id?: string } | null)?.id;
   const jobs = useFacilityJobs(facilityId);
   const shifts = useFacilityShifts(facilityId);
+  const docs = useVerificationDocuments("facility", facilityId);
+  const documents = docs.data ?? [];
   const [tab, setTab] = useState<"jobs" | "shifts">(params.tab === "shifts" ? "shifts" : "jobs");
+
 
   return (
     <>
