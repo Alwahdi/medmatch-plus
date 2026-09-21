@@ -135,12 +135,13 @@ export default function SignUp() {
   };
 
   const google = async () => {
+    if (!role) return setError(t("chooseRoleSub"));
     setGoogleBusy(true);
     setError(null);
     setNotice(null);
-    const result = await signInWithGoogle();
+    const result = await signInWithGoogle(role);
     setGoogleBusy(false);
-    if (result.ok) return router.replace("/(tabs)");
+    if (result.ok) return router.replace({ pathname: "/welcome", params: { role } });
     if (result.cancelled) return setNotice(t("googleCancelled"));
     setError(result.error ? userMessage(result.error, lang) : t("googleFailed"));
   };
@@ -170,6 +171,7 @@ export default function SignUp() {
             <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
           </View>
           <GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} />
+          <Text style={[ui.muted, { textAlign: "center" }]}>{t("googleRoleNotice")}</Text>
         </View>
       ) : null}
 

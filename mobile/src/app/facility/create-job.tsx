@@ -52,7 +52,7 @@ export default function CreateJobScreen() {
   };
 
   if (facility.isPending || specialties.isPending) return <Screen><Loading /></Screen>;
-  if (!f) return <Screen><EmptyState icon={BriefcaseBusiness} text={t("completeProfile")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility")} />} /></Screen>;
+  if (!f) return <Screen><EmptyState icon={BriefcaseBusiness} text={t("completeProfile")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} /></Screen>;
   return <><Stack.Screen options={{ title: t("publishJob") }} /><Screen>
     {reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[
       { label: t("jobTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("employmentType"), value: t(form.employmentType === "full_time" ? "fullTime" : form.employmentType === "part_time" ? "partTime" : form.employmentType as "contract" | "locum") }, { label: t("city"), value: form.city }, { label: t("salary"), value: `${form.salaryMin} – ${form.salaryMax} YER` }, { label: t("description"), value: form.description },

@@ -46,7 +46,7 @@ export default function Welcome() {
           <CircleCheckBig size={36} color={colors.success} strokeWidth={2.2} />
         </View>
         <Text style={[ui.title, { textAlign: "center" }]}>
-          {name ? t("welcomeName").replace("{name}", name) : t("welcomeName").replace("{name}", "").trim()}
+          {name ? t("welcomeName").replace("{name}", name) : t("welcomeGeneric")}
         </Text>
         <Text style={[ui.muted, { textAlign: "center" }]}>{isFacility ? t("welcomeFacSub") : t("welcomeProSub")}</Text>
       </View>
@@ -61,7 +61,7 @@ export default function Welcome() {
       </Card>
 
       <Button label={t("startNow")} onPress={() => go(steps[0].href)} />
-      <Button label={t("laterLabel")} variant="ghost" small onPress={() => router.replace("/(tabs)")} />
+      <Button label={t("laterLabel")} variant="ghost" small onPress={() => go(steps[0].href)} />
       <View style={{ height: radii.lg }} />
     </Screen>
   );

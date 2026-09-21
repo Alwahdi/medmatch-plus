@@ -37,7 +37,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
         {facility.isPending ? (
           <Loading />
         ) : !facility.data ? (
-          <EmptyState text={t("unavailableOnMobile")} />
+          <EmptyState icon={Building2} text={t("completeProfile")} desc={t("nextFac1Sub")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} />
         ) : (
           <>
             <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility/create-job")} />

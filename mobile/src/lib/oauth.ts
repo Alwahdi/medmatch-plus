@@ -37,7 +37,7 @@ function generateState(): string {
  * Flow: broker -> Google -> broker -> /mobile-auth (published origin, allow-listed)
  * -> syndeocare://auth-callback with the session tokens -> setSession.
  */
-export async function signInWithGoogle(): Promise<OAuthOutcome> {
+export async function signInWithGoogle(intendedRole?: "professional" | "facility"): Promise<OAuthOutcome> {
   try {
     const state = generateState();
     const brokerParams = new URLSearchParams({
@@ -67,6 +67,10 @@ export async function signInWithGoogle(): Promise<OAuthOutcome> {
     if (access_token && refresh_token) {
       const { error: sessionError } = await supabase.auth.setSession({ access_token, refresh_token });
       if (sessionError) return { ok: false, cancelled: false, error: sessionError };
+      if (intendedRole) {
+        const { error: roleError } = await supabase.auth.updateUser({ data: { intended_role: intendedRole } });
+        if (roleError) return { ok: false, cancelled: false, error: roleError };
+      }
       return { ok: true };
     }
 
@@ -74,6 +78,10 @@ export async function signInWithGoogle(): Promise<OAuthOutcome> {
     if (code) {
       const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) return { ok: false, cancelled: false, error: exchangeError };
+      if (intendedRole) {
+        const { error: roleError } = await supabase.auth.updateUser({ data: { intended_role: intendedRole } });
+        if (roleError) return { ok: false, cancelled: false, error: roleError };
+      }
       return { ok: true };
     }
 
