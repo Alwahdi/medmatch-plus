@@ -9,6 +9,15 @@ on:
   pull_request:
     paths:
       - "mobile/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "build_submit = بناء AAB ورفعه لـ Google Play (internal track)"
+        required: true
+        default: "build_submit"
+        type: choice
+        options:
+          - build_submit
 
 jobs:
   update:
