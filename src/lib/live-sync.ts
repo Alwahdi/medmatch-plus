@@ -19,6 +19,7 @@ const TABLE_KEYS: Record<string, string[]> = {
     "my-apps-full",
     "my-applied-job-ids",
     "application",
+    "owner-job-apps",
     "applicant-report",
     "pending-reviews",
     "pending-interviews",
