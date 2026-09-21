@@ -4,6 +4,7 @@ import { Building2, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FacilityApplicantsPanel } from "@/components/panels/facility.applicants";
 import { FacilityBookingsPanel } from "@/components/panels/facility.bookings";
+import { SuggestedCandidates } from "@/components/suggested-candidates";
 import { useLang } from "@/lib/i18n";
 
 const TXT = {
@@ -58,6 +59,14 @@ export function OwnerListingPanel({
           </Link>
         </Button>
       </div>
+
+      {listingId && (
+        <div className="mt-6 border-t border-primary/20 pt-4">
+          <SuggestedCandidates
+            {...(isJob ? { jobId: listingId } : { shiftId: listingId })}
+          />
+        </div>
+      )}
 
       {listingId && (
         <div className="mt-6 border-t border-primary/20 pt-4">

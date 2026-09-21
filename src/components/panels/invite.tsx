@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { useConfirm } from "@/components/confirm-dialog";
 import { RemoteAvatar } from "@/components/remote-avatar";
+import { SuggestedCandidates } from "@/components/suggested-candidates";
 import { supabase } from "@/integrations/supabase/client";
 import { unwrapRows } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
@@ -406,6 +407,17 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
           placeholder={c.msgPlaceholder}
         />
       </div>
+
+      {(jobId || shiftId) && (
+        <div className="mt-8">
+          <SuggestedCandidates
+            jobId={jobId}
+            shiftId={shiftId}
+            message={message}
+            facilityVerified={facility?.is_verified ?? true}
+          />
+        </div>
+      )}
 
       <section className="mt-8">
         <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">

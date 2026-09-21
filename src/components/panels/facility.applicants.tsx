@@ -31,6 +31,7 @@ import {
 import { useLang } from "@/lib/i18n";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { RemoteAvatar } from "@/components/remote-avatar";
+import { RatingStars } from "@/components/rating-stars";
 
 /** Stages a facility can set manually. "hired" goes through the select-candidate button. */
 const MANUAL_STAGES = ["submitted", "reviewing", "interview", "rejected"] as const;
@@ -51,6 +52,7 @@ const TXT = {
     empty: "لا يوجد متقدمون بعد.",
     emptyFiltered: "لا يوجد متقدمون في هذه المرحلة.",
     viewProfile: "الملف الكامل",
+    noReviews: "لا تقييمات بعد",
     loadFailed: "تعذّر تحميل طلبات هذه الوظيفة.",
     retry: "إعادة المحاولة",
     select: "اختيار هذا المرشح",
@@ -96,6 +98,7 @@ const TXT = {
     empty: "No applicants yet.",
     emptyFiltered: "No applicants in this stage.",
     viewProfile: "Full profile",
+    noReviews: "No reviews yet",
     loadFailed: "We couldn't load applications for this job.",
     retry: "Try again",
     select: "Select this candidate",
@@ -168,7 +171,9 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
       const userIds = Array.from(new Set((apps ?? []).map((a) => a.user_id)));
       const { data: pros, error: prosError } = await supabase
         .from("healthcare_professionals")
-        .select("user_id,full_name,headline,years_experience,country,city,is_verified,avatar_url")
+        .select(
+          "user_id,full_name,headline,specialty_id,years_experience,country,city,is_verified,avatar_url,rating_avg,rating_count",
+        )
         .in("user_id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"]);
       if (prosError) throw prosError;
 
@@ -354,6 +359,13 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       {a.pro?.headline ?? "—"} · {c.experience(a.pro?.years_experience ?? 0)} ·{" "}
                       {[a.pro?.city, countryLabel(a.pro?.country, lang)].filter(Boolean).join("، ")}
                     </p>
+                    <div className="mt-1">
+                      {a.pro?.rating_count ? (
+                        <RatingStars value={Number(a.pro.rating_avg ?? 0)} count={a.pro.rating_count} />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">{c.noReviews}</span>
+                      )}
+                    </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {c.appliedFor(a.job?.title ?? "", relativeTime(a.created_at, lang))}
                     </p>

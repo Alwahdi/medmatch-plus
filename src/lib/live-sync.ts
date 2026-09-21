@@ -96,6 +96,7 @@ const TABLE_KEYS: Record<string, string[]> = {
     "admin-pros",
     "admin-user-overview",
     "onboarding-state",
+    "suggested-candidates",
   ],
   facility_subscriptions: ["facility-sub", "search-quota"],
   platform_settings: ["platform-settings"],

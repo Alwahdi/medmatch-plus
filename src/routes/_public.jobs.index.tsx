@@ -105,6 +105,12 @@ const TXT = {
     scopeMine: (n: string) => `تخصصي: ${n}`,
     scopeField: "مجالي الطبي",
     scopeAll: "كل التخصصات",
+    scopeHintMine: (n: string) => `تعرض فرص تخصصك: ${n} — يمكنك التوسيع لمجالك الطبي أو كل التخصصات.`,
+    scopeHintField: "تعرض فرص مجالك الطبي — بدّل إلى تخصصك فقط أو كل التخصصات.",
+    scopeHintAll: "تعرض كل التخصصات — يمكنك التضييق على تخصصك أو مجالك الطبي.",
+    emptyScope: "النتائج مقيّدة بتخصصك حالياً.",
+    widenToField: "وسّع إلى مجالي الطبي",
+    widenToAll: "اعرض كل التخصصات",
     showFilters: "إظهار التصفية",
     hideFilters: "إخفاء التصفية",
     applyFilters: "عرض النتائج",
@@ -789,9 +795,19 @@ function JobsPage() {
             ) : items.length === 0 ? (
               <div className="mt-10 rounded-lg border border-border bg-card p-10 text-center shadow-card">
                 <p className="text-muted-foreground">{c.empty}</p>
-                <Button className="mt-4" variant="outline" onClick={reset}>
-                  {c.reset}
-                </Button>
+                {hasSpecialty && scope !== "all" && (
+                  <p className="mt-2 text-sm text-muted-foreground">{c.emptyScope}</p>
+                )}
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  {hasSpecialty && scope !== "all" && (
+                    <Button onClick={() => pickScope(scope === "mine" ? "field" : "all")}>
+                      {scope === "mine" ? c.widenToField : c.widenToAll}
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={reset}>
+                    {c.reset}
+                  </Button>
+                </div>
               </div>
             ) : (
               <>
