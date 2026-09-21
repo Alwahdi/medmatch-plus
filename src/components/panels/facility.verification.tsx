@@ -158,6 +158,7 @@ export function FacilityVerificationPanel() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
         <EmptyState
+          icon={ShieldAlert}
           title={c.title}
           description={c.noFacility}
           action={
