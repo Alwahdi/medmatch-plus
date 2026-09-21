@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { contactMeta, useLegalDocument } from "@/lib/legal";
 import { useLang } from "@/lib/i18n";
 import { canonical, shareMeta } from "@/lib/seo";
 
@@ -88,6 +89,17 @@ const TXT = {
 function Contact() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { doc: contactDoc } = useLegalDocument("contact_info");
+  const info = contactMeta(contactDoc);
+  const infoRows = [
+    info.email ? { label: lang === "ar" ? "البريد الإلكتروني" : "Email", value: info.email, href: `mailto:${info.email}` } : null,
+    info.phone ? { label: lang === "ar" ? "الهاتف" : "Phone", value: info.phone, href: `tel:${info.phone.replace(/\s/g, "")}` } : null,
+    info.whatsapp ? { label: "WhatsApp", value: info.whatsapp, href: `https://wa.me/${info.whatsapp.replace(/[^0-9]/g, "")}` } : null,
+    info.address ? { label: lang === "ar" ? "العنوان" : "Address", value: info.address, href: null } : null,
+    (lang === "ar" ? info.hours_ar : info.hours_en || info.hours_ar)
+      ? { label: lang === "ar" ? "أوقات العمل" : "Working hours", value: (lang === "ar" ? info.hours_ar : info.hours_en || info.hours_ar)!, href: null }
+      : null,
+  ].filter((r): r is { label: string; value: string; href: string | null } => !!r);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -170,6 +182,23 @@ function Contact() {
                 );
               })}
             </div>
+            {infoRows.length > 0 && (
+              <dl className="mt-6 space-y-3 border-t border-border pt-6 text-sm">
+                {infoRows.map((r) => (
+                  <div key={r.label} className="flex flex-wrap items-baseline justify-between gap-2">
+                    <dt className="font-semibold text-muted-foreground">{r.label}</dt>
+                    <dd dir="auto" className="font-medium">
+                      {r.href ? (
+                        <a href={r.href} className="text-primary underline underline-offset-4">{r.value}</a>
+                      ) : (
+                        r.value
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
             <Button className="mt-8" variant="outline" asChild>
               <Link to="/jobs">
                 {c.browseJobs} <ArrowLeft className="size-4 ltr:rotate-180" />
