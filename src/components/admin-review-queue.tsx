@@ -164,7 +164,17 @@ export function AdminReviewQueue({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 font-bold">
-                    <span className="truncate">{owner.name}</span>
+                    {owner.userId ? (
+                      <Link
+                        to="/admin/users/$userId"
+                        params={{ userId: owner.userId }}
+                        className="truncate underline-offset-4 hover:underline"
+                      >
+                        {owner.name}
+                      </Link>
+                    ) : (
+                      <span className="truncate">{owner.name}</span>
+                    )}
                     {owner.verified && <ShieldCheck className="size-4 shrink-0 text-accent" aria-label={t.verified} />}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">{owner.meta}</p>
