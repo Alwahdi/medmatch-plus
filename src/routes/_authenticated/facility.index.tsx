@@ -592,6 +592,8 @@ function FacilityDashboard() {
         </div>
       )}
 
+      <PendingReviews userId={user?.id} />
+
       <div className="mt-10">
         <SectionHeading title={c.publishedWork} />
         <p className="mt-1 text-sm leading-6 text-muted-foreground">{c.overview}</p>
