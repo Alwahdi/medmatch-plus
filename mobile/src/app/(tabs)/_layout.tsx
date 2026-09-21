@@ -52,7 +52,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="discover"
-        options={{ title: isFacility ? t("myListings") : t("discover"), tabBarIcon: ({ color, focused }) => <TabIcon icon={isFacility ? BriefcaseBusiness : Compass} color={color} focused={focused} /> }}
+        options={{ title: isFacility ? (lang === "ar" ? "فرصي" : "Listings") : t("discover"), tabBarIcon: ({ color, focused }) => <TabIcon icon={isFacility ? BriefcaseBusiness : Compass} color={color} focused={focused} /> }}
       />
       <Tabs.Screen
         name="activity"
