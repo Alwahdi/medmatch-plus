@@ -235,7 +235,7 @@ export function LockedField({
     if (editor.kind === "city") return cityOptionsFrom(locationRows, editor.country ?? null, lang);
     if (editor.kind === "facilityType") return facilityTypeOptions(lang);
     return [];
-  }, [editor, specialties, lang]);
+  }, [editor, specialties, lang, locationRows]);
 
   const display = (v: string) =>
     changeValueLabel(field, v, lang, needSpecialties ? specialties : undefined);
