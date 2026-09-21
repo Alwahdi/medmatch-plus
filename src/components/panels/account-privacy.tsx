@@ -13,6 +13,7 @@ import { ErrorState } from "@/components/error-state";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
+import { useLegalDocuments, useMyConsents } from "@/lib/legal";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
 import { formatDate } from "@/lib/format";
@@ -117,6 +118,8 @@ export function AccountPrivacyPanel() {
   const qc = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
   const [reason, setReason] = useState("");
+  const { data: consents } = useMyConsents(!!user);
+  const { data: legalDocs } = useLegalDocuments();
 
   const isFacility = !!roles?.includes("facility");
   const isAdmin = !!roles?.includes("admin");
@@ -261,6 +264,22 @@ export function AccountPrivacyPanel() {
             <Link to="/contact">{c.contact}</Link>
           </Button>
         </div>
+
+        {consents && consents.length > 0 && (
+          <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
+            <dt className="font-bold">{lang === "ar" ? "موافقاتي المسجّلة" : "My recorded consents"}</dt>
+            {consents.map((row) => {
+              const d = legalDocs?.find((x) => x.key === row.doc_key);
+              const label = d ? (lang === "en" ? d.title_en || d.title_ar : d.title_ar || d.title_en) : row.doc_key;
+              return (
+                <dd key={`${row.doc_key}-${row.version}`} className="flex flex-wrap items-baseline justify-between gap-2 text-muted-foreground">
+                  <span>{label}</span>
+                  <span>{formatDateTime(row.created_at, lang)}</span>
+                </dd>
+              );
+            })}
+          </dl>
+        )}
       </section>
 
       <section className="rounded-lg border border-destructive/30 bg-card p-5 shadow-card">
