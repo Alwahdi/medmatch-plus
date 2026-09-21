@@ -434,6 +434,84 @@ function JobDetail() {
       </section>
 
       <div className="mx-auto max-w-4xl px-4 py-10 pb-28 lg:pb-10">
+        {isOwner ? (
+          <div className="space-y-6">
+            {/* شريط إحصاءات المالك */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-xl font-extrabold">{job.applications_count ?? 0}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statApplicants}</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-xl font-extrabold">{hiredCount} / {seats}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statSelected(hiredCount, seats).split(":")[0]}</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-sm font-bold leading-7">{job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statDeadline}</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-sm font-bold leading-7">{formatDate(job.created_at, lang)}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statPosted}</div>
+              </div>
+            </div>
+
+            {/* بيانات الوظيفة */}
+            <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
+              <h2 className="text-lg font-bold">{c.jobData}</h2>
+              <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.location}</dt>
+                  <dd className="font-medium">{job.city}، {job.country}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.salary}</dt>
+                  <dd className="font-medium">{formatSalary(Number(job.salary_min), Number(job.salary_max), job.currency, lang)}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.employment}</dt>
+                  <dd className="font-medium">{employmentLabel(job.employment_type, lang)}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.minExp}</dt>
+                  <dd className="font-medium">{experienceLabel(job.min_experience, lang)}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.specialty}</dt>
+                  <dd className="font-medium">{specialty || c.notSet}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.vacancies}</dt>
+                  <dd className="font-medium">{seats}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.license}</dt>
+                  <dd className="font-medium">{job.required_license || c.notSet}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.deadline}</dt>
+                  <dd className="font-medium">{job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}</dd>
+                </div>
+              </dl>
+            </div>
+
+            {/* الوصف والمتطلبات */}
+            <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
+              <h2 className="text-lg font-bold">{c.description}</h2>
+              <p className="mt-2 leading-relaxed whitespace-pre-line text-muted-foreground">
+                {job.description}
+              </p>
+              <h2 className="mt-6 text-lg font-bold">{c.requirements}</h2>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
+                {job.min_experience > 0 && <li>{c.expReq(job.min_experience, specialty || c.defaultSpecialty)}</li>}
+                {job.required_license && <li>{c.licenseReq(job.required_license)}</li>}
+                <li>{c.teamworkReq}</li>
+              </ul>
+            </div>
+
+            <OwnerListingPanel kind="job" listingId={job.id} facilityId={job.facility_id} />
+          </div>
+        ) : (
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           {/* Main */}
           <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
