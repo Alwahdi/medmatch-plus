@@ -28,7 +28,8 @@ import { LockedField, ChangeRequestsPanel, useMyChangeRequests } from "@/compone
 import { useSession } from "@/lib/auth";
 import { countryLabel, facilityTypeLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { cityOptions, countryOptions } from "@/lib/geo";
+import { countryOptions } from "@/lib/geo";
+import { cityOptionsFrom, useLocations } from "@/lib/locations";
 import { useLang } from "@/lib/i18n";
 import { friendlyError, userError } from "@/lib/user-errors";
 import { WorkspaceHeading } from "@/components/workspace-ui";
@@ -132,6 +133,7 @@ export const Route = createFileRoute("/_authenticated/facility/profile")({
 
 function FacilityProfile() {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const { user } = useSession();
@@ -418,7 +420,7 @@ function FacilityProfile() {
             currentStoredValue={form.city} editor={{ kind: "city", country: form.country }}
             facilityId={facility.id} pending={pendingOf("city")}>
             <Combobox
-              options={cityOptions(form.country, lang)}
+              options={cityOptionsFrom(locationRows, form.country, lang)}
               value={form.city}
               disabled={locked || !form.country}
               onChange={(v) => setForm({ ...form, city: v })}

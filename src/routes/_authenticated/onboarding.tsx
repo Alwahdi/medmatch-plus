@@ -19,7 +19,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { cityOptions, countryOptions } from "@/lib/geo";
+import { countryOptions } from "@/lib/geo";
+import { cityOptionsFrom, useLocations } from "@/lib/locations";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
 
@@ -391,6 +392,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t, lang } = useLang();
+  const { data: locationRows } = useLocations();
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -570,7 +572,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
             <div>
               <Label>{t("ob.field.city")}</Label>
               <Combobox
-                options={cityOptions(form.country, lang)}
+                options={cityOptionsFrom(locationRows, form.country, lang)}
                 value={form.city}
                 disabled={!form.country}
                 onChange={(v) => setForm({ ...form, city: v })}
@@ -676,6 +678,7 @@ function FacilitySteps({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t, lang } = useLang();
+  const { data: locationRows } = useLocations();
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -808,7 +811,7 @@ function FacilitySteps({
               <div>
                 <Label>{t("ob.field.city")}</Label>
                 <Combobox
-                  options={cityOptions(form.country, lang)}
+                  options={cityOptionsFrom(locationRows, form.country, lang)}
                   value={form.city}
                   disabled={!form.country}
                   onChange={(v) => setForm({ ...form, city: v })}

@@ -18,7 +18,8 @@ import { useSession } from "@/lib/auth";
 import { countryLabel, specialtyName, experienceLabel } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { countryOptions, filterCityOptions } from "@/lib/geo";
+import { countryOptions } from "@/lib/geo";
+import { filterCityOptionsFrom, useLocations } from "@/lib/locations";
 import { ErrorState } from "@/components/error-state";
 import { friendlyError, UserFacingError } from "@/lib/user-errors";
 
@@ -138,6 +139,7 @@ export const INVITE_TXT = {
 /** لوحة دعوة المختصين لإعلان محدد — تُستخدم في الصفحة وداخل لوحة المنشأة. */
 export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; shiftId?: string | undefined }) {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = INVITE_TXT[lang];
   const cbx = comboText(lang);
   const { user } = useSession();
@@ -502,7 +504,7 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
             emptyText={cbx.empty}
           />
           <Combobox
-            options={filterCityOptions(country === ANY ? "" : country, lang)}
+            options={filterCityOptionsFrom(locationRows, country === ANY ? "" : country, lang)}
             value={city}
             onChange={setCity}
             placeholder={c.city}

@@ -14,6 +14,7 @@ import { publicJobsQuery, toPublicJob, OWNER_JOB_COLUMNS } from "@/lib/public-li
 import { useMyFacility, useSession } from "@/lib/auth";
 import { OwnerListingPanel } from "@/components/owner-listing-panel";
 import { employmentLabel, experienceLabel, facilityDisplayName, formatDate, formatSalary, relativeTime, specialtyName } from "@/lib/format";
+import { useConsentGate } from "@/components/consent-gate";
 import { useLang } from "@/lib/i18n";
 import { toastUndo } from "@/lib/undo";
 import { ErrorState } from "@/components/error-state";
@@ -348,6 +349,8 @@ function JobDetail() {
     onError: () => toast.error(c.saveFailed),
   });
 
+  const consent = useConsentGate("applicant_commitments");
+
   const apply = useMutation({
     mutationFn: async () => {
       const parsed = coverSchema.safeParse(cover);
@@ -635,7 +638,7 @@ function JobDetail() {
                         className="mt-1.5"
                       />
                       <div className="mt-1 text-end text-xs text-muted-foreground">{c.coverCount(cover.length)}</div>
-                      <Button className="mt-3 w-full" onClick={() => apply.mutate()} disabled={apply.isPending}>
+                      <Button className="mt-3 w-full" onClick={async () => { if (await consent.ensure()) apply.mutate(); }} disabled={apply.isPending}>
                         {apply.isPending && <Loader2 className="size-4 animate-spin" />}
                         {apply.isPending ? c.sending : c.applyAgain}
                       </Button>
@@ -675,7 +678,7 @@ function JobDetail() {
                   </div>
                   <Button
                     className="mt-3 w-full"
-                    onClick={() => apply.mutate()}
+                    onClick={async () => { if (await consent.ensure()) apply.mutate(); }}
                     disabled={apply.isPending || !isOpen}
                   >
                     {apply.isPending && <Loader2 className="size-4 animate-spin" />}
@@ -720,6 +723,7 @@ function JobDetail() {
            )}
         </div>
       )}
+      {consent.node}
     </>
   );
 }

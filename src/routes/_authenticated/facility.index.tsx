@@ -59,7 +59,8 @@ import { assertOk } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { PendingReviews } from "@/components/pending-reviews";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { cityOptions, countryOptions, currencyOptions } from "@/lib/geo";
+import { countryOptions, currencyOptions } from "@/lib/geo";
+import { cityOptionsFrom, useLocations } from "@/lib/locations";
 import {
   countryLabel,
   employmentLabel,
@@ -69,6 +70,7 @@ import {
   specialtyName,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useConsentGate } from "@/components/consent-gate";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
@@ -867,6 +869,7 @@ function DashboardMetric({
 
 function FacilityForm() {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const { user } = useSession();
@@ -953,7 +956,7 @@ function FacilityForm() {
           <div>
             <Label>{c.city}</Label>
             <Combobox
-              options={cityOptions(form.country, lang)}
+              options={cityOptionsFrom(locationRows, form.country, lang)}
               value={form.city}
               disabled={!form.country}
               onChange={(v) => setForm({ ...form, city: v })}
@@ -1003,6 +1006,7 @@ function JobForm({
   onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
@@ -1081,6 +1085,8 @@ function JobForm({
     }
   }
 
+  const consent = useConsentGate("publisher_commitments");
+
   const create = useMutation({
     mutationFn: async () => {
       const parsed = validate();
@@ -1147,8 +1153,9 @@ function JobForm({
         backLabel={c.backToEdit}
         confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
         onBack={() => setStep("form")}
-        onConfirm={() => create.mutate()}
+        onConfirm={async () => { if (await consent.ensure()) create.mutate(); }}
         pending={create.isPending}
+        extra={consent.node}
       />
     );
   }
@@ -1218,7 +1225,7 @@ function JobForm({
         <div>
           <Label>{c.city}</Label>
           <Combobox
-            options={cityOptions(form.country, lang)}
+            options={cityOptionsFrom(locationRows, form.country, lang)}
             value={form.city}
             disabled={!form.country}
             onChange={(v) => setForm({ ...form, city: v })}
@@ -1300,6 +1307,7 @@ function ShiftForm({
   onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
@@ -1363,6 +1371,8 @@ function ShiftForm({
       toast.error((e as Error).message);
     }
   }
+
+  const consent = useConsentGate("publisher_commitments");
 
   const create = useMutation({
     mutationFn: async () => {
@@ -1451,8 +1461,9 @@ function ShiftForm({
         backLabel={c.backToEdit}
         confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
         onBack={() => setStep("form")}
-        onConfirm={() => create.mutate()}
+        onConfirm={async () => { if (await consent.ensure()) create.mutate(); }}
         pending={create.isPending}
+        extra={consent.node}
       />
     );
   }
@@ -1557,7 +1568,7 @@ function ShiftForm({
         <div>
           <Label>{c.city}</Label>
           <Combobox
-            options={cityOptions(form.country, lang)}
+            options={cityOptionsFrom(locationRows, form.country, lang)}
             value={form.city}
             disabled={!form.country}
             onChange={(v) => setForm({ ...form, city: v })}
