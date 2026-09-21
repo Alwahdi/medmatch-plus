@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
-import { AlertCircle, ChevronLeft, Inbox } from "lucide-react-native";
+import { AlertCircle, ChevronLeft, Eye, EyeOff, Inbox } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, fonts, radii, shadow } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
@@ -63,9 +63,44 @@ export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary"
   return <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={1}>{subtitle}</Text> : null}</View><ChevronLeft size={19} color={colors.textSubtle} /></Pressable>;
 }
 
-export const Field = React.forwardRef<TextInput, TextInputProps & { label: string; error?: string | null }>(
+export const Field = React.forwardRef<TextInput, TextInputProps & { label?: string; error?: string | null }>(
   function Field({ label, error, ...props }, ref) {
-    return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput ref={ref} accessibilityLabel={label} placeholderTextColor={colors.textSubtle} style={[styles.input, props.multiline ? styles.inputMultiline : null, error ? styles.inputError : null]} {...props}/>{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
+    const { t } = useI18n();
+    const isPassword = Boolean(props.secureTextEntry);
+    const [revealed, setRevealed] = React.useState(false);
+    const ToggleIcon = revealed ? EyeOff : Eye;
+    return (
+      <View style={styles.field}>
+        {label ? <Text style={styles.label}>{label}</Text> : null}
+        <View style={styles.inputWrap}>
+          <TextInput
+            ref={ref}
+            accessibilityLabel={label}
+            placeholderTextColor={colors.textSubtle}
+            style={[
+              styles.input,
+              props.multiline ? styles.inputMultiline : null,
+              isPassword ? styles.inputWithAction : null,
+              error ? styles.inputError : null,
+            ]}
+            {...props}
+            secureTextEntry={isPassword && !revealed}
+          />
+          {isPassword ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={revealed ? t("hidePassword") : t("showPassword")}
+              hitSlop={10}
+              onPress={() => setRevealed((v) => !v)}
+              style={styles.inputAction}
+            >
+              <ToggleIcon size={19} color={colors.textMuted} strokeWidth={2} />
+            </Pressable>
+          ) : null}
+        </View>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+      </View>
+    );
   },
 );
 
