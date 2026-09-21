@@ -1,193 +1,98 @@
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
-import { BadgeCheck, CheckCircle2, Clock, FileCheck2, FileText, ShieldAlert, ShieldCheck, Trash2, Upload, XCircle } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { BadgeCheck, ShieldAlert } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
-
 import { useSession } from "@/lib/auth";
-import { credentialLabel, formatDate } from "@/lib/format";
-import { reqName, reqNote, useDocumentRequirements } from "@/lib/document-requirements";
+import { useDocumentRequirements, type DocRequirement } from "@/lib/document-requirements";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
-
-import { ACCEPT, prepareUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
-import { friendlyError, userError } from "@/lib/user-errors";
+import { friendlyError } from "@/lib/user-errors";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ErrorState } from "@/components/error-state";
-
+import { DocumentRequirementCard, type DocRow } from "@/components/document-requirement-card";
+import { DocumentUploadDialog } from "@/components/document-upload-dialog";
 
 const TXT = {
   ar: {
     title: "ملف الاعتماد",
-    sub: "وثائقك تُراجع من فريقنا، والمنشآت ترى حالة التوثيق فقط — لا تُنشر ملفاتك للعامة.",
-    addTitle: "إضافة وثيقة",
-    docType: "نوع الوثيقة",
-    docTypePh: "اختر النوع",
-    fileReq: "اختر ملف الوثيقة أولاً",
-    issuer: "الجهة المُصدِرة",
-    issuerPh: "مثال: الهيئة السعودية للتخصصات الصحية",
-    expiry: "تاريخ الانتهاء",
-    file: "الملف (PDF أو صورة، حتى ١٠ ميجابايت)",
-    upload: "رفع الوثيقة",
-    uploading: "جارٍ الرفع...",
-    myDocs: "وثائقي",
-    loading: "جارٍ التحميل...",
-    empty: "لم ترفع أي وثيقة بعد.",
-    expiresOn: (d: string) => ` · ينتهي ${d}`,
-    titleReq: "أدخل اسم الوثيقة",
-    typeReq: "اختر نوع الوثيقة",
-    fileTooBig: "حجم الملف يتجاوز ١٠ ميجابايت",
-    uploadFailed: "تعذّر رفع الملف",
-    uploaded: "تم رفع الوثيقة، وستظهر بحالة «قيد المراجعة» حتى تكتمل مراجعتها",
-    saveFailed: "تعذّر الحفظ",
-    deleted: "تم حذف الوثيقة",
+    sub: "اختر الوثيقة المطلوبة وارفع ملفها. يراجعها فريقنا، والمنشآت ترى حالة التوثيق فقط — لا تُنشر ملفاتك للعامة.",
     checklist: "الوثائق المطلوبة",
     progress: (a: number, b: number) => `${a} من ${b} وثيقة مطلوبة معتمدة`,
-    required: "مطلوبة",
-    optional: "اختيارية",
-    missing: "لم تُرفع",
+    remaining: (n: number) => `تبقّى ${n} وثيقة مطلوبة للحصول على شارة التوثيق.`,
+    allDone: "اكتملت وثائقك المطلوبة.",
     verified: "حسابك موثّق",
     verifiedSub: "شارة «موثّق» تظهر للمنشآت على ملفك وطلباتك.",
     unverified: "حسابك غير موثّق بعد",
-    unverifiedSub: "اعتمد ترخيص مزاولة المهنة والهوية للحصول على شارة التوثيق.",
-    view: "عرض الملف",
+    unverifiedSub: "ارفع الوثائق المطلوبة أدناه ليراجعها فريقنا وتحصل على شارة التوثيق.",
+    deleted: "تم حذف الوثيقة",
+    saveFailed: "تعذّر الحفظ",
     noFile: "لا يوجد ملف مرفق",
+    deleteQ: "حذف هذه الوثيقة؟",
+    deleteDesc: "سيُحذف الملف نهائياً وقد يتأثر توثيق حسابك. يمكنك رفعه مجدداً لاحقاً.",
+    yesDelete: "نعم، احذف",
+    loading: "جارٍ التحميل...",
   },
   en: {
     title: "Credentials",
-    sub: "Your documents are reviewed by our team, and employers only see the verification status — your files are never published publicly.",
-    addTitle: "Add a document",
-    docType: "Document type",
-    docTypePh: "Choose type",
-    fileReq: "Choose the document file first",
-    issuer: "Issuing authority",
-    issuerPh: "e.g. Saudi Commission for Health Specialties",
-    expiry: "Expiry date",
-    file: "File (PDF or image, up to 10 MB)",
-    upload: "Upload document",
-    uploading: "Uploading...",
-    myDocs: "My documents",
-    loading: "Loading...",
-    empty: "You haven't uploaded any document yet.",
-    expiresOn: (d: string) => ` · expires ${d}`,
-    titleReq: "Enter the document name",
-    typeReq: "Choose the document type",
-    fileTooBig: "File size exceeds 10 MB",
-    uploadFailed: "Failed to upload the file",
-    uploaded: "Document uploaded — it stays “Under review” until our team completes the review",
-    saveFailed: "Failed to save",
-    deleted: "Document deleted",
+    sub: "Pick a required document and upload its file. Our team reviews it; employers only see the verification status.",
     checklist: "Required documents",
     progress: (a: number, b: number) => `${a} of ${b} required documents approved`,
-    required: "Required",
-    optional: "Optional",
-    missing: "Not uploaded",
+    remaining: (n: number) => `${n} required document(s) left to earn the verified badge.`,
+    allDone: "All your required documents are complete.",
     verified: "Your account is verified",
     verifiedSub: "Employers see the verified badge on your profile and applications.",
     unverified: "Your account is not verified yet",
-    unverifiedSub: "Get your practice license and ID approved to earn the verified badge.",
-    view: "View file",
+    unverifiedSub: "Upload the required documents below so our team can review them.",
+    deleted: "Document deleted",
+    saveFailed: "Failed to save",
     noFile: "No file attached",
+    deleteQ: "Delete this document?",
+    deleteDesc: "The file is permanently removed and your verification may be affected.",
+    yesDelete: "Yes, delete",
+    loading: "Loading...",
   },
 } as const;
 
 export function CredentialsPanel() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const v = VALIDITY_TXT[lang];
   const { confirm, confirmDialog } = useConfirm();
-
   const { user } = useSession();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
-  const [file, setFile] = useState<File | null>(null);
+  const [active, setActive] = useState<DocRequirement | null>(null);
+
   const { data: reqs } = useDocumentRequirements("professional");
   const requirements = reqs ?? [];
-  const selectedReq = requirements.find((r) => r.code === form.doc_type) ?? null;
-  const typeLabel = (code: string) => {
-    const r = requirements.find((x) => x.code === code);
-    return r ? reqName(r, lang) : code;
-  };
-
-  const schema = z.object({
-    doc_type: z.string().min(1, c.typeReq),
-    issuer: z.string().trim().max(120).optional(),
-  });
 
   const { data: items, isError: itemsErr, refetch: itemsRefetch, isLoading } = useQuery({
     queryKey: ["my-creds", user?.id],
     enabled: !!user,
-    queryFn: async () => {
+    queryFn: async (): Promise<DocRow[]> => {
       const { data, error } = await supabase
         .from("credentials")
-        .select("*")
+        .select("id,doc_type,title,file_name,issuer,issue_date,expiry_date,file_path,status,review_note,created_at")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return (data ?? []) as DocRow[];
     },
   });
-
-  const add = useMutation({
-    mutationFn: async () => {
-      const parsed = schema.safeParse(form);
-      if (!parsed.success) userError(parsed.error.issues[0]!.message);
-      if (!file) userError(c.fileReq);
-
-      const ready = await prepareUpload(file, "document", lang).catch((e: Error) => userError(e.message));
-      const ext = ready.name.split(".").pop()?.toLowerCase() ?? "pdf";
-      const filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("credentials")
-        .upload(filePath, ready, { contentType: ready.type || "application/octet-stream" });
-      if (upErr) throw upErr;
-
-      const { error } = await supabase.from("credentials").insert({
-        user_id: user!.id,
-        title: selectedReq?.name_ar ?? form.doc_type,
-        file_name: file.name.slice(0, 200),
-        doc_type: form.doc_type,
-        issuer: form.issuer.trim() || null,
-        issue_date: form.issue_date || null,
-        expiry_date: form.expiry_date || null,
-        file_path: filePath,
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success(c.uploaded);
-      setForm({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
-      setFile(null);
-      queryClient.invalidateQueries({ queryKey: ["my-creds"] });
-    },
-    onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
-  });
-
 
   const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("credentials").delete().eq("id", id);
+    mutationFn: async (doc: DocRow) => {
+      if (doc.file_path) await supabase.storage.from("credentials").remove([doc.file_path]);
+      const { error } = await supabase.from("credentials").delete().eq("id", doc.id);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(c.deleted);
-      queryClient.invalidateQueries({ queryKey: ["my-creds"] });
+      void queryClient.invalidateQueries({ queryKey: ["my-creds"] });
     },
+    onError: (e: Error) => toast.error(friendlyError(e, lang, c.saveFailed)),
   });
 
   async function openFile(path: string | null) {
@@ -203,13 +108,23 @@ export function CredentialsPanel() {
     window.open(data.signedUrl, "_blank", "noopener");
   }
 
+  async function askDelete(doc: DocRow) {
+    const ok = await confirm({
+      title: c.deleteQ,
+      description: c.deleteDesc,
+      confirmLabel: c.yesDelete,
+      destructive: true,
+    });
+    if (ok) remove.mutate(doc);
+  }
+
   const list = items ?? [];
+  const docsOf = (code: string) => list.filter((d) => d.doc_type === code);
   const requiredReqs = requirements.filter((r) => r.is_required);
   const requiredCodeList = requiredReqs.map((r) => r.code);
   const metRequired = requiredReqs.filter(
-    (r) => list.filter((d) => d.doc_type === r.code && isValidEvidence(d)).length >= r.min_count,
+    (r) => docsOf(r.code).filter((d) => isValidEvidence(d)).length >= r.min_count,
   ).length;
-  const approvedRequired = metRequired;
   const isVerified = requiredReqs.length > 0 && metRequired === requiredReqs.length;
   const pct = requiredReqs.length ? Math.round((metRequired / requiredReqs.length) * 100) : 0;
   const requiredExpired = list.some(
@@ -218,28 +133,21 @@ export function CredentialsPanel() {
   const requiredExpiringSoon = list.some(
     (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
   );
-  const v = VALIDITY_TXT[lang];
 
+  if (itemsErr) return <ErrorState onRetry={() => void itemsRefetch()} />;
 
-  const loadErrors = [
-    { err: itemsErr, retry: itemsRefetch },
-  ].filter((q) => q.err);
-  if (loadErrors.length > 0)
-    return (
-      <ErrorState
-        onRetry={() => {
-          for (const q of loadErrors) void q.retry();
-        }}
-      />
-    );
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       {confirmDialog}
+      <DocumentUploadDialog
+        requirement={active}
+        ownerId={user?.id}
+        uploadedCount={active ? docsOf(active.code).length : 0}
+        onOpenChange={(o) => !o && setActive(null)}
+      />
 
-      <h1 className="font-display text-3xl font-extrabold">{c.title}</h1>
-      <p className="mt-2 text-muted-foreground">
-        {c.sub}
-      </p>
+      <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
 
       <div
         className={`mt-6 flex flex-wrap items-center gap-3 rounded-lg border p-5 ${
@@ -267,197 +175,86 @@ export function CredentialsPanel() {
         </p>
       ) : null}
 
-
-      <div className="mt-6 rounded-lg border border-border bg-card p-5">
-        <div className="flex items-center justify-between gap-3">
+      <div className="mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
-          <span className="text-xs text-muted-foreground">
-            {c.progress(approvedRequired, requiredReqs.length)}
-          </span>
+          <span className="text-xs text-muted-foreground">{c.progress(metRequired, requiredReqs.length)}</span>
         </div>
-        <Progress value={pct} className="mt-3" aria-label={lang === "ar" ? "نسبة اكتمال المستندات" : "Credential completion"} />
-        <ul className="mt-4 space-y-2">
-          {requirements.map((r) => {
-            const type = r.code;
-            const uploaded = list.filter((d) => d.doc_type === type);
-            const doc = uploaded[0];
-            const isRequired = r.is_required;
-            const note = reqNote(r, lang);
-            const needMore = r.min_count > 1;
-            const docExpired = !!doc && doc.status === "approved" && isExpired(doc.expiry_date);
-            const Icon =
-              docExpired
-                ? ShieldAlert
-                : doc?.status === "approved"
-                  ? CheckCircle2
-                  : doc?.status === "rejected"
-                    ? XCircle
-                    : doc
-                      ? Clock
-                      : ShieldCheck;
-            const tone =
-              docExpired || doc?.status === "rejected"
-                ? "text-destructive"
-                : doc?.status === "approved"
-                  ? "text-accent"
-                  : "text-muted-foreground";
-            return (
-              <li key={type} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
-                <Icon className={`size-5 ${tone}`} />
-                <span className="min-w-0 flex-1 text-sm">
-                  <span className="block truncate">{reqName(r, lang)}</span>
-                  {needMore ? (
-                    <span className="block text-xs text-muted-foreground">
-                      {lang === "ar"
-                        ? `مطلوب ${r.min_count} ملفات — رفعت ${uploaded.length}`
-                        : `${r.min_count} files required — ${uploaded.length} uploaded`}
-                    </span>
-                  ) : null}
-                  {note ? <span className="block text-xs text-muted-foreground">{note}</span> : null}
-                  {doc?.expiry_date ? (
-                    <span className="block text-xs text-muted-foreground">
-                      {c.expiry}: {formatDate(doc.expiry_date, lang)}
-                    </span>
-                  ) : null}
-                </span>
-                <Badge variant={isRequired ? "secondary" : "outline"} className="shrink-0">
-                  {isRequired ? c.required : c.optional}
-                </Badge>
-                <span className={`shrink-0 text-xs ${docExpired ? "text-destructive" : "text-muted-foreground"}`}>
-                  {docExpired ? v.expired : doc ? credentialLabel(doc.status, lang) : c.missing}
-                </span>
-              </li>
-            );
-
-          })}
-        </ul>
-      </div>
-
-      <div className="card-lift mt-6 space-y-4 rounded-lg border border-border bg-card p-6">
-        <h2 className="text-lg font-bold">{c.addTitle}</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label>{c.docType}</Label>
-            <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
-              <SelectTrigger aria-label={c.docType}><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
-              <SelectContent>
-                {requirements.map((r) => (
-                  <SelectItem key={r.code} value={r.code}>
-                    {reqName(r, lang)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedReq && reqNote(selectedReq, lang) ? (
-              <p className="mt-1 text-xs text-muted-foreground">{reqNote(selectedReq, lang)}</p>
-            ) : null}
-          </div>
-          <div>
-            <Label htmlFor="issuer">
-              {c.issuer}
-              {selectedReq?.requires_issuer ? <span className="text-destructive"> *</span> : null}
-            </Label>
-            <Input id="issuer" maxLength={120} placeholder={c.issuerPh}
-              value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
-          </div>
-          {selectedReq?.requires_issue_date ? (
-            <div>
-              <Label htmlFor="iss-date">
-                {lang === "ar" ? "تاريخ الإصدار" : "Issue date"}
-                <span className="text-destructive"> *</span>
-              </Label>
-              <Input id="iss-date" type="date" value={form.issue_date}
-                onChange={(e) => setForm({ ...form, issue_date: e.target.value })} />
-            </div>
-          ) : null}
-          <div>
-            <Label htmlFor="exp">
-              {c.expiry}
-              {selectedReq?.requires_expiry ? <span className="text-destructive"> *</span> : null}
-            </Label>
-            <Input id="exp" type="date" value={form.expiry_date}
-              onChange={(e) => setForm({ ...form, expiry_date: e.target.value })} />
-          </div>
-        </div>
-        <div>
-          <Label htmlFor="file">{c.file}</Label>
-          <Input id="file" type="file" accept={ACCEPT.document}
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          {file ? <p className="mt-1 truncate text-xs text-muted-foreground">{file.name}</p> : null}
-        </div>
-
-        <Button onClick={() => add.mutate()} loading={add.isPending}>
-          <Upload className="size-4" /> {add.isPending ? c.uploading : c.upload}
-        </Button>
-      </div>
-
-      <h2 className="mt-10 text-lg font-bold">{c.myDocs}</h2>
-      {isLoading ? (
-        <div className="mt-4"><ListSkeleton rows={2} /></div>
-      ) : items?.length ? (
-        <ul className="mt-4 space-y-3">
-          {items.map((cred) => (
-            <li key={cred.id} id={`cred-${cred.id}`} className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 transition-shadow">
-              <div className="flex items-center gap-3">
-                <FileCheck2 className="size-5 text-primary" />
-                <div>
-                  <p className="font-medium">{cred.file_name ?? cred.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {typeLabel(cred.doc_type)}
-                    {cred.expiry_date ? c.expiresOn(formatDate(cred.expiry_date, lang)) : ""}
-                  </p>
-                  {cred.review_note && <p className="mt-1 text-xs text-destructive">{cred.review_note}</p>}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {isExpired(cred.expiry_date) ? (
-                  <Badge variant="destructive">{v.expired}</Badge>
-                ) : isExpiringSoon(cred.expiry_date) ? (
-                  <Badge variant="outline">{v.expiringSoon}</Badge>
-                ) : null}
-                <Badge variant={cred.status === "approved" ? "default" : "secondary"}>
-                  {credentialLabel(cred.status, lang)}
-                </Badge>
-
-                <Button size="sm" variant="outline" onClick={() => openFile(cred.file_path)}>
-                  <FileText className="size-4" /> {c.view}
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  aria-label={lang === "ar" ? "حذف الوثيقة" : "Delete document"}
-                  onClick={async () => {
-                    const ok = await confirm({
-                      title: lang === "ar" ? "حذف هذه الوثيقة؟" : "Delete this document?",
-                      description:
-                        lang === "ar"
-                          ? "سيُحذف الملف نهائياً وقد يتأثر توثيق حسابك. يمكنك رفعه مجدداً لاحقاً."
-                          : "The file is permanently removed and your verification may be affected. You can upload it again later.",
-                      confirmLabel: lang === "ar" ? "نعم، احذف" : "Yes, delete",
-                      destructive: true,
-                    });
-                    if (ok) remove.mutate(cred.id);
-                  }}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState
-          className="mt-4"
-          icon={FileCheck2}
-          title={c.empty}
-          description={
-            lang === "ar"
-              ? "ارفع ترخيص المزاولة والشهادة والهوية لتظهر عليك شارة التوثيق أمام المنشآت."
-              : "Upload your practice licence, degree and ID so facilities see your verified badge."
-          }
+        <Progress
+          value={pct}
+          className="mt-3"
+          aria-label={lang === "ar" ? "نسبة اكتمال الوثائق" : "Credential completion"}
         />
-      )}
+        <p className="mt-2 text-xs text-muted-foreground">
+          {requiredReqs.length - metRequired > 0 ? c.remaining(requiredReqs.length - metRequired) : c.allDone}
+        </p>
+
+        {isLoading ? (
+          <div className="mt-4">
+            <span className="sr-only">{c.loading}</span>
+            <ListSkeleton rows={3} />
+          </div>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {requirements.map((r) => (
+              <DocumentRequirementCard
+                key={r.id}
+                requirement={r}
+                docs={docsOf(r.code)}
+                anchorPrefix="cred"
+                onUpload={() => setActive(r)}
+                onView={openFile}
+                onDelete={askDelete}
+              />
+            ))}
+          </ul>
+        )}
+
+        {!isLoading && requirements.length === 0 ? (
+          <p className="mt-4 rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+            {lang === "ar"
+              ? "لم تُحدَّد وثائق مطلوبة بعد. سنبلغك عند تفعيلها."
+              : "No required documents have been defined yet."}
+          </p>
+        ) : null}
+      </div>
+
+      {/* الوثائق التي لم يعد نوعها مطلوباً تبقى معروضة حتى لا تختفي بلا تفسير */}
+      {list.filter((d) => !requirements.some((r) => r.code === d.doc_type)).length > 0 ? (
+        <ul className="mt-6 space-y-3">
+          {requirements.length >= 0 &&
+            list
+              .filter((d) => !requirements.some((r) => r.code === d.doc_type))
+              .map((d) => (
+                <DocumentRequirementCard
+                  key={d.id}
+                  requirement={
+                    {
+                      id: d.id,
+                      target: "professional",
+                      code: d.doc_type,
+                      name_ar: d.title,
+                      name_en: d.title,
+                      is_required: false,
+                      min_count: 1,
+                      requires_expiry: false,
+                      requires_issue_date: false,
+                      requires_issuer: false,
+                      note_ar: null,
+                      note_en: null,
+                      sort_order: 999,
+                      is_active: false,
+                    } satisfies DocRequirement
+                  }
+                  docs={[d]}
+                  anchorPrefix="cred"
+                  onUpload={() => undefined}
+                  onView={openFile}
+                  onDelete={askDelete}
+                />
+              ))}
+        </ul>
+      ) : null}
     </div>
   );
 }
