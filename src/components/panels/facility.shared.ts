@@ -58,6 +58,13 @@ export const TXT = {
     shiftCancelled: "تم إلغاء المناوبة",
     confirmCloseTitle: "إغلاق هذه الوظيفة؟",
     confirmCloseDesc: "لن تظهر للباحثين ولن تستقبل طلبات جديدة. يمكنك إعادة نشرها لاحقاً.",
+    confirmClosePending: (n: number) =>
+      n === 1 ? "سيتم إنهاء طلب معلّق واحد وإبلاغ صاحبه." : `سيتم إنهاء ${n} طلبات معلّقة وإبلاغ أصحابها.`,
+    jobClosed: "تم إغلاق الوظيفة",
+    jobClosedEnded: (n: number) =>
+      n === 1 ? "تم إغلاق الوظيفة وإبلاغ متقدّم واحد" : `تم إغلاق الوظيفة وإبلاغ ${n} متقدمين`,
+    copyJob: "نسخ كوظيفة جديدة",
+    filledStatus: (hired: number, total: number) => `اكتمل العدد (${hired}/${total})`,
     confirmCloseCta: "نعم، أغلقها",
     confirmCancelShiftTitle: "إلغاء هذه المناوبة؟",
     confirmCancelShiftDesc: "سيتم إلغاء المناوبة وإخفاؤها عن الباحثين، ولا يمكن التراجع.",
