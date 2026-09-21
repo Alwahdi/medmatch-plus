@@ -1,6 +1,8 @@
 import React from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
 import { AlertCircle, ChevronLeft, Inbox } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,7 +24,7 @@ export function Screen({ children, scroll = true, refreshControl, padded = true 
   children: React.ReactNode; scroll?: boolean; refreshControl?: React.ReactElement<RefreshControlProps>; padded?: boolean;
 }) {
   const inner = padded ? <View style={styles.screenInner}>{children}</View> : children;
-  return <SafeAreaView edges={["top"]} style={styles.screen}>{scroll ? <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} {...(refreshControl ? { refreshControl } : {})}>{inner}</ScrollView> : <View style={styles.fill}>{inner}</View>}</SafeAreaView>;
+  return <SafeAreaView edges={["top"]} style={styles.screen}><KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === "ios" ? "padding" : "height"}>{scroll ? <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"} automaticallyAdjustKeyboardInsets showsVerticalScrollIndicator={false} {...(refreshControl ? { refreshControl } : {})}>{inner}</ScrollView> : <View style={styles.fill}>{inner}</View>}</KeyboardAvoidingView></SafeAreaView>;
 }
 
 export function Title({ children, sub, eyebrow }: { children: React.ReactNode; sub?: string; eyebrow?: string }) {
@@ -46,7 +49,8 @@ export function Button({ label, onPress, variant = "primary", disabled, loading,
     danger: { bg: colors.dangerSoft, fg: colors.danger, border: colors.dangerSoft },
   }[variant];
   const isOff = Boolean(disabled) || Boolean(loading);
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : onPress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 52, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
+  const handlePress = () => { if (Platform.OS !== "web") void Haptics.selectionAsync(); onPress?.(); };
+  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : handlePress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 52, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
 }
 
 export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { icon: LucideIcon; label: string; onPress?: () => void; tone?: "neutral" | "primary" }) {
@@ -59,9 +63,11 @@ export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary"
   return <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={1}>{subtitle}</Text> : null}</View><ChevronLeft size={19} color={colors.textSubtle} /></Pressable>;
 }
 
-export function Field({ label, error, ...props }: TextInputProps & { label: string; error?: string | null }) {
-  return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput accessibilityLabel={label} placeholderTextColor={colors.textSubtle} style={[styles.input, props.multiline ? styles.inputMultiline : null, error ? styles.inputError : null]} {...props}/>{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
-}
+export const Field = React.forwardRef<TextInput, TextInputProps & { label: string; error?: string | null }>(
+  function Field({ label, error, ...props }, ref) {
+    return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput ref={ref} accessibilityLabel={label} placeholderTextColor={colors.textSubtle} style={[styles.input, props.multiline ? styles.inputMultiline : null, error ? styles.inputError : null]} {...props}/>{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
+  },
+);
 
 export function Badge({ label, tone = "neutral" }: { label: string; tone?: "neutral" | "success" | "warning" | "danger" | "primary" }) {
   const t = { neutral: { bg: colors.surfaceMuted, fg: colors.textMuted }, success: { bg: colors.successSoft, fg: colors.success }, warning: { bg: colors.warningSoft, fg: colors.warning }, danger: { bg: colors.dangerSoft, fg: colors.danger }, primary: { bg: colors.primarySoft, fg: colors.primary } }[tone];
