@@ -238,6 +238,15 @@ function MessagesPage() {
     if (!activeId && conversations[0]) setActiveId(conversations[0].id);
   }, [activeId, conversations]);
 
+  // فتح المحادثة القادمة من رابط الإشعار مباشرة.
+  useEffect(() => {
+    if (linkedConversation && linkedConversation !== activeId) {
+      setActiveId(linkedConversation);
+      setMobileOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedConversation]);
+
   useEffect(() => {
     if (!active) return;
     const count = unread[active.id] ?? 0;
