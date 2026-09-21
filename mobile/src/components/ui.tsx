@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
-import { AlertCircle, ChevronLeft, Inbox } from "lucide-react-native";
+import { AlertCircle, ChevronLeft, Eye, EyeOff, Inbox } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, fonts, radii, shadow } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
@@ -63,9 +63,44 @@ export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary"
   return <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={1}>{subtitle}</Text> : null}</View><ChevronLeft size={19} color={colors.textSubtle} /></Pressable>;
 }
 
-export const Field = React.forwardRef<TextInput, TextInputProps & { label: string; error?: string | null }>(
+export const Field = React.forwardRef<TextInput, TextInputProps & { label?: string; error?: string | null }>(
   function Field({ label, error, ...props }, ref) {
-    return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput ref={ref} accessibilityLabel={label} placeholderTextColor={colors.textSubtle} style={[styles.input, props.multiline ? styles.inputMultiline : null, error ? styles.inputError : null]} {...props}/>{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
+    const { t } = useI18n();
+    const isPassword = Boolean(props.secureTextEntry);
+    const [revealed, setRevealed] = React.useState(false);
+    const ToggleIcon = revealed ? EyeOff : Eye;
+    return (
+      <View style={styles.field}>
+        {label ? <Text style={styles.label}>{label}</Text> : null}
+        <View style={styles.inputWrap}>
+          <TextInput
+            ref={ref}
+            accessibilityLabel={label}
+            placeholderTextColor={colors.textSubtle}
+            style={[
+              styles.input,
+              props.multiline ? styles.inputMultiline : null,
+              isPassword ? styles.inputWithAction : null,
+              error ? styles.inputError : null,
+            ]}
+            {...props}
+            secureTextEntry={isPassword && !revealed}
+          />
+          {isPassword ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={revealed ? t("hidePassword") : t("showPassword")}
+              hitSlop={10}
+              onPress={() => setRevealed((v) => !v)}
+              style={styles.inputAction}
+            >
+              <ToggleIcon size={19} color={colors.textMuted} strokeWidth={2} />
+            </Pressable>
+          ) : null}
+        </View>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+      </View>
+    );
   },
 );
 
@@ -94,6 +129,7 @@ export const styles = StyleSheet.create({
   body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 24, color: colors.text, writingDirection: "auto" }, bodyStrong: { fontFamily: fonts.semibold, fontSize: 15, color: colors.text }, muted: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 21, color: colors.textMuted, writingDirection: "auto" }, label: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text }, error: { fontFamily: fonts.regular, fontSize: 12, color: colors.danger },
   card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 10 }, button: { borderRadius: radii.md, borderWidth: 1, alignItems: "center", justifyContent: "center" }, buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }, buttonLabel: { fontFamily: fonts.bold }, iconButton: { width: 46, height: 46, borderRadius: radii.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
   field: { gap: 7 }, input: { minHeight: 52, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: 14, color: colors.text, fontFamily: fonts.regular, fontSize: 14, textAlign: "auto" }, inputMultiline: { minHeight: 110, paddingTop: 14, textAlignVertical: "top" }, inputError: { borderColor: colors.danger },
+  inputWrap: { position: "relative", justifyContent: "center" }, inputWithAction: { paddingEnd: 52 }, inputAction: { position: "absolute", end: 6, height: 44, width: 44, alignItems: "center", justifyContent: "center" },
   badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radii.pill }, badgeLabel: { fontFamily: fonts.semibold, fontSize: 11 }, chip: { paddingHorizontal: 14, minHeight: 42, justifyContent: "center", borderRadius: radii.pill, borderWidth: 1 }, chipLabel: { fontFamily: fonts.semibold, fontSize: 12 },
   menuRow: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }, menuIcon: { width: 42, height: 42, borderRadius: radii.md, alignItems: "center", justifyContent: "center" }, menuText: { flex: 1, minWidth: 0 }, menuTitle: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text }, menuSubtitle: { fontFamily: fonts.regular, fontSize: 11, color: colors.textMuted, marginTop: 1 },
   state: { alignItems: "center", justifyContent: "center", borderRadius: radii.lg, borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, backgroundColor: colors.surface, padding: 28, gap: 10 }, stateIcon: { width: 54, height: 54, borderRadius: radii.lg, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }, stateTitle: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text, textAlign: "center" },
