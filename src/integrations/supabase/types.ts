@@ -2128,6 +2128,7 @@ export type Database = {
       claim_facility_role: { Args: never; Returns: boolean }
       claim_professional_role: { Args: never; Returns: boolean }
       cleanup_orphaned_identities: { Args: never; Returns: Json }
+      close_job: { Args: { _job_id: string }; Returns: Json }
       complete_interview: {
         Args: {
           _interview_id: string
@@ -2279,6 +2280,7 @@ export type Database = {
           value: number
         }[]
       }
+      reopen_job: { Args: { _job_id: string }; Returns: undefined }
       request_account_deletion: { Args: { _reason?: string }; Returns: string }
       require_admin_mfa: { Args: never; Returns: undefined }
       require_mfa: { Args: never; Returns: undefined }
