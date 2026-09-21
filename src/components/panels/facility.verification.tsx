@@ -294,15 +294,17 @@ export function FacilityVerificationPanel() {
   }
 
   const list = docs ?? [];
-  const approvedRequired = FACILITY_REQUIRED_DOCS.filter((t) =>
-    list.some((d) => d.doc_type === t && isValidEvidence(d)),
+  const requiredReqs = requirements.filter((r) => r.is_required);
+  const requiredCodeList = requiredReqs.map((r) => r.code);
+  const approvedRequired = requiredReqs.filter(
+    (r) => list.filter((d) => d.doc_type === r.code && isValidEvidence(d)).length >= r.min_count,
   ).length;
-  const pct = Math.round((approvedRequired / FACILITY_REQUIRED_DOCS.length) * 100);
+  const pct = requiredReqs.length ? Math.round((approvedRequired / requiredReqs.length) * 100) : 0;
   const requiredExpired = list.some(
-    (d) => FACILITY_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
   );
   const requiredExpiringSoon = list.some(
-    (d) => FACILITY_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
   );
   const v = VALIDITY_TXT[lang];
 
