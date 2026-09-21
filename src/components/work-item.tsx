@@ -70,12 +70,13 @@ export function WorkTypeBadge({ type, className }: { type: WorkType; className?:
   );
 }
 
-export type WorkStatus = "published" | "closed" | "expired" | "open" | "booked" | "cancelled" | "completed";
+export type WorkStatus = "published" | "closed" | "filled" | "expired" | "open" | "booked" | "cancelled" | "completed";
 
 const STATUS_ICON = {
   published: CircleDot,
   open: CircleDot,
   closed: PauseCircle,
+  filled: CheckCircle2,
   expired: CalendarClock,
   booked: CalendarCheck2,
   cancelled: CircleSlash,
