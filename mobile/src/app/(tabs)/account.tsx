@@ -24,33 +24,27 @@ export default function AccountTab() {
   const verified = Boolean(f?.is_verified) || Boolean(p?.is_verified);
 
   return <Screen>
-    <ScreenHeader title={t("account")} sub={lang === "ar" ? "ملفك وإعداداتك" : "Your profile and settings"} action={<Brand compact/>}/>
+    <ScreenHeader title={t("account")} sub={lang === "ar" ? "ملفك وإعداداتك" : "Your profile and settings"}/>
     <View style={[{ backgroundColor: colors.surface, borderRadius: radii.xl, padding: 20, alignItems: "center", gap: 8 }, raisedShadow]}>
       <View style={{ width: 82, height: 82, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: colors.surface }}><UserRound size={38} color={colors.primary}/></View>
       <Text style={{ fontFamily: fonts.bold, fontSize: 20, color: colors.text, textAlign: "center" }}>{displayName}</Text>
-      <Text style={ui.muted}>{detail}</Text>
+      {detail ? <Text style={ui.muted}>{detail}</Text> : null}
       <Row gap={6} wrap>{verified ? <Badge label={t("verified")} tone="success"/> : null}{roles.map((r) => <Badge key={r} label={r === "facility" ? t("roleFacility") : r === "professional" ? t("roleProfessional") : "Admin"} tone="primary"/>)}</Row>
     </View>
-
-    {isProfessional && (!p?.headline || !verified) ? (
-      <Card style={{ gap: 6, padding: 12, borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: colors.text, paddingHorizontal: 4 }}>{t("completeYourProfile")}</Text>
-        {!p?.headline ? <MenuRow icon={Stethoscope} title={t("nextPro1")} subtitle={t("nextPro1Sub")} onPress={() => router.push("/profile")}/> : null}
-        {!verified ? <MenuRow icon={ShieldCheck} title={t("nextPro2")} subtitle={t("nextPro2Sub")} tone="accent" onPress={() => router.push({ pathname: "/verification", params: { target: "professional" } })}/> : null}
-      </Card>
-    ) : null}
-    {isFacility && !verified ? (
-      <Card style={{ gap: 6, padding: 12, borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: colors.text, paddingHorizontal: 4 }}>{t("completeYourProfile")}</Text>
-        <MenuRow icon={ShieldCheck} title={t("nextFac2")} subtitle={t("nextFac2Sub")} tone="accent" onPress={() => router.push({ pathname: "/verification", params: { target: "facility" } })}/>
-      </Card>
-    ) : null}
 
     <Text style={[ui.label, { color: colors.textMuted, marginTop: 4 }]}>{lang === "ar" ? "إدارة الحساب" : "ACCOUNT"}</Text>
     {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
     {isFacility ? <><MenuRow icon={Building2} title={t("facilityWorkspace")} subtitle={lang === "ar" ? "الفرص والمتقدمون" : "Listings and applicants"} tone="accent" onPress={() => router.push("/facility")}/><MenuRow icon={UserRound} title={t("editFacility")} subtitle={lang === "ar" ? "الاسم والنوع والموقع" : "Name, type and location"} onPress={() => router.push("/facility/profile")}/></> : null}
+    <MenuRow
+      icon={ShieldCheck}
+      title={lang === "ar" ? "مستندات التوثيق" : "Verification documents"}
+      subtitle={verified ? (lang === "ar" ? "حسابك موثّق" : "Your account is verified") : (lang === "ar" ? "ارفع مستنداتك للحصول على شارة التوثيق" : "Upload documents to get the verified badge")}
+      tone={verified ? "primary" : "accent"}
+      onPress={() => router.push({ pathname: "/verification", params: { target: isFacility ? "facility" : "professional" } })}
+    />
     <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
-    <MenuRow icon={ShieldCheck} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
+    <MenuRow icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
+
 
     <Card>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}><Globe2 size={20} color={colors.primary}/><Text style={ui.label}>{t("language")}</Text></View>

@@ -18,7 +18,7 @@ function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: Colo
 
 export default function TabsLayout() {
   const { session, user, roles, loading, isFacility } = useAuth();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const invitations = useMyInvitations();
   const reviews = usePendingReviews();
   const unreadMessages = useUnreadMessages();
