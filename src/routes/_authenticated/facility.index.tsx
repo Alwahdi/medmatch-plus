@@ -57,6 +57,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { assertOk } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
+import { PendingReviews } from "@/components/pending-reviews";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { cityOptions, countryOptions, currencyOptions } from "@/lib/geo";
 import {
@@ -222,13 +223,60 @@ function FacilityDashboard() {
     ? Math.max(plan.candidate_searches - (sub?.searches_used ?? 0), 0)
     : null;
 
-  const toggleJob = useMutation({
-    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from("jobs").update({ is_active }).eq("id", id);
+  // إغلاق الوظيفة يدوياً يُنهي الطلبات المعلّقة ويُشعر أصحابها في عملية واحدة.
+  const closeJob = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase.rpc("close_job", { _job_id: id });
+      if (error) throw error;
+      return data as { ended: number };
+    },
+    onSuccess: (res) => {
+      toast.success(res?.ended ? c.jobClosedEnded(res.ended) : c.jobClosed);
+      queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["facility-applicants"] });
+    },
+    onError: (e: Error) => toast.error(friendlyError(e, lang)),
+  });
+
+  const reopenJob = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("reopen_job", { _job_id: id });
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["facility-jobs"] }),
+    onError: (e: Error) => toast.error(friendlyError(e, lang)),
   });
+
+  /** نسخ وظيفة مكتملة كمسودة وظيفة جديدة بدل إعادة فتح وظيفة لا تقبل توظيفاً. */
+  const copyJobAsNew = (j: {
+    title: string; description: string; specialty_id: string | null; employment_type: string;
+    country: string; city: string; salary_min: number | string; salary_max: number | string;
+    currency: string; min_experience: number; vacancies: number; required_license: string | null;
+  }) => {
+    if (!facility) return;
+    try {
+      localStorage.setItem(
+        `syndeocare:listing-draft:job:${facility.id}`,
+        JSON.stringify({
+          title: j.title,
+          description: j.description,
+          specialty_id: j.specialty_id ?? "",
+          employment_type: j.employment_type,
+          country: j.country,
+          city: j.city,
+          salary_min: String(j.salary_min ?? ""),
+          salary_max: String(j.salary_max ?? ""),
+          currency: j.currency,
+          min_experience: String(j.min_experience ?? 0),
+          vacancies: String(Math.max(Number(j.vacancies) || 1, 1)),
+          required_license: j.required_license ?? "",
+        }),
+      );
+    } catch {
+      /* المسودة اختيارية */
+    }
+    setCreateMode("job");
+  };
 
   const cancelShift = useMutation({
     mutationFn: async (id: string) => {
@@ -545,6 +593,8 @@ function FacilityDashboard() {
         </div>
       )}
 
+      <PendingReviews userId={user?.id} />
+
       <div className="mt-10">
         <SectionHeading title={c.publishedWork} />
         <p className="mt-1 text-sm leading-6 text-muted-foreground">{c.overview}</p>
@@ -580,6 +630,12 @@ function FacilityDashboard() {
           {jobs?.length ? (
             jobs.map((j) => {
               const applicants = j.applications?.length ?? 0;
+              const hiredCount = (j.applications ?? []).filter((a) => a.status === "hired").length;
+              const pendingCount = (j.applications ?? []).filter(
+                (a) => a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn",
+              ).length;
+              const seats = Math.max(Number(j.vacancies) || 1, 1);
+              const filled = !j.is_active && (j.auto_closed || hiredCount >= seats);
               return (
                 <PublishedWorkCard
                   key={j.id}
@@ -587,7 +643,7 @@ function FacilityDashboard() {
                   title={j.title}
                   to="/jobs/$jobId"
                   params={{ jobId: j.slug ?? j.id }}
-                  status={!j.is_active ? "closed" : jobAccepting(j) ? "published" : "expired"}
+                  status={filled ? "filled" : !j.is_active ? "closed" : jobAccepting(j) ? "published" : "expired"}
                   meta={
                     <>
                       {formatSalary(Number(j.salary_min), Number(j.salary_max), j.currency, lang)} ·{" "}
@@ -622,25 +678,38 @@ function FacilityDashboard() {
                               <UserPlus className="size-4" /> {c.invite}
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem
-                            className="min-h-11 gap-2"
-                            disabled={toggleJob.isPending}
-                            onSelect={async () => {
-                              if (j.is_active) {
+                          {j.is_active ? (
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              disabled={closeJob.isPending}
+                              onSelect={async () => {
                                 const ok = await confirm({
                                   title: c.confirmCloseTitle,
-                                  description: c.confirmCloseDesc,
+                                  description: pendingCount
+                                    ? `${c.confirmCloseDesc} ${c.confirmClosePending(pendingCount)}`
+                                    : c.confirmCloseDesc,
                                   confirmLabel: c.confirmCloseCta,
                                   destructive: true,
                                 });
                                 if (!ok) return;
-                              }
-                              toggleJob.mutate({ id: j.id, is_active: !j.is_active });
-                            }}
-                          >
-                            {j.is_active ? <PauseCircle className="size-4" /> : <PlusCircle className="size-4" />}
-                            {j.is_active ? c.close : c.republish}
-                          </DropdownMenuItem>
+                                closeJob.mutate(j.id);
+                              }}
+                            >
+                              <PauseCircle className="size-4" /> {c.close}
+                            </DropdownMenuItem>
+                          ) : filled ? (
+                            <DropdownMenuItem className="min-h-11 gap-2" onSelect={() => copyJobAsNew(j)}>
+                              <PlusCircle className="size-4" /> {c.copyJob}
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              className="min-h-11 gap-2"
+                              disabled={reopenJob.isPending}
+                              onSelect={() => reopenJob.mutate(j.id)}
+                            >
+                              <PlusCircle className="size-4" /> {c.republish}
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </>

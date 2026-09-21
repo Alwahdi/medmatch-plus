@@ -153,6 +153,11 @@ const RULES: Rule[] = [
     en: "Check the salary: it can't be negative and the minimum can't exceed the maximum.",
   },
   {
+    test: /JOB_FILLED_USE_COPY/i,
+    ar: "اكتمل عدد الشواغر في هذه الوظيفة، لذلك لا يمكن إعادة نشرها. انسخها كوظيفة جديدة.",
+    en: "This job's positions are filled, so it can't be republished. Copy it as a new job instead.",
+  },
+  {
     test: /jobs_vacancies_ck/i,
     ar: "عدد الشواغر يجب أن يكون بين 1 و100.",
     en: "Vacancies must be between 1 and 100.",

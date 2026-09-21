@@ -2128,6 +2128,7 @@ export type Database = {
       claim_facility_role: { Args: never; Returns: boolean }
       claim_professional_role: { Args: never; Returns: boolean }
       cleanup_orphaned_identities: { Args: never; Returns: Json }
+      close_job: { Args: { _job_id: string }; Returns: Json }
       complete_interview: {
         Args: {
           _interview_id: string
@@ -2190,6 +2191,19 @@ export type Database = {
         }[]
       }
       my_inactive_employers: { Args: never; Returns: string[] }
+      my_pending_reviews: {
+        Args: never
+        Returns: {
+          context_title: string
+          counterpart_name: string
+          direction: Database["public"]["Enums"]["review_direction"]
+          facility_id: string
+          happened_at: string
+          job_id: string
+          professional_user_id: string
+          shift_id: string
+        }[]
+      }
       my_profile_completeness: {
         Args: never
         Returns: {
@@ -2279,6 +2293,7 @@ export type Database = {
           value: number
         }[]
       }
+      reopen_job: { Args: { _job_id: string }; Returns: undefined }
       request_account_deletion: { Args: { _reason?: string }; Returns: string }
       require_admin_mfa: { Args: never; Returns: undefined }
       require_mfa: { Args: never; Returns: undefined }
