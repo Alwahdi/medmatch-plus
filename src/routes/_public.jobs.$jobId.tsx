@@ -387,7 +387,7 @@ function JobDetail() {
   const isOpen = job.is_active && !expired;
   const seats = Math.max(Number(job.vacancies) || 1, 1);
   const hiredCount = (ownerApps ?? []).filter((a) => a.status === "hired").length;
-  const autoClosed = "auto_closed" in job && !!(job as Record<string, unknown>).auto_closed;
+  const autoClosed = "auto_closed" in job && !!(job as Record<string, unknown>)["auto_closed"];
   const filled = !job.is_active && (autoClosed || hiredCount >= seats);
   const statusText = !job.is_active
     ? filled ? c.statusFilled : c.statusClosed
