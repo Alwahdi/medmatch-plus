@@ -17,7 +17,7 @@ import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
 import { AlertCircle, ChevronLeft, Eye, EyeOff, Inbox } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, fonts, radii, shadow } from "@/lib/theme";
+import { colors, fonts, radii, shadow, space, type as typo } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
 
 export function Screen({ children, scroll = true, refreshControl, padded = true }: {
@@ -29,6 +29,19 @@ export function Screen({ children, scroll = true, refreshControl, padded = true 
 
 export function Title({ children, sub, eyebrow }: { children: React.ReactNode; sub?: string; eyebrow?: string }) {
   return <View style={styles.titleWrap}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text style={styles.title}>{children}</Text>{sub ? <Text style={styles.muted}>{sub}</Text> : null}</View>;
+}
+
+/** One header pattern for every screen: title start-aligned, optional action at the end. */
+export function ScreenHeader({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
+  return (
+    <View style={styles.screenHeader}>
+      <View style={styles.screenHeaderText}>
+        <Text style={styles.title} numberOfLines={1}>{title}</Text>
+        {sub ? <Text style={styles.muted} numberOfLines={1}>{sub}</Text> : null}
+      </View>
+      {action}
+    </View>
+  );
 }
 
 export function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
