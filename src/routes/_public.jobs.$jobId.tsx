@@ -385,6 +385,13 @@ function JobDetail() {
   const specialty = specialtyName(job.specialties, lang);
   const expired = !!job.expires_at && new Date(job.expires_at).getTime() < Date.now();
   const isOpen = job.is_active && !expired;
+  const seats = Math.max(Number(job.vacancies) || 1, 1);
+  const hiredCount = (ownerApps ?? []).filter((a) => a.status === "hired").length;
+  const autoClosed = "auto_closed" in job && !!(job as Record<string, unknown>).auto_closed;
+  const filled = !job.is_active && (autoClosed || hiredCount >= seats);
+  const statusText = !job.is_active
+    ? filled ? c.statusFilled : c.statusClosed
+    : expired ? c.statusExpired : c.statusPublished;
 
   return (
     <>
@@ -406,10 +413,10 @@ function JobDetail() {
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-on-hero/85">
             <Badge className={isOpen ? "bg-success text-on-hero" : "bg-muted text-foreground"}>
-              {isOpen ? c.open : c.closed}
+              {isOwner ? statusText : isOpen ? c.open : c.closed}
             </Badge>
             <span className="flex items-center gap-2">
-              <Building2 className="size-4" /> {revealedFacility ? facilityDisplayName(revealedFacility, lang) : c.hiddenEmployer}
+              <Building2 className="size-4" /> {revealedFacility ? facilityDisplayName(revealedFacility, lang) : isOwner && myFacility ? facilityDisplayName(myFacility, lang) : c.hiddenEmployer}
             </span>
 
             {job.facility_verified && (
