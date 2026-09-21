@@ -13,6 +13,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
 import { AlertCircle, ChevronLeft, Inbox } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -48,7 +49,8 @@ export function Button({ label, onPress, variant = "primary", disabled, loading,
     danger: { bg: colors.dangerSoft, fg: colors.danger, border: colors.dangerSoft },
   }[variant];
   const isOff = Boolean(disabled) || Boolean(loading);
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : onPress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 52, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
+  const handlePress = () => { if (Platform.OS !== "web") void Haptics.selectionAsync(); onPress?.(); };
+  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : handlePress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 52, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
 }
 
 export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { icon: LucideIcon; label: string; onPress?: () => void; tone?: "neutral" | "primary" }) {
