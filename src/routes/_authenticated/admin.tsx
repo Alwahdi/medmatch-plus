@@ -20,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminPlatformSettings } from "@/components/admin-platform-settings";
+import { AdminDocumentRequirements } from "@/components/admin-requirements";
+import { reqName, useAllDocumentRequirements } from "@/lib/document-requirements";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { fieldLabel, changeValueLabel, isOpaqueChangeValue, useSpecialtyList } from "@/components/change-request";
