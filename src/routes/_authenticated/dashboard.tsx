@@ -15,6 +15,7 @@ import { applicationLabel, formatDateTime } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { isProfessionalProfileComplete } from "@/lib/profile-completeness";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
+import { PendingReviews } from "@/components/pending-reviews";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
