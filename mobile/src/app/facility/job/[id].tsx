@@ -20,6 +20,7 @@ const verificationGated = (error: unknown) => {
 
 export default function FacilityJobApplicants() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { t, lang } = useI18n();
   const job = useJob(String(id));
   const applicants = useJobApplicants(String(id));
