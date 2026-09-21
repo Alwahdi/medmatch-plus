@@ -61,6 +61,14 @@ export function OwnerListingPanel({
 
       {listingId && (
         <div className="mt-6 border-t border-primary/20 pt-4">
+          <SuggestedCandidates
+            {...(isJob ? { jobId: listingId } : { shiftId: listingId })}
+          />
+        </div>
+      )}
+
+      {listingId && (
+        <div className="mt-6 border-t border-primary/20 pt-4">
           <h3 className="mb-3 text-sm font-bold">{isJob ? c.applicants : c.bookings}</h3>
           {isJob ? (
             <FacilityApplicantsPanel jobId={listingId} embedded />
