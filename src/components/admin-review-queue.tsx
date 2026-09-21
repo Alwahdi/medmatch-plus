@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { CheckCircle2, ChevronLeft, FileText, ShieldCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,8 @@ export type ReviewDoc = {
 /** جهة واحدة (منشأة أو كادر) بملفها ومستنداتها. */
 export type ReviewOwner = {
   key: string;
+  /** حساب صاحب المستندات — يفتح الملف الكامل في لوحة الإدارة. */
+  userId?: string | null;
   name: string;
   meta: string;
   verified: boolean;

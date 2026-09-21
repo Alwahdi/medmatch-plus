@@ -610,6 +610,7 @@ function AdminPage() {
     const place = p ? joinMeta([p.city, countryLabel(p.country, lang)]).replace(" · ", "، ") : "";
     return {
       key: userId,
+      userId,
       name: p?.full_name ?? unknownOwner,
       meta: joinMeta([p?.headline, place]),
       verified: !!p?.is_verified,
@@ -635,6 +636,7 @@ function AdminPage() {
       const place = f ? `${f.city}، ${countryLabel(f.country, lang)}` : "";
       return {
         key: facilityId,
+        userId: f?.user_id ?? null,
         name: f?.name_ar ?? items[0]?.facilities?.name_ar ?? unknownOwner,
         meta: joinMeta([f ? facilityTypeLabel(f.facility_type, lang) : null, place]),
         verified: !!f?.is_verified,
