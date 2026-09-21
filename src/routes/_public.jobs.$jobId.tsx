@@ -1,5 +1,4 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-// عرض مخصص للمالك: إحصاءات + بيانات + متقدمون بعرض كامل.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
