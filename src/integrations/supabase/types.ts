@@ -1167,6 +1167,84 @@ export type Database = {
           },
         ]
       }
+      legal_documents: {
+        Row: {
+          body_ar: string | null
+          body_en: string | null
+          created_at: string
+          key: string
+          meta: Json
+          title_ar: string
+          title_en: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          body_ar?: string | null
+          body_en?: string | null
+          created_at?: string
+          key: string
+          meta?: Json
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          body_ar?: string | null
+          body_en?: string | null
+          created_at?: string
+          key?: string
+          meta?: Json
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      locations: {
+        Row: {
+          city_ar: string
+          city_en: string
+          country: string
+          created_at: string
+          id: string
+          is_active: boolean
+          region_ar: string
+          region_en: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          city_ar: string
+          city_en: string
+          country: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          region_ar: string
+          region_en: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          city_ar?: string
+          city_en?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          region_ar?: string
+          region_en?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -1881,6 +1959,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_consents: {
+        Row: {
+          created_at: string
+          doc_key: string
+          id: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          doc_key: string
+          id?: string
+          user_id: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          doc_key?: string
+          id?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2062,6 +2164,10 @@ export type Database = {
         Args: { _facility_id: string; _reason?: string; _value: boolean }
         Returns: undefined
       }
+      admin_set_location_active: {
+        Args: { _id: string; _is_active: boolean }
+        Returns: undefined
+      }
       admin_set_platform_setting: {
         Args: { _enabled: boolean; _key: string }
         Returns: undefined
@@ -2094,6 +2200,31 @@ export type Database = {
           _requires_issuer: boolean
           _sort_order: number
           _target: string
+        }
+        Returns: string
+      }
+      admin_upsert_legal_document: {
+        Args: {
+          _body_ar: string
+          _body_en: string
+          _bump_version: boolean
+          _key: string
+          _meta: Json
+          _title_ar: string
+          _title_en: string
+        }
+        Returns: number
+      }
+      admin_upsert_location: {
+        Args: {
+          _city_ar: string
+          _city_en: string
+          _country: string
+          _id: string
+          _is_active: boolean
+          _region_ar: string
+          _region_en: string
+          _sort_order: number
         }
         Returns: string
       }
@@ -2296,6 +2427,10 @@ export type Database = {
       reopen_job: { Args: { _job_id: string }; Returns: undefined }
       request_account_deletion: { Args: { _reason?: string }; Returns: string }
       require_admin_mfa: { Args: never; Returns: undefined }
+      require_consent: {
+        Args: { _doc_key: string; _error: string }
+        Returns: undefined
+      }
       require_mfa: { Args: never; Returns: undefined }
       reschedule_interview: {
         Args: { _interview_id: string; _notes?: string; _scheduled_at: string }
