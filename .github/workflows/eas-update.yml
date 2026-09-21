@@ -9,6 +9,15 @@ on:
   pull_request:
     paths:
       - "mobile/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "build_submit = بناء AAB ورفعه لـ Google Play (internal track)"
+        required: true
+        default: "build_submit"
+        type: choice
+        options:
+          - build_submit
 
 jobs:
   update:
@@ -58,3 +67,47 @@ jobs:
         with:
           project: ./mobile
           channel: pr-${{ github.event.pull_request.number }}
+
+  build-submit:
+    name: Build AAB & Submit to Google Play
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Expo & EAS
+        uses: expo/expo-github-action@v9
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Write Google Play service account key
+        working-directory: mobile
+        run: echo '${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}' > google-play-key.json
+
+      - name: Build production AAB (cloud)
+        working-directory: mobile
+        run: eas build --platform android --profile production --non-interactive --wait
+
+      - name: Submit to Google Play (internal track)
+        working-directory: mobile
+        run: eas submit --platform android --profile production --latest --non-interactive
+
+      - name: Remove service account key
+        if: always()
+        working-directory: mobile
+        run: rm -f google-play-key.json
