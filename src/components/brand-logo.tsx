@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import brandMark from "@/assets/syndeocare-mark.png.asset.json";
+import brandMark from "@/assets/syndeocare-mark.png";
 import { cn } from "@/lib/utils";
 
 type BrandLogoProps = {
