@@ -224,6 +224,20 @@ export function useSendMessage(conversationId: string) {
   });
 }
 
+export function useMarkConversationRead(conversationId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await supabase.rpc("mark_conversation_read", { _conversation_id: conversationId });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["messages", conversationId] });
+      void qc.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
+}
+
 export function useNotifications() {
   const { user } = useAuth();
   return useQuery({
@@ -347,5 +361,57 @@ export function useSetApplicationStage(jobId: string) {
       if (res.error) throw new Error(res.error.message);
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["job-applicants", jobId] }),
+  });
+}
+
+export type CreateJobInput = {
+  facilityId: string; title: string; description: string; specialtyId: string | null;
+  employmentType: "full_time" | "part_time" | "contract" | "locum" | "shift";
+  country: string; city: string; salaryMin: number; salaryMax: number;
+  minExperience: number; vacancies: number; requiredLicense: string | null;
+};
+
+export function useCreateJob() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateJobInput) => {
+      const res = await supabase.from("jobs").insert({
+        facility_id: input.facilityId, title: input.title, description: input.description,
+        specialty_id: input.specialtyId, employment_type: input.employmentType,
+        country: input.country, city: input.city, salary_min: input.salaryMin,
+        salary_max: input.salaryMax, currency: "YER", min_experience: input.minExperience,
+        vacancies: input.vacancies, required_license: input.requiredLicense,
+      }).select("id").single();
+      if (res.error) throw new Error(res.error.message);
+      return res.data.id;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["facility-jobs"] });
+      void qc.invalidateQueries({ queryKey: ["jobs"] });
+    },
+  });
+}
+
+export type CreateShiftInput = {
+  facilityId: string; title: string; specialtyId: string | null; startsAt: string;
+  endsAt: string; hourlyRate: number; country: string; city: string; notes: string | null;
+};
+
+export function useCreateShift() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateShiftInput) => {
+      const res = await supabase.from("shifts").insert({
+        facility_id: input.facilityId, title: input.title, specialty_id: input.specialtyId,
+        starts_at: input.startsAt, ends_at: input.endsAt, hourly_rate: input.hourlyRate,
+        currency: "YER", country: input.country, city: input.city, notes: input.notes,
+      }).select("id").single();
+      if (res.error) throw new Error(res.error.message);
+      return res.data.id;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["facility-shifts"] });
+      void qc.invalidateQueries({ queryKey: ["shifts"] });
+    },
   });
 }

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { RefreshControl, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { CalendarClock, ClipboardList, MailOpen, Star } from "lucide-react-native";
+import { CalendarClock, ClipboardList, MailOpen, Star, UsersRound } from "lucide-react-native";
 import {
   Badge,
   Button,
@@ -21,6 +21,8 @@ import {
   useMyApplications,
   useMyBookings,
   useMyInvitations,
+  useMyFacility,
+  useFacilityJobs,
   usePendingReviews,
   useRespondInvitation,
 } from "@/lib/queries";
@@ -221,10 +223,9 @@ export default function ActivityTab() {
 function FacilityApplicantsOverview() {
   const { t, lang } = useI18n();
   const router = useRouter();
-  const { useMyFacility: useFacility, useFacilityJobs: useJobs } = require("@/lib/queries") as typeof import("@/lib/queries");
-  const facility = useFacility();
+  const facility = useMyFacility();
   const facilityId = (facility.data as { id?: string } | null)?.id;
-  const jobs = useJobs(facilityId);
+  const jobs = useFacilityJobs(facilityId);
   const withApplicants = (jobs.data ?? []).filter((job) => (job.applications_count ?? 0) > 0);
   return (
     <Screen refreshControl={<RefreshControl refreshing={jobs.isFetching} onRefresh={() => void jobs.refetch()} tintColor={colors.primary} />}>
