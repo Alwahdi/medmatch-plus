@@ -522,6 +522,8 @@ function ShiftDetail() {
            )}
         </div>
       )}
+      {consent.node}
+
     </>
   );
 }
