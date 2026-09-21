@@ -599,9 +599,6 @@ function JobDetail() {
               </div>
             </div>
 
-            {isOwner ? (
-              <OwnerListingPanel kind="job" listingId={job.id} facilityId={job.facility_id} />
-            ) : (
             <div id="apply" className="card-lift scroll-mt-24 rounded-lg border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.applyTitle}</h2>
               {!user ? (
