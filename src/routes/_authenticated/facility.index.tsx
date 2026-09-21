@@ -222,13 +222,60 @@ function FacilityDashboard() {
     ? Math.max(plan.candidate_searches - (sub?.searches_used ?? 0), 0)
     : null;
 
-  const toggleJob = useMutation({
-    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from("jobs").update({ is_active }).eq("id", id);
+  // إغلاق الوظيفة يدوياً يُنهي الطلبات المعلّقة ويُشعر أصحابها في عملية واحدة.
+  const closeJob = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase.rpc("close_job", { _job_id: id });
+      if (error) throw error;
+      return data as { ended: number };
+    },
+    onSuccess: (res) => {
+      toast.success(res?.ended ? c.jobClosedEnded(res.ended) : c.jobClosed);
+      queryClient.invalidateQueries({ queryKey: ["facility-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["facility-applicants"] });
+    },
+    onError: (e: Error) => toast.error(friendlyError(e, lang)),
+  });
+
+  const reopenJob = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("reopen_job", { _job_id: id });
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["facility-jobs"] }),
+    onError: (e: Error) => toast.error(friendlyError(e, lang)),
   });
+
+  /** نسخ وظيفة مكتملة كمسودة وظيفة جديدة بدل إعادة فتح وظيفة لا تقبل توظيفاً. */
+  const copyJobAsNew = (j: {
+    title: string; description: string; specialty_id: string | null; employment_type: string;
+    country: string; city: string; salary_min: number | string; salary_max: number | string;
+    currency: string; min_experience: number; vacancies: number; required_license: string | null;
+  }) => {
+    if (!facility) return;
+    try {
+      localStorage.setItem(
+        `syndeocare:listing-draft:job:${facility.id}`,
+        JSON.stringify({
+          title: j.title,
+          description: j.description,
+          specialty_id: j.specialty_id ?? "",
+          employment_type: j.employment_type,
+          country: j.country,
+          city: j.city,
+          salary_min: String(j.salary_min ?? ""),
+          salary_max: String(j.salary_max ?? ""),
+          currency: j.currency,
+          min_experience: String(j.min_experience ?? 0),
+          vacancies: String(Math.max(Number(j.vacancies) || 1, 1)),
+          required_license: j.required_license ?? "",
+        }),
+      );
+    } catch {
+      /* المسودة اختيارية */
+    }
+    setCreateMode("job");
+  };
 
   const cancelShift = useMutation({
     mutationFn: async (id: string) => {
