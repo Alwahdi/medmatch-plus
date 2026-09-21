@@ -49,7 +49,7 @@ export function RemoteAvatar({
       {avatar}
       <BadgeCheck
         aria-label={lang === "ar" ? "موثّق" : "Verified"}
-        className="absolute -bottom-1 -end-1 size-4 rounded-full bg-card text-accent"
+        className="absolute -bottom-1 -end-1 size-[18px] rounded-full fill-primary text-primary-foreground drop-shadow-sm ring-2 ring-card"
       />
     </span>
   );

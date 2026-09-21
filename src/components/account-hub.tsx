@@ -92,14 +92,29 @@ export function useAccountIdentity() {
       return data;
     },
   });
+  const { data: myProfessional } = useQuery({
+    queryKey: ["my-professional-verification", user?.id],
+    enabled: !!user && !isFacility,
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("healthcare_professionals")
+        .select("is_verified")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const name =
     (isFacility ? (myFacility ? facilityDisplayName(myFacility, lang) : "") : myProfile?.full_name) ||
     user?.email ||
     "SyndeoCare";
   const image = (isFacility ? myFacility?.logo_url : myProfile?.avatar_url) ?? null;
+  const verified = isFacility ? !!myFacility?.is_verified : !!myProfessional?.is_verified;
 
-  return { user, roles, isFacility, name, image };
+  return { user, roles, isFacility, name, image, verified };
 }
 
 function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
@@ -107,7 +122,7 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
   const c = TXT[lang];
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user, roles, isFacility, name, image } = useAccountIdentity();
+  const { user, roles, isFacility, name, image, verified } = useAccountIdentity();
 
   async function signOut() {
     onNavigate();
@@ -125,6 +140,7 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
           alt={name}
           fallbackText={name}
           className="size-11 shrink-0 rounded-full text-sm"
+          verified={verified}
         />
         <div className="min-w-0">
           <p className="truncate text-sm font-bold">{name}</p>
@@ -204,7 +220,7 @@ function AccountLinks({ onNavigate }: { onNavigate: () => void }) {
 export function AccountHub({ trigger }: { trigger?: ReactNode }) {
   const { lang } = useLang();
   const c = TXT[lang];
-  const { name, image } = useAccountIdentity();
+  const { name, image, verified } = useAccountIdentity();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -219,6 +235,7 @@ export function AccountHub({ trigger }: { trigger?: ReactNode }) {
         alt={name}
         fallbackText={name}
         className="size-11 shrink-0 rounded-full text-sm"
+        verified={verified}
       />
     </button>
   );
@@ -251,7 +268,7 @@ export function AccountHub({ trigger }: { trigger?: ReactNode }) {
 export function AccountHubSidebarTrigger() {
   const { lang, t } = useLang();
   const c = TXT[lang];
-  const { name, image, isFacility } = useAccountIdentity();
+  const { name, image, isFacility, verified } = useAccountIdentity();
 
   return (
     <AccountHub
@@ -266,6 +283,7 @@ export function AccountHubSidebarTrigger() {
             alt={name}
             fallbackText={name}
             className="size-11 shrink-0 rounded-full text-sm"
+            verified={verified}
           />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold">{name}</span>

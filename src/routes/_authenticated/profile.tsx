@@ -385,6 +385,7 @@ function ProfileOverview() {
               alt={form.full_name}
               fallbackText={form.full_name || "?"}
               className="size-16 shrink-0 rounded-full text-lg"
+              verified={!!profile?.is_verified}
             />
             <div className="min-w-0">
               <h2 className="flex items-center gap-2 text-xl font-extrabold">
