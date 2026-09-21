@@ -7,7 +7,7 @@ import { EmptyState, ErrorState, Loading, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useMarkConversationRead, useMessages, useSendMessage } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
-import { relativeTime } from "@/lib/format";
+import { dayKey, formatDayLabel, formatTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { colors, radii } from "@/lib/theme";
 import { Send } from "lucide-react-native";
