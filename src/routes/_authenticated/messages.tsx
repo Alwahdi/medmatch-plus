@@ -71,6 +71,8 @@ import { dayKey, dayLabel, timeLabel, EMOJIS, PICKER_EMOJIS, TXT, type Conversat
 import { friendlyError, userError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/messages")({
+  validateSearch: (search: Record<string, unknown>): { c?: string } =>
+    typeof search["c"] === "string" ? { c: search["c"] } : {},
   head: () => ({
     meta: [
       { title: "الرسائل | SyndeoCare" },
