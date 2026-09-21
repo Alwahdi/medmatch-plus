@@ -1,7 +1,21 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { RefreshControl, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Badge, Button, Card, Chip, EmptyState, ErrorState, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
+import { CalendarClock, ClipboardList, MailOpen, Star } from "lucide-react-native";
+import {
+  Badge,
+  Button,
+  Card,
+  Chip,
+  EmptyState,
+  ErrorState,
+  Loading,
+  Row,
+  Screen,
+  Segmented,
+  Title,
+  styles as ui,
+} from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import {
   useMyApplications,
@@ -14,14 +28,17 @@ import { useAuth } from "@/lib/auth";
 import { applicationStatusLabel, bookingStatusLabel, formatDate, formatDateTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { ReviewDialog } from "@/components/review-dialog";
+import { colors } from "@/lib/theme";
 
 type Tab = "applications" | "bookings" | "invitations" | "reviews";
+type TimeRange = "upcoming" | "past";
 
 export default function ActivityTab() {
   const { t, lang } = useI18n();
   const router = useRouter();
   const { isFacility } = useAuth();
   const [tab, setTab] = useState<Tab>("applications");
+  const [range, setRange] = useState<TimeRange>("upcoming");
 
   const applications = useMyApplications();
   const bookings = useMyBookings();
@@ -39,23 +56,34 @@ export default function ActivityTab() {
     void reviews.refetch();
   };
 
-  return (
-    <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetchAll} />}>
-      <Title>{t("activity")}</Title>
+  const pendingInvites = (invitations.data ?? []).filter((i) => i.status === "pending").length;
+  const reviewCount = ((reviews.data as unknown[] | undefined) ?? []).length;
 
-      {isFacility ? (
-        <Button
-          label={t("facilityWorkspace")}
-          variant="secondary"
-          onPress={() => router.push("/facility")}
-        />
-      ) : null}
+  const shiftOf = (b: unknown) =>
+    (b as { shifts?: { title?: string; starts_at?: string; city?: string } }).shifts;
+
+  const rangedBookings = useMemo(() => {
+    const now = Date.now();
+    return (bookings.data ?? []).filter((b) => {
+      const s = shiftOf(b)?.starts_at;
+      if (!s) return range === "past";
+      return range === "upcoming" ? new Date(s).getTime() >= now : new Date(s).getTime() < now;
+    });
+  }, [bookings.data, range]);
+
+  return (
+    <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetchAll} tintColor={colors.primary} />}>
+      <Title sub={lang === "ar" ? "طلباتك ومناوباتك ودعواتك في مكان واحد" : "Applications, shifts and invitations in one place"}>
+        {t("activity")}
+      </Title>
+
+      {isFacility ? <Button label={t("facilityWorkspace")} variant="secondary" onPress={() => router.push("/facility")} /> : null}
 
       <Row gap={8} wrap>
         <Chip label={t("myApplications")} active={tab === "applications"} onPress={() => setTab("applications")} />
         <Chip label={t("myBookings")} active={tab === "bookings"} onPress={() => setTab("bookings")} />
-        <Chip label={t("myInvitations")} active={tab === "invitations"} onPress={() => setTab("invitations")} />
-        <Chip label={t("pendingReviews")} active={tab === "reviews"} onPress={() => setTab("reviews")} />
+        <Chip label={pendingInvites ? `${t("myInvitations")} (${pendingInvites})` : t("myInvitations")} active={tab === "invitations"} onPress={() => setTab("invitations")} />
+        <Chip label={reviewCount ? `${t("pendingReviews")} (${reviewCount})` : t("pendingReviews")} active={tab === "reviews"} onPress={() => setTab("reviews")} />
       </Row>
 
       {tab === "applications" ? (
@@ -64,7 +92,12 @@ export default function ActivityTab() {
         ) : applications.isError ? (
           <ErrorState message={userMessage(applications.error, lang)} onRetry={() => void applications.refetch()} />
         ) : (applications.data ?? []).length === 0 ? (
-          <EmptyState text={t("emptyApplications")} />
+          <EmptyState
+            icon={ClipboardList}
+            text={t("emptyApplications")}
+            desc={t("emptyApplicationsDesc")}
+            action={<Button label={t("browseJobs")} small onPress={() => router.push("/discover")} />}
+          />
         ) : (
           (applications.data ?? []).map((a) => {
             const job = (a as unknown as { jobs?: { title?: string; city?: string } }).jobs;
@@ -76,7 +109,7 @@ export default function ActivityTab() {
                 </Row>
                 <Text style={ui.muted}>{formatDate(a.created_at, lang)}</Text>
                 <Button
-                  label={lang === "ar" ? "عرض الوظيفة" : "View job"}
+                  label={t("viewJob")}
                   variant="ghost"
                   small
                   onPress={() => router.push({ pathname: "/job/[id]", params: { id: a.job_id } })}
@@ -88,37 +121,56 @@ export default function ActivityTab() {
       ) : null}
 
       {tab === "bookings" ? (
-        bookings.isPending ? (
-          <Loading />
-        ) : (bookings.data ?? []).length === 0 ? (
-          <EmptyState text={lang === "ar" ? "لا توجد مناوبات محجوزة." : "No booked shifts."} />
-        ) : (
-          (bookings.data ?? []).map((b) => {
-            const shift = (b as unknown as { shifts?: { title?: string; starts_at?: string } }).shifts;
-            return (
-              <Card key={b.id}>
-                <Row gap={8} wrap>
-                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{shift?.title ?? "—"}</Text>
-                  <Badge label={bookingStatusLabel(b.status, lang)} />
-                </Row>
-                <Text style={ui.muted}>{formatDateTime(shift?.starts_at ?? null, lang)}</Text>
-                <Button
-                  label={lang === "ar" ? "عرض المناوبة" : "View shift"}
-                  variant="ghost"
-                  small
-                  onPress={() => router.push({ pathname: "/shift/[id]", params: { id: b.shift_id } })}
-                />
-              </Card>
-            );
-          })
-        )
+        <>
+          <Segmented<TimeRange>
+            value={range}
+            onChange={setRange}
+            options={[
+              { value: "upcoming", label: t("timeUpcoming") },
+              { value: "past", label: t("timePast") },
+            ]}
+          />
+          {bookings.isPending ? (
+            <Loading />
+          ) : bookings.isError ? (
+            <ErrorState message={userMessage(bookings.error, lang)} onRetry={() => void bookings.refetch()} />
+          ) : rangedBookings.length === 0 ? (
+            <EmptyState
+              icon={CalendarClock}
+              text={lang === "ar" ? "لا توجد مناوبات هنا." : "No shifts here."}
+              desc={t("emptyBookingsDesc")}
+              action={<Button label={t("browseShifts")} small onPress={() => router.push("/discover")} />}
+            />
+          ) : (
+            rangedBookings.map((b) => {
+              const shift = shiftOf(b);
+              return (
+                <Card key={b.id}>
+                  <Row gap={8} wrap>
+                    <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{shift?.title ?? "—"}</Text>
+                    <Badge label={bookingStatusLabel(b.status, lang)} />
+                  </Row>
+                  <Text style={ui.muted}>{formatDateTime(shift?.starts_at ?? null, lang)}</Text>
+                  <Button
+                    label={t("viewShift")}
+                    variant="ghost"
+                    small
+                    onPress={() => router.push({ pathname: "/shift/[id]", params: { id: b.shift_id } })}
+                  />
+                </Card>
+              );
+            })
+          )}
+        </>
       ) : null}
 
       {tab === "invitations" ? (
         invitations.isPending ? (
           <Loading />
+        ) : invitations.isError ? (
+          <ErrorState message={userMessage(invitations.error, lang)} onRetry={() => void invitations.refetch()} />
         ) : (invitations.data ?? []).length === 0 ? (
-          <EmptyState text={lang === "ar" ? "لا توجد دعوات." : "No invitations."} />
+          <EmptyState icon={MailOpen} text={lang === "ar" ? "لا توجد دعوات." : "No invitations."} desc={t("emptyInvitationsDesc")} />
         ) : (
           (invitations.data ?? []).map((inv) => {
             const title =
@@ -129,26 +181,16 @@ export default function ActivityTab() {
               <Card key={inv.id}>
                 <Row gap={8} wrap>
                   <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{title}</Text>
-                  <Badge label={inv.status} />
+                  <Badge label={inv.status} tone={inv.status === "pending" ? "warning" : "neutral"} />
                 </Row>
                 {inv.message ? <Text style={ui.muted}>{inv.message}</Text> : null}
                 {inv.status === "pending" ? (
                   <Row gap={8}>
                     <View style={{ flex: 1 }}>
-                      <Button
-                        label={lang === "ar" ? "قبول" : "Accept"}
-                        small
-                        loading={respond.isPending}
-                        onPress={() => respond.mutate({ id: inv.id, accept: true })}
-                      />
+                      <Button label={t("accept")} small loading={respond.isPending} onPress={() => respond.mutate({ id: inv.id, accept: true })} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Button
-                        label={lang === "ar" ? "رفض" : "Decline"}
-                        variant="secondary"
-                        small
-                        onPress={() => respond.mutate({ id: inv.id, accept: false })}
-                      />
+                      <Button label={t("decline")} variant="secondary" small onPress={() => respond.mutate({ id: inv.id, accept: false })} />
                     </View>
                   </Row>
                 ) : null}
@@ -161,8 +203,8 @@ export default function ActivityTab() {
       {tab === "reviews" ? (
         reviews.isPending ? (
           <Loading />
-        ) : (reviews.data ?? []).length === 0 ? (
-          <EmptyState text={lang === "ar" ? "لا توجد تقييمات معلّقة." : "No pending reviews."} />
+        ) : reviewCount === 0 ? (
+          <EmptyState icon={Star} text={lang === "ar" ? "لا توجد تقييمات معلّقة." : "No pending reviews."} desc={t("emptyReviewsDesc")} />
         ) : (
           (reviews.data ?? []).map((r, index) => (
             <ReviewDialog key={`${r.facility_id}-${r.job_id ?? r.shift_id ?? index}`} pending={r} />
