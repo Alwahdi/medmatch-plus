@@ -45,32 +45,44 @@ export function relativeTime(value: string | null | undefined, lang: Lang) {
   if (!value) return "";
   const d = new Date(value).getTime();
   if (Number.isNaN(d)) return "";
-  const diff = Math.round((d - Date.now()) / 1000);
-  const rtf = new Intl.RelativeTimeFormat(locales[lang], { numeric: "auto" });
-  const steps: [number, Intl.RelativeTimeFormatUnit][] = [
-    [60, "second"],
-    [3600, "minute"],
-    [86400, "hour"],
-    [604800, "day"],
-    [2629800, "week"],
-    [31557600, "month"],
-  ];
-  let unit: Intl.RelativeTimeFormatUnit = "year";
-  let divisor = 31557600;
-  let previous = 1;
-  for (const [limit, step] of steps) {
-    if (Math.abs(diff) < limit) {
-      unit = step === "second" ? "second" : step;
-      divisor = previous;
-      break;
-    }
-    previous = limit;
+  const diffSec = Math.round((d - Date.now()) / 1000);
+  const abs = Math.abs(diffSec);
+  const past = diffSec < 0;
+
+  // Hermes (Expo Go / بعض أجهزة أندرويد) لا يدعم Intl.RelativeTimeFormat —
+  // تنفيذ يدوي بصياغة عربية/إنجليزية طبيعية.
+  const arPlural = (n: number, one: string, two: string, few: string, many: string) =>
+    n === 1 ? one : n === 2 ? two : n >= 3 && n <= 10 ? `${n} ${few}` : `${n} ${many}`;
+
+  if (abs < 60) return lang === "ar" ? "الآن" : "just now";
+  const mins = Math.round(abs / 60);
+  if (mins < 60) {
+    if (lang === "ar") return past ? `منذ ${arPlural(mins, "دقيقة", "دقيقتين", "دقائق", "دقيقة")}` : `بعد ${arPlural(mins, "دقيقة", "دقيقتين", "دقائق", "دقيقة")}`;
+    return past ? `${mins} min ago` : `in ${mins} min`;
   }
-  if (Math.abs(diff) >= 31557600) {
-    unit = "year";
-    divisor = 31557600;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) {
+    if (lang === "ar") return past ? `منذ ${arPlural(hours, "ساعة", "ساعتين", "ساعات", "ساعة")}` : `بعد ${arPlural(hours, "ساعة", "ساعتين", "ساعات", "ساعة")}`;
+    return past ? `${hours} hr ago` : `in ${hours} hr`;
   }
-  return rtf.format(Math.round(diff / (divisor || 1)), unit);
+  const days = Math.round(hours / 24);
+  if (days < 7) {
+    if (lang === "ar") return past ? (days === 1 ? "أمس" : `منذ ${arPlural(days, "يوم", "يومين", "أيام", "يوماً")}`) : `بعد ${arPlural(days, "يوم", "يومين", "أيام", "يوماً")}`;
+    return past ? (days === 1 ? "yesterday" : `${days} days ago`) : `in ${days} days`;
+  }
+  const weeks = Math.round(days / 7);
+  if (weeks < 5) {
+    if (lang === "ar") return past ? `منذ ${arPlural(weeks, "أسبوع", "أسبوعين", "أسابيع", "أسبوعاً")}` : `بعد ${arPlural(weeks, "أسبوع", "أسبوعين", "أسابيع", "أسبوعاً")}`;
+    return past ? `${weeks} wk ago` : `in ${weeks} wk`;
+  }
+  const months = Math.round(days / 30);
+  if (months < 12) {
+    if (lang === "ar") return past ? `منذ ${arPlural(months, "شهر", "شهرين", "أشهر", "شهراً")}` : `بعد ${arPlural(months, "شهر", "شهرين", "أشهر", "شهراً")}`;
+    return past ? `${months} mo ago` : `in ${months} mo`;
+  }
+  const years = Math.round(days / 365);
+  if (lang === "ar") return past ? `منذ ${arPlural(years, "سنة", "سنتين", "سنوات", "سنة")}` : `بعد ${arPlural(years, "سنة", "سنتين", "سنوات", "سنة")}`;
+  return past ? `${years} yr ago` : `in ${years} yr`;
 }
 
 export const employmentTypeLabel = (type: string | null | undefined, lang: Lang) => {
