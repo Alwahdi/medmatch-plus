@@ -18,7 +18,7 @@ export default function ProfileScreen() {
   const [fullName, setFullName] = useState("");
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
-  const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
   const [years, setYears] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,14 +26,14 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     const p = profile.data as
-      | { full_name?: string; headline?: string | null; bio?: string | null; phone?: string | null; years_experience?: number | null }
+      | { full_name?: string; headline?: string | null; bio?: string | null; city?: string | null; years_experience?: number | null }
       | null
       | undefined;
     if (!p) return;
     setFullName(p.full_name ?? "");
     setHeadline(p.headline ?? "");
     setBio(p.bio ?? "");
-    setPhone(p.phone ?? "");
+    setCity(p.city ?? "");
     setYears(p.years_experience != null ? String(p.years_experience) : "");
   }, [profile.data]);
 
@@ -48,7 +48,7 @@ export default function ProfileScreen() {
         full_name: fullName.trim(),
         headline: headline.trim() || null,
         bio: bio.trim() || null,
-        phone: phone.trim() || null,
+        city: city.trim() || null,
         years_experience: Number.isFinite(parsedYears) ? parsedYears : 0,
       })
       .eq("user_id", user!.id);
@@ -85,7 +85,7 @@ export default function ProfileScreen() {
             <Field label={t("fullName")} value={fullName} onChangeText={setFullName} />
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
             <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" />
-            <Field label={lang === "ar" ? "رقم الهاتف" : "Phone"} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+            <Field label={lang === "ar" ? "المدينة" : "City"} value={city} onChangeText={setCity} />
             <Field label={lang === "ar" ? "نبذة" : "Bio"} value={bio} onChangeText={setBio} multiline />
             {error ? <Text style={{ color: "#B3261E" }}>{error}</Text> : null}
             {saved ? <Text style={ui.muted}>{lang === "ar" ? "تم الحفظ." : "Saved."}</Text> : null}
