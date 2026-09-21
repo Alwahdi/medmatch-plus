@@ -74,25 +74,36 @@ export default function Conversation() {
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
             ListEmptyComponent={<EmptyState text={t("emptyMessages")} />}
-            renderItem={({ item }) => {
+            renderItem={({ item, index }) => {
               const mine = item.sender_id === user?.id;
+              const list = messages.data ?? [];
+              const previous = index > 0 ? list[index - 1] : null;
+              const showDay = !previous || dayKey(previous.created_at) !== dayKey(item.created_at);
               return (
-                <View
-                  style={{
-                    alignSelf: mine ? "flex-end" : "flex-start",
-                    maxWidth: "82%",
-                    backgroundColor: mine ? colors.primary : colors.surface,
-                    borderColor: mine ? colors.primary : colors.border,
-                    borderWidth: 1,
-                    borderRadius: radii.lg,
-                    padding: 10,
-                    gap: 4,
-                  }}
-                >
-                  <Text style={[ui.body, { color: mine ? colors.primaryText : colors.text }]}>{item.body}</Text>
-                  <Text style={[ui.muted, { color: mine ? colors.messageOnPrimary : colors.textMuted, fontSize: 11 }]}>
-                    {relativeTime(item.created_at, lang)}
-                  </Text>
+                <View style={{ gap: 10 }}>
+                  {showDay ? (
+                    <Text style={[ui.muted, { textAlign: "center", fontSize: 12 }]}>{formatDayLabel(item.created_at, lang)}</Text>
+                  ) : null}
+                  <View
+                    style={{
+                      alignSelf: mine ? "flex-end" : "flex-start",
+                      maxWidth: "82%",
+                      backgroundColor: mine ? colors.primary : colors.surface,
+                      borderColor: mine ? colors.primary : colors.border,
+                      borderWidth: 1,
+                      borderRadius: radii.lg,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      gap: 2,
+                    }}
+                  >
+                    <Text style={[ui.body, { color: mine ? colors.primaryText : colors.text }]}>{item.body}</Text>
+                    <Text
+                      style={[ui.muted, { color: mine ? colors.messageOnPrimary : colors.textSubtle, fontSize: 11, textAlign: "right" }]}
+                    >
+                      {formatTime(item.created_at, lang)}
+                    </Text>
+                  </View>
                 </View>
               );
             }}
