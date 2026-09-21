@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useFacilityJobs, useFacilityShifts, useMyFacility } from "@/lib/queries";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
-import { BriefcaseBusiness, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
+import { BriefcaseBusiness, Building2, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
 import { colors, radii } from "@/lib/theme";
 
 export default function FacilityHome({ embedded = false }: { embedded?: boolean }) {

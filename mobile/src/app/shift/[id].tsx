@@ -29,7 +29,7 @@ export default function ShiftDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useI18n();
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, isProfessional } = useAuth();
   const shift = useShift(String(id));
   const consent = useConsentGate("applicant_commitments");
   const [busy, setBusy] = useState(false);
@@ -38,6 +38,10 @@ export default function ShiftDetail() {
 
   const book = async () => {
     setError(null);
+    if (!isProfessional) {
+      router.push({ pathname: "/profile", params: { returnTo: `/shift/${String(id)}` } });
+      return;
+    }
     const ok = await consent.ensure();
     if (!ok) return;
     setBusy(true);
@@ -115,7 +119,7 @@ export default function ShiftDetail() {
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>
-              <Button label={t("signIn")} onPress={() => router.push("/sign-in")} />
+               <Button label={t("signIn")} onPress={() => router.push({ pathname: "/sign-in", params: { returnTo: `/shift/${String(id)}` } })} />
             </>
           )}
         </StickyBar>
