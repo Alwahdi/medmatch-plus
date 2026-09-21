@@ -567,6 +567,7 @@ function MessagesPage() {
                       onClick={() => {
                         setActiveId(conv.id);
                         setMobileOpen(true);
+                        void navigate({ to: "/messages", search: { c: conv.id }, replace: true });
                       }}
 
                       className={cn(
