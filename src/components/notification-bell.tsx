@@ -45,7 +45,7 @@ export function NotificationBell() {
   const { user } = useSession();
   const { lang } = useLang();
   const c = TXT[lang];
-  const navigate = useNavigate();
+  const openLink = useOpenAppLink();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const { items, unreadCount } = useNotifications(user, 15);
