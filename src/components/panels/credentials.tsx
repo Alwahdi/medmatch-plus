@@ -204,16 +204,19 @@ export function CredentialsPanel() {
   }
 
   const list = items ?? [];
-  const approvedRequired = PRO_REQUIRED_DOCS.filter((t) =>
-    list.some((d) => d.doc_type === t && isValidEvidence(d)),
+  const requiredReqs = requirements.filter((r) => r.is_required);
+  const requiredCodeList = requiredReqs.map((r) => r.code);
+  const metRequired = requiredReqs.filter(
+    (r) => list.filter((d) => d.doc_type === r.code && isValidEvidence(d)).length >= r.min_count,
   ).length;
-  const isVerified = approvedRequired === PRO_REQUIRED_DOCS.length;
-  const pct = Math.round((approvedRequired / PRO_REQUIRED_DOCS.length) * 100);
+  const approvedRequired = metRequired;
+  const isVerified = requiredReqs.length > 0 && metRequired === requiredReqs.length;
+  const pct = requiredReqs.length ? Math.round((metRequired / requiredReqs.length) * 100) : 0;
   const requiredExpired = list.some(
-    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
   );
   const requiredExpiringSoon = list.some(
-    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
   );
   const v = VALIDITY_TXT[lang];
 
