@@ -361,14 +361,18 @@ export function FacilityVerificationPanel() {
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
           <span className="text-xs text-muted-foreground">
-            {c.progress(approvedRequired, FACILITY_REQUIRED_DOCS.length)}
+            {c.progress(approvedRequired, requiredReqs.length)}
           </span>
         </div>
         <Progress value={pct} className="mt-3" />
         <ul className="mt-4 space-y-2">
-          {FACILITY_DOC_TYPES.map((type) => {
-            const doc = list.find((d) => d.doc_type === type);
-            const isRequired = FACILITY_REQUIRED_DOCS.includes(type);
+          {requirements.map((r) => {
+            const type = r.code;
+            const uploaded = list.filter((d) => d.doc_type === type);
+            const doc = uploaded[0];
+            const isRequired = r.is_required;
+            const note = reqNote(r, lang);
+            const needMore = r.min_count > 1;
             const docExpired = !!doc && doc.status === "approved" && isExpired(doc.expiry_date);
             const Icon =
               docExpired
