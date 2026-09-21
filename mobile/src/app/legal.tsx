@@ -43,13 +43,13 @@ export default function LegalScreen() {
           </Card>
         ) : (
           <Card>
-            <Text style={[ui.body, { fontWeight: "700" }]}>{legalTitle(doc, lang)}</Text>
+            <Text style={ui.bodyStrong}>{legalTitle(doc, lang)}</Text>
             {legalBody(doc, lang)
               .split("\n")
               .filter((line) => line.trim().length > 0)
               .map((line, i) =>
                 line.trim().startsWith("#") ? (
-                  <Text key={i} style={[ui.body, { fontWeight: "700", marginTop: 8 }]}>
+                  <Text key={i} style={[ui.bodyStrong, { marginTop: 8 }]}> 
                     {line.replace(/^#+\s*/, "")}
                   </Text>
                 ) : (

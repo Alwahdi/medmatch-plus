@@ -79,7 +79,7 @@ export default function ShiftDetail() {
                 <Text style={ui.muted}>{t("needSignIn")}</Text>
               ) : (
                 <>
-                  {error ? <Text style={{ color: "#B3261E" }}>{error}</Text> : null}
+                  {error ? <Text style={ui.error}>{error}</Text> : null}
                   <View>
                     <Button label={t("book")} onPress={book} loading={busy} />
                   </View>

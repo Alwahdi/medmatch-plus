@@ -4,6 +4,7 @@ import { Button, Card, styles as ui } from "./ui";
 import { useI18n } from "@/lib/i18n";
 import { legalBody, legalTitle, useLegalDocuments, useMyConsents, useRecordConsent, type LegalKey } from "@/lib/legal";
 import { userMessage } from "@/lib/errors";
+import { colors, radii } from "@/lib/theme";
 
 /**
  * Mirrors the web consent gate: the user must explicitly accept the current
@@ -38,16 +39,16 @@ export function useConsentGate(key: LegalKey) {
 
   const node = (
     <Modal visible={open} animationType="slide" transparent onRequestClose={() => finish(false)}>
-      <View style={{ flex: 1, backgroundColor: "rgba(14,26,26,0.45)", justifyContent: "flex-end" }}>
-        <View style={{ maxHeight: "85%", backgroundColor: "#FFFFFF", borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 16, gap: 12 }}>
+      <View style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: "flex-end" }}>
+        <View style={{ maxHeight: "85%", backgroundColor: colors.surface, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, padding: 20, gap: 12 }}>
           <Text style={ui.title}>{legalTitle(doc, lang) || t("consentTitle")}</Text>
           <ScrollView style={{ maxHeight: 340 }}>
             <Text style={ui.body}>{legalBody(doc, lang)}</Text>
           </ScrollView>
           <Text style={ui.muted}>{t("consentNote")}</Text>
           {error ? (
-            <Card style={{ borderColor: "#FBE9E7" }}>
-              <Text style={{ color: "#B3261E" }}>{error}</Text>
+            <Card style={{ borderColor: colors.dangerSoft }}>
+              <Text style={ui.error}>{error}</Text>
             </Card>
           ) : null}
           <Button

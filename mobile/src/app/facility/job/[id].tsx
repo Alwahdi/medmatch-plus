@@ -36,7 +36,7 @@ export default function FacilityJobApplicants() {
           (applicants.data ?? []).map((a) => (
             <Card key={a.id}>
               <Row gap={8} wrap>
-                <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>
+                <Text style={[ui.bodyStrong, { flexShrink: 1 }]}> 
                   {formatDate(a.created_at, lang)}
                 </Text>
                 <Badge label={applicationStatusLabel(a.status, lang)} tone="primary" />

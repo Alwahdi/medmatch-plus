@@ -59,7 +59,7 @@ export default function FacilityHome() {
                   >
                     <Card>
                       <Row gap={8} wrap>
-                        <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>{j.title}</Text>
+                        <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{j.title}</Text>
                         <Badge
                           label={j.is_active ? (lang === "ar" ? "منشورة" : "Live") : lang === "ar" ? "مغلقة" : "Closed"}
                           tone={j.is_active ? "success" : "neutral"}
@@ -83,7 +83,7 @@ export default function FacilityHome() {
               (shifts.data ?? []).map((s) => (
                 <Card key={s.id}>
                   <Row gap={8} wrap>
-                    <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>{s.title}</Text>
+                    <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{s.title}</Text>
                     <Badge label={s.status} />
                   </Row>
                   <Text style={ui.muted}>{formatDateTime(s.starts_at, lang)}</Text>
