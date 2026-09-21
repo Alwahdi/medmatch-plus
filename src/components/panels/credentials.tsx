@@ -114,8 +114,15 @@ export function CredentialsPanel() {
 
   const { user } = useSession();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ doc_type: "", issuer: "", expiry_date: "" });
+  const [form, setForm] = useState({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
   const [file, setFile] = useState<File | null>(null);
+  const { data: reqs } = useDocumentRequirements("professional");
+  const requirements = reqs ?? [];
+  const selectedReq = requirements.find((r) => r.code === form.doc_type) ?? null;
+  const typeLabel = (code: string) => {
+    const r = requirements.find((x) => x.code === code);
+    return r ? reqName(r, lang) : code;
+  };
 
   const schema = z.object({
     doc_type: z.string().min(1, c.typeReq),
