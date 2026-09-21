@@ -32,10 +32,7 @@ export default function Welcome() {
   const go = (href: Step["href"]) => {
     if (Platform.OS !== "web") void Haptics.selectionAsync();
     if (href === "/(tabs)") router.replace("/(tabs)");
-    else {
-      router.replace("/(tabs)");
-      setTimeout(() => router.push(href), 60);
-    }
+    else router.replace(href);
   };
 
   return (

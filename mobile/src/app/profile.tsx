@@ -13,7 +13,7 @@ import { colors } from "@/lib/theme";
 
 export default function ProfileScreen() {
   const { t, lang } = useI18n();
-  const { user } = useAuth();
+  const { user, refreshRoles } = useAuth();
   const qc = useQueryClient();
   const profile = useProfessionalProfile();
   const specialties = useSpecialties();
@@ -57,9 +57,7 @@ export default function ProfileScreen() {
     setError(null);
     setSaved(false);
     const parsedYears = Number.parseInt(years, 10);
-    const { error: err } = await supabase
-      .from("healthcare_professionals")
-      .update({
+    const payload = {
         full_name: fullName.trim(),
         headline: headline.trim() || null,
         bio: bio.trim() || null,
@@ -71,14 +69,23 @@ export default function ProfileScreen() {
         preferred_rate: Number(preferredRate) || null,
         is_open_to_shifts: openToShifts,
         is_searchable: searchable,
-      })
-      .eq("user_id", user?.id ?? "");
+      };
+    const existing = profile.data;
+    const result = existing
+      ? await supabase.from("healthcare_professionals").update(payload).eq("user_id", user?.id ?? "")
+      : await supabase.from("healthcare_professionals").insert({ ...payload, user_id: user?.id ?? "" });
+    const err = result.error;
     setBusy(false);
     if (err) {
       setError(userMessage(err, lang));
       return;
     }
     setSaved(true);
+    if (!existing) {
+      const claimed = await supabase.rpc("claim_professional_role");
+      if (claimed.error) { setError(userMessage(claimed.error, lang)); return; }
+      await refreshRoles();
+    }
     void qc.invalidateQueries({ queryKey: ["professional-profile"] });
   };
 
@@ -91,15 +98,10 @@ export default function ProfileScreen() {
           <Loading />
         ) : profile.isError ? (
           <ErrorState message={userMessage(profile.error, lang)} onRetry={() => void profile.refetch()} />
-        ) : !profile.data ? (
-          <Card>
-            <Text style={ui.muted}>{t("completeProfile")}</Text>
-            <Button label={t("retry")} variant="secondary" onPress={() => void profile.refetch()} />
-          </Card>
         ) : (
           <Card style={{ gap: 12 }}>
             <Row gap={8} wrap>
-              {(profile.data as { is_verified?: boolean }).is_verified ? (
+              {(profile.data as { is_verified?: boolean } | null)?.is_verified ? (
                 <Badge label={t("verified")} tone="success" />
               ) : null}
             </Row>
