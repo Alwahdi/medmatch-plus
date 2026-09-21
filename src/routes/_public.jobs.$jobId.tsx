@@ -723,6 +723,7 @@ function JobDetail() {
            )}
         </div>
       )}
+      {consent.node}
     </>
   );
 }
