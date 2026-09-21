@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -38,6 +38,8 @@ import { useSessionAal2, useVerifiedTotp } from "@/lib/admin-mfa";
 import { VALIDITY_TXT, isExpired, isValidEvidence } from "@/lib/doc-validity";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  validateSearch: (search: Record<string, unknown>): { tab?: string } =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "لوحة الإدارة | SyndeoCare" },
@@ -210,7 +212,10 @@ function AdminPage() {
   const [changeNote, setChangeNote] = useState("");
   const [changeRejectId, setChangeRejectId] = useState<string | null>(null);
   const [logQuery, setLogQuery] = useState("");
-  const [tab, setTab] = useState("docs");
+  const adminNavigate = useNavigate();
+  const tab = Route.useSearch().tab ?? "docs";
+  const setTab = (value: string) =>
+    void adminNavigate({ to: "/admin", search: { tab: value }, replace: true });
 
   const { data: proRequirements } = useAllDocumentRequirements("professional");
   const { data: facRequirements } = useAllDocumentRequirements("facility");

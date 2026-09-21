@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { installRecoveryProofWatcher } from "@/lib/recovery-proof";
 import { useSession } from "@/lib/auth";
 import { useLiveSync } from "@/lib/live-sync";
+import { useHashTarget } from "@/lib/notification-link";
 
 // نثبّت مراقب إثبات الاستعادة مبكراً قدر الإمكان حتى لا يفوتنا حدث PASSWORD_RECOVERY.
 if (typeof window !== "undefined") installRecoveryProofWatcher();
@@ -178,6 +179,7 @@ function LanguageDocumentSync() {
 function LiveSync() {
   const { session } = useSession();
   useLiveSync(session?.user ?? null);
+  useHashTarget();
   return null;
 }
 

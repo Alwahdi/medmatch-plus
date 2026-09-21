@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -237,6 +237,15 @@ function MessagesPage() {
   useEffect(() => {
     if (!activeId && conversations[0]) setActiveId(conversations[0].id);
   }, [activeId, conversations]);
+
+  // فتح المحادثة القادمة من رابط الإشعار مباشرة.
+  useEffect(() => {
+    if (linkedConversation && linkedConversation !== activeId) {
+      setActiveId(linkedConversation);
+      setMobileOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedConversation]);
 
   useEffect(() => {
     if (!active) return;
@@ -558,6 +567,7 @@ function MessagesPage() {
                       onClick={() => {
                         setActiveId(conv.id);
                         setMobileOpen(true);
+                        void navigate({ to: "/messages", search: { c: conv.id }, replace: true });
                       }}
 
                       className={cn(
