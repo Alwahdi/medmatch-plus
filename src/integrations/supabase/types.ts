@@ -411,6 +411,63 @@ export type Database = {
         }
         Relationships: []
       }
+      document_requirements: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_required: boolean
+          min_count: number
+          name_ar: string
+          name_en: string
+          note_ar: string | null
+          note_en: string | null
+          requires_expiry: boolean
+          requires_issue_date: boolean
+          requires_issuer: boolean
+          sort_order: number
+          target: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          min_count?: number
+          name_ar: string
+          name_en: string
+          note_ar?: string | null
+          note_en?: string | null
+          requires_expiry?: boolean
+          requires_issue_date?: boolean
+          requires_issuer?: boolean
+          sort_order?: number
+          target: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          min_count?: number
+          name_ar?: string
+          name_en?: string
+          note_ar?: string | null
+          note_en?: string | null
+          requires_expiry?: boolean
+          requires_issue_date?: boolean
+          requires_issuer?: boolean
+          sort_order?: number
+          target?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       expiry_alert_log: {
         Row: {
           doc_id: string
@@ -1946,6 +2003,10 @@ export type Database = {
           issue_code: string
         }[]
       }
+      admin_delete_document_requirement: {
+        Args: { _id: string }
+        Returns: undefined
+      }
       admin_list_account_deletion_requests: {
         Args: { _status?: string }
         Returns: {
@@ -2017,6 +2078,26 @@ export type Database = {
         Args: { _id: string; _note?: string; _status: string }
         Returns: undefined
       }
+      admin_upsert_document_requirement: {
+        Args: {
+          _code: string
+          _id: string
+          _is_active: boolean
+          _is_required: boolean
+          _min_count: number
+          _name_ar: string
+          _name_en: string
+          _note_ar: string
+          _note_en: string
+          _requires_expiry: boolean
+          _requires_issue_date: boolean
+          _requires_issuer: boolean
+          _sort_order: number
+          _target: string
+        }
+        Returns: string
+      }
+      admin_user_overview: { Args: { _user_id: string }; Returns: Json }
       book_open_shift: { Args: { _shift_id: string }; Returns: string }
       bootstrap_admin_role: { Args: { _user_id: string }; Returns: boolean }
       can_read_avatar_path: {

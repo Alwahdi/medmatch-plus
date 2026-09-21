@@ -30,14 +30,8 @@ import { useConfirm } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import {
-  FACILITY_DOC_TYPES,
-  FACILITY_REQUIRED_DOCS,
-  credentialLabel,
-  facilityDocTypeLabel,
-  facilityDocTypes,
-  formatDate,
-} from "@/lib/format";
+import { credentialLabel, formatDate } from "@/lib/format";
+import { reqName, reqNote, useDocumentRequirements } from "@/lib/document-requirements";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
 import { ACCEPT, prepareUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
@@ -169,6 +163,13 @@ export function FacilityVerificationPanel() {
   });
 
   const [file, setFile] = useState<File | null>(null);
+  const { data: reqsData } = useDocumentRequirements("facility");
+  const requirements = reqsData ?? [];
+  const selectedReq = requirements.find((r) => r.code === form.doc_type) ?? null;
+  const typeLabel = (code: string) => {
+    const r = requirements.find((x) => x.code === code);
+    return r ? reqName(r, lang) : code;
+  };
 
   const { data: facility, isError: facilityErr, refetch: facilityRefetch, isLoading: facLoading } = useQuery({
     queryKey: ["my-facility-verify", user?.id],
@@ -219,7 +220,7 @@ export function FacilityVerificationPanel() {
       const { error } = await supabase.from("facility_documents").insert({
         facility_id: facility!.id,
         doc_type: form.doc_type,
-        title: facilityDocTypeLabel(form.doc_type, "ar"),
+        title: selectedReq?.name_ar ?? form.doc_type,
         file_name: file.name.slice(0, 200),
         issuer: form.issuer.trim() || null,
         issue_date: form.issue_date || null,
@@ -293,15 +294,17 @@ export function FacilityVerificationPanel() {
   }
 
   const list = docs ?? [];
-  const approvedRequired = FACILITY_REQUIRED_DOCS.filter((t) =>
-    list.some((d) => d.doc_type === t && isValidEvidence(d)),
+  const requiredReqs = requirements.filter((r) => r.is_required);
+  const requiredCodeList = requiredReqs.map((r) => r.code);
+  const approvedRequired = requiredReqs.filter(
+    (r) => list.filter((d) => d.doc_type === r.code && isValidEvidence(d)).length >= r.min_count,
   ).length;
-  const pct = Math.round((approvedRequired / FACILITY_REQUIRED_DOCS.length) * 100);
+  const pct = requiredReqs.length ? Math.round((approvedRequired / requiredReqs.length) * 100) : 0;
   const requiredExpired = list.some(
-    (d) => FACILITY_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
   );
   const requiredExpiringSoon = list.some(
-    (d) => FACILITY_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
   );
   const v = VALIDITY_TXT[lang];
 

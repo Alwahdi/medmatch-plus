@@ -21,7 +21,8 @@ import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useSession } from "@/lib/auth";
-import { DOC_TYPES, PRO_REQUIRED_DOCS, credentialLabel, docTypeLabel, docTypes, formatDate } from "@/lib/format";
+import { credentialLabel, formatDate } from "@/lib/format";
+import { reqName, reqNote, useDocumentRequirements } from "@/lib/document-requirements";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
 
 import { ACCEPT, prepareUpload } from "@/lib/storage";
@@ -113,8 +114,15 @@ export function CredentialsPanel() {
 
   const { user } = useSession();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ doc_type: "", issuer: "", expiry_date: "" });
+  const [form, setForm] = useState({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
   const [file, setFile] = useState<File | null>(null);
+  const { data: reqs } = useDocumentRequirements("professional");
+  const requirements = reqs ?? [];
+  const selectedReq = requirements.find((r) => r.code === form.doc_type) ?? null;
+  const typeLabel = (code: string) => {
+    const r = requirements.find((x) => x.code === code);
+    return r ? reqName(r, lang) : code;
+  };
 
   const schema = z.object({
     doc_type: z.string().min(1, c.typeReq),
@@ -151,10 +159,11 @@ export function CredentialsPanel() {
 
       const { error } = await supabase.from("credentials").insert({
         user_id: user!.id,
-        title: docTypeLabel(form.doc_type, "ar"),
+        title: selectedReq?.name_ar ?? form.doc_type,
         file_name: file.name.slice(0, 200),
         doc_type: form.doc_type,
         issuer: form.issuer.trim() || null,
+        issue_date: form.issue_date || null,
         expiry_date: form.expiry_date || null,
         file_path: filePath,
       });
@@ -162,7 +171,7 @@ export function CredentialsPanel() {
     },
     onSuccess: () => {
       toast.success(c.uploaded);
-      setForm({ doc_type: "", issuer: "", expiry_date: "" });
+      setForm({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
       setFile(null);
       queryClient.invalidateQueries({ queryKey: ["my-creds"] });
     },
@@ -195,16 +204,19 @@ export function CredentialsPanel() {
   }
 
   const list = items ?? [];
-  const approvedRequired = PRO_REQUIRED_DOCS.filter((t) =>
-    list.some((d) => d.doc_type === t && isValidEvidence(d)),
+  const requiredReqs = requirements.filter((r) => r.is_required);
+  const requiredCodeList = requiredReqs.map((r) => r.code);
+  const metRequired = requiredReqs.filter(
+    (r) => list.filter((d) => d.doc_type === r.code && isValidEvidence(d)).length >= r.min_count,
   ).length;
-  const isVerified = approvedRequired === PRO_REQUIRED_DOCS.length;
-  const pct = Math.round((approvedRequired / PRO_REQUIRED_DOCS.length) * 100);
+  const approvedRequired = metRequired;
+  const isVerified = requiredReqs.length > 0 && metRequired === requiredReqs.length;
+  const pct = requiredReqs.length ? Math.round((metRequired / requiredReqs.length) * 100) : 0;
   const requiredExpired = list.some(
-    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpired(d.expiry_date),
   );
   const requiredExpiringSoon = list.some(
-    (d) => PRO_REQUIRED_DOCS.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
+    (d) => requiredCodeList.includes(d.doc_type) && d.status === "approved" && isExpiringSoon(d.expiry_date),
   );
   const v = VALIDITY_TXT[lang];
 
@@ -260,14 +272,18 @@ export function CredentialsPanel() {
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{c.checklist}</h2>
           <span className="text-xs text-muted-foreground">
-            {c.progress(approvedRequired, PRO_REQUIRED_DOCS.length)}
+            {c.progress(approvedRequired, requiredReqs.length)}
           </span>
         </div>
         <Progress value={pct} className="mt-3" aria-label={lang === "ar" ? "نسبة اكتمال المستندات" : "Credential completion"} />
         <ul className="mt-4 space-y-2">
-          {DOC_TYPES.map((type) => {
-            const doc = list.find((d) => d.doc_type === type);
-            const isRequired = PRO_REQUIRED_DOCS.includes(type);
+          {requirements.map((r) => {
+            const type = r.code;
+            const uploaded = list.filter((d) => d.doc_type === type);
+            const doc = uploaded[0];
+            const isRequired = r.is_required;
+            const note = reqNote(r, lang);
+            const needMore = r.min_count > 1;
             const docExpired = !!doc && doc.status === "approved" && isExpired(doc.expiry_date);
             const Icon =
               docExpired
@@ -288,8 +304,16 @@ export function CredentialsPanel() {
             return (
               <li key={type} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
                 <Icon className={`size-5 ${tone}`} />
-                <span className="min-w-0 flex-1 truncate text-sm">
-                  {docTypeLabel(type, lang)}
+                <span className="min-w-0 flex-1 text-sm">
+                  <span className="block truncate">{reqName(r, lang)}</span>
+                  {needMore ? (
+                    <span className="block text-xs text-muted-foreground">
+                      {lang === "ar"
+                        ? `مطلوب ${r.min_count} ملفات — رفعت ${uploaded.length}`
+                        : `${r.min_count} files required — ${uploaded.length} uploaded`}
+                    </span>
+                  ) : null}
+                  {note ? <span className="block text-xs text-muted-foreground">{note}</span> : null}
                   {doc?.expiry_date ? (
                     <span className="block text-xs text-muted-foreground">
                       {c.expiry}: {formatDate(doc.expiry_date, lang)}
@@ -317,17 +341,40 @@ export function CredentialsPanel() {
             <Select value={form.doc_type} onValueChange={(v) => setForm({ ...form, doc_type: v })}>
               <SelectTrigger aria-label={c.docType}><SelectValue placeholder={c.docTypePh} /></SelectTrigger>
               <SelectContent>
-                {docTypes(lang).map((d, i) => <SelectItem key={d} value={docTypes("ar")[i]!}>{d}</SelectItem>)}
+                {requirements.map((r) => (
+                  <SelectItem key={r.code} value={r.code}>
+                    {reqName(r, lang)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            {selectedReq && reqNote(selectedReq, lang) ? (
+              <p className="mt-1 text-xs text-muted-foreground">{reqNote(selectedReq, lang)}</p>
+            ) : null}
           </div>
           <div>
-            <Label htmlFor="issuer">{c.issuer}</Label>
+            <Label htmlFor="issuer">
+              {c.issuer}
+              {selectedReq?.requires_issuer ? <span className="text-destructive"> *</span> : null}
+            </Label>
             <Input id="issuer" maxLength={120} placeholder={c.issuerPh}
               value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
           </div>
+          {selectedReq?.requires_issue_date ? (
+            <div>
+              <Label htmlFor="iss-date">
+                {lang === "ar" ? "تاريخ الإصدار" : "Issue date"}
+                <span className="text-destructive"> *</span>
+              </Label>
+              <Input id="iss-date" type="date" value={form.issue_date}
+                onChange={(e) => setForm({ ...form, issue_date: e.target.value })} />
+            </div>
+          ) : null}
           <div>
-            <Label htmlFor="exp">{c.expiry}</Label>
+            <Label htmlFor="exp">
+              {c.expiry}
+              {selectedReq?.requires_expiry ? <span className="text-destructive"> *</span> : null}
+            </Label>
             <Input id="exp" type="date" value={form.expiry_date}
               onChange={(e) => setForm({ ...form, expiry_date: e.target.value })} />
           </div>
@@ -356,7 +403,7 @@ export function CredentialsPanel() {
                 <div>
                   <p className="font-medium">{cred.file_name ?? cred.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {docTypeLabel(cred.doc_type, lang)}
+                    {typeLabel(cred.doc_type)}
                     {cred.expiry_date ? c.expiresOn(formatDate(cred.expiry_date, lang)) : ""}
                   </p>
                   {cred.review_note && <p className="mt-1 text-xs text-destructive">{cred.review_note}</p>}
