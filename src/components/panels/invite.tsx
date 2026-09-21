@@ -407,6 +407,17 @@ export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; sh
         />
       </div>
 
+      {(jobId || shiftId) && (
+        <div className="mt-8">
+          <SuggestedCandidates
+            jobId={jobId}
+            shiftId={shiftId}
+            message={message}
+            facilityVerified={facility?.is_verified ?? true}
+          />
+        </div>
+      )}
+
       <section className="mt-8">
         <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
           <History className="size-5 text-primary" /> {c.recent}
