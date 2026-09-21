@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -10,6 +11,7 @@ import { relativeTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { colors, radii } from "@/lib/theme";
 import { Send } from "lucide-react-native";
+import { supabase } from "@/lib/supabase";
 
 export default function Conversation() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,10 +23,24 @@ export default function Conversation() {
   const send = useSendMessage(String(id));
   const markRead = useMarkConversationRead(String(id));
   const [body, setBody] = useState("");
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (id) markRead.mutate();
   }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    const channel = supabase
+      .channel(`conversation:${String(id)}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${String(id)}` }, () => {
+        void queryClient.invalidateQueries({ queryKey: ["messages", String(id)] });
+        void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        markRead.mutate();
+      })
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [id, queryClient]);
 
   const submit = () => {
     const text = body.trim();

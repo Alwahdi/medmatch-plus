@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { RefreshControl, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { CalendarClock, ClipboardList, MailOpen, Star, UsersRound } from "lucide-react-native";
 import {
   Badge,
@@ -40,8 +40,10 @@ type TimeRange = "upcoming" | "past";
 export default function ActivityTab() {
   const { t, lang } = useI18n();
   const router = useRouter();
+  const params = useLocalSearchParams<{ tab?: string }>();
   const { isFacility } = useAuth();
-  const [tab, setTab] = useState<Tab>("applications");
+  const initialTab: Tab = ["applications", "bookings", "invitations", "interviews", "reviews"].includes(params.tab ?? "") ? params.tab as Tab : "applications";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [range, setRange] = useState<TimeRange>("upcoming");
 
   const applications = useMyApplications();

@@ -188,6 +188,25 @@ export function useConversations() {
   });
 }
 
+export function useUnreadMessages() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["unread-messages", user?.id],
+    enabled: Boolean(user?.id),
+    refetchInterval: 15000,
+    queryFn: async () => {
+      if (!user?.id) return [];
+      return unwrap(
+        await supabase
+          .from("messages")
+          .select("id,conversation_id")
+          .neq("sender_id", user.id)
+          .is("read_at", null),
+      );
+    },
+  });
+}
+
 export function useMessages(conversationId: string) {
   return useQuery({
     queryKey: ["messages", conversationId],
@@ -217,6 +236,7 @@ export function useSendMessage(conversationId: string) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["messages", conversationId] });
       void qc.invalidateQueries({ queryKey: ["conversations"] });
+      void qc.invalidateQueries({ queryKey: ["unread-messages"] });
     },
   });
 }

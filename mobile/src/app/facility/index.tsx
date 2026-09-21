@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, RefreshControl, Text, View } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useFacilityJobs, useFacilityShifts, useMyFacility } from "@/lib/queries";
@@ -12,11 +12,12 @@ import { colors, radii } from "@/lib/theme";
 export default function FacilityHome({ embedded = false }: { embedded?: boolean }) {
   const { t, lang } = useI18n();
   const router = useRouter();
+  const params = useLocalSearchParams<{ tab?: string }>();
   const facility = useMyFacility();
   const facilityId = (facility.data as { id?: string } | null)?.id;
   const jobs = useFacilityJobs(facilityId);
   const shifts = useFacilityShifts(facilityId);
-  const [tab, setTab] = useState<"jobs" | "shifts">("jobs");
+  const [tab, setTab] = useState<"jobs" | "shifts">(params.tab === "shifts" ? "shifts" : "jobs");
 
   return (
     <>
