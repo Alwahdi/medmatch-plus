@@ -32,6 +32,8 @@ export default function RootLayout() {
                   headerTintColor: colors.text,
                   headerTitleStyle: { fontFamily: "Cairo_700Bold" },
                   headerBackTitle: "",
+                  headerBackButtonDisplayMode: "minimal",
+                  headerTitleAlign: "center",
                   headerShadowVisible: false,
                   contentStyle: { backgroundColor: colors.bg },
                 }}
