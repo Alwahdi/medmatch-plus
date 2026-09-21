@@ -473,7 +473,10 @@ export function FacilityVerificationPanel() {
               />
             </div>
             <div>
-              <Label htmlFor="fd-exp">{c.expiry}</Label>
+              <Label htmlFor="fd-exp">
+                {c.expiry}
+                {selectedReq?.requires_expiry ? <span className="text-destructive"> *</span> : null}
+              </Label>
               <Input
                 id="fd-exp"
                 type="date"
