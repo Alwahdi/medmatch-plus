@@ -1,0 +1,249 @@
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { I18nManager } from "react-native";
+
+export type Lang = "ar" | "en";
+
+const dict = {
+  ar: {
+    appName: "SyndeoCare",
+    tagline: "منصة التوظيف الطبي",
+    signIn: "تسجيل الدخول",
+    signUp: "إنشاء حساب",
+    signOut: "تسجيل الخروج",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    fullName: "الاسم الكامل",
+    forgotPassword: "نسيت كلمة المرور؟",
+    resetSent: "أرسلنا رابط إعادة التعيين إلى بريدك إن كان مسجلاً.",
+    noAccount: "ليس لديك حساب؟",
+    haveAccount: "لديك حساب بالفعل؟",
+    jobs: "الوظائف",
+    shifts: "المناوبات",
+    activity: "نشاطي",
+    messages: "المحادثات",
+    account: "حسابي",
+    notifications: "الإشعارات",
+    search: "ابحث عن وظيفة أو تخصص",
+    searchShifts: "ابحث عن مناوبة",
+    filters: "تصفية",
+    city: "المدينة",
+    country: "الدولة",
+    specialty: "التخصص",
+    all: "الكل",
+    apply: "تقديم طلب",
+    applied: "تم التقديم",
+    book: "حجز المناوبة",
+    booked: "محجوزة",
+    save: "حفظ",
+    saved: "محفوظة",
+    coverLetter: "رسالة تعريفية (اختياري)",
+    submit: "إرسال",
+    cancel: "إلغاء",
+    close: "إغلاق",
+    retry: "إعادة المحاولة",
+    loading: "جارٍ التحميل…",
+    errorTitle: "تعذّر إكمال العملية",
+    errorBody: "حدث خطأ غير متوقع. حاول مرة أخرى.",
+    emptyJobs: "لا توجد وظائف مطابقة حالياً.",
+    emptyShifts: "لا توجد مناوبات مطابقة حالياً.",
+    emptyApplications: "لم تقدّم على أي وظيفة بعد.",
+    emptyMessages: "لا توجد محادثات بعد.",
+    emptyNotifications: "لا توجد إشعارات.",
+    myApplications: "طلباتي",
+    myBookings: "مناوباتي",
+    myInvitations: "الدعوات",
+    interviews: "المقابلات",
+    pendingReviews: "تقييمات بانتظارك",
+    review: "تقييم",
+    rating: "التقييم",
+    comment: "ملاحظة (اختياري)",
+    sendReview: "إرسال التقييم",
+    verified: "موثّق",
+    salary: "الراتب",
+    hourlyRate: "أجر الساعة",
+    experience: "سنوات الخبرة",
+    vacancies: "الشواغر",
+    applicants: "المتقدمون",
+    publishedBy: "جهة النشر",
+    hiddenFacility: "تظهر هوية المنشأة بعد بدء التواصل",
+    typeMessage: "اكتب رسالة…",
+    send: "إرسال",
+    language: "اللغة",
+    arabic: "العربية",
+    english: "English",
+    restartNeeded: "أعد فتح التطبيق لتطبيق اتجاه اللغة.",
+    profile: "الملف الشخصي",
+    legal: "السياسات والشروط",
+    privacy: "سياسة الخصوصية",
+    terms: "الشروط والأحكام",
+    contact: "تواصل معنا",
+    consentTitle: "الالتزامات والموافقة",
+    consentAgree: "أوافق وأتابع",
+    consentNote: "بالمتابعة فإنك توافق على سياسة الخصوصية والشروط والالتزامات أعلاه.",
+    facilityWorkspace: "مساحة المنشأة",
+    myListings: "فرصي المنشورة",
+    applicantsOf: "متقدمو",
+    suggested: "مرشحون مقترحون",
+    invite: "دعوة",
+    invited: "تمت الدعوة",
+    hire: "توظيف",
+    status: "الحالة",
+    openConversation: "فتح المحادثة",
+    needSignIn: "سجّل الدخول لمتابعة هذا الإجراء.",
+    completeProfile: "أكمل ملفك الشخصي أولاً.",
+    roleProfessional: "مختص رعاية صحية",
+    roleFacility: "منشأة صحية",
+    unavailableOnMobile: "هذه الميزة متاحة حالياً عبر الموقع.",
+    openWeb: "فتح الموقع",
+    back: "رجوع",
+    refresh: "تحديث",
+  },
+  en: {
+    appName: "SyndeoCare",
+    tagline: "Healthcare hiring platform",
+    signIn: "Sign in",
+    signUp: "Create account",
+    signOut: "Sign out",
+    email: "Email",
+    password: "Password",
+    fullName: "Full name",
+    forgotPassword: "Forgot password?",
+    resetSent: "If the email exists, a reset link has been sent.",
+    noAccount: "No account yet?",
+    haveAccount: "Already have an account?",
+    jobs: "Jobs",
+    shifts: "Shifts",
+    activity: "Activity",
+    messages: "Messages",
+    account: "Account",
+    notifications: "Notifications",
+    search: "Search jobs or specialty",
+    searchShifts: "Search shifts",
+    filters: "Filters",
+    city: "City",
+    country: "Country",
+    specialty: "Specialty",
+    all: "All",
+    apply: "Apply",
+    applied: "Applied",
+    book: "Book shift",
+    booked: "Booked",
+    save: "Save",
+    saved: "Saved",
+    coverLetter: "Cover letter (optional)",
+    submit: "Submit",
+    cancel: "Cancel",
+    close: "Close",
+    retry: "Retry",
+    loading: "Loading…",
+    errorTitle: "Something went wrong",
+    errorBody: "Unexpected error. Please try again.",
+    emptyJobs: "No matching jobs right now.",
+    emptyShifts: "No matching shifts right now.",
+    emptyApplications: "You have not applied yet.",
+    emptyMessages: "No conversations yet.",
+    emptyNotifications: "No notifications.",
+    myApplications: "My applications",
+    myBookings: "My shifts",
+    myInvitations: "Invitations",
+    interviews: "Interviews",
+    pendingReviews: "Reviews waiting for you",
+    review: "Review",
+    rating: "Rating",
+    comment: "Comment (optional)",
+    sendReview: "Send review",
+    verified: "Verified",
+    salary: "Salary",
+    hourlyRate: "Hourly rate",
+    experience: "Years of experience",
+    vacancies: "Vacancies",
+    applicants: "Applicants",
+    publishedBy: "Published by",
+    hiddenFacility: "Facility identity appears after contact starts",
+    typeMessage: "Write a message…",
+    send: "Send",
+    language: "Language",
+    arabic: "العربية",
+    english: "English",
+    restartNeeded: "Reopen the app to apply text direction.",
+    profile: "Profile",
+    legal: "Policies & terms",
+    privacy: "Privacy policy",
+    terms: "Terms & conditions",
+    contact: "Contact us",
+    consentTitle: "Commitments & consent",
+    consentAgree: "Agree and continue",
+    consentNote: "By continuing you accept the privacy policy, terms and commitments above.",
+    facilityWorkspace: "Facility workspace",
+    myListings: "My listings",
+    applicantsOf: "Applicants of",
+    suggested: "Suggested candidates",
+    invite: "Invite",
+    invited: "Invited",
+    hire: "Hire",
+    status: "Status",
+    openConversation: "Open conversation",
+    needSignIn: "Sign in to continue.",
+    completeProfile: "Complete your profile first.",
+    roleProfessional: "Healthcare professional",
+    roleFacility: "Healthcare facility",
+    unavailableOnMobile: "This feature is currently available on the website.",
+    openWeb: "Open website",
+    back: "Back",
+    refresh: "Refresh",
+  },
+} as const;
+
+export type TKey = keyof (typeof dict)["ar"];
+
+type Ctx = {
+  lang: Lang;
+  t: (key: TKey) => string;
+  setLang: (lang: Lang) => Promise<void>;
+  rtl: boolean;
+};
+
+const I18nContext = createContext<Ctx | null>(null);
+const STORE_KEY = "syndeocare.lang";
+
+export function I18nProvider({ children }: { children: React.ReactNode }) {
+  const [lang, setLangState] = useState<Lang>("ar");
+
+  useEffect(() => {
+    void (async () => {
+      const stored = (await AsyncStorage.getItem(STORE_KEY)) as Lang | null;
+      const next: Lang = stored === "en" ? "en" : "ar";
+      setLangState(next);
+      applyDirection(next);
+    })();
+  }, []);
+
+  const value = useMemo<Ctx>(
+    () => ({
+      lang,
+      rtl: lang === "ar",
+      t: (key: TKey) => dict[lang][key] ?? dict.ar[key] ?? String(key),
+      setLang: async (next: Lang) => {
+        await AsyncStorage.setItem(STORE_KEY, next);
+        setLangState(next);
+        applyDirection(next);
+      },
+    }),
+    [lang],
+  );
+
+  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+}
+
+function applyDirection(lang: Lang) {
+  const wantRTL = lang === "ar";
+  I18nManager.allowRTL(wantRTL);
+  if (I18nManager.isRTL !== wantRTL) I18nManager.forceRTL(wantRTL);
+}
+
+export function useI18n() {
+  const ctx = useContext(I18nContext);
+  if (!ctx) throw new Error("useI18n must be used inside I18nProvider");
+  return ctx;
+}
