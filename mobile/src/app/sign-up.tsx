@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { I18nManager, Platform, Pressable, Text, TextInput, View } from "react-native";
+import { Platform, Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Link, useRouter } from "expo-router";
 import { Building2, Check, Stethoscope, UserPlus } from "lucide-react-native";
@@ -69,7 +69,6 @@ function RoleCard({ icon: Icon, title, description, active, onPress }: {
 export default function SignUp() {
   const { t, lang } = useI18n();
   const router = useRouter();
-  const rtl = I18nManager.isRTL;
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const confirmRef = useRef<TextInput>(null);
