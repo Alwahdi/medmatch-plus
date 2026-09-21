@@ -2191,6 +2191,19 @@ export type Database = {
         }[]
       }
       my_inactive_employers: { Args: never; Returns: string[] }
+      my_pending_reviews: {
+        Args: never
+        Returns: {
+          context_title: string
+          counterpart_name: string
+          direction: Database["public"]["Enums"]["review_direction"]
+          facility_id: string
+          happened_at: string
+          job_id: string
+          professional_user_id: string
+          shift_id: string
+        }[]
+      }
       my_profile_completeness: {
         Args: never
         Returns: {
