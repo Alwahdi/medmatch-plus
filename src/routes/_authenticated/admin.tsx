@@ -38,6 +38,8 @@ import { useSessionAal2, useVerifiedTotp } from "@/lib/admin-mfa";
 import { VALIDITY_TXT, isExpired, isValidEvidence } from "@/lib/doc-validity";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  validateSearch: (search: Record<string, unknown>): { tab?: string } =>
+    typeof search["tab"] === "string" ? { tab: search["tab"] } : {},
   head: () => ({
     meta: [
       { title: "لوحة الإدارة | SyndeoCare" },
