@@ -461,7 +461,10 @@ export function FacilityVerificationPanel() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="fd-issue">{c.issueDate}</Label>
+              <Label htmlFor="fd-issue">
+                {c.issueDate}
+                {selectedReq?.requires_issue_date ? <span className="text-destructive"> *</span> : null}
+              </Label>
               <Input
                 id="fd-issue"
                 type="date"
