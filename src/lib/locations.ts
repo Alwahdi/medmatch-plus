@@ -82,9 +82,12 @@ function dedupe(options: Option[]): Option[] {
   return options.filter((o) => (seen.has(o.value) ? false : (seen.add(o.value), true)));
 }
 
-/** مدن دولة محددة، مرتّبة حسب المحافظة ثم ترتيب المدير. */
-export function useCityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {
-  const { data } = useLocations();
+/** مدن دولة محددة من صفوف محمّلة مسبقاً (دالة نقية — آمنة داخل JSX). */
+export function cityOptionsFrom(
+  data: LocationRow[] | undefined,
+  stored: string | null | undefined,
+  lang: Lang = "ar",
+): Option[] {
   if (!stored) return [];
   if (!data || data.length === 0) return staticCityOptions(stored, lang);
   const rows = data.filter((r) => sameCountry(r, stored));
@@ -92,9 +95,12 @@ export function useCityOptions(stored: string | null | undefined, lang: Lang = "
   return dedupe(rows.map((r) => toOption(r, lang)));
 }
 
-/** خيارات الفلاتر: كل المدن حين لا تُحدَّد دولة. */
-export function useFilterCityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {
-  const { data } = useLocations();
+/** خيارات الفلاتر من صفوف محمّلة مسبقاً: كل المدن حين لا تُحدَّد دولة. */
+export function filterCityOptionsFrom(
+  data: LocationRow[] | undefined,
+  stored: string | null | undefined,
+  lang: Lang = "ar",
+): Option[] {
   const hasCountry = !!stored && !!countryCodeOf(stored);
   if (hasCountry) {
     if (!data || data.length === 0) return staticCityOptions(stored, lang);
@@ -119,4 +125,18 @@ export function countriesOf(rows: LocationRow[]): string[] {
   const seen = new Set<string>();
   for (const r of rows) seen.add(r.country);
   return [...seen];
+}
+
+/** نسخ hook مختصرة لمن لا يحتاج تمرير الصفوف يدوياً. */
+export function useCityOptions(stored: string | null | undefined, lang: Lang = "ar"): Option[] {
+  const { data } = useLocations();
+  return cityOptionsFrom(data, stored, lang);
+}
+
+export function useFilterCityOptions(
+  stored: string | null | undefined,
+  lang: Lang = "ar",
+): Option[] {
+  const { data } = useLocations();
+  return filterCityOptionsFrom(data, stored, lang);
 }
