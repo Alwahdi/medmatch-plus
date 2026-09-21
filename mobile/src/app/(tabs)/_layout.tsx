@@ -1,11 +1,12 @@
 import React from "react";
 import { Redirect, Tabs } from "expo-router";
 import { View, type ColorValue } from "react-native";
-import { BriefcaseBusiness, CalendarClock, ClipboardList, MessageCircle, UserRound, type LucideIcon } from "lucide-react-native";
+import { Compass, Home, ClipboardList, MessageCircle, UserRound, type LucideIcon } from "lucide-react-native";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts } from "@/lib/theme";
 import { Loading } from "@/components/ui";
+import { useMyInvitations, usePendingReviews } from "@/lib/queries";
 
 function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: ColorValue; focused: boolean }) {
   return (
@@ -18,6 +19,12 @@ function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: Colo
 export default function TabsLayout() {
   const { session, loading } = useAuth();
   const { t } = useI18n();
+  const invitations = useMyInvitations();
+  const reviews = usePendingReviews();
+
+  const activityCount =
+    (invitations.data ?? []).filter((i) => i.status === "pending").length +
+    ((reviews.data as unknown[] | undefined) ?? []).length;
 
   if (loading) return <Loading />;
   if (!session) return <Redirect href="/sign-in" />;
@@ -25,26 +32,30 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 76, paddingTop: 8, paddingBottom: 10 },
         tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
+        tabBarBadgeStyle: { backgroundColor: colors.danger, fontFamily: fonts.bold, fontSize: 10 },
         tabBarHideOnKeyboard: true,
-        headerStyle: { backgroundColor: colors.surface },
-        headerTintColor: colors.text,
       }}
     >
       <Tabs.Screen
         name="index"
-        options={{ title: t("jobs"), tabBarIcon: ({ color, focused }) => <TabIcon icon={BriefcaseBusiness} color={color} focused={focused} /> }}
+        options={{ title: t("home"), tabBarIcon: ({ color, focused }) => <TabIcon icon={Home} color={color} focused={focused} /> }}
       />
       <Tabs.Screen
-        name="shifts"
-        options={{ title: t("shifts"), tabBarIcon: ({ color, focused }) => <TabIcon icon={CalendarClock} color={color} focused={focused} /> }}
+        name="discover"
+        options={{ title: t("discover"), tabBarIcon: ({ color, focused }) => <TabIcon icon={Compass} color={color} focused={focused} /> }}
       />
       <Tabs.Screen
         name="activity"
-        options={{ title: t("activity"), tabBarIcon: ({ color, focused }) => <TabIcon icon={ClipboardList} color={color} focused={focused} /> }}
+        options={{
+          title: t("activity"),
+          tabBarBadge: activityCount ? activityCount : undefined,
+          tabBarIcon: ({ color, focused }) => <TabIcon icon={ClipboardList} color={color} focused={focused} />,
+        }}
       />
       <Tabs.Screen
         name="messages"

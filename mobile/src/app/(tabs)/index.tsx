@@ -1,29 +1,155 @@
-import React, { useState } from "react";
-import { FlatList, Pressable, RefreshControl, ScrollView, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useMemo } from "react";
+import { RefreshControl, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { BriefcaseBusiness, MapPin, Search, ShieldCheck } from "lucide-react-native";
-import { Badge, Card, Chip, EmptyState, ErrorState, Loading, Row, styles as ui } from "@/components/ui";
+import {
+  Bell,
+  BriefcaseBusiness,
+  Building2,
+  CalendarClock,
+  ClipboardList,
+  MailOpen,
+  MessageCircle,
+  Star,
+  UserRound,
+} from "lucide-react-native";
+import { Button, EmptyState, IconButton, Row, Screen, SectionHeader, StatTile, styles as ui } from "@/components/ui";
+import { JobCard, ShiftCard, StatusCard } from "@/components/cards";
 import { Brand } from "@/components/brand";
 import { useI18n } from "@/lib/i18n";
-import { useJobSearch, useSpecialties, type JobRow } from "@/lib/queries";
-import { employmentTypeLabel, formatSalaryRange, relativeTime } from "@/lib/format";
-import { userMessage } from "@/lib/errors";
+import { useAuth } from "@/lib/auth";
+import {
+  useJobSearch,
+  useMyApplications,
+  useMyBookings,
+  useMyFacility,
+  useMyInvitations,
+  useNotifications,
+  useProfessionalProfile,
+  useShiftSearch,
+  type JobRow,
+  type ShiftRow,
+} from "@/lib/queries";
+import { formatDateTime, relativeTime } from "@/lib/format";
 import { colors, fonts, radii } from "@/lib/theme";
 
-export default function JobsTab() {
-  const { t, lang } = useI18n(); const router = useRouter();
-  const [q, setQ] = useState(""); const [term, setTerm] = useState(""); const [specialtyId, setSpecialtyId] = useState<string | null>(null);
-  const specialties = useSpecialties(); const jobs = useJobSearch({ q: term, specialtyId });
-  return <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: colors.bg }}>
-    <View style={{ paddingHorizontal: 18, paddingTop: 10, gap: 14 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><Brand compact/><View><Text style={ui.title}>{t("jobs")}</Text><Text style={ui.muted}>{lang === "ar" ? "فرص تناسب مسارك المهني" : "Opportunities for your career"}</Text></View></View>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 9, minHeight: 52, paddingHorizontal: 14, borderRadius: radii.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}><Search size={20} color={colors.textMuted}/><TextInput value={q} onChangeText={setQ} onSubmitEditing={() => setTerm(q.trim())} returnKeyType="search" placeholder={t("search")} placeholderTextColor={colors.textSubtle} accessibilityLabel={t("search")} style={[ui.input, { flex: 1, borderWidth: 0, backgroundColor: "transparent", paddingHorizontal: 0 }]}/></View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}><Chip label={t("all")} active={!specialtyId} onPress={() => setSpecialtyId(null)}/>{(specialties.data ?? []).map((s) => <Chip key={s.id} label={lang === "ar" ? s.name_ar : s.name_en || s.name_ar} active={specialtyId === s.id} onPress={() => setSpecialtyId(specialtyId === s.id ? null : s.id)}/>)}</ScrollView>
-    </View>
-    {jobs.isPending ? <Loading/> : jobs.isError ? <View style={{ padding: 18 }}><ErrorState message={userMessage(jobs.error, lang)} onRetry={() => void jobs.refetch()}/></View> : <FlatList data={(jobs.data ?? []) as JobRow[]} keyExtractor={(item) => item.id} contentContainerStyle={{ padding: 18, gap: 12, paddingBottom: 110 }} refreshControl={<RefreshControl refreshing={jobs.isFetching} onRefresh={() => void jobs.refetch()}/>} ListEmptyComponent={<EmptyState text={t("emptyJobs")}/>} renderItem={({ item }) => <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: "/job/[id]", params: { id: item.id } })}><Card>
-      <View style={{ flexDirection: "row", gap: 12 }}><View style={{ width: 46, height: 46, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}><BriefcaseBusiness size={22} color={colors.primary}/></View><View style={{ flex: 1, gap: 5 }}><Row gap={7} wrap><Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{item.title}</Text>{item.facility_verified ? <ShieldCheck size={17} color={colors.success}/> : null}</Row><Row gap={5}><MapPin size={14} color={colors.textMuted}/><Text style={ui.muted}>{item.city} · {item.country}</Text></Row></View></View>
-      <Row gap={7} wrap><Badge label={employmentTypeLabel(item.employment_type, lang)}/><Badge label={formatSalaryRange(item.salary_min, item.salary_max, item.currency, lang)} tone="primary"/><Text style={[ui.muted, { marginStart: "auto" }]}>{relativeTime(item.created_at, lang)}</Text></Row>
-    </Card></Pressable>} />}
-  </SafeAreaView>;
+export default function HomeTab() {
+  const { t, lang } = useI18n();
+  const router = useRouter();
+  const { user, isFacility } = useAuth();
+
+  const professional = useProfessionalProfile();
+  const facility = useMyFacility();
+  const applications = useMyApplications();
+  const bookings = useMyBookings();
+  const invitations = useMyInvitations();
+  const notifications = useNotifications();
+  const jobs = useJobSearch({ q: "" });
+  const shifts = useShiftSearch({ q: "" });
+
+  const p = professional.data as { full_name?: string } | null;
+  const f = facility.data as { name?: string } | null;
+  const name = (f?.name ?? p?.full_name ?? user?.email ?? "").split("@")[0] ?? "";
+
+  const unread = (notifications.data ?? []).filter((n) => !n.read_at).length;
+  const pendingInvites = (invitations.data ?? []).filter((i) => i.status === "pending").length;
+
+  const nextBooking = useMemo(() => {
+    const now = Date.now();
+    return (bookings.data ?? [])
+      .map((b) => ({ b, shift: (b as unknown as { shifts?: { title?: string; starts_at?: string; city?: string } }).shifts }))
+      .filter((x) => x.shift?.starts_at && new Date(x.shift.starts_at).getTime() > now && x.b.status === "booked")
+      .sort((a, z) => new Date(a.shift!.starts_at!).getTime() - new Date(z.shift!.starts_at!).getTime())[0];
+  }, [bookings.data]);
+
+  const refreshing =
+    applications.isFetching || bookings.isFetching || invitations.isFetching || notifications.isFetching;
+
+  const refetchAll = () => {
+    void applications.refetch();
+    void bookings.refetch();
+    void invitations.refetch();
+    void notifications.refetch();
+    void jobs.refetch();
+    void shifts.refetch();
+  };
+
+  return (
+    <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetchAll} tintColor={colors.primary} />}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+        <Brand compact />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: fonts.bold, fontSize: 19, color: colors.text }} numberOfLines={1}>
+            {t("helloName").replace("{name}", name || t("account"))}
+          </Text>
+          <Text style={ui.muted} numberOfLines={1}>{isFacility ? t("homeSubFac") : t("homeSubPro")}</Text>
+        </View>
+        <View>
+          <IconButton icon={Bell} label={t("notifications")} onPress={() => router.push("/notifications")} />
+          {unread ? (
+            <View style={{ position: "absolute", top: -4, end: -4, minWidth: 20, height: 20, paddingHorizontal: 5, borderRadius: radii.pill, backgroundColor: colors.danger, alignItems: "center", justifyContent: "center" }}>
+              <Text style={{ fontFamily: fonts.bold, fontSize: 10, color: colors.primaryText }}>{unread > 9 ? "9+" : unread}</Text>
+            </View>
+          ) : null}
+        </View>
+      </View>
+
+      <Row gap={10}>
+        <StatTile icon={ClipboardList} value={(applications.data ?? []).length} label={t("statApplications")} onPress={() => router.push("/activity")} />
+        <StatTile icon={CalendarClock} value={(bookings.data ?? []).length} label={t("statBookings")} tone="accent" onPress={() => router.push("/activity")} />
+        <StatTile icon={MailOpen} value={pendingInvites} label={t("statInvitations")} tone="violet" onPress={() => router.push("/activity")} />
+      </Row>
+
+      <SectionHeader title={t("nextUp")} />
+      {nextBooking?.shift ? (
+        <StatusCard
+          title={nextBooking.shift.title ?? "—"}
+          when={`${formatDateTime(nextBooking.shift.starts_at, lang)} · ${t("startsIn").replace("{t}", relativeTime(nextBooking.shift.starts_at, lang))}`}
+          place={nextBooking.shift.city ?? null}
+          actionLabel={t("viewShift")}
+          onPress={() => router.push({ pathname: "/shift/[id]", params: { id: nextBooking.b.shift_id } })}
+        />
+      ) : (
+        <EmptyState icon={CalendarClock} text={t("noUpcoming")} desc={isFacility ? undefined : t("emptyBookingsDesc")} />
+      )}
+
+      <SectionHeader title={t("quickActions")} />
+      <Row gap={10} wrap>
+        <View style={{ flex: 1, minWidth: 150 }}>
+          <Button label={t("browseJobs")} variant="secondary" icon={BriefcaseBusiness} onPress={() => router.push("/discover")} />
+        </View>
+        <View style={{ flex: 1, minWidth: 150 }}>
+          <Button label={t("messages")} variant="secondary" icon={MessageCircle} onPress={() => router.push("/messages")} />
+        </View>
+        {isFacility ? (
+          <View style={{ flex: 1, minWidth: 150 }}>
+            <Button label={t("facilityWorkspace")} variant="secondary" icon={Building2} onPress={() => router.push("/facility")} />
+          </View>
+        ) : (
+          <View style={{ flex: 1, minWidth: 150 }}>
+            <Button label={t("profile")} variant="secondary" icon={UserRound} onPress={() => router.push("/profile")} />
+          </View>
+        )}
+        <View style={{ flex: 1, minWidth: 150 }}>
+          <Button label={t("pendingReviews")} variant="secondary" icon={Star} onPress={() => router.push("/activity")} />
+        </View>
+      </Row>
+
+      <SectionHeader title={t("latestJobs")} action={<Button label={t("viewAll")} variant="ghost" small onPress={() => router.push("/discover")} />} />
+      {((jobs.data ?? []) as JobRow[]).slice(0, 3).map((job) => (
+        <JobCard key={job.id} job={job} lang={lang} onPress={() => router.push({ pathname: "/job/[id]", params: { id: job.id } })} />
+      ))}
+
+      <SectionHeader title={t("latestShifts")} action={<Button label={t("viewAll")} variant="ghost" small onPress={() => router.push("/discover")} />} />
+      {((shifts.data ?? []) as ShiftRow[]).slice(0, 3).map((shift) => (
+        <ShiftCard
+          key={shift.id}
+          shift={shift}
+          lang={lang}
+          urgentLabel={t("urgent")}
+          perHour={t("perHour")}
+          onPress={() => router.push({ pathname: "/shift/[id]", params: { id: shift.id } })}
+        />
+      ))}
+    </Screen>
+  );
 }

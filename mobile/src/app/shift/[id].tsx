@@ -1,18 +1,34 @@
 import React, { useState } from "react";
-import { Text, View } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
-import { Badge, Button, Card, ErrorState, KeyValue, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
+import { Platform, Text, View } from "react-native";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { CheckCircle2 } from "lucide-react-native";
+import {
+  Badge,
+  Button,
+  Card,
+  ErrorState,
+  KeyValue,
+  Loading,
+  Row,
+  Screen,
+  StickyBar,
+  Title,
+  styles as ui,
+} from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useShift } from "@/lib/queries";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { formatDateTime, formatMoney, relativeTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { useConsentGate } from "@/components/consent-gate";
+import { colors } from "@/lib/theme";
 
 export default function ShiftDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useI18n();
+  const router = useRouter();
   const { session } = useAuth();
   const shift = useShift(String(id));
   const consent = useConsentGate("applicant_commitments");
@@ -29,67 +45,81 @@ export default function ShiftDetail() {
     setBusy(false);
     if (err) {
       setError(userMessage(err, lang));
+      if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
+    if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setBooked(true);
+    void shift.refetch();
   };
 
+  const data = shift.data;
+
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Stack.Screen options={{ title: t("shifts") }} />
       <Screen>
         {shift.isPending ? (
           <Loading />
         ) : shift.isError ? (
           <ErrorState message={userMessage(shift.error, lang)} onRetry={() => void shift.refetch()} />
-        ) : !shift.data ? (
+        ) : !data ? (
           <ErrorState message={lang === "ar" ? "لم نعد نجد هذه المناوبة." : "This shift is no longer available."} />
         ) : (
           <>
-            <Title sub={`${shift.data.city} · ${shift.data.country}`}>{shift.data.title}</Title>
+            <Title sub={`${data.city} · ${data.country}`}>{data.title}</Title>
             <Row gap={8} wrap>
-              {shift.data.facility_verified ? <Badge label={t("verified")} tone="success" /> : null}
-              {shift.data.is_urgent ? <Badge label={lang === "ar" ? "عاجلة" : "Urgent"} tone="warning" /> : null}
-              <Badge
-                label={`${formatMoney(shift.data.hourly_rate, shift.data.currency, lang)} / ${lang === "ar" ? "ساعة" : "hr"}`}
-                tone="primary"
-              />
+              {data.facility_verified ? <Badge label={t("verified")} tone="success" /> : null}
+              {data.is_urgent ? <Badge label={t("urgent")} tone="warning" /> : null}
+              <Badge label={`${formatMoney(data.hourly_rate, data.currency, lang)} / ${t("perHour")}`} tone="primary" />
             </Row>
 
+            <Card style={{ borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
+              <Text style={ui.label}>{t("startsIn").replace("{t}", relativeTime(data.starts_at, lang))}</Text>
+              <Text style={ui.body}>{formatDateTime(data.starts_at, lang)}</Text>
+            </Card>
+
             <Card>
-              <KeyValue
-                k={t("specialty")}
-                v={(lang === "ar" ? shift.data.specialty_name_ar : shift.data.specialty_name_en) ?? "—"}
-              />
-              <KeyValue k={lang === "ar" ? "البداية" : "Starts"} v={formatDateTime(shift.data.starts_at, lang)} />
-              <KeyValue k={lang === "ar" ? "النهاية" : "Ends"} v={formatDateTime(shift.data.ends_at, lang)} />
+              <KeyValue k={t("specialty")} v={(lang === "ar" ? data.specialty_name_ar : data.specialty_name_en) ?? "—"} />
+              <KeyValue k={lang === "ar" ? "البداية" : "Starts"} v={formatDateTime(data.starts_at, lang)} />
+              <KeyValue k={lang === "ar" ? "النهاية" : "Ends"} v={formatDateTime(data.ends_at, lang)} />
               <KeyValue k={t("publishedBy")} v={t("hiddenFacility")} />
             </Card>
 
-            {shift.data.notes ? (
+            {data.notes ? (
               <Card>
-                <Text style={ui.body}>{shift.data.notes}</Text>
+                <Text style={ui.body}>{data.notes}</Text>
               </Card>
             ) : null}
 
-            <Card>
-              {booked ? (
-                <Text style={ui.body}>{t("booked")}</Text>
-              ) : !session ? (
-                <Text style={ui.muted}>{t("needSignIn")}</Text>
-              ) : (
-                <>
-                  {error ? <Text style={ui.error}>{error}</Text> : null}
-                  <View>
-                    <Button label={t("book")} onPress={book} loading={busy} />
-                  </View>
-                </>
-              )}
-            </Card>
+            {booked ? (
+              <Card style={{ borderColor: colors.success, backgroundColor: colors.successSoft }}>
+                <Row gap={8}>
+                  <CheckCircle2 size={20} color={colors.success} />
+                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{t("bookSuccess")}</Text>
+                </Row>
+                <Button label={t("activity")} variant="secondary" small onPress={() => router.push("/activity")} />
+              </Card>
+            ) : error ? (
+              <Text style={ui.error}>{error}</Text>
+            ) : null}
           </>
         )}
         {consent.node}
       </Screen>
-    </>
+
+      {data && !booked ? (
+        <StickyBar>
+          {session ? (
+            <Button label={t("book")} onPress={book} loading={busy} />
+          ) : (
+            <>
+              <Text style={ui.muted}>{t("needSignIn")}</Text>
+              <Button label={t("signIn")} onPress={() => router.push("/sign-in")} />
+            </>
+          )}
+        </StickyBar>
+      ) : null}
+    </View>
   );
 }
