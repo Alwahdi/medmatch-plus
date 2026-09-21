@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import brandMark from "@/assets/syndeocare-mark.png.asset.json";
+import brandMark from "@/assets/syndeocare-mark.png";
 import { cn } from "@/lib/utils";
 
 type BrandLogoProps = {
@@ -23,7 +23,7 @@ export function BrandLogo({
       className={cn("inline-flex min-w-0 items-center gap-2.5 rounded-md", className)}
     >
       <img
-        src={brandMark.url}
+        src={brandMark}
         width={40}
         height={40}
         alt=""
