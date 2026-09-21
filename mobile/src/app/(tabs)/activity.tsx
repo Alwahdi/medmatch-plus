@@ -71,14 +71,16 @@ export default function ActivityTab() {
     });
   }, [bookings.data, range]);
 
+  if (isFacility) {
+    return <FacilityApplicantsOverview />;
+  }
+
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetchAll} tintColor={colors.primary} />}>
       <ScreenHeader
         title={t("activity")}
         sub={lang === "ar" ? "طلباتك ومناوباتك ودعواتك في مكان واحد" : "Applications, shifts and invitations in one place"}
       />
-
-      {isFacility ? <Button label={t("facilityWorkspace")} variant="secondary" onPress={() => router.push("/facility")} /> : null}
 
       <Row gap={8} wrap>
         <Chip label={t("myApplications")} active={tab === "applications"} onPress={() => setTab("applications")} />
@@ -212,6 +214,32 @@ export default function ActivityTab() {
           ))
         )
       ) : null}
+    </Screen>
+  );
+}
+
+function FacilityApplicantsOverview() {
+  const { t, lang } = useI18n();
+  const router = useRouter();
+  const { useMyFacility: useFacility, useFacilityJobs: useJobs } = require("@/lib/queries") as typeof import("@/lib/queries");
+  const facility = useFacility();
+  const facilityId = (facility.data as { id?: string } | null)?.id;
+  const jobs = useJobs(facilityId);
+  const withApplicants = (jobs.data ?? []).filter((job) => (job.applications_count ?? 0) > 0);
+  return (
+    <Screen refreshControl={<RefreshControl refreshing={jobs.isFetching} onRefresh={() => void jobs.refetch()} tintColor={colors.primary} />}>
+      <ScreenHeader title={t("applicants")} sub={t("facilityApplicantsSub")} />
+      {jobs.isPending ? <Loading /> : jobs.isError ? (
+        <ErrorState message={userMessage(jobs.error, lang)} onRetry={() => void jobs.refetch()} />
+      ) : withApplicants.length === 0 ? (
+        <EmptyState icon={UsersRound} text={lang === "ar" ? "لا يوجد متقدمون جدد" : "No new applicants"} desc={t("facilityApplicantsSub")} action={<Button label={t("myListings")} small onPress={() => router.push("/discover")} />} />
+      ) : withApplicants.map((job) => (
+        <Card key={job.id}>
+          <Row gap={8} wrap><Text style={[ui.bodyStrong, { flex: 1 }]}>{job.title}</Text><Badge label={String(job.applications_count ?? 0)} tone="primary" /></Row>
+          <Text style={ui.muted}>{job.city} · {formatDate(job.created_at, lang)}</Text>
+          <Button label={t("reviewApplicants")} variant="secondary" small onPress={() => router.push({ pathname: "/facility/job/[id]", params: { id: job.id } })} />
+        </Card>
+      ))}
     </Screen>
   );
 }
