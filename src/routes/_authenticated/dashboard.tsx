@@ -421,6 +421,8 @@ function Dashboard() {
         </section>
       </div>
 
+      <PendingReviews userId={user?.id} />
+
       {ranked.length > 0 && (
         <section className="mt-10">
           <SectionHeading title={c.recommended} action={<Button variant="link" size="sm" asChild><Link to="/jobs">{c.viewAll}</Link></Button>} />
