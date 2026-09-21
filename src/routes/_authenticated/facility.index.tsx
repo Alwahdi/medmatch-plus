@@ -627,6 +627,12 @@ function FacilityDashboard() {
           {jobs?.length ? (
             jobs.map((j) => {
               const applicants = j.applications?.length ?? 0;
+              const hiredCount = (j.applications ?? []).filter((a) => a.status === "hired").length;
+              const pendingCount = (j.applications ?? []).filter(
+                (a) => a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn",
+              ).length;
+              const seats = Math.max(Number(j.vacancies) || 1, 1);
+              const filled = !j.is_active && (j.auto_closed || hiredCount >= seats);
               return (
                 <PublishedWorkCard
                   key={j.id}
