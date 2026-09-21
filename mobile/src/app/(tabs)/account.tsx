@@ -3,7 +3,7 @@ import { Linking, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import Constants from "expo-constants";
 import { Bell, Building2, FileText, Globe2, LogOut, ShieldCheck, Stethoscope, UserRound } from "lucide-react-native";
-import { Badge, Button, Card, MenuRow, Row, Screen, styles as ui } from "@/components/ui";
+import { Badge, Button, Card, MenuRow, Row, Screen, ScreenHeader, styles as ui } from "@/components/ui";
 import { Brand } from "@/components/brand";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -24,7 +24,7 @@ export default function AccountTab() {
   const verified = Boolean(f?.is_verified) || Boolean(p?.is_verified);
 
   return <Screen>
-    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><Brand compact/><Text style={ui.title}>{t("account")}</Text></View>
+    <ScreenHeader title={t("account")} sub={lang === "ar" ? "ملفك وإعداداتك" : "Your profile and settings"} action={<Brand compact/>}/>
     <View style={[{ backgroundColor: colors.surface, borderRadius: radii.xl, padding: 20, alignItems: "center", gap: 8 }, raisedShadow]}>
       <View style={{ width: 82, height: 82, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: colors.surface }}><UserRound size={38} color={colors.primary}/></View>
       <Text style={{ fontFamily: fonts.bold, fontSize: 20, color: colors.text, textAlign: "center" }}>{displayName}</Text>
