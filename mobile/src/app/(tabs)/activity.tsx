@@ -12,8 +12,8 @@ import {
   Loading,
   Row,
   Screen,
+  ScreenHeader,
   Segmented,
-  Title,
   styles as ui,
 } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
@@ -73,9 +73,10 @@ export default function ActivityTab() {
 
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetchAll} tintColor={colors.primary} />}>
-      <Title sub={lang === "ar" ? "طلباتك ومناوباتك ودعواتك في مكان واحد" : "Applications, shifts and invitations in one place"}>
-        {t("activity")}
-      </Title>
+      <ScreenHeader
+        title={t("activity")}
+        sub={lang === "ar" ? "طلباتك ومناوباتك ودعواتك في مكان واحد" : "Applications, shifts and invitations in one place"}
+      />
 
       {isFacility ? <Button label={t("facilityWorkspace")} variant="secondary" onPress={() => router.push("/facility")} /> : null}
 

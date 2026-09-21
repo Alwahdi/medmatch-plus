@@ -17,7 +17,7 @@ import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
 import { AlertCircle, ChevronLeft, Eye, EyeOff, Inbox } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, fonts, radii, shadow } from "@/lib/theme";
+import { colors, fonts, radii, shadow, space, type as typo } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
 
 export function Screen({ children, scroll = true, refreshControl, padded = true }: {
@@ -29,6 +29,19 @@ export function Screen({ children, scroll = true, refreshControl, padded = true 
 
 export function Title({ children, sub, eyebrow }: { children: React.ReactNode; sub?: string; eyebrow?: string }) {
   return <View style={styles.titleWrap}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text style={styles.title}>{children}</Text>{sub ? <Text style={styles.muted}>{sub}</Text> : null}</View>;
+}
+
+/** One header pattern for every screen: title start-aligned, optional action at the end. */
+export function ScreenHeader({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
+  return (
+    <View style={styles.screenHeader}>
+      <View style={styles.screenHeaderText}>
+        <Text style={styles.title} numberOfLines={1}>{title}</Text>
+        {sub ? <Text style={styles.muted} numberOfLines={1}>{sub}</Text> : null}
+      </View>
+      {action}
+    </View>
+  );
 }
 
 export function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
@@ -161,27 +174,75 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 export function KeyValue({ k, v }: { k: string; v: string }) { return <View style={styles.keyValue}><Text style={styles.muted}>{k}</Text><Text style={[styles.bodyStrong, styles.keyValueText]}>{v}</Text></View>; }
 
 export const styles = StyleSheet.create({
-  fill: { flex: 1 }, screen: { flex: 1, backgroundColor: colors.bg }, screenInner: { paddingHorizontal: 18, paddingTop: 12, gap: 14 }, scrollContent: { paddingBottom: 112 },
-  titleWrap: { gap: 3, marginBottom: 2 }, eyebrow: { fontFamily: fonts.bold, fontSize: 11, color: colors.primary, letterSpacing: 0 }, title: { fontFamily: fonts.bold, fontSize: 25, lineHeight: 36, color: colors.text, writingDirection: "auto" }, sectionHeader: { minHeight: 40, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, sectionTitle: { fontFamily: fonts.bold, fontSize: 18, color: colors.text },
-  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 24, color: colors.text, writingDirection: "auto" }, bodyStrong: { fontFamily: fonts.semibold, fontSize: 15, color: colors.text }, muted: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 21, color: colors.textMuted, writingDirection: "auto" }, label: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text }, error: { fontFamily: fonts.regular, fontSize: 12, color: colors.danger },
-  card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 10 }, button: { borderRadius: radii.md, borderWidth: 1, alignItems: "center", justifyContent: "center" }, buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }, buttonLabel: { fontFamily: fonts.bold }, iconButton: { width: 46, height: 46, borderRadius: radii.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  field: { gap: 7 }, input: { minHeight: 52, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: 14, color: colors.text, fontFamily: fonts.regular, fontSize: 14, textAlign: "auto" }, inputMultiline: { minHeight: 110, paddingTop: 14, textAlignVertical: "top" }, inputError: { borderColor: colors.danger },
-  inputWrap: { position: "relative", justifyContent: "center" }, inputWithAction: { paddingEnd: 52 }, inputAction: { position: "absolute", end: 6, height: 44, width: 44, alignItems: "center", justifyContent: "center" },
-  badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radii.pill }, badgeLabel: { fontFamily: fonts.semibold, fontSize: 11 }, chip: { paddingHorizontal: 14, minHeight: 42, justifyContent: "center", borderRadius: radii.pill, borderWidth: 1 }, chipLabel: { fontFamily: fonts.semibold, fontSize: 12 },
-  menuRow: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }, menuIcon: { width: 42, height: 42, borderRadius: radii.md, alignItems: "center", justifyContent: "center" }, menuText: { flex: 1, minWidth: 0 }, menuTitle: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text }, menuSubtitle: { fontFamily: fonts.regular, fontSize: 11, color: colors.textMuted, marginTop: 1 },
-  state: { alignItems: "center", justifyContent: "center", borderRadius: radii.lg, borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, backgroundColor: colors.surface, padding: 28, gap: 10 }, stateIcon: { width: 54, height: 54, borderRadius: radii.lg, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }, stateTitle: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text, textAlign: "center" },
-  skeletonWrap: { padding: 18, gap: 12 }, skeletonCard: { height: 86, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: 14, flexDirection: "row", alignItems: "center", gap: 12 }, skeletonIcon: { width: 46, height: 46, borderRadius: radii.md, backgroundColor: colors.shimmer }, skeletonLines: { flex: 1, gap: 10 }, skeletonLine: { height: 10, borderRadius: radii.pill, backgroundColor: colors.shimmer },
-  keyValue: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 16, paddingVertical: 4 }, keyValueText: { flexShrink: 1, textAlign: "left" },
+  fill: { flex: 1 },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  screenInner: { paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.lg },
+  scrollContent: { paddingBottom: 120 },
+
+  titleWrap: { gap: space.xs, marginBottom: space.xs },
+  eyebrow: { ...typo.micro, color: colors.primary },
+  title: { ...typo.title, color: colors.text, writingDirection: "auto" },
+  screenHeader: { minHeight: 52, flexDirection: "row", alignItems: "center", gap: space.md, marginBottom: space.xs },
+  screenHeaderText: { flex: 1, minWidth: 0, gap: 2 },
+  sectionHeader: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: space.sm },
+  sectionTitle: { ...typo.section, color: colors.text },
+
+  body: { ...typo.body, color: colors.text, writingDirection: "auto" },
+  bodyStrong: { ...typo.bodyStrong, color: colors.text, writingDirection: "auto" },
+  muted: { ...typo.caption, color: colors.textMuted, writingDirection: "auto" },
+  label: { ...typo.label, color: colors.text },
+  error: { ...typo.caption, fontSize: 12, color: colors.danger },
+
+  card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: space.lg, gap: space.md },
+  button: { borderRadius: radii.md, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: space.sm },
+  buttonLabel: { fontFamily: fonts.bold, lineHeight: 24 },
+  iconButton: { width: 48, height: 48, borderRadius: radii.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+
+  field: { gap: space.sm },
+  input: { minHeight: 54, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.lg, paddingVertical: 10, color: colors.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 24, textAlign: "auto" },
+  inputMultiline: { minHeight: 120, paddingTop: space.lg, textAlignVertical: "top" },
+  inputError: { borderColor: colors.danger },
+  inputWrap: { position: "relative", justifyContent: "center" },
+  inputWithAction: { paddingEnd: 52 },
+  inputAction: { position: "absolute", end: 6, height: 44, width: 44, alignItems: "center", justifyContent: "center" },
+
+  badge: { paddingHorizontal: space.md, paddingVertical: 6, borderRadius: radii.pill },
+  badgeLabel: { ...typo.micro },
+  chip: { paddingHorizontal: space.lg, minHeight: 44, justifyContent: "center", borderRadius: radii.pill, borderWidth: 1 },
+  chipLabel: { ...typo.micro, fontSize: 13 },
+
+  menuRow: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: space.md, paddingHorizontal: space.md, paddingVertical: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  menuIcon: { width: 44, height: 44, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
+  menuText: { flex: 1, minWidth: 0, gap: 1 },
+  menuTitle: { ...typo.label, fontSize: 15, color: colors.text },
+  menuSubtitle: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
+
+  state: { alignItems: "center", justifyContent: "center", borderRadius: radii.lg, borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.xl, paddingVertical: space.xxl, gap: space.md },
+  stateIcon: { width: 56, height: 56, borderRadius: radii.lg, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
+  stateTitle: { ...typo.cardTitle, color: colors.text, textAlign: "center" },
+
+  skeletonWrap: { paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.md },
+  skeletonCard: { height: 92, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: space.lg, flexDirection: "row", alignItems: "center", gap: space.md },
+  skeletonIcon: { width: 46, height: 46, borderRadius: radii.md, backgroundColor: colors.shimmer },
+  skeletonLines: { flex: 1, gap: 10 },
+  skeletonLine: { height: 10, borderRadius: radii.pill, backgroundColor: colors.shimmer },
+
+  keyValue: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: space.lg, paddingVertical: 6 },
+  keyValueText: { flexShrink: 1, textAlign: "left" },
+
   segmented: { flexDirection: "row", backgroundColor: colors.surfaceMuted, borderRadius: radii.md, padding: 4, gap: 4 },
-  segment: { flex: 1, minHeight: 40, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: radii.sm, paddingHorizontal: 6 },
+  segment: { flex: 1, minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: radii.sm, paddingHorizontal: space.sm },
   segmentActive: { backgroundColor: colors.surface, ...shadow },
-  segmentLabel: { fontFamily: fonts.semibold, fontSize: 13 },
-  segmentCount: { minWidth: 20, paddingHorizontal: 5, height: 18, borderRadius: radii.pill, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
-  segmentCountLabel: { fontFamily: fonts.bold, fontSize: 10, color: colors.primaryText },
+  segmentLabel: { ...typo.micro, fontSize: 14 },
+  segmentCount: { minWidth: 22, paddingHorizontal: 6, height: 20, borderRadius: radii.pill, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
+  segmentCountLabel: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 18, color: colors.primaryText },
+
   stickyBar: { backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border },
-  stickyInner: { paddingHorizontal: 18, paddingTop: 10, paddingBottom: 10, gap: 8 },
-  statTile: { flex: 1, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: 12, gap: 4 },
-  statIcon: { width: 32, height: 32, borderRadius: radii.sm, alignItems: "center", justifyContent: "center" },
-  statValue: { fontFamily: fonts.bold, fontSize: 20, color: colors.text },
-  statLabel: { fontFamily: fonts.regular, fontSize: 11, color: colors.textMuted },
+  stickyInner: { paddingHorizontal: space.gutter, paddingTop: space.md, paddingBottom: space.md, gap: space.sm },
+
+  statTile: { flex: 1, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, paddingHorizontal: space.md, paddingVertical: space.md, gap: space.xs },
+  statIcon: { width: 34, height: 34, borderRadius: radii.sm, alignItems: "center", justifyContent: "center" },
+  statValue: { fontFamily: fonts.bold, fontSize: 22, lineHeight: 32, color: colors.text },
+  statLabel: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
 });

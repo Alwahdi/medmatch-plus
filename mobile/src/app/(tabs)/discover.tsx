@@ -3,14 +3,13 @@ import { FlatList, RefreshControl, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { BriefcaseBusiness, CalendarClock, SlidersHorizontal, Search } from "lucide-react-native";
-import { Button, Chip, EmptyState, ErrorState, Field, Loading, Row, Segmented, styles as ui } from "@/components/ui";
+import { Button, Chip, EmptyState, ErrorState, Field, Loading, Row, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { Sheet } from "@/components/sheet";
 import { JobCard, ShiftCard } from "@/components/cards";
-import { Brand } from "@/components/brand";
 import { useI18n } from "@/lib/i18n";
 import { useJobSearch, useShiftSearch, useSpecialties, type JobRow, type ShiftRow } from "@/lib/queries";
 import { userMessage } from "@/lib/errors";
-import { colors, radii } from "@/lib/theme";
+import { colors, radii, space } from "@/lib/theme";
 
 type Mode = "jobs" | "shifts";
 
@@ -45,14 +44,11 @@ export default function DiscoverTab() {
 
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ paddingHorizontal: 18, paddingTop: 10, gap: 12 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <Brand compact />
-          <View style={{ alignItems: "flex-end" }}>
-            <Text style={ui.title}>{t("discover")}</Text>
-            <Text style={ui.muted}>{lang === "ar" ? "وظائف ومناوبات تناسب مسارك" : "Jobs and shifts that fit you"}</Text>
-          </View>
-        </View>
+      <View style={{ paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.md }}>
+        <ScreenHeader
+          title={t("discover")}
+          sub={lang === "ar" ? "وظائف ومناوبات تناسب مسارك" : "Jobs and shifts that fit you"}
+        />
 
         <Segmented<Mode>
           value={mode}

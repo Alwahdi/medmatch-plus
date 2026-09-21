@@ -39,6 +39,33 @@ export const fonts = {
   bold: "Cairo_700Bold",
 } as const;
 
+/** Layout rhythm: one 4pt scale used everywhere. */
+export const space = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 28,
+  gutter: 20,
+} as const;
+
+/**
+ * Arabic (Cairo) needs generous line-height and no small sizes.
+ * Minimum readable size in the app is 12.
+ */
+export const type = {
+  display: { fontFamily: fonts.bold, fontSize: 26, lineHeight: 40 },
+  title: { fontFamily: fonts.bold, fontSize: 22, lineHeight: 34 },
+  section: { fontFamily: fonts.bold, fontSize: 17, lineHeight: 28 },
+  cardTitle: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 26 },
+  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 26 },
+  bodyStrong: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 26 },
+  label: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 22 },
+  caption: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 22 },
+  micro: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 18 },
+} as const;
+
 export const shadow = {
   shadowColor: colors.text,
   shadowOpacity: 0.06,
