@@ -159,10 +159,11 @@ export function CredentialsPanel() {
 
       const { error } = await supabase.from("credentials").insert({
         user_id: user!.id,
-        title: docTypeLabel(form.doc_type, "ar"),
+        title: selectedReq?.name_ar ?? form.doc_type,
         file_name: file.name.slice(0, 200),
         doc_type: form.doc_type,
         issuer: form.issuer.trim() || null,
+        issue_date: form.issue_date || null,
         expiry_date: form.expiry_date || null,
         file_path: filePath,
       });
@@ -170,7 +171,7 @@ export function CredentialsPanel() {
     },
     onSuccess: () => {
       toast.success(c.uploaded);
-      setForm({ doc_type: "", issuer: "", expiry_date: "" });
+      setForm({ doc_type: "", issuer: "", issue_date: "", expiry_date: "" });
       setFile(null);
       queryClient.invalidateQueries({ queryKey: ["my-creds"] });
     },
