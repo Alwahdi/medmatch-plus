@@ -274,7 +274,7 @@ export function AccountPrivacyPanel() {
               return (
                 <dd key={`${row.doc_key}-${row.version}`} className="flex flex-wrap items-baseline justify-between gap-2 text-muted-foreground">
                   <span>{label}</span>
-                  <span>{formatDateTime(row.created_at, lang)}</span>
+                  <span>{formatDate(row.created_at, lang)}</span>
                 </dd>
               );
             })}
