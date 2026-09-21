@@ -1616,6 +1616,7 @@ function ReviewStep({
   onBack,
   onConfirm,
   pending,
+  extra,
 }: {
   steps?: readonly string[];
   title: string;
@@ -1627,6 +1628,7 @@ function ReviewStep({
   onBack: () => void;
   onConfirm: () => void;
   pending: boolean;
+  extra?: React.ReactNode;
 }) {
   return (
     <div className="space-y-4 rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
@@ -1652,6 +1654,7 @@ function ReviewStep({
           <CheckCircle2 className="size-4" /> {confirmLabel}
         </Button>
       </div>
+      {extra}
     </div>
   );
 }
