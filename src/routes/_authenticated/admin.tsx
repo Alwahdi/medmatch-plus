@@ -212,6 +212,9 @@ function AdminPage() {
   const [logQuery, setLogQuery] = useState("");
   const [tab, setTab] = useState("docs");
 
+  const { data: proRequirements } = useAllDocumentRequirements("professional");
+  const { data: facRequirements } = useAllDocumentRequirements("facility");
+
   const { data: creds, isError: credsErr, refetch: credsRefetch, isLoading: credsLoading } = useQuery({
     queryKey: ["admin-creds"],
     enabled: adminReady,
@@ -232,7 +235,7 @@ function AdminPage() {
       const { data, error } = await supabase
         .from("facilities")
         .select(
-          "id,name_ar,country,city,is_verified,rating_avg,rating_count,facility_type,verification_suspended_at,verification_suspension_reason",
+          "id,user_id,name_ar,country,city,is_verified,rating_avg,rating_count,facility_type,verification_suspended_at,verification_suspension_reason",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -548,8 +551,8 @@ function AdminPage() {
 
   // Evidence checklists mirror the DB rule: verification is granted only when
   // every required document is approved (see sync_pro/facility_verification).
-  const PRO_REQUIRED_DOCS = ["ترخيص مزاولة المهنة", "بطاقة الهوية / الجواز"];
-  const FACILITY_REQUIRED_DOCS = ["رخصة مزاولة المنشأة", "السجل التجاري"];
+  const proReqRows = (proRequirements ?? []).filter((r) => r.is_active && r.is_required);
+  const facReqRows = (facRequirements ?? []).filter((r) => r.is_active && r.is_required);
 
   function docState(
     rows: { doc_type: string; status: string; expiry_date: string | null }[],
@@ -567,17 +570,17 @@ function AdminPage() {
 
   function proRequiredDocs(userId: string): RequiredDoc[] {
     const rows = (creds ?? []).filter((r) => r.user_id === userId);
-    return PRO_REQUIRED_DOCS.map((t) => ({
-      label: credentialLabel(t, lang),
-      state: docState(rows, t),
+    return proReqRows.map((r) => ({
+      label: reqName(r, lang),
+      state: docState(rows, r.code),
     }));
   }
 
   function facilityRequiredDocs(facilityId: string): RequiredDoc[] {
     const rows = (facDocs ?? []).filter((r) => r.facility_id === facilityId);
-    return FACILITY_REQUIRED_DOCS.map((t) => ({
-      label: facilityDocTypeLabel(t, lang),
-      state: docState(rows, t),
+    return facReqRows.map((r) => ({
+      label: reqName(r, lang),
+      state: docState(rows, r.code),
     }));
   }
   const newMsgs = (inbox ?? []).filter((m) => !m.is_handled);
@@ -607,6 +610,7 @@ function AdminPage() {
     const place = p ? joinMeta([p.city, countryLabel(p.country, lang)]).replace(" · ", "، ") : "";
     return {
       key: userId,
+      userId,
       name: p?.full_name ?? unknownOwner,
       meta: joinMeta([p?.headline, place]),
       verified: !!p?.is_verified,
@@ -632,6 +636,7 @@ function AdminPage() {
       const place = f ? `${f.city}، ${countryLabel(f.country, lang)}` : "";
       return {
         key: facilityId,
+        userId: f?.user_id ?? null,
         name: f?.name_ar ?? items[0]?.facilities?.name_ar ?? unknownOwner,
         meta: joinMeta([f ? facilityTypeLabel(f.facility_type, lang) : null, place]),
         verified: !!f?.is_verified,

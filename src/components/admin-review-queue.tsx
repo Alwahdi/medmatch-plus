@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { CheckCircle2, ChevronLeft, FileText, ShieldCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,8 @@ export type ReviewDoc = {
 /** جهة واحدة (منشأة أو كادر) بملفها ومستنداتها. */
 export type ReviewOwner = {
   key: string;
+  /** حساب صاحب المستندات — يفتح الملف الكامل في لوحة الإدارة. */
+  userId?: string | null;
   name: string;
   meta: string;
   verified: boolean;
@@ -164,7 +167,17 @@ export function AdminReviewQueue({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 font-bold">
-                    <span className="truncate">{owner.name}</span>
+                    {owner.userId ? (
+                      <Link
+                        to="/admin/users/$userId"
+                        params={{ userId: owner.userId }}
+                        className="truncate underline-offset-4 hover:underline"
+                      >
+                        {owner.name}
+                      </Link>
+                    ) : (
+                      <span className="truncate">{owner.name}</span>
+                    )}
                     {owner.verified && <ShieldCheck className="size-4 shrink-0 text-accent" aria-label={t.verified} />}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">{owner.meta}</p>

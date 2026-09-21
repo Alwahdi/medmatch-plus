@@ -65,6 +65,7 @@ import { Route as PublicSpecialtiesSlugRouteImport } from './routes/_public.spec
 import { Route as ApiPublicDispatchAlertsRouteImport } from './routes/api/public/dispatch-alerts'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push-dispatch'
 import { Route as ApiPublicRefreshVerificationRouteImport } from './routes/api/public/refresh-verification'
+import { Route as AuthenticatedAdminUsersUserIdRouteImport } from './routes/_authenticated/admin.users.$userId'
 import { Route as AuthenticatedFacilityCandidatesUserIdRouteImport } from './routes/_authenticated/facility.candidates.$userId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -360,6 +361,12 @@ const ApiPublicRefreshVerificationRoute =
     path: '/api/public/refresh-verification',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedAdminUsersUserIdRoute =
+  AuthenticatedAdminUsersUserIdRouteImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedFacilityCandidatesUserIdRoute =
   AuthenticatedFacilityCandidatesUserIdRouteImport.update({
     id: '/$userId',
@@ -371,7 +378,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/activity': typeof AuthenticatedActivityRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
@@ -422,13 +429,14 @@ export interface FileRoutesByFullPath {
   '/register/': typeof PublicRegisterIndexRoute
   '/shifts/': typeof PublicShiftsIndexRoute
   '/specialties/': typeof PublicSpecialtiesIndexRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/facility/candidates/$userId': typeof AuthenticatedFacilityCandidatesUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/activity': typeof AuthenticatedActivityRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/alerts': typeof AuthenticatedAlertsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
@@ -479,6 +487,7 @@ export interface FileRoutesByTo {
   '/register': typeof PublicRegisterIndexRoute
   '/shifts': typeof PublicShiftsIndexRoute
   '/specialties': typeof PublicSpecialtiesIndexRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/facility/candidates/$userId': typeof AuthenticatedFacilityCandidatesUserIdRoute
 }
 export interface FileRoutesById {
@@ -487,7 +496,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/activity': typeof AuthenticatedActivityRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
   '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
@@ -539,6 +548,7 @@ export interface FileRoutesById {
   '/_public/register/': typeof PublicRegisterIndexRoute
   '/_public/shifts/': typeof PublicShiftsIndexRoute
   '/_public/specialties/': typeof PublicSpecialtiesIndexRoute
+  '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/_authenticated/facility/candidates/$userId': typeof AuthenticatedFacilityCandidatesUserIdRoute
 }
 export interface FileRouteTypes {
@@ -598,6 +608,7 @@ export interface FileRouteTypes {
     | '/register/'
     | '/shifts/'
     | '/specialties/'
+    | '/admin/users/$userId'
     | '/facility/candidates/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -655,6 +666,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/shifts'
     | '/specialties'
+    | '/admin/users/$userId'
     | '/facility/candidates/$userId'
   id:
     | '__root__'
@@ -714,6 +726,7 @@ export interface FileRouteTypes {
     | '/_public/register/'
     | '/_public/shifts/'
     | '/_public/specialties/'
+    | '/_authenticated/admin/users/$userId'
     | '/_authenticated/facility/candidates/$userId'
   fileRoutesById: FileRoutesById
 }
@@ -1120,6 +1133,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRefreshVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/users/$userId': {
+      id: '/_authenticated/admin/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/facility/candidates/$userId': {
       id: '/_authenticated/facility/candidates/$userId'
       path: '/$userId'
@@ -1129,6 +1149,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedFacilityCandidatesRouteChildren {
   AuthenticatedFacilityCandidatesUserIdRoute: typeof AuthenticatedFacilityCandidatesUserIdRoute
@@ -1147,7 +1178,7 @@ const AuthenticatedFacilityCandidatesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
   AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
@@ -1174,7 +1205,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivityRoute: AuthenticatedActivityRoute,
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,
   AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
