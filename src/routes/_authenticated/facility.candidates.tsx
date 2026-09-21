@@ -19,7 +19,8 @@ import { useSession } from "@/lib/auth";
 import { countryLabel, specialtyName, experienceLabel } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { canonicalCountry } from "@/lib/countries";
-import { countryOptions, filterCityOptions } from "@/lib/geo";
+import { countryOptions } from "@/lib/geo";
+import { filterCityOptionsFrom, useLocations } from "@/lib/locations";
 import { FilterBar, type ActiveFilter } from "@/components/filter-bar";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
@@ -356,7 +357,7 @@ function Candidates() {
           emptyText={cbx.empty}
         />
         <Combobox
-          options={filterCityOptions(country === ANY ? "" : country, lang)}
+          options={filterCityOptionsFrom(locationRows, country === ANY ? "" : country, lang)}
           value={city}
           onChange={setCity}
           placeholder={c.city}

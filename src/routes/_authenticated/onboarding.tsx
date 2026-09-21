@@ -19,7 +19,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { cityOptions, countryOptions } from "@/lib/geo";
+import { countryOptions } from "@/lib/geo";
+import { cityOptionsFrom, useLocations } from "@/lib/locations";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
 
@@ -570,7 +571,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
             <div>
               <Label>{t("ob.field.city")}</Label>
               <Combobox
-                options={cityOptions(form.country, lang)}
+                options={cityOptionsFrom(locationRows, form.country, lang)}
                 value={form.city}
                 disabled={!form.country}
                 onChange={(v) => setForm({ ...form, city: v })}
@@ -808,7 +809,7 @@ function FacilitySteps({
               <div>
                 <Label>{t("ob.field.city")}</Label>
                 <Combobox
-                  options={cityOptions(form.country, lang)}
+                  options={cityOptionsFrom(locationRows, form.country, lang)}
                   value={form.city}
                   disabled={!form.country}
                   onChange={(v) => setForm({ ...form, city: v })}

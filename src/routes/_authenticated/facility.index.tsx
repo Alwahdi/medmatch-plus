@@ -59,7 +59,8 @@ import { assertOk } from "@/lib/query-errors";
 import { useSession } from "@/lib/auth";
 import { PendingReviews } from "@/components/pending-reviews";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { cityOptions, countryOptions, currencyOptions } from "@/lib/geo";
+import { countryOptions, currencyOptions } from "@/lib/geo";
+import { cityOptionsFrom, useLocations } from "@/lib/locations";
 import {
   countryLabel,
   employmentLabel,
@@ -953,7 +954,7 @@ function FacilityForm() {
           <div>
             <Label>{c.city}</Label>
             <Combobox
-              options={cityOptions(form.country, lang)}
+              options={cityOptionsFrom(locationRows, form.country, lang)}
               value={form.city}
               disabled={!form.country}
               onChange={(v) => setForm({ ...form, city: v })}
@@ -1218,7 +1219,7 @@ function JobForm({
         <div>
           <Label>{c.city}</Label>
           <Combobox
-            options={cityOptions(form.country, lang)}
+            options={cityOptionsFrom(locationRows, form.country, lang)}
             value={form.city}
             disabled={!form.country}
             onChange={(v) => setForm({ ...form, city: v })}
@@ -1557,7 +1558,7 @@ function ShiftForm({
         <div>
           <Label>{c.city}</Label>
           <Combobox
-            options={cityOptions(form.country, lang)}
+            options={cityOptionsFrom(locationRows, form.country, lang)}
             value={form.city}
             disabled={!form.country}
             onChange={(v) => setForm({ ...form, city: v })}

@@ -20,7 +20,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { COUNTRIES, countryLabel, employmentLabel, specialtyName } from "@/lib/format";
 import { Combobox, comboText } from "@/components/ui/combobox";
-import { countryOptions, filterCityOptions } from "@/lib/geo";
+import { countryOptions } from "@/lib/geo";
+import { filterCityOptionsFrom, useLocations } from "@/lib/locations";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { useLang } from "@/lib/i18n";
@@ -293,7 +294,7 @@ export function AlertsPanel() {
           emptyText={cbx.empty}
         />
         <Combobox
-          options={filterCityOptions(country === ANY ? "" : country, lang)}
+          options={filterCityOptionsFrom(locationRows, country === ANY ? "" : country, lang)}
           value={city}
           onChange={setCity}
           placeholder={c.cityPh}

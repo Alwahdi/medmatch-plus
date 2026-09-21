@@ -21,7 +21,8 @@ import { useSession } from "@/lib/auth";
 import { checkUpload } from "@/lib/storage";
 import { useLang } from "@/lib/i18n";
 import { countryLabel, facilityTypeLabel, facilityTypeOptions, specialtyName } from "@/lib/format";
-import { cityOptions, countryOptions } from "@/lib/geo";
+import { countryOptions } from "@/lib/geo";
+import { cityOptionsFrom, useLocations } from "@/lib/locations";
 import { friendlyError, UserFacingError, userError } from "@/lib/user-errors";
 
 export type ChangeTarget = "professional" | "facility" | "account";
@@ -230,7 +231,7 @@ export function LockedField({
         keywords: [s.name_ar, s.name_en],
       }));
     if (editor.kind === "country") return countryOptions(lang);
-    if (editor.kind === "city") return cityOptions(editor.country ?? null, lang);
+    if (editor.kind === "city") return cityOptionsFrom(locationRows, editor.country ?? null, lang);
     if (editor.kind === "facilityType") return facilityTypeOptions(lang);
     return [];
   }, [editor, specialties, lang]);
