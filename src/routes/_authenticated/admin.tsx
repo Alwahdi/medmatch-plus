@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminLocations } from "@/components/admin-locations";
+import { AdminLegalContent } from "@/components/admin-legal";
 import { AdminPlatformSettings } from "@/components/admin-platform-settings";
 import { AdminDocumentRequirements } from "@/components/admin-requirements";
 import { reqName, useAllDocumentRequirements } from "@/lib/document-requirements";
@@ -753,6 +755,12 @@ function AdminPage() {
             <TabsTrigger value="requirements" className="shrink-0">
               {lang === "ar" ? "متطلبات المستندات" : "Document requirements"}
             </TabsTrigger>
+            <TabsTrigger value="locations" className="shrink-0">
+              {lang === "ar" ? "المدن والمديريات" : "Cities & districts"}
+            </TabsTrigger>
+            <TabsTrigger value="legal" className="shrink-0">
+              {lang === "ar" ? "المحتوى القانوني" : "Legal content"}
+            </TabsTrigger>
             <TabsTrigger value="settings" className="shrink-0">
               {lang === "ar" ? "إعدادات المنصة" : "Platform settings"}
             </TabsTrigger>
@@ -1114,6 +1122,15 @@ function AdminPage() {
 
         <TabsContent value="requirements" className="mt-6">
           <AdminDocumentRequirements />
+        </TabsContent>
+
+
+        <TabsContent value="locations" className="mt-6">
+          <AdminLocations />
+        </TabsContent>
+
+        <TabsContent value="legal" className="mt-6">
+          <AdminLegalContent />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
