@@ -97,6 +97,7 @@ const TXT = {
     empty: "No applicants yet.",
     emptyFiltered: "No applicants in this stage.",
     viewProfile: "Full profile",
+    noReviews: "No reviews yet",
     loadFailed: "We couldn't load applications for this job.",
     retry: "Try again",
     select: "Select this candidate",
