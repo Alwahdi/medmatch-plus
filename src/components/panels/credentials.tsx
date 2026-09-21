@@ -304,8 +304,16 @@ export function CredentialsPanel() {
             return (
               <li key={type} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
                 <Icon className={`size-5 ${tone}`} />
-                <span className="min-w-0 flex-1 truncate text-sm">
-                  {docTypeLabel(type, lang)}
+                <span className="min-w-0 flex-1 text-sm">
+                  <span className="block truncate">{reqName(r, lang)}</span>
+                  {needMore ? (
+                    <span className="block text-xs text-muted-foreground">
+                      {lang === "ar"
+                        ? `مطلوب ${r.min_count} ملفات — رفعت ${uploaded.length}`
+                        : `${r.min_count} files required — ${uploaded.length} uploaded`}
+                    </span>
+                  ) : null}
+                  {note ? <span className="block text-xs text-muted-foreground">{note}</span> : null}
                   {doc?.expiry_date ? (
                     <span className="block text-xs text-muted-foreground">
                       {c.expiry}: {formatDate(doc.expiry_date, lang)}
