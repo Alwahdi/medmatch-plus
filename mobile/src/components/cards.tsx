@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { BriefcaseBusiness, CalendarClock, ChevronLeft, Clock3, MapPin, ShieldCheck } from "lucide-react-native";
 import { Badge, Card, Row, styles as ui } from "@/components/ui";
-import { colors, fonts, radii, space, type as typo } from "@/lib/theme";
+import { colors, fonts, isRTL, radii, space, type as typo } from "@/lib/theme";
 import { employmentTypeLabel, formatDateTime, formatMoney, formatSalaryRange, relativeTime } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 import type { JobRow, ShiftRow } from "@/lib/queries";
@@ -87,7 +87,7 @@ export function StatusCard({ title, when, place, note, actionLabel, onPress }: {
         style={({ pressed }) => [s.statusAction, { opacity: pressed ? 0.85 : 1 }]}
       >
         <Text style={s.statusActionLabel}>{actionLabel}</Text>
-        <ChevronLeft size={17} color={colors.primary} />
+        <ChevronLeft size={17} color={colors.primary} style={{ transform: [{ scaleX: isRTL ? 1 : -1 }] }} />
       </Pressable>
     </View>
   );

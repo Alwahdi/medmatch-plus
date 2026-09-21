@@ -8,7 +8,7 @@ import { Brand } from "@/components/brand";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts, radii } from "@/lib/theme";
 
-type Step = { icon: LucideIcon; title: string; sub: string; href: "/profile" | "/facility" | "/(tabs)"; tone?: "primary" | "accent" | "violet" };
+type Step = { icon: LucideIcon; title: string; sub: string; href: "/profile" | "/facility" | "/facility/profile" | "/facility/create-job" | "/(tabs)"; tone?: "primary" | "accent" | "violet" };
 
 export default function Welcome() {
   const { t } = useI18n();
@@ -19,9 +19,9 @@ export default function Welcome() {
 
   const steps: Step[] = isFacility
     ? [
-        { icon: Building2, title: t("nextFac1"), sub: t("nextFac1Sub"), href: "/facility", tone: "accent" },
-        { icon: FileBadge, title: t("nextFac2"), sub: t("nextFac2Sub"), href: "/facility", tone: "violet" },
-        { icon: BriefcaseBusiness, title: t("nextFac3"), sub: t("nextFac3Sub"), href: "/facility" },
+        { icon: Building2, title: t("nextFac1"), sub: t("nextFac1Sub"), href: "/facility/profile", tone: "accent" },
+        { icon: FileBadge, title: t("nextFac2"), sub: t("nextFac2Sub"), href: "/facility/profile", tone: "violet" },
+        { icon: BriefcaseBusiness, title: t("nextFac3"), sub: t("nextFac3Sub"), href: "/facility/create-job" },
       ]
     : [
         { icon: Stethoscope, title: t("nextPro1"), sub: t("nextPro1Sub"), href: "/profile" },
@@ -32,10 +32,7 @@ export default function Welcome() {
   const go = (href: Step["href"]) => {
     if (Platform.OS !== "web") void Haptics.selectionAsync();
     if (href === "/(tabs)") router.replace("/(tabs)");
-    else {
-      router.replace("/(tabs)");
-      setTimeout(() => router.push(href), 60);
-    }
+    else router.replace(href);
   };
 
   return (

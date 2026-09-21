@@ -1,7 +1,7 @@
 import React from "react";
 import { Redirect, Tabs } from "expo-router";
 import { View, type ColorValue } from "react-native";
-import { Compass, Home, ClipboardList, MessageCircle, UserRound, type LucideIcon } from "lucide-react-native";
+import { BriefcaseBusiness, Compass, Home, ClipboardList, MessageCircle, UserRound, UsersRound, type LucideIcon } from "lucide-react-native";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts } from "@/lib/theme";
@@ -17,7 +17,7 @@ function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: Colo
 }
 
 export default function TabsLayout() {
-  const { session, loading } = useAuth();
+  const { session, user, roles, loading, isFacility } = useAuth();
   const { t } = useI18n();
   const invitations = useMyInvitations();
   const reviews = usePendingReviews();
@@ -28,6 +28,10 @@ export default function TabsLayout() {
 
   if (loading) return <Loading />;
   if (!session) return <Redirect href="/sign-in" />;
+  if (roles.length === 0) {
+    const intendedRole = user?.user_metadata?.intended_role;
+    return <Redirect href={intendedRole === "facility" ? "/facility/profile" : "/profile"} />;
+  }
 
   return (
     <Tabs
@@ -47,14 +51,14 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="discover"
-        options={{ title: t("discover"), tabBarIcon: ({ color, focused }) => <TabIcon icon={Compass} color={color} focused={focused} /> }}
+        options={{ title: isFacility ? t("myListings") : t("discover"), tabBarIcon: ({ color, focused }) => <TabIcon icon={isFacility ? BriefcaseBusiness : Compass} color={color} focused={focused} /> }}
       />
       <Tabs.Screen
         name="activity"
         options={{
-          title: t("activity"),
-          tabBarBadge: activityCount ? activityCount : undefined,
-          tabBarIcon: ({ color, focused }) => <TabIcon icon={ClipboardList} color={color} focused={focused} />,
+          title: isFacility ? t("applicants") : t("activity"),
+          tabBarBadge: !isFacility && activityCount ? activityCount : undefined,
+          tabBarIcon: ({ color, focused }) => <TabIcon icon={isFacility ? UsersRound : ClipboardList} color={color} focused={focused} />,
         }}
       />
       <Tabs.Screen

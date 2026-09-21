@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, RefreshControl, Text, View } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useMarkNotificationRead, useNotifications } from "@/lib/queries";
@@ -11,6 +11,7 @@ import { colors, radii } from "@/lib/theme";
 
 export default function NotificationsScreen() {
   const { t, lang } = useI18n();
+  const router = useRouter();
   const list = useNotifications();
   const markRead = useMarkNotificationRead();
   const unreadCount = (list.data ?? []).filter((n) => !n.read_at).length;
@@ -41,8 +42,11 @@ export default function NotificationsScreen() {
             <Pressable
               key={n.id}
               accessibilityRole="button"
+              accessibilityLabel={(lang === "ar" ? n.title_ar : n.title_en) || n.title_ar}
               onPress={() => {
                 if (!n.read_at) markRead.mutate(n.id);
+                const link = n.link?.trim();
+                if (link?.startsWith("/")) router.push(link as never);
               }}
             >
                <Card style={!n.read_at ? { borderColor: colors.primary } : undefined}>

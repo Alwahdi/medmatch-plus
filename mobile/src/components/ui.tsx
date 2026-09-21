@@ -15,9 +15,9 @@ import {
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
-import { AlertCircle, ChevronLeft, Eye, EyeOff, Inbox } from "lucide-react-native";
+import { AlertCircle, ChevronLeft, Eye, EyeOff, Inbox, WifiOff } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, fonts, radii, shadow, space, type as typo } from "@/lib/theme";
+import { colors, fonts, isRTL, radii, shadow, space, type as typo } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
 
 export function Screen({ children, scroll = true, refreshControl, padded = true }: {
@@ -73,7 +73,7 @@ export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { i
 
 export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary" }: { icon: LucideIcon; title: string; subtitle?: string; onPress?: () => void; tone?: "primary" | "accent" | "violet" | "danger" }) {
   const p = tone === "danger" ? { bg: colors.dangerSoft, fg: colors.danger } : tone === "accent" ? { bg: colors.accentSoft, fg: colors.accent } : tone === "violet" ? { bg: colors.brandVioletSoft, fg: colors.brandViolet } : { bg: colors.primarySoft, fg: colors.primary };
-  return <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={1}>{subtitle}</Text> : null}</View><ChevronLeft size={19} color={colors.textSubtle} /></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={2}>{subtitle}</Text> : null}</View><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: isRTL ? 1 : -1 }] }} /></Pressable>;
 }
 
 export const Field = React.forwardRef<TextInput, TextInputProps & { label?: string; error?: string | null }>(
@@ -129,6 +129,31 @@ export function Chip({ label, active, onPress }: { label: string; active?: boole
 export function Row({ children, gap = 8, wrap }: { children: React.ReactNode; gap?: number; wrap?: boolean }) { return <View style={{ flexDirection: "row", alignItems: "center", gap, flexWrap: wrap ? "wrap" : "nowrap" }}>{children}</View>; }
 
 export function Loading({ rows = 3 }: { rows?: number }) { return <View accessibilityLabel="Loading" style={styles.skeletonWrap}>{Array.from({ length: rows }).map((_, i) => <View key={i} style={styles.skeletonCard}><View style={styles.skeletonIcon}/><View style={styles.skeletonLines}><View style={[styles.skeletonLine, { width: "68%" }]}/><View style={[styles.skeletonLine, { width: "42%" }]}/></View></View>)}</View>; }
+
+export function PriorityCard({ icon: Icon, eyebrow, title, description, actionLabel, onPress, tone = "primary" }: {
+  icon: LucideIcon; eyebrow: string; title: string; description?: string; actionLabel: string; onPress: () => void; tone?: "primary" | "warning" | "accent";
+}) {
+  const palette = tone === "warning"
+    ? { bg: colors.warningSoft, fg: colors.warning }
+    : tone === "accent"
+      ? { bg: colors.accentSoft, fg: colors.accent }
+      : { bg: colors.primarySoft, fg: colors.primary };
+  return (
+    <View style={[styles.priorityCard, { backgroundColor: palette.bg, borderColor: palette.bg }]}>
+      <View style={[styles.priorityIcon, { backgroundColor: colors.surface }]}><Icon size={24} color={palette.fg} strokeWidth={2.2} /></View>
+      <View style={styles.priorityCopy}>
+        <Text style={[styles.eyebrow, { color: palette.fg }]}>{eyebrow}</Text>
+        <Text style={styles.priorityTitle}>{title}</Text>
+        {description ? <Text style={styles.muted}>{description}</Text> : null}
+      </View>
+      <Button label={actionLabel} small onPress={onPress} />
+    </View>
+  );
+}
+
+export function OfflineNotice({ text }: { text: string }) {
+  return <View accessibilityRole="alert" style={styles.offlineNotice}><WifiOff size={18} color={colors.warning} /><Text style={[styles.muted, { flex: 1, color: colors.warning }]}>{text}</Text></View>;
+}
 
 export function EmptyState({ text, desc, icon: Icon = Inbox, action }: { text: string; desc?: string; icon?: LucideIcon; action?: React.ReactNode }) { return <View style={styles.state}><View style={styles.stateIcon}><Icon size={28} color={colors.primary} /></View><Text style={styles.stateTitle}>{text}</Text>{desc ? <Text style={[styles.muted, { textAlign: "center" }]}>{desc}</Text> : null}{action}</View>; }
 
@@ -221,6 +246,12 @@ export const styles = StyleSheet.create({
   state: { alignItems: "center", justifyContent: "center", borderRadius: radii.lg, borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.xl, paddingVertical: space.xxl, gap: space.md },
   stateIcon: { width: 56, height: 56, borderRadius: radii.lg, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
   stateTitle: { ...typo.cardTitle, color: colors.text, textAlign: "center" },
+
+  priorityCard: { borderRadius: radii.xl, borderWidth: 1, padding: space.lg, gap: space.md },
+  priorityIcon: { width: 48, height: 48, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
+  priorityCopy: { gap: space.xs },
+  priorityTitle: { ...typo.section, color: colors.text },
+  offlineNotice: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: space.sm, borderRadius: radii.md, backgroundColor: colors.warningSoft, paddingHorizontal: space.md, paddingVertical: space.sm },
 
   skeletonWrap: { paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.md },
   skeletonCard: { height: 92, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: space.lg, flexDirection: "row", alignItems: "center", gap: space.md },

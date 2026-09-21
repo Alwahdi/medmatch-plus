@@ -7,7 +7,9 @@ import { Button, Chip, EmptyState, ErrorState, Field, Loading, Row, ScreenHeader
 import { Sheet } from "@/components/sheet";
 import { JobCard, ShiftCard } from "@/components/cards";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
 import { useJobSearch, useShiftSearch, useSpecialties, type JobRow, type ShiftRow } from "@/lib/queries";
+import FacilityHome from "@/app/facility";
 import { userMessage } from "@/lib/errors";
 import { colors, radii, space } from "@/lib/theme";
 
@@ -15,6 +17,7 @@ type Mode = "jobs" | "shifts";
 
 export default function DiscoverTab() {
   const { t, lang } = useI18n();
+  const { isFacility } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("jobs");
   const [q, setQ] = useState("");
@@ -41,6 +44,8 @@ export default function DiscoverTab() {
     setCityDraft(city);
     setSheetOpen(true);
   };
+
+  if (isFacility) return <FacilityHome embedded />;
 
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: colors.bg }}>

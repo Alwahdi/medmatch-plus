@@ -1,10 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { EmptyState, ErrorState, Loading, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useMessages, useSendMessage } from "@/lib/queries";
+import { useMarkConversationRead, useMessages, useSendMessage } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { relativeTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
@@ -19,7 +19,12 @@ export default function Conversation() {
   const listRef = useRef<FlatList>(null);
   const messages = useMessages(String(id));
   const send = useSendMessage(String(id));
+  const markRead = useMarkConversationRead(String(id));
   const [body, setBody] = useState("");
+
+  useEffect(() => {
+    if (id) markRead.mutate();
+  }, [id]);
 
   const submit = () => {
     const text = body.trim();

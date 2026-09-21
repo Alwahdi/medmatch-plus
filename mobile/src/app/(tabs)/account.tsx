@@ -18,8 +18,8 @@ export default function AccountTab() {
   const facility = useMyFacility();
   const webUrl = (Constants.expoConfig?.extra as { webUrl?: string } | undefined)?.webUrl;
   const p = professional.data as { full_name?: string; headline?: string | null; city?: string | null; is_verified?: boolean } | null;
-  const f = facility.data as { name?: string; city?: string | null; is_verified?: boolean } | null;
-  const displayName = f?.name ?? p?.full_name ?? user?.email ?? "—";
+  const f = facility.data as { name_ar?: string; name_en?: string | null; city?: string | null; is_verified?: boolean } | null;
+  const displayName = (lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "—";
   const detail = f?.city ?? p?.headline ?? p?.city ?? user?.email ?? "";
   const verified = Boolean(f?.is_verified) || Boolean(p?.is_verified);
 
@@ -48,7 +48,7 @@ export default function AccountTab() {
 
     <Text style={[ui.label, { color: colors.textMuted, marginTop: 4 }]}>{lang === "ar" ? "إدارة الحساب" : "ACCOUNT"}</Text>
     {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
-    {isFacility ? <MenuRow icon={Building2} title={t("facilityWorkspace")} subtitle={lang === "ar" ? "الفرص والمتقدمون" : "Listings and applicants"} tone="accent" onPress={() => router.push("/facility")}/> : null}
+    {isFacility ? <><MenuRow icon={Building2} title={t("facilityWorkspace")} subtitle={lang === "ar" ? "الفرص والمتقدمون" : "Listings and applicants"} tone="accent" onPress={() => router.push("/facility")}/><MenuRow icon={UserRound} title={t("editFacility")} subtitle={lang === "ar" ? "الاسم والنوع والموقع" : "Name, type and location"} onPress={() => router.push("/facility/profile")}/></> : null}
     <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
     <MenuRow icon={ShieldCheck} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
 

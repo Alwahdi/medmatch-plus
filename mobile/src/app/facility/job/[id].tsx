@@ -1,11 +1,12 @@
-import React from "react";
-import { RefreshControl, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, RefreshControl, Text, View } from "react-native";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useJob, useJobApplicants, useSetApplicationStage } from "@/lib/queries";
+import { useInviteSuggestedCandidate, useJob, useJobApplicants, useSetApplicationStage, useSuggestedCandidates } from "@/lib/queries";
 import { applicationStatusLabel, formatDate } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
+import { ShieldCheck, UserRound } from "lucide-react-native";
 
 const STAGES = ["reviewing", "shortlisted", "interview", "rejected"] as const;
 
@@ -15,6 +16,23 @@ export default function FacilityJobApplicants() {
   const job = useJob(String(id));
   const applicants = useJobApplicants(String(id));
   const setStage = useSetApplicationStage(String(id));
+  const suggested = useSuggestedCandidates(String(id));
+  const invite = useInviteSuggestedCandidate(String(id));
+  const [changingId, setChangingId] = useState<string | null>(null);
+
+  const changeStage = (applicationId: string, status: typeof STAGES[number]) => {
+    Alert.alert(
+      t("confirmAction"),
+      `${t("actionCannotUndo")}\n${applicationStatusLabel(status, lang)}`,
+      [
+        { text: t("cancel"), style: "cancel" },
+        { text: t("confirmAction"), style: status === "rejected" ? "destructive" : "default", onPress: () => {
+          setChangingId(applicationId);
+          setStage.mutate({ id: applicationId, status }, { onSettled: () => setChangingId(null) });
+        } },
+      ],
+    );
+  };
 
   return (
     <>
@@ -42,6 +60,7 @@ export default function FacilityJobApplicants() {
                 <Badge label={applicationStatusLabel(a.status, lang)} tone="primary" />
               </Row>
               {a.cover_letter ? <Text style={ui.muted}>{a.cover_letter}</Text> : null}
+              <Text style={ui.label}>{t("applicantDecision")}</Text>
               <Row gap={6} wrap>
                 {STAGES.map((s) => (
                   <View key={s}>
@@ -49,8 +68,9 @@ export default function FacilityJobApplicants() {
                       label={applicationStatusLabel(s, lang)}
                       variant={a.status === s ? "primary" : "secondary"}
                       small
-                      loading={setStage.isPending}
-                      onPress={() => setStage.mutate({ id: a.id, status: s })}
+                      loading={setStage.isPending && changingId === a.id}
+                      disabled={a.status === s || (setStage.isPending && changingId !== a.id)}
+                      onPress={() => changeStage(a.id, s)}
                     />
                   </View>
                 ))}
@@ -59,9 +79,21 @@ export default function FacilityJobApplicants() {
           ))
         )}
 
-        <Card>
-          <Text style={ui.muted}>{t("unavailableOnMobile")}</Text>
-        </Card>
+        <Title sub={t("candidatesMatchSub")}>{t("candidatesMatch")}</Title>
+        {suggested.isPending ? <Loading rows={2} /> : suggested.isError ? (
+          <ErrorState message={userMessage(suggested.error, lang)} onRetry={() => void suggested.refetch()} />
+        ) : (suggested.data ?? []).length === 0 ? (
+          <EmptyState icon={UserRound} text={lang === "ar" ? "لا توجد مطابقات جديدة حالياً." : "No new matches right now."} desc={t("candidatesMatchSub")} />
+        ) : (suggested.data ?? []).map((candidate) => (
+          <Card key={candidate.id}>
+            <Row gap={10}>
+              <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" }}><UserRound size={22} /></View>
+              <View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "مرشح مطابق" : "Matching candidate"}</Text><Text style={ui.muted}>{candidate.city} · {candidate.years_experience} {t("yearsShort")}</Text></View>
+              {candidate.is_verified ? <ShieldCheck size={20} /> : null}
+            </Row>
+            <Button label={t("invite")} variant="secondary" small loading={invite.isPending} onPress={() => Alert.alert(t("confirmAction"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("invite"), onPress: () => invite.mutate(candidate.id) }])} />
+          </Card>
+        ))}
       </Screen>
     </>
   );
