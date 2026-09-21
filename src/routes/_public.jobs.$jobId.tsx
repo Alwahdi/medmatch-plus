@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+// عرض مخصص للمالك: إحصاءات + بيانات + متقدمون بعرض كامل.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -86,7 +87,7 @@ const TXT = {
     statusFilled: "اكتمل العدد",
     statusExpired: "منتهية",
     statApplicants: "المتقدمون",
-    statSelected: (h: number, v: number) => `المختارون: ${h} من ${v}`,
+    statSelected: "المختارون من الشواغر",
     statDeadline: "الموعد النهائي",
     statPosted: "تاريخ النشر",
     jobData: "بيانات الوظيفة",
