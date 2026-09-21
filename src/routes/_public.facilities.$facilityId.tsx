@@ -215,6 +215,7 @@ function FacilityProfilePage() {
               alt={facilityDisplayName(facility, lang)}
               icon={Building2}
               className="size-16 bg-white/12 text-on-hero ring-1 ring-white/20"
+              verified={facility.is_verified}
             />
 
             <div>

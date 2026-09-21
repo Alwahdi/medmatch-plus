@@ -388,6 +388,7 @@ function FacilityDashboard() {
             alt={facility.name_ar}
             icon={Building2}
             className="size-11 shrink-0 sm:size-12"
+            verified={facility.is_verified}
           />
 
           <div className="min-w-0">

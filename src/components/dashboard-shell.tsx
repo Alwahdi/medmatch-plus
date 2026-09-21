@@ -49,7 +49,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
   if (roles?.includes("admin")) items.push({ to: "/admin", key: "nav.admin", icon: ShieldCheck });
 
-  const { name: accountName, image: accountImage } = useAccountIdentity();
+  const { name: accountName, image: accountImage, verified: accountVerified } = useAccountIdentity();
 
   /** المسار النشط: مطابقة دقيقة مع تفضيل أطول مسار مطابق. */
   function isActive(to: string) {
@@ -135,6 +135,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   alt={accountName}
                   fallbackText={accountName}
                   className="size-11 shrink-0 rounded-full text-sm"
+                  verified={accountVerified}
                 />
                 <span className="hidden min-w-0 flex-col text-start sm:flex">
                   <span className="truncate text-sm font-bold leading-tight">{accountName}</span>
