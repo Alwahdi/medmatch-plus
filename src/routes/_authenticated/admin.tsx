@@ -1100,6 +1100,10 @@ function AdminPage() {
           <AdminSafetyReports />
         </TabsContent>
 
+        <TabsContent value="requirements" className="mt-6">
+          <AdminDocumentRequirements />
+        </TabsContent>
+
         <TabsContent value="settings" className="mt-6">
           <AdminPlatformSettings />
         </TabsContent>
