@@ -394,7 +394,15 @@ export function FacilityVerificationPanel() {
               <li key={type} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/60 p-3 sm:gap-3">
                 <Icon className={`size-5 shrink-0 ${tone}`} />
                 <span className="min-w-0 flex-1 basis-[60%] text-sm">
-                  <span className="block truncate">{facilityDocTypeLabel(type, lang)}</span>
+                  <span className="block truncate">{reqName(r, lang)}</span>
+                  {needMore ? (
+                    <span className="block text-xs text-muted-foreground">
+                      {lang === "ar"
+                        ? `مطلوب ${r.min_count} ملفات — رفعت ${uploaded.length}`
+                        : `${r.min_count} files required — ${uploaded.length} uploaded`}
+                    </span>
+                  ) : null}
+                  {note ? <span className="block text-xs text-muted-foreground">{note}</span> : null}
                   {doc?.expiry_date ? (
                     <span className="block text-xs text-muted-foreground">
                       {c.expiry}: {formatDate(doc.expiry_date, lang)}
