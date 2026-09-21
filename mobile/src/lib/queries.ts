@@ -364,6 +364,28 @@ export function useSetApplicationStage(jobId: string) {
   });
 }
 
+export function useSuggestedCandidates(jobId: string) {
+  return useQuery({
+    queryKey: ["suggested-candidates", jobId],
+    enabled: Boolean(jobId),
+    queryFn: async () => unwrap(await supabase.rpc("suggest_candidates", { _job_id: jobId, _limit: 20, _offset: 0 })),
+  });
+}
+
+export function useInviteSuggestedCandidate(jobId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (candidateId: string) => {
+      const res = await supabase.rpc("send_candidate_invitation_from_search", { _candidate_id: candidateId, _job_id: jobId });
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["suggested-candidates", jobId] });
+      void qc.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
 export type CreateJobInput = {
   facilityId: string; title: string; description: string; specialtyId: string | null;
   employmentType: "full_time" | "part_time" | "contract" | "locum" | "shift";

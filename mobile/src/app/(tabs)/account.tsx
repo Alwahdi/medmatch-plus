@@ -48,7 +48,7 @@ export default function AccountTab() {
 
     <Text style={[ui.label, { color: colors.textMuted, marginTop: 4 }]}>{lang === "ar" ? "إدارة الحساب" : "ACCOUNT"}</Text>
     {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
-    {isFacility ? <MenuRow icon={Building2} title={t("facilityWorkspace")} subtitle={lang === "ar" ? "الفرص والمتقدمون" : "Listings and applicants"} tone="accent" onPress={() => router.push("/facility")}/> : null}
+    {isFacility ? <><MenuRow icon={Building2} title={t("facilityWorkspace")} subtitle={lang === "ar" ? "الفرص والمتقدمون" : "Listings and applicants"} tone="accent" onPress={() => router.push("/facility")}/><MenuRow icon={UserRound} title={t("editFacility")} subtitle={lang === "ar" ? "الاسم والنوع والموقع" : "Name, type and location"} onPress={() => router.push("/facility/profile")}/></> : null}
     <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
     <MenuRow icon={ShieldCheck} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
 
