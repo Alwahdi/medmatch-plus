@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useOpenAppLink } from "@/lib/notification-link";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";

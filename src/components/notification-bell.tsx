@@ -58,7 +58,7 @@ export function NotificationBell() {
       await markNotificationRead(n.id);
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     }
-    if (n.link) void navigate({ to: n.link });
+    openLink(n.link);
   }
 
   return (
