@@ -139,6 +139,7 @@ export const INVITE_TXT = {
 /** لوحة دعوة المختصين لإعلان محدد — تُستخدم في الصفحة وداخل لوحة المنشأة. */
 export function InvitePanel({ jobId, shiftId }: { jobId?: string | undefined; shiftId?: string | undefined }) {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = INVITE_TXT[lang];
   const cbx = comboText(lang);
   const { user } = useSession();

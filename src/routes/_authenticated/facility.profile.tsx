@@ -133,6 +133,7 @@ export const Route = createFileRoute("/_authenticated/facility/profile")({
 
 function FacilityProfile() {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const { user } = useSession();

@@ -868,6 +868,7 @@ function DashboardMetric({
 
 function FacilityForm() {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const { user } = useSession();
@@ -1004,6 +1005,7 @@ function JobForm({
   onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();
@@ -1301,6 +1303,7 @@ function ShiftForm({
   onCreated?: (id: string) => void;
 }) {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const queryClient = useQueryClient();

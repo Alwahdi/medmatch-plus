@@ -110,6 +110,7 @@ const TXT = {
 
 export function AlertsPanel() {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const cbx = comboText(lang);
   const c = TXT[lang];
   const { confirm, confirmDialog } = useConfirm();

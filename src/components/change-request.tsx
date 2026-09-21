@@ -211,6 +211,7 @@ export function LockedField({
   pending?: ChangeRequestRow | undefined;
 }) {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = T[lang];
   const ct = comboText(lang);
   const { user } = useSession();

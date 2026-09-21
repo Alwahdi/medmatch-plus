@@ -156,6 +156,7 @@ const TXT = {
 
 function Candidates() {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const cbx = comboText(lang);
   const c = TXT[lang];
   const { user } = useSession();

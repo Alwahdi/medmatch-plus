@@ -165,6 +165,7 @@ const schemaAr = z.object({
 
 function ProfileOverview() {
   const { lang } = useLang();
+  const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
   const { user } = useSession();

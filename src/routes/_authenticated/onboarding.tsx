@@ -392,6 +392,7 @@ function ProfessionalSteps({ defaultName, onChangePath }: { defaultName: string;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t, lang } = useLang();
+  const { data: locationRows } = useLocations();
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -677,6 +678,7 @@ function FacilitySteps({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t, lang } = useLang();
+  const { data: locationRows } = useLocations();
   const ct = comboText(lang);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
