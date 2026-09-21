@@ -356,6 +356,13 @@ export function FacilityApplicantsPanel({ jobId, embedded = false }: { jobId?: s
                       {a.pro?.headline ?? "—"} · {c.experience(a.pro?.years_experience ?? 0)} ·{" "}
                       {[a.pro?.city, countryLabel(a.pro?.country, lang)].filter(Boolean).join("، ")}
                     </p>
+                    <div className="mt-1">
+                      {a.pro?.rating_count ? (
+                        <RatingStars value={Number(a.pro.rating_avg ?? 0)} count={a.pro.rating_count} />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">{c.noReviews}</span>
+                      )}
+                    </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {c.appliedFor(a.job?.title ?? "", relativeTime(a.created_at, lang))}
                     </p>
