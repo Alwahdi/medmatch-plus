@@ -1,14 +1,22 @@
 import React, { useState } from "react";
 import { Alert, RefreshControl, Text, View } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Field, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useHireApplicant, useInviteSuggestedCandidate, useJob, useJobApplicants, useScheduleInterview, useSetApplicationStage, useSuggestedCandidates } from "@/lib/queries";
 import { applicationStatusLabel, formatDate } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { ShieldCheck, UserRound } from "lucide-react-native";
+import { colors } from "@/lib/theme";
 
 const STAGES = ["reviewing", "shortlisted", "interview", "rejected"] as const;
+
+/** شرط توثيق وليس عطلاً: نعرضه كبوابة واضحة بدل رسالة خطأ. */
+const verificationGated = (error: unknown) => {
+  const raw = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : String(error ?? "");
+  return /VERIFICATION_REQUIRED|MFA_REQUIRED|not verified/i.test(raw);
+};
+
 
 export default function FacilityJobApplicants() {
   const { id } = useLocalSearchParams<{ id: string }>();
