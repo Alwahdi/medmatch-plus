@@ -2,10 +2,13 @@ import React from "react";
 import { Linking, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import Constants from "expo-constants";
-import { Badge, Button, Card, KeyValue, Row, Screen, Title, styles as ui } from "@/components/ui";
+import { Bell, Building2, FileText, Globe2, LogOut, ShieldCheck, Stethoscope, UserRound } from "lucide-react-native";
+import { Badge, Button, Card, MenuRow, Row, Screen, styles as ui } from "@/components/ui";
+import { Brand } from "@/components/brand";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useMyFacility, useProfessionalProfile } from "@/lib/queries";
+import { colors, fonts, radii, raisedShadow } from "@/lib/theme";
 
 export default function AccountTab() {
   const { t, lang, setLang } = useI18n();
@@ -14,63 +17,32 @@ export default function AccountTab() {
   const professional = useProfessionalProfile();
   const facility = useMyFacility();
   const webUrl = (Constants.expoConfig?.extra as { webUrl?: string } | undefined)?.webUrl;
+  const p = professional.data as { full_name?: string; headline?: string | null; city?: string | null; is_verified?: boolean } | null;
+  const f = facility.data as { name?: string; city?: string | null; is_verified?: boolean } | null;
+  const displayName = f?.name ?? p?.full_name ?? user?.email ?? "—";
+  const detail = f?.city ?? p?.headline ?? p?.city ?? user?.email ?? "";
+  const verified = Boolean(f?.is_verified) || Boolean(p?.is_verified);
 
-  const displayName =
-    (facility.data as { name?: string } | null)?.name ??
-    (professional.data as { full_name?: string } | null)?.full_name ??
-    user?.email ??
-    "—";
-  const verified =
-    Boolean((facility.data as { is_verified?: boolean } | null)?.is_verified) ||
-    Boolean((professional.data as { is_verified?: boolean } | null)?.is_verified);
+  return <Screen>
+    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><Brand compact/><Text style={ui.title}>{t("account")}</Text></View>
+    <View style={[{ backgroundColor: colors.surface, borderRadius: radii.xl, padding: 20, alignItems: "center", gap: 8 }, raisedShadow]}>
+      <View style={{ width: 82, height: 82, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: colors.surface }}><UserRound size={38} color={colors.primary}/></View>
+      <Text style={{ fontFamily: fonts.bold, fontSize: 20, color: colors.text, textAlign: "center" }}>{displayName}</Text>
+      <Text style={ui.muted}>{detail}</Text>
+      <Row gap={6} wrap>{verified ? <Badge label={t("verified")} tone="success"/> : null}{roles.map((r) => <Badge key={r} label={r === "facility" ? t("roleFacility") : r === "professional" ? t("roleProfessional") : "Admin"} tone="primary"/>)}</Row>
+    </View>
 
-  return (
-    <Screen>
-      <Title>{t("account")}</Title>
+    <Text style={[ui.label, { color: colors.textMuted, marginTop: 4 }]}>{lang === "ar" ? "إدارة الحساب" : "ACCOUNT"}</Text>
+    {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
+    {isFacility ? <MenuRow icon={Building2} title={t("facilityWorkspace")} subtitle={lang === "ar" ? "الفرص والمتقدمون" : "Listings and applicants"} tone="accent" onPress={() => router.push("/facility")}/> : null}
+    <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
+    <MenuRow icon={ShieldCheck} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
 
-      <Card>
-        <Row gap={8} wrap>
-          <Text style={[ui.body, { fontWeight: "700", flexShrink: 1 }]}>{displayName}</Text>
-          {verified ? <Badge label={t("verified")} tone="success" /> : null}
-        </Row>
-        <Text style={ui.muted}>{user?.email}</Text>
-        <Row gap={6} wrap>
-          {roles.map((r) => (
-            <Badge key={r} label={r === "facility" ? t("roleFacility") : r === "professional" ? t("roleProfessional") : "Admin"} tone="primary" />
-          ))}
-        </Row>
-      </Card>
-
-      {isProfessional ? (
-        <Button label={t("profile")} variant="secondary" onPress={() => router.push("/profile")} />
-      ) : null}
-      {isFacility ? (
-        <Button label={t("facilityWorkspace")} variant="secondary" onPress={() => router.push("/facility")} />
-      ) : null}
-      <Button label={t("notifications")} variant="secondary" onPress={() => router.push("/notifications")} />
-      <Button label={t("legal")} variant="secondary" onPress={() => router.push("/legal")} />
-
-      <Card>
-        <Text style={ui.label}>{t("language")}</Text>
-        <Row gap={8}>
-          <View style={{ flex: 1 }}>
-            <Button label={t("arabic")} small variant={lang === "ar" ? "primary" : "secondary"} onPress={() => void setLang("ar")} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Button label={t("english")} small variant={lang === "en" ? "primary" : "secondary"} onPress={() => void setLang("en")} />
-          </View>
-        </Row>
-        <Text style={ui.muted}>{t("restartNeeded")}</Text>
-      </Card>
-
-      {webUrl ? (
-        <Card>
-          <KeyValue k={t("openWeb")} v={webUrl.replace(/^https?:\/\//, "")} />
-          <Button label={t("openWeb")} variant="ghost" small onPress={() => void Linking.openURL(webUrl)} />
-        </Card>
-      ) : null}
-
-      <Button label={t("signOut")} variant="danger" onPress={() => void signOut()} />
-    </Screen>
-  );
+    <Card>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}><Globe2 size={20} color={colors.primary}/><Text style={ui.label}>{t("language")}</Text></View>
+      <Row gap={8}><View style={{ flex: 1 }}><Button label={t("arabic")} small variant={lang === "ar" ? "primary" : "secondary"} onPress={() => void setLang("ar")}/></View><View style={{ flex: 1 }}><Button label={t("english")} small variant={lang === "en" ? "primary" : "secondary"} onPress={() => void setLang("en")}/></View></Row>
+    </Card>
+    {webUrl ? <MenuRow icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
+    <MenuRow icon={LogOut} title={t("signOut")} tone="danger" onPress={() => void signOut()}/>
+  </Screen>;
 }
