@@ -70,6 +70,7 @@ import {
   specialtyName,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useConsentGate } from "@/components/consent-gate";
 import { useLang } from "@/lib/i18n";
 import { useUnread } from "@/lib/unread";
 import { NextStepCard, QuickAction, SectionHeading, WorkspaceHeading } from "@/components/workspace-ui";
@@ -1150,7 +1151,7 @@ function JobForm({
         backLabel={c.backToEdit}
         confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
         onBack={() => setStep("form")}
-        onConfirm={() => create.mutate()}
+        onConfirm={async () => { if (await consent.ensure()) create.mutate(); }}
         pending={create.isPending}
       />
     );
@@ -1455,7 +1456,7 @@ function ShiftForm({
         backLabel={c.backToEdit}
         confirmLabel={create.isPending ? c.publishing : c.confirmPublish}
         onBack={() => setStep("form")}
-        onConfirm={() => create.mutate()}
+        onConfirm={async () => { if (await consent.ensure()) create.mutate(); }}
         pending={create.isPending}
       />
     );

@@ -31,6 +31,7 @@ import {
   hoursBetween,
   specialtyName,
 } from "@/lib/format";
+import { useConsentGate } from "@/components/consent-gate";
 import { useLang } from "@/lib/i18n";
 import { ErrorState } from "@/components/error-state";
 import { ReportButton } from "@/components/report-dialog";
@@ -244,6 +245,8 @@ function ShiftDetail() {
     },
   });
 
+  const consent = useConsentGate("applicant_commitments");
+
   const book = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.rpc("book_open_shift", { _shift_id: shiftId });
@@ -299,7 +302,7 @@ function ShiftDetail() {
       description: c.confirmDesc(formatDateTime(shift!.starts_at, lang), hours),
       confirmLabel: c.confirmCta,
     });
-    if (ok) book.mutate();
+    if (ok && (await consent.ensure())) book.mutate();
   }
 
   return (
