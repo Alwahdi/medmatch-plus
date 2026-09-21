@@ -278,16 +278,18 @@ export default function SignUp() {
             onSubmitEditing={() => void submit()}
           />
 
-          <Text style={[ui.muted, { textAlign: "center" }]}>
-            {t("agreePrefix")}{" "}
-            <Text style={{ color: colors.primary, fontFamily: fonts.semibold }} onPress={() => router.push("/legal")}>
-              {t("terms")}
-            </Text>{" "}
-            {t("andWord")}{" "}
-            <Text style={{ color: colors.primary, fontFamily: fonts.semibold }} onPress={() => router.push("/legal")}>
-              {t("privacy")}
-            </Text>
-          </Text>
+          <View style={{ alignItems: "center", gap: 2 }}>
+            <Text style={[ui.muted, { textAlign: "center" }]}>{t("agreePrefix")}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 }}>
+              <Pressable accessibilityRole="link" accessibilityLabel={t("terms")} hitSlop={8} onPress={() => router.push("/legal")} style={{ minHeight: 44, justifyContent: "center" }}>
+                <Text style={{ color: colors.primary, fontFamily: fonts.semibold }}>{t("terms")}</Text>
+              </Pressable>
+              <Text style={ui.muted}>{t("andWord")}</Text>
+              <Pressable accessibilityRole="link" accessibilityLabel={t("privacy")} hitSlop={8} onPress={() => router.push("/legal")} style={{ minHeight: 44, justifyContent: "center" }}>
+                <Text style={{ color: colors.primary, fontFamily: fonts.semibold }}>{t("privacy")}</Text>
+              </Pressable>
+            </View>
+          </View>
 
           {error ? <ErrorState message={error} /> : null}
           {notice ? <Text style={ui.muted}>{notice}</Text> : null}

@@ -65,6 +65,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
                   <Pressable
                     key={j.id}
                     accessibilityRole="button"
+                    accessibilityLabel={j.title}
                     onPress={() => router.push({ pathname: "/facility/job/[id]", params: { id: j.id } })}
                   >
                     <Card>
