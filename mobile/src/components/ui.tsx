@@ -74,7 +74,7 @@ export function Chip({ label, active, onPress }: { label: string; active?: boole
 
 export function Row({ children, gap = 8, wrap }: { children: React.ReactNode; gap?: number; wrap?: boolean }) { return <View style={{ flexDirection: "row", alignItems: "center", gap, flexWrap: wrap ? "wrap" : "nowrap" }}>{children}</View>; }
 
-export function Loading({ rows = 3 }: { rows?: number }) { const { t } = useI18n(); return <View accessibilityLabel={t("loading")} style={styles.skeletonWrap}>{Array.from({ length: rows }).map((_, i) => <View key={i} style={styles.skeletonCard}><View style={styles.skeletonIcon}/><View style={styles.skeletonLines}><View style={[styles.skeletonLine, { width: "68%" }]}/><View style={[styles.skeletonLine, { width: "42%" }]}/></View></View>)}</View>; }
+export function Loading({ rows = 3 }: { rows?: number }) { return <View accessibilityLabel="Loading" style={styles.skeletonWrap}>{Array.from({ length: rows }).map((_, i) => <View key={i} style={styles.skeletonCard}><View style={styles.skeletonIcon}/><View style={styles.skeletonLines}><View style={[styles.skeletonLine, { width: "68%" }]}/><View style={[styles.skeletonLine, { width: "42%" }]}/></View></View>)}</View>; }
 
 export function EmptyState({ text, action }: { text: string; action?: React.ReactNode }) { return <View style={styles.state}><View style={styles.stateIcon}><Inbox size={28} color={colors.primary} /></View><Text style={styles.stateTitle}>{text}</Text>{action}</View>; }
 
