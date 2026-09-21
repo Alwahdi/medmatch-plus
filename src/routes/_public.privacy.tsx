@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LegalBody } from "@/components/legal-body";
+import { legalBody, legalTitle, useLegalDocument } from "@/lib/legal";
 import { useLang } from "@/lib/i18n";
 import { canonical, shareMeta } from "@/lib/seo";
 
@@ -192,6 +194,8 @@ const TXT = {
 function Privacy() {
   const { lang } = useLang();
   const c = TXT[lang];
+  const { doc } = useLegalDocument("privacy");
+  const custom = legalBody(doc, lang);
   return (
     <>
       <section className="page-hero py-14 md:py-20">
@@ -200,7 +204,7 @@ function Privacy() {
             <ShieldCheck className="size-4" />
             {c.badge}
           </span>
-          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{c.title}</h1>
+          <h1 className="mt-5 font-display text-4xl font-extrabold md:text-5xl">{legalTitle(doc, lang, c.title)}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-on-hero/85">
             {c.lastUpdated}
           </p>
