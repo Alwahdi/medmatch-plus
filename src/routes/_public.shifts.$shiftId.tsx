@@ -438,14 +438,7 @@ function ShiftDetail() {
               </div>
             </div>
 
-            {isOwner ? (
-              <OwnerListingPanel
-                kind="shift"
-                listingId={shift.id}
-                facilityId={shift.facility_id}
-                completed={shift.status === "completed"}
-              />
-            ) : (
+            {!isOwner && (
             <div id="book" className="card-lift scroll-mt-24 rounded-lg border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.bookTitle}</h2>
               {!user ? (
@@ -494,6 +487,17 @@ function ShiftDetail() {
             )}
           </div>
         </div>
+
+        {isOwner && (
+          <div className="mt-6">
+            <OwnerListingPanel
+              kind="shift"
+              listingId={shift.id}
+              facilityId={shift.facility_id}
+              completed={shift.status === "completed"}
+            />
+          </div>
+        )}
       </div>
 
       {/* Sticky mobile book bar */}

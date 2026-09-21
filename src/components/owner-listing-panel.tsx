@@ -10,7 +10,7 @@ const TXT = {
   ar: {
     jobTitle: "هذه وظيفة نشرتها منشأتك",
     shiftTitle: "هذه مناوبة نشرتها منشأتك",
-    sub: "أنت تشاهد الفرصة كما يراها الباحثون، ومعه قائمة من تقدّم أو حجز.",
+    sub: "أنت تشاهد الفرصة كمالكها، مع قائمة من تقدّم أو حجز لها.",
     manageJob: "إدارة هذه الوظيفة",
     manageShift: "إدارة هذه المناوبة",
     applicants: "المتقدمون لهذه الوظيفة",
@@ -19,7 +19,7 @@ const TXT = {
   en: {
     jobTitle: "This job was published by your facility",
     shiftTitle: "This shift was published by your facility",
-    sub: "You are viewing the opportunity as candidates see it, together with who applied or booked.",
+    sub: "You are viewing this opportunity as its owner, together with who applied or booked.",
     manageJob: "Manage this job",
     manageShift: "Manage this shift",
     applicants: "Applicants for this job",
@@ -27,7 +27,7 @@ const TXT = {
   },
 } as const;
 
-/** لوحة المالك على صفحة الإعلان: الإدارة + من تقدّم/حجز لهذه الفرصة تحديداً. */
+/** قسم المالك على صفحة الإعلان: بعرض كامل — الإدارة + من تقدّم/حجز لهذه الفرصة تحديداً. */
 export function OwnerListingPanel({
   kind,
   listingId,
@@ -43,17 +43,21 @@ export function OwnerListingPanel({
   const c = TXT[lang];
   const isJob = kind === "job";
   return (
-    <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-6">
-      <h2 className="flex items-center gap-2 text-lg font-bold">
-        <Building2 className="size-5 text-primary" />
-        {isJob ? c.jobTitle : c.shiftTitle}
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
-      <Button asChild variant="outline" className="mt-4 w-full">
-        <Link to="/facility" search={{ tab: isJob ? "jobs" : "shifts" }}>
-          <Settings2 className="size-4" /> {isJob ? c.manageJob : c.manageShift}
-        </Link>
-      </Button>
+    <section className="rounded-lg border border-primary/30 bg-primary/5 p-4 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-bold">
+            <Building2 className="size-5 text-primary" />
+            {isJob ? c.jobTitle : c.shiftTitle}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{c.sub}</p>
+        </div>
+        <Button asChild variant="outline">
+          <Link to="/facility" search={{ tab: isJob ? "jobs" : "shifts" }}>
+            <Settings2 className="size-4" /> {isJob ? c.manageJob : c.manageShift}
+          </Link>
+        </Button>
+      </div>
 
       {listingId && (
         <div className="mt-6 border-t border-primary/20 pt-4">
@@ -65,6 +69,6 @@ export function OwnerListingPanel({
           ) : null}
         </div>
       )}
-    </div>
+    </section>
   );
 }

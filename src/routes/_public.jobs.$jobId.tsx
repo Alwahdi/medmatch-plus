@@ -81,6 +81,18 @@ const TXT = {
     appliedNext: "تم إرسال طلبك. تابع مرحلته وأي مقابلة جديدة من نشاطك.",
     trackApplication: "متابعة الطلب",
     revealedPrivacy: "أصبحت هوية المنشأة ظاهرة لك لأن علاقة توظيف أو تواصل أو دعوة بينكما بدأت بالفعل.",
+    statusPublished: "منشورة",
+    statusClosed: "مغلقة",
+    statusFilled: "اكتمل العدد",
+    statusExpired: "منتهية",
+    statApplicants: "المتقدمون",
+    statSelected: "المختارون من الشواغر",
+    statDeadline: "الموعد النهائي",
+    statPosted: "تاريخ النشر",
+    jobData: "بيانات الوظيفة",
+    salary: "الراتب",
+    license: "الترخيص المطلوب",
+    notSet: "غير محدد",
   },
   en: {
     tooLong: "Message is too long",
@@ -140,6 +152,18 @@ const TXT = {
     appliedNext: "Your application was sent. Track its stage and any interview updates from your activity.",
     trackApplication: "Track application",
     revealedPrivacy: "The employer identity is visible because a hiring relationship, contact or invitation has already started.",
+    statusPublished: "Published",
+    statusClosed: "Closed",
+    statusFilled: "Positions filled",
+    statusExpired: "Expired",
+    statApplicants: "Applicants",
+    statSelected: "Selected of open positions",
+    statDeadline: "Deadline",
+    statPosted: "Posted",
+    jobData: "Job details",
+    salary: "Salary",
+    license: "Required license",
+    notSet: "Not set",
   },
 } as const;
 
@@ -285,6 +309,20 @@ function JobDetail() {
     },
   });
 
+  // إحصاءات المالك: عدد المختارين مقابل الشواغر لعرض حالة «اكتمل العدد» بدقة.
+  const { data: ownerApps } = useQuery({
+    queryKey: ["owner-job-apps", realJobId],
+    enabled: isOwner && !!realJobId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("applications")
+        .select("status")
+        .eq("job_id", realJobId!);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const toggleSave = useMutation({
     mutationFn: async () => {
       if (saved) {
@@ -347,6 +385,13 @@ function JobDetail() {
   const specialty = specialtyName(job.specialties, lang);
   const expired = !!job.expires_at && new Date(job.expires_at).getTime() < Date.now();
   const isOpen = job.is_active && !expired;
+  const seats = Math.max(Number(job.vacancies) || 1, 1);
+  const hiredCount = (ownerApps ?? []).filter((a) => a.status === "hired").length;
+  const autoClosed = "auto_closed" in job && !!(job as Record<string, unknown>)["auto_closed"];
+  const filled = !job.is_active && (autoClosed || hiredCount >= seats);
+  const statusText = !job.is_active
+    ? filled ? c.statusFilled : c.statusClosed
+    : expired ? c.statusExpired : c.statusPublished;
 
   return (
     <>
@@ -368,10 +413,10 @@ function JobDetail() {
           <h1 className="mt-4 font-display text-3xl font-extrabold md:text-4xl">{job.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-on-hero/85">
             <Badge className={isOpen ? "bg-success text-on-hero" : "bg-muted text-foreground"}>
-              {isOpen ? c.open : c.closed}
+              {isOwner ? statusText : isOpen ? c.open : c.closed}
             </Badge>
             <span className="flex items-center gap-2">
-              <Building2 className="size-4" /> {revealedFacility ? facilityDisplayName(revealedFacility, lang) : c.hiddenEmployer}
+              <Building2 className="size-4" /> {revealedFacility ? facilityDisplayName(revealedFacility, lang) : isOwner && myFacility ? facilityDisplayName(myFacility, lang) : c.hiddenEmployer}
             </span>
 
             {job.facility_verified && (
@@ -389,6 +434,84 @@ function JobDetail() {
       </section>
 
       <div className="mx-auto max-w-4xl px-4 py-10 pb-28 lg:pb-10">
+        {isOwner ? (
+          <div className="space-y-6">
+            {/* شريط إحصاءات المالك */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-xl font-extrabold">{job.applications_count ?? 0}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statApplicants}</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-xl font-extrabold">{hiredCount} / {seats}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statSelected}</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-sm font-bold leading-7">{job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statDeadline}</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <div className="font-display text-sm font-bold leading-7">{formatDate(job.created_at, lang)}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{c.statPosted}</div>
+              </div>
+            </div>
+
+            {/* بيانات الوظيفة */}
+            <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
+              <h2 className="text-lg font-bold">{c.jobData}</h2>
+              <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.location}</dt>
+                  <dd className="font-medium">{job.city}، {job.country}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.salary}</dt>
+                  <dd className="font-medium">{formatSalary(Number(job.salary_min), Number(job.salary_max), job.currency, lang)}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.employment}</dt>
+                  <dd className="font-medium">{employmentLabel(job.employment_type, lang)}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.minExp}</dt>
+                  <dd className="font-medium">{experienceLabel(job.min_experience, lang)}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.specialty}</dt>
+                  <dd className="font-medium">{specialty || c.notSet}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.vacancies}</dt>
+                  <dd className="font-medium">{seats}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.license}</dt>
+                  <dd className="font-medium">{job.required_license || c.notSet}</dd>
+                </div>
+                <div className="flex justify-between gap-4 border-b border-border/60 pb-2">
+                  <dt className="text-muted-foreground">{c.deadline}</dt>
+                  <dd className="font-medium">{job.expires_at ? formatDate(job.expires_at, lang) : c.noDeadline}</dd>
+                </div>
+              </dl>
+            </div>
+
+            {/* الوصف والمتطلبات */}
+            <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
+              <h2 className="text-lg font-bold">{c.description}</h2>
+              <p className="mt-2 leading-relaxed whitespace-pre-line text-muted-foreground">
+                {job.description}
+              </p>
+              <h2 className="mt-6 text-lg font-bold">{c.requirements}</h2>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
+                {job.min_experience > 0 && <li>{c.expReq(job.min_experience, specialty || c.defaultSpecialty)}</li>}
+                {job.required_license && <li>{c.licenseReq(job.required_license)}</li>}
+                <li>{c.teamworkReq}</li>
+              </ul>
+            </div>
+
+            <OwnerListingPanel kind="job" listingId={job.id} facilityId={job.facility_id} />
+          </div>
+        ) : (
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           {/* Main */}
           <div className="card-lift rounded-lg border border-border bg-card p-4 sm:p-6">
@@ -476,9 +599,6 @@ function JobDetail() {
               </div>
             </div>
 
-            {isOwner ? (
-              <OwnerListingPanel kind="job" listingId={job.id} facilityId={job.facility_id} />
-            ) : (
             <div id="apply" className="card-lift scroll-mt-24 rounded-lg border border-border bg-card p-4 sm:p-6">
               <h2 className="text-lg font-bold">{c.applyTitle}</h2>
               {!user ? (
@@ -565,7 +685,6 @@ function JobDetail() {
                 </>
               )}
             </div>
-            )}
 
             {user && !isOwner && (
               <Button
@@ -580,6 +699,7 @@ function JobDetail() {
             )}
           </div>
         </div>
+        )}
       </div>
 
       {/* Sticky mobile apply bar */}
