@@ -1167,6 +1167,45 @@ export type Database = {
           },
         ]
       }
+      locations: {
+        Row: {
+          city_ar: string
+          city_en: string
+          country: string
+          created_at: string
+          id: string
+          is_active: boolean
+          region_ar: string
+          region_en: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          city_ar: string
+          city_en: string
+          country: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          region_ar: string
+          region_en: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          city_ar?: string
+          city_en?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          region_ar?: string
+          region_en?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -2062,6 +2101,10 @@ export type Database = {
         Args: { _facility_id: string; _reason?: string; _value: boolean }
         Returns: undefined
       }
+      admin_set_location_active: {
+        Args: { _id: string; _is_active: boolean }
+        Returns: undefined
+      }
       admin_set_platform_setting: {
         Args: { _enabled: boolean; _key: string }
         Returns: undefined
@@ -2094,6 +2137,19 @@ export type Database = {
           _requires_issuer: boolean
           _sort_order: number
           _target: string
+        }
+        Returns: string
+      }
+      admin_upsert_location: {
+        Args: {
+          _city_ar: string
+          _city_en: string
+          _country: string
+          _id: string
+          _is_active: boolean
+          _region_ar: string
+          _region_en: string
+          _sort_order: number
         }
         Returns: string
       }
