@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Switch, Text, View } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Badge, Button, Card, ErrorState, Field, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
@@ -15,6 +15,8 @@ export default function ProfileScreen() {
   const { t, lang } = useI18n();
   const { user, refreshRoles } = useAuth();
   const qc = useQueryClient();
+  const router = useRouter();
+  const params = useLocalSearchParams<{ returnTo?: string }>();
   const profile = useProfessionalProfile();
   const specialties = useSpecialties();
 
@@ -87,6 +89,8 @@ export default function ProfileScreen() {
       await refreshRoles();
     }
     void qc.invalidateQueries({ queryKey: ["professional-profile"] });
+    const returnTo = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : null;
+    if (returnTo) router.replace(returnTo as never);
   };
 
   return (
@@ -123,6 +127,7 @@ export default function ProfileScreen() {
             <View>
               <Button label={t("save")} onPress={save} loading={busy} disabled={!fullName.trim()} />
             </View>
+            {profile.data ? <Button label={t("verificationDocuments")} variant="secondary" onPress={() => router.push({ pathname: "/verification", params: { target: "professional" } })} /> : null}
           </Card>
         )}
       </Screen>

@@ -305,6 +305,54 @@ export function useMyFacility() {
   });
 }
 
+export type DocumentRequirement = {
+  id: string; target: string; code: string; name_ar: string; name_en: string;
+  is_required: boolean; min_count: number; requires_expiry: boolean;
+  requires_issue_date: boolean; requires_issuer: boolean; note_ar: string | null;
+  note_en: string | null; sort_order: number;
+};
+
+export type VerificationDocument = {
+  id: string; doc_type: string; title: string; issuer: string | null;
+  issue_date: string | null; expiry_date: string | null; file_name: string | null;
+  file_path: string | null; status: "pending" | "approved" | "rejected";
+  review_note: string | null; created_at: string;
+};
+
+export function useDocumentRequirements(target: "professional" | "facility") {
+  return useQuery({
+    queryKey: ["document-requirements", target],
+    staleTime: 1000 * 60 * 15,
+    queryFn: async () => unwrap(await supabase.from("document_requirements")
+      .select("id,target,code,name_ar,name_en,is_required,min_count,requires_expiry,requires_issue_date,requires_issuer,note_ar,note_en,sort_order")
+      .eq("target", target).eq("is_active", true).order("sort_order")) as DocumentRequirement[],
+  });
+}
+
+export function useVerificationDocuments(target: "professional" | "facility", facilityId?: string) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["verification-documents", target, user?.id, facilityId],
+    enabled: target === "professional" ? Boolean(user?.id) : Boolean(facilityId),
+    queryFn: async () => {
+      const base = target === "professional"
+        ? supabase.from("credentials").select("id,doc_type,title,issuer,issue_date,expiry_date,file_name,file_path,status,review_note,created_at").eq("user_id", user?.id ?? "")
+        : supabase.from("facility_documents").select("id,doc_type,title,issuer,issue_date,expiry_date,file_name,file_path,status,review_note,created_at").eq("facility_id", facilityId ?? "");
+      return unwrap(await base.order("created_at", { ascending: false })) as VerificationDocument[];
+    },
+  });
+}
+
+export function useLocations() {
+  return useQuery({
+    queryKey: ["locations"],
+    staleTime: 1000 * 60 * 30,
+    queryFn: async () => unwrap(await supabase.from("locations")
+      .select("id,country,city_ar,city_en,region_ar,region_en,sort_order")
+      .eq("is_active", true).order("sort_order")),
+  });
+}
+
 export function useFacilityJobs(facilityId: string | undefined) {
   return useQuery({
     queryKey: ["facility-jobs", facilityId],
