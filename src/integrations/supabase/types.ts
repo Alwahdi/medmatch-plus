@@ -2502,6 +2502,25 @@ export type Database = {
         }
         Returns: string
       }
+      suggest_candidates: {
+        Args: {
+          _job_id?: string
+          _limit?: number
+          _offset?: number
+          _shift_id?: string
+        }
+        Returns: {
+          city: string
+          country: string
+          id: string
+          is_open_to_shifts: boolean
+          is_verified: boolean
+          rating_avg: number
+          rating_count: number
+          specialty_id: string
+          years_experience: number
+        }[]
+      }
       unhire_applicant: {
         Args: { _application_id: string }
         Returns: undefined
