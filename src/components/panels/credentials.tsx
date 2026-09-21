@@ -6,11 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { useConfirm } from "@/components/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import {
-  reqName,
-  useDocumentRequirements,
-  type DocRequirement,
-} from "@/lib/document-requirements";
+import { useDocumentRequirements, type DocRequirement } from "@/lib/document-requirements";
 import { VALIDITY_TXT, isExpired, isExpiringSoon, isValidEvidence } from "@/lib/doc-validity";
 import { useLang } from "@/lib/i18n";
 import { friendlyError } from "@/lib/user-errors";
@@ -262,5 +258,3 @@ export function CredentialsPanel() {
     </div>
   );
 }
-
-export { reqName };
