@@ -17,6 +17,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider, useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { installRecoveryProofWatcher } from "@/lib/recovery-proof";
+import { useSession } from "@/lib/auth";
+import { useLiveSync } from "@/lib/live-sync";
 
 // نثبّت مراقب إثبات الاستعادة مبكراً قدر الإمكان حتى لا يفوتنا حدث PASSWORD_RECOVERY.
 if (typeof window !== "undefined") installRecoveryProofWatcher();
@@ -137,6 +139,7 @@ function RootComponent() {
         <SkipLink />
         <LanguageDocumentSync />
         <AuthSync />
+        <LiveSync />
         <Outlet />
         <Toaster
           position="top-center"
@@ -168,6 +171,13 @@ function LanguageDocumentSync() {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang]);
 
+  return null;
+}
+
+/** التحديث التلقائي الحي لبيانات المستخدم الحالي في كل الشاشات. */
+function LiveSync() {
+  const { session } = useSession();
+  useLiveSync(session?.user ?? null);
   return null;
 }
 

@@ -5,7 +5,16 @@ import { routeTree } from "./routeTree.gen";
 export const getRouter = () => {
   // محاولة إضافية واحدة فقط: المستخدم يرى رسالة واضحة بسرعة بدل انتظار طويل صامت.
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: 1, retryDelay: 800 } },
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        retryDelay: 800,
+        // تحديث تلقائي: عند العودة إلى التبويب أو استعادة الشبكة.
+        staleTime: 30_000,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
+      },
+    },
   });
 
   const router = createRouter({
