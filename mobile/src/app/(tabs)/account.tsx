@@ -32,6 +32,20 @@ export default function AccountTab() {
       <Row gap={6} wrap>{verified ? <Badge label={t("verified")} tone="success"/> : null}{roles.map((r) => <Badge key={r} label={r === "facility" ? t("roleFacility") : r === "professional" ? t("roleProfessional") : "Admin"} tone="primary"/>)}</Row>
     </View>
 
+    {isProfessional && (!p?.headline || !verified) ? (
+      <Card style={{ gap: 6, padding: 12, borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
+        <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: colors.text, paddingHorizontal: 4 }}>{t("completeYourProfile")}</Text>
+        {!p?.headline ? <MenuRow icon={Stethoscope} title={t("nextPro1")} subtitle={t("nextPro1Sub")} onPress={() => router.push("/profile")}/> : null}
+        {!verified ? <MenuRow icon={ShieldCheck} title={t("nextPro2")} subtitle={t("nextPro2Sub")} tone="accent" onPress={() => router.push("/profile")}/> : null}
+      </Card>
+    ) : null}
+    {isFacility && !verified ? (
+      <Card style={{ gap: 6, padding: 12, borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
+        <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: colors.text, paddingHorizontal: 4 }}>{t("completeYourProfile")}</Text>
+        <MenuRow icon={ShieldCheck} title={t("nextFac2")} subtitle={t("nextFac2Sub")} tone="accent" onPress={() => router.push("/facility")}/>
+      </Card>
+    ) : null}
+
     <Text style={[ui.label, { color: colors.textMuted, marginTop: 4 }]}>{lang === "ar" ? "إدارة الحساب" : "ACCOUNT"}</Text>
     {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
     {isFacility ? <MenuRow icon={Building2} title={t("facilityWorkspace")} subtitle={lang === "ar" ? "الفرص والمتقدمون" : "Listings and applicants"} tone="accent" onPress={() => router.push("/facility")}/> : null}
