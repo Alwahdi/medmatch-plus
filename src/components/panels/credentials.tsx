@@ -403,7 +403,7 @@ export function CredentialsPanel() {
                 <div>
                   <p className="font-medium">{cred.file_name ?? cred.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {docTypeLabel(cred.doc_type, lang)}
+                    {typeLabel(cred.doc_type)}
                     {cred.expiry_date ? c.expiresOn(formatDate(cred.expiry_date, lang)) : ""}
                   </p>
                   {cred.review_note && <p className="mt-1 text-xs text-destructive">{cred.review_note}</p>}
