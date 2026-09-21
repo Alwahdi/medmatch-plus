@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   type TextInputProps,
+  type RefreshControlProps,
   View,
   type ViewStyle,
 } from "react-native";
