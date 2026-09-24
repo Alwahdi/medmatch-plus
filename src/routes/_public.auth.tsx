@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithGoogle } from "@/lib/google-auth";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { DICT, useLang } from "@/lib/i18n";
