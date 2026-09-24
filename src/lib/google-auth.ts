@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
  * لذلك نستخدم OAuth الأصلي للخلفية مباشرة (يتطلب تفعيل مزوّد جوجل
  * وإضافة النطاق لقائمة عناوين الرجوع المسموحة).
  */
-export type GoogleSignInResult = { error?: Error; redirected?: boolean };
+export type GoogleSignInResult = { error?: Error | null | undefined; redirected?: boolean | undefined };
 
 function isLovableHost(hostname: string): boolean {
   return (
