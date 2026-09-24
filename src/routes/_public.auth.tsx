@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithGoogle } from "@/lib/google-auth";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { DICT, useLang } from "@/lib/i18n";
@@ -245,9 +245,7 @@ function GoogleButton({ label, errorText, next }: { label: string; errorText: st
     const url = new URL("/auth", window.location.origin);
     const back = safeNext(next);
     if (back) url.searchParams.set("next", back);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: url.toString(),
-    });
+    const result = await signInWithGoogle(url.toString());
     if (result.error) {
       toast.error(errorText);
       setBusy(false);

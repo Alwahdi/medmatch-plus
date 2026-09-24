@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithGoogle } from "@/lib/google-auth";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { useLang } from "@/lib/i18n";
@@ -180,9 +180,7 @@ function RegisterEmployer() {
     // العودة إلى صفحة عامة تتحقق من الجلسة ثم توجّه إلى الإعداد (مسار داخلي ثابت).
     const back = new URL("/auth", window.location.origin);
     back.searchParams.set("next", "/onboarding");
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: back.toString(),
-    });
+    const result = await signInWithGoogle(back.toString());
 
     if (result.error) {
       toast.error(L.invalid);
