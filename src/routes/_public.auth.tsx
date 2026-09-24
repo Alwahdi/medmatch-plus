@@ -245,9 +245,7 @@ function GoogleButton({ label, errorText, next }: { label: string; errorText: st
     const url = new URL("/auth", window.location.origin);
     const back = safeNext(next);
     if (back) url.searchParams.set("next", back);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: url.toString(),
-    });
+    const result = await signInWithGoogle(url.toString());
     if (result.error) {
       toast.error(errorText);
       setBusy(false);

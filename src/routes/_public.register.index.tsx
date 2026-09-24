@@ -152,9 +152,7 @@ function RegisterSeeker() {
     // العودة إلى صفحة عامة تتحقق من الجلسة ثم توجّه إلى الإعداد (مسار داخلي ثابت).
     const back = new URL("/auth", window.location.origin);
     back.searchParams.set("next", "/onboarding");
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: back.toString(),
-    });
+    const result = await signInWithGoogle(back.toString());
 
     if (result.error) {
       toast.error(L.invalid);
