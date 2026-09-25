@@ -25,7 +25,6 @@ export default function FacilityShiftDetail() {
           <KeyValue k={t("endsAt")} v={formatDateTime(data.ends_at, lang)} />
           <KeyValue k={t("city")} v={data.city} />
           <KeyValue k={t("hourlyRate")} v={formatMoney(data.hourly_rate, data.currency, lang)} />
-          <KeyValue k={t("applicants")} v={String(data.applications_count)} />
         </Card>
         {data.notes ? <Text style={ui.body}>{data.notes}</Text> : null}
         <Text style={ui.muted}>{lang === "ar" ? "إدارة حجوزات المناوبة وإغلاقها غير متاحين داخل التطبيق بعد." : "Shift booking management and closing are not yet available in the app."}</Text>

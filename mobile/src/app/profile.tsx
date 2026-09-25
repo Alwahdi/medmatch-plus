@@ -81,8 +81,8 @@ export default function ProfileScreen() {
       ? await supabase.from("healthcare_professionals").update(payload).eq("user_id", user?.id ?? "")
       : await supabase.from("healthcare_professionals").insert({ ...payload, user_id: user?.id ?? "" });
     const err = result.error;
-    setBusy(false);
     if (err) {
+      setBusy(false);
       setError(userMessage(err, lang));
       return;
     }
@@ -90,9 +90,10 @@ export default function ProfileScreen() {
     // first save) so a previously incomplete profile can still activate.
     if ((roles ?? []).length === 0) {
       const claimed = await supabase.rpc("claim_professional_role");
-      if (claimed.error) { setError(userMessage(claimed.error, lang)); return; }
+      if (claimed.error) { setBusy(false); setError(userMessage(claimed.error, lang)); return; }
       await refreshRoles();
     }
+    setBusy(false);
     setSaved(true);
     void qc.invalidateQueries({ queryKey: ["professional-profile"] });
     const returnTo = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : null;
