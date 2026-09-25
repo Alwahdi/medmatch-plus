@@ -42,9 +42,15 @@ export function useConsentGate(key: LegalKey) {
       <View style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: "flex-end" }}>
         <View style={{ maxHeight: "85%", backgroundColor: colors.surface, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, padding: 20, gap: 12 }}>
           <Text style={ui.title}>{legalTitle(doc, lang) || t("consentTitle")}</Text>
-          <ScrollView style={{ maxHeight: 340 }}>
-            <Text style={ui.body}>{legalBody(doc, lang)}</Text>
-          </ScrollView>
+          {legalBody(doc, lang) ? (
+            <ScrollView style={{ maxHeight: 340 }}>
+              <Text style={ui.body}>{legalBody(doc, lang)}</Text>
+            </ScrollView>
+          ) : (
+            <Card>
+              <Text style={ui.body}>{lang === "ar" ? "أتعهد بأن بيانات الفرصة صحيحة، وأن النشر لغرض توظيف مهني مشروع، وألتزم بخصوصية المتقدمين وعدم طلب رسوم منهم." : "I confirm this opportunity is accurate and for legitimate recruitment, and I will protect applicant privacy and never request fees from them."}</Text>
+            </Card>
+          )}
           <Text style={ui.muted}>{t("consentNote")}</Text>
           {error ? (
             <Card style={{ borderColor: colors.dangerSoft }}>

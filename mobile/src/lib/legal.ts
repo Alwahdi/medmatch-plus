@@ -63,9 +63,11 @@ export function useRecordConsent() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async ({ key, version }: { key: LegalKey; version: number }) => {
+      if (!user?.id) throw new Error("NOT_AUTHENTICATED");
       const res = await supabase
         .from("user_consents")
-        .upsert({ user_id: user!.id, doc_key: key, version }, { onConflict: "user_id,doc_key" });
+        .insert({ user_id: user.id, doc_key: key, version });
+      if (res.error?.code === "23505") return;
       if (res.error) throw new Error(res.error.message);
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["my-consents"] }),
