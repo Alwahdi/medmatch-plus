@@ -1,5 +1,7 @@
 # Mobile experience quality pass
 
+- [x] Publish every pushed commit to a unique Expo branch for independent Expo Go testing
+
 - [x] Repair critical journey entry points: facility shift detail, interview date selection, message failure and verification states
 - [x] Improve publishing: full searchable specialty selection, validation, review-stage errors and existing application/booking feedback
 - [x] Align navigation, permissions, accessible labels and manual message/notification refresh with product preferences
