@@ -46,8 +46,8 @@ export const space = {
   md: 12,
   lg: 16,
   xl: 20,
-  xxl: 28,
-  gutter: 20,
+  xxl: 24,
+  gutter: 16,
 } as const;
 
 /**
@@ -55,14 +55,14 @@ export const space = {
  * Minimum readable size in the app is 12.
  */
 export const type = {
-  display: { fontFamily: fonts.bold, fontSize: 26, lineHeight: 40 },
-  title: { fontFamily: fonts.bold, fontSize: 22, lineHeight: 34 },
-  section: { fontFamily: fonts.bold, fontSize: 17, lineHeight: 28 },
-  cardTitle: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 26 },
-  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 26 },
-  bodyStrong: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 26 },
-  label: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 22 },
-  caption: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 22 },
+  display: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 36 },
+  title: { fontFamily: fonts.bold, fontSize: 20, lineHeight: 30 },
+  section: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 26 },
+  cardTitle: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 24 },
+  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 24 },
+  bodyStrong: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 24 },
+  label: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20 },
+  caption: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 20 },
   micro: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 18 },
 } as const;
 

@@ -63,7 +63,7 @@ export function Button({ label, onPress, variant = "primary", disabled, loading,
   }[variant];
   const isOff = Boolean(disabled) || Boolean(loading);
   const handlePress = () => { if (Platform.OS !== "web") void Haptics.selectionAsync(); onPress?.(); };
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : handlePress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 52, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : handlePress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 48, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
 }
 
 export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { icon: LucideIcon; label: string; onPress?: () => void; tone?: "neutral" | "primary" }) {
@@ -77,12 +77,19 @@ export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary"
   return <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
 }
 
-export const Field = React.forwardRef<TextInput, TextInputProps & { label?: string; error?: string | null; required?: boolean }>(
-  function Field({ label, error, required, ...props }, ref) {
-    const { t } = useI18n();
+type FieldProps = TextInputProps & { label?: string; error?: string | null; required?: boolean; helper?: string; showCount?: boolean };
+
+/** Single text-input primitive: label, focus ring, helper, counter, accessible error. */
+export const Field = React.forwardRef<TextInput, FieldProps>(
+  function Field({ label, error, required, helper, showCount, style, onFocus, onBlur, ...props }, ref) {
+    const { t, rtl } = useI18n();
     const isPassword = Boolean(props.secureTextEntry);
     const [revealed, setRevealed] = React.useState(false);
+    const [focused, setFocused] = React.useState(false);
     const ToggleIcon = revealed ? EyeOff : Eye;
+    const length = typeof props.value === "string" ? props.value.length : 0;
+    const counter = (showCount ?? (props.multiline && props.maxLength)) && props.maxLength ? `${length}/${props.maxLength}` : null;
+    const ltrOnly = ["email-address", "phone-pad", "number-pad", "decimal-pad", "numeric", "url"].includes(String(props.keyboardType ?? "")) || isPassword;
     return (
       <View style={styles.field}>
         {label ? <Text style={styles.label}>{label}{required ? <Text style={{ color: colors.danger }}> *</Text> : null}</Text> : null}
@@ -90,29 +97,37 @@ export const Field = React.forwardRef<TextInput, TextInputProps & { label?: stri
           <TextInput
             ref={ref}
             accessibilityLabel={label}
-             placeholderTextColor={colors.textMuted}
+            accessibilityHint={error ?? helper}
+            placeholderTextColor={colors.textSubtle}
+            selectionColor={colors.primary}
+            {...props}
+            onFocus={(e) => { setFocused(true); onFocus?.(e); }}
+            onBlur={(e) => { setFocused(false); onBlur?.(e); }}
+            secureTextEntry={isPassword && !revealed}
             style={[
               styles.input,
+              { textAlign: ltrOnly ? (rtl ? "right" : "left") : rtl ? "right" : "left", writingDirection: ltrOnly ? "ltr" : rtl ? "rtl" : "ltr" },
               props.multiline ? styles.inputMultiline : null,
               isPassword ? styles.inputWithAction : null,
+              focused ? styles.inputFocused : null,
               error ? styles.inputError : null,
+              props.editable === false ? styles.inputDisabled : null,
+              style,
             ]}
-            {...props}
-            secureTextEntry={isPassword && !revealed}
           />
           {isPassword ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={revealed ? t("hidePassword") : t("showPassword")}
-              hitSlop={10}
-              onPress={() => setRevealed((v) => !v)}
-              style={styles.inputAction}
-            >
+            <Pressable accessibilityRole="button" accessibilityLabel={revealed ? t("hidePassword") : t("showPassword")} hitSlop={10} onPress={() => setRevealed((v) => !v)} style={styles.inputAction}>
               <ToggleIcon size={19} color={colors.textMuted} strokeWidth={2} />
             </Pressable>
           ) : null}
         </View>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error || helper || counter ? (
+          <View style={styles.fieldMeta}>
+            {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.error, { flex: 1 }]}>{error}</Text>
+              : helper ? <Text style={[styles.helper, { flex: 1 }]}>{helper}</Text> : <View style={{ flex: 1 }} />}
+            {counter ? <Text style={styles.helper}>{counter}</Text> : null}
+          </View>
+        ) : null}
       </View>
     );
   },
@@ -202,8 +217,8 @@ export function KeyValue({ k, v }: { k: string; v: string }) { return <View styl
 export const styles = StyleSheet.create({
   fill: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.bg },
-  screenInner: { paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.lg },
-  scrollContent: { paddingBottom: 120 },
+  screenInner: { paddingHorizontal: space.gutter, paddingTop: space.md, gap: space.md },
+  scrollContent: { paddingBottom: space.xxl },
 
   titleWrap: { gap: space.xs, marginBottom: space.xs },
   eyebrow: { ...typo.micro, color: colors.primary },
@@ -219,16 +234,20 @@ export const styles = StyleSheet.create({
   label: { ...typo.label, color: colors.text },
   error: { ...typo.caption, fontSize: 12, color: colors.danger },
 
-  card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: space.lg, gap: space.md },
+  card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: space.sm },
   button: { borderRadius: radii.md, borderWidth: 1, alignItems: "center", justifyContent: "center" },
   buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: space.sm },
   buttonLabel: { fontFamily: fonts.bold, lineHeight: 24 },
   iconButton: { width: 48, height: 48, borderRadius: radii.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
 
-  field: { gap: space.sm },
-  input: { minHeight: 54, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.lg, paddingVertical: 10, color: colors.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 24, textAlign: "auto" },
-  inputMultiline: { minHeight: 120, paddingTop: space.lg, textAlignVertical: "top" },
-  inputError: { borderColor: colors.danger },
+  field: { gap: 6 },
+  fieldMeta: { flexDirection: "row", alignItems: "flex-start", gap: space.sm },
+  helper: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
+  input: { minHeight: 48, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.md, paddingVertical: 10, color: colors.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
+  inputMultiline: { minHeight: 112, paddingTop: space.md, textAlignVertical: "top" },
+  inputError: { borderColor: colors.danger, borderWidth: 1.5 },
+  inputFocused: { borderColor: colors.primary, borderWidth: 1.5 },
+  inputDisabled: { backgroundColor: colors.surfaceMuted, color: colors.textMuted },
   inputWrap: { position: "relative", justifyContent: "center" },
   inputWithAction: { paddingEnd: 52 },
   inputAction: { position: "absolute", end: 6, height: 44, width: 44, alignItems: "center", justifyContent: "center" },
@@ -238,13 +257,13 @@ export const styles = StyleSheet.create({
   chip: { paddingHorizontal: space.lg, minHeight: 44, justifyContent: "center", borderRadius: radii.pill, borderWidth: 1 },
   chipLabel: { ...typo.micro, fontSize: 13 },
 
-  menuRow: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: space.md, paddingHorizontal: space.md, paddingVertical: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  menuRow: { minHeight: 60, flexDirection: "row", alignItems: "center", gap: space.md, paddingHorizontal: space.md, paddingVertical: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   menuIcon: { width: 44, height: 44, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
   menuText: { flex: 1, minWidth: 0, gap: 1 },
   menuTitle: { ...typo.label, fontSize: 15, color: colors.text },
   menuSubtitle: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
 
-  state: { alignItems: "center", justifyContent: "center", borderRadius: radii.lg, borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.xl, paddingVertical: space.xxl, gap: space.md },
+  state: { alignItems: "center", justifyContent: "center", borderRadius: radii.lg, borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.xl, paddingVertical: space.xl, gap: space.sm },
   stateIcon: { width: 56, height: 56, borderRadius: radii.lg, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
   stateTitle: { ...typo.cardTitle, color: colors.text, textAlign: "center" },
 
@@ -261,7 +280,7 @@ export const styles = StyleSheet.create({
   skeletonLine: { height: 10, borderRadius: radii.pill, backgroundColor: colors.shimmer },
 
   keyValue: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: space.lg, paddingVertical: 6 },
-  keyValueText: { flexShrink: 1, textAlign: "left" },
+  keyValueText: { flexShrink: 1, textAlign: "auto" },
 
   segmented: { flexDirection: "row", backgroundColor: colors.surfaceMuted, borderRadius: radii.md, padding: 4, gap: 4 },
   segment: { flex: 1, minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: radii.sm, paddingHorizontal: space.sm },
@@ -275,6 +294,6 @@ export const styles = StyleSheet.create({
 
   statTile: { flex: 1, backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, paddingHorizontal: space.md, paddingVertical: space.md, gap: space.xs },
   statIcon: { width: 34, height: 34, borderRadius: radii.sm, alignItems: "center", justifyContent: "center" },
-  statValue: { fontFamily: fonts.bold, fontSize: 22, lineHeight: 32, color: colors.text },
+  statValue: { fontFamily: fonts.bold, fontSize: 20, lineHeight: 28, color: colors.text },
   statLabel: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
 });

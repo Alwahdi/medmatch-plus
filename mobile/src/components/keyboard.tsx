@@ -27,7 +27,7 @@ export function FormScreen({
   contentStyle?: ScrollViewProps["contentContainerStyle"];
 }) {
   return (
-    <SafeAreaView edges={["top"]} style={styles.screen}>
+    <SafeAreaView edges={footer ? ["top", "bottom"] : ["top"]} style={styles.screen}>
       <KeyboardAvoidingView
         style={styles.fill}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -53,6 +53,6 @@ export function FormScreen({
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: space.gutter, paddingTop: space.md, paddingBottom: 40, gap: space.lg },
-  footer: { paddingHorizontal: space.gutter, paddingBottom: 10, paddingTop: space.sm, backgroundColor: colors.bg },
+  content: { paddingHorizontal: space.gutter, paddingTop: space.md, paddingBottom: space.xxl, gap: space.lg },
+  footer: { paddingHorizontal: space.gutter, paddingBottom: space.sm, paddingTop: space.sm, backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border },
 });
