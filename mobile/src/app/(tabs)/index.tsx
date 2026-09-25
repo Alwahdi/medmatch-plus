@@ -120,9 +120,9 @@ export default function HomeTab() {
         />
         <SectionHeader title={t("quickActions")} />
         <View style={{ gap: 10 }}>
-          <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility/create-job")} />
+          <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push(f?.is_verified ? "/facility/create-job" : { pathname: "/verification", params: { target: "facility" } })} />
           <View style={{ flexDirection: "row", alignItems: "stretch", gap: 10 }}>
-            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push("/facility/create-shift")} /></View>
+            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push(f?.is_verified ? "/facility/create-shift" : { pathname: "/verification", params: { target: "facility" } })} /></View>
             <View style={{ flex: 1 }}><Button label={t("applicants")} variant="secondary" icon={UsersRound} onPress={() => router.push("/activity")} /></View>
           </View>
         </View>

@@ -50,8 +50,8 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
         ) : (
           <>
             <Row gap={10}>
-              <View style={{ flex: 1 }}><Button label={t("publishJob")} icon={FilePlus2} small onPress={() => router.push("/facility/create-job")} /></View>
-              <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} small onPress={() => router.push("/facility/create-shift")} /></View>
+              <View style={{ flex: 1 }}><Button label={t("publishJob")} icon={FilePlus2} small onPress={() => router.push(f.is_verified ? "/facility/create-job" : { pathname: "/verification", params: { target: "facility" } })} /></View>
+              <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} small onPress={() => router.push(f.is_verified ? "/facility/create-shift" : { pathname: "/verification", params: { target: "facility" } })} /></View>
             </Row>
             {(facility.data as { is_verified?: boolean }).is_verified ? null : docs.isError ? <ErrorState message={userMessage(docs.error, lang)} onRetry={() => void docs.refetch()} /> : (
               <Card style={{ backgroundColor: colors.warningSoft, borderColor: colors.warningSoft }}>

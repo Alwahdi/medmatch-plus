@@ -8,7 +8,7 @@ import { Brand } from "@/components/brand";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts, radii } from "@/lib/theme";
 
-type Step = { icon: LucideIcon; title: string; sub: string; href: "/profile" | "/facility" | "/facility/profile" | "/facility/create-job" | "/(tabs)"; tone?: "primary" | "accent" | "violet" };
+type Step = { icon: LucideIcon; title: string; sub: string; href: "/profile" | "/facility/profile" | "/facility/create-job" | "/verification" | "/(tabs)"; target?: "professional" | "facility"; tone?: "primary" | "accent" | "violet" };
 
 export default function Welcome() {
   const { t } = useI18n();
@@ -20,19 +20,20 @@ export default function Welcome() {
   const steps: Step[] = isFacility
     ? [
         { icon: Building2, title: t("nextFac1"), sub: t("nextFac1Sub"), href: "/facility/profile", tone: "accent" },
-        { icon: FileBadge, title: t("nextFac2"), sub: t("nextFac2Sub"), href: "/facility/profile", tone: "violet" },
+        { icon: FileBadge, title: t("nextFac2"), sub: t("nextFac2Sub"), href: "/verification", target: "facility", tone: "violet" },
         { icon: BriefcaseBusiness, title: t("nextFac3"), sub: t("nextFac3Sub"), href: "/facility/create-job" },
       ]
     : [
         { icon: Stethoscope, title: t("nextPro1"), sub: t("nextPro1Sub"), href: "/profile" },
-        { icon: ShieldCheck, title: t("nextPro2"), sub: t("nextPro2Sub"), href: "/profile", tone: "accent" },
+        { icon: ShieldCheck, title: t("nextPro2"), sub: t("nextPro2Sub"), href: "/verification", target: "professional", tone: "accent" },
         { icon: BriefcaseBusiness, title: t("nextPro3"), sub: t("nextPro3Sub"), href: "/(tabs)", tone: "violet" },
       ];
 
-  const go = (href: Step["href"]) => {
+  const go = (step: Pick<Step, "href" | "target">) => {
     if (Platform.OS !== "web") void Haptics.selectionAsync();
-    if (href === "/(tabs)") router.replace("/(tabs)");
-    else router.replace(href);
+    if (step.href === "/(tabs)") router.replace("/(tabs)");
+    else if (step.href === "/verification") router.replace({ pathname: "/verification", params: { target: step.target ?? "professional" } });
+    else router.replace(step.href);
   };
 
   return (
@@ -56,12 +57,12 @@ export default function Welcome() {
           {t("nextStepsTitle")}
         </Text>
         {steps.map((s) => (
-          <MenuRow key={s.title} icon={s.icon} title={s.title} subtitle={s.sub} tone={s.tone ?? "primary"} onPress={() => go(s.href)} />
+          <MenuRow key={s.title} icon={s.icon} title={s.title} subtitle={s.sub} tone={s.tone ?? "primary"} onPress={() => go(s)} />
         ))}
       </Card>
 
-      <Button label={t("startNow")} onPress={() => go(steps[0].href)} />
-      <Button label={t("laterLabel")} variant="ghost" small onPress={() => go(steps[0].href)} />
+      <Button label={t("startNow")} onPress={() => go(steps[0])} />
+      <Button label={t("laterLabel")} variant="ghost" small onPress={() => go(steps[0])} />
       <View style={{ height: radii.lg }} />
     </Screen>
   );

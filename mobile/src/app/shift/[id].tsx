@@ -17,7 +17,7 @@ import {
   styles as ui,
 } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useMyBookings, useShift } from "@/lib/queries";
+import { useMyBookings, useProfessionalProfile, useShift } from "@/lib/queries";
 import { formatDateTime, formatMoney, relativeTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { supabase } from "@/lib/supabase";
@@ -32,6 +32,7 @@ export default function ShiftDetail() {
   const { session, isProfessional } = useAuth();
   const shift = useShift(String(id));
   const bookings = useMyBookings();
+  const professional = useProfessionalProfile();
   const consent = useConsentGate("applicant_commitments");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +42,10 @@ export default function ShiftDetail() {
     setError(null);
     if (!isProfessional) {
       router.push({ pathname: "/profile", params: { returnTo: `/shift/${String(id)}` } });
+      return;
+    }
+    if (!(professional.data as { is_verified?: boolean } | null)?.is_verified) {
+      router.push({ pathname: "/verification", params: { target: "professional" } });
       return;
     }
     const ok = await consent.ensure();
@@ -118,7 +123,7 @@ export default function ShiftDetail() {
        {data && !booked && !existingBooking ? (
         <StickyBar>
           {session ? (
-             <Button label={t("book")} onPress={book} loading={busy} disabled={bookings.isPending} />
+             <Button label={(professional.data as { is_verified?: boolean } | null)?.is_verified ? t("book") : t("verificationDocuments")} onPress={book} loading={busy} disabled={bookings.isPending || professional.isPending} />
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>
