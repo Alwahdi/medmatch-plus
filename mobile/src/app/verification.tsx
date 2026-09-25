@@ -11,6 +11,7 @@ import { useDocumentRequirements, useMyFacility, useVerificationDocuments, type 
 import { supabase } from "@/lib/supabase";
 import { userMessage } from "@/lib/errors";
 import { colors } from "@/lib/theme";
+import { DateTimeField } from "@/components/date-time-field";
 
 type PickedFile = { uri: string; name: string; mimeType?: string; size?: number };
 
@@ -46,6 +47,8 @@ export default function VerificationScreen() {
     if (selected.requires_expiry && !expiryDate) return setError(t("requiredField"));
     if (selected.requires_issue_date && !issueDate) return setError(t("requiredField"));
     if (selected.requires_issuer && !issuer.trim()) return setError(t("requiredField"));
+    const isDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T12:00:00`)) && new Date(`${value}T12:00:00`).toISOString().slice(0, 10) === value;
+    if ((issueDate && (!isDate(issueDate) || issueDate > new Date().toISOString().slice(0, 10))) || (expiryDate && (!isDate(expiryDate) || (issueDate && expiryDate <= issueDate)))) return setError(lang === "ar" ? "راجع تواريخ المستند؛ يجب أن يكون الانتهاء بعد الإصدار." : "Check the document dates; expiry must follow issue date.");
     if (target === "facility" && !facility.data?.id) return setError(t("completeProfile"));
     setBusy(true); setError(null);
     try {
@@ -53,7 +56,8 @@ export default function VerificationScreen() {
       const owner = target === "facility" ? facility.data?.id : user.id;
       if (!owner) throw new Error("OWNER_REQUIRED");
       const path = `${owner}/${Date.now()}-${safeName}`;
-      const body = await (await fetch(file.uri)).arrayBuffer();
+       const body = await (await fetch(file.uri)).arrayBuffer();
+       if (body.byteLength > 10 * 1024 * 1024) throw new Error("FILE_TOO_LARGE");
       const bucket = target === "facility" ? "facility-docs" : "credentials";
       const uploaded = await supabase.storage.from(bucket).upload(path, body, { contentType: file.mimeType ?? undefined, upsert: false });
       if (uploaded.error) throw uploaded.error;
@@ -82,6 +86,6 @@ export default function VerificationScreen() {
       {items.map((item) => <View key={item.id} style={{ gap: 4, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.border }}><Row gap={8}><FileCheck2 size={18} color={colors.primary} /><Text style={[ui.body, { flex: 1 }]} numberOfLines={1}>{item.file_name ?? item.title}</Text><Badge label={statusLabel(item.status)} tone={tone(item.status)} /></Row>{item.review_note ? <Text style={ui.error}>{item.review_note}</Text> : null}</View>)}
       <Button label={t("uploadDocument")} icon={Upload} variant="secondary" small onPress={() => { setSelected(requirement); setFile(null); setError(null); }} />
     </Card>)}
-    {selected ? <Card style={{ borderColor: colors.primary }}><Text style={ui.bodyStrong}>{lang === "ar" ? selected.name_ar : selected.name_en}</Text><Button label={file?.name ?? t("chooseFile")} variant="secondary" onPress={() => void pick()} />{selected.requires_issuer ? <Field label={t("issuer")} value={issuer} onChangeText={setIssuer} required /> : null}{selected.requires_issue_date ? <Field label={t("issueDate")} value={issueDate} onChangeText={setIssueDate} placeholder="YYYY-MM-DD" required /> : null}{selected.requires_expiry ? <Field label={t("expiryDate")} value={expiryDate} onChangeText={setExpiryDate} placeholder="YYYY-MM-DD" required /> : null}<Text style={ui.muted}>{t("fileFormatsHint")}</Text>{error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}<Row gap={8}><View style={{ flex: 1 }}><Button label={t("submit")} loading={busy} onPress={() => void upload()} /></View><View style={{ flex: 1 }}><Button label={t("cancel")} variant="ghost" onPress={() => setSelected(null)} /></View></Row></Card> : null}
+     {selected ? <Card style={{ borderColor: colors.primary }}><Text style={ui.bodyStrong}>{lang === "ar" ? selected.name_ar : selected.name_en}</Text><Button label={file?.name ?? t("chooseFile")} variant="secondary" onPress={() => void pick()} />{selected.requires_issuer ? <Field label={t("issuer")} value={issuer} onChangeText={setIssuer} required /> : null}{selected.requires_issue_date ? <DateTimeField label={t("issueDate")} value={issueDate} onChange={setIssueDate} dateOnly required /> : null}{selected.requires_expiry ? <DateTimeField label={t("expiryDate")} value={expiryDate} onChange={setExpiryDate} dateOnly required /> : null}<Text style={ui.muted}>{t("fileFormatsHint")}</Text>{error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}<Row gap={8}><View style={{ flex: 1 }}><Button label={t("submit")} loading={busy} onPress={() => void upload()} /></View><View style={{ flex: 1 }}><Button label={t("cancel")} variant="ghost" onPress={() => setSelected(null)} /></View></Row></Card> : null}
   </Screen></>;
 }
