@@ -86,7 +86,7 @@ export default function Conversation() {
                   >
                     <Text style={[ui.body, { color: mine ? colors.primaryText : colors.text }]}>{item.body}</Text>
                     <Text
-                      style={[ui.muted, { color: mine ? colors.messageOnPrimary : colors.textSubtle, fontSize: 11, textAlign: "right" }]}
+                       style={[ui.muted, { color: mine ? colors.messageOnPrimary : colors.textMuted, fontSize: 12, textAlign: "right" }]}
                     >
                       {formatTime(item.created_at, lang)}
                     </Text>

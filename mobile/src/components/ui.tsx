@@ -90,7 +90,7 @@ export const Field = React.forwardRef<TextInput, TextInputProps & { label?: stri
           <TextInput
             ref={ref}
             accessibilityLabel={label}
-            placeholderTextColor={colors.textSubtle}
+             placeholderTextColor={colors.textMuted}
             style={[
               styles.input,
               props.multiline ? styles.inputMultiline : null,
