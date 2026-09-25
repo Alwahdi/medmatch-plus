@@ -38,7 +38,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     const p = profile.data as
-      | { full_name?: string; headline?: string | null; bio?: string | null; city?: string | null; years_experience?: number | null; specialty_id?: string | null; license_number?: string | null; license_country?: string | null; preferred_rate?: number | null; is_open_to_shifts?: boolean; is_searchable?: boolean }
+      | { full_name?: string; headline?: string | null; bio?: string | null; city?: string | null; country?: string | null; years_experience?: number | null; specialty_id?: string | null; license_number?: string | null; license_country?: string | null; preferred_rate?: number | null; is_open_to_shifts?: boolean; is_searchable?: boolean }
       | null
       | undefined;
     if (!p) return;
@@ -46,6 +46,7 @@ export default function ProfileScreen() {
     setHeadline(p.headline ?? "");
     setBio(p.bio ?? "");
     setCity(p.city ?? "");
+    setCountry(p.country ?? "YE");
     setYears(p.years_experience != null ? String(p.years_experience) : "");
     setSpecialtyId(p.specialty_id ?? "");
     setLicenseNumber(p.license_number ?? "");
@@ -65,6 +66,7 @@ export default function ProfileScreen() {
         headline: headline.trim() || null,
         bio: bio.trim() || null,
         city: city.trim() || null,
+        country: country.trim() || "YE",
         years_experience: Number.isFinite(parsedYears) ? parsedYears : 0,
         specialty_id: specialtyId || null,
         license_number: licenseNumber.trim() || null,
@@ -84,7 +86,9 @@ export default function ProfileScreen() {
       return;
     }
     setSaved(true);
-    if (!existing) {
+    // Retry role claiming whenever the account has no role yet (not just on
+    // first save) so a previously incomplete profile can still activate.
+    if ((roles ?? []).length === 0) {
       const claimed = await supabase.rpc("claim_professional_role");
       if (claimed.error) { setError(userMessage(claimed.error, lang)); return; }
       await refreshRoles();
@@ -115,6 +119,7 @@ export default function ProfileScreen() {
             <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).slice(0, 12).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
             <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" />
             <Field label={lang === "ar" ? "المدينة" : "City"} value={city} onChangeText={setCity} />
+            <Field label={t("country")} value={country} onChangeText={setCountry} />
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
             <Field label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChangeText={setLicenseCountry} />
             <Field label={lang === "ar" ? "الأجر المفضل" : "Preferred rate"} value={preferredRate} onChangeText={setPreferredRate} keyboardType="numeric" />
