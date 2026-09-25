@@ -193,7 +193,6 @@ export function useUnreadMessages() {
   return useQuery({
     queryKey: ["unread-messages", user?.id],
     enabled: Boolean(user?.id),
-    refetchInterval: 15000,
     queryFn: async () => {
       if (!user?.id) return [];
       return unwrap(
@@ -211,7 +210,6 @@ export function useMessages(conversationId: string) {
   return useQuery({
     queryKey: ["messages", conversationId],
     enabled: Boolean(conversationId),
-    refetchInterval: 15000,
     queryFn: async () =>
       unwrap(
         await supabase
@@ -260,7 +258,6 @@ export function useNotifications() {
   return useQuery({
     queryKey: ["notifications", user?.id],
     enabled: Boolean(user?.id),
-    refetchInterval: 45000,
     queryFn: async () =>
       unwrap(
         await supabase

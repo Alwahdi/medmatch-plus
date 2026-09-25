@@ -23,6 +23,7 @@ export default function Conversation() {
   const send = useSendMessage(String(id));
   const markRead = useMarkConversationRead(String(id));
   const [body, setBody] = useState("");
+  const [sendError, setSendError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -45,8 +46,8 @@ export default function Conversation() {
   const submit = () => {
     const text = body.trim();
     if (!text || send.isPending) return;
-    setBody("");
-    send.mutate(text);
+    setSendError(null);
+    send.mutate(text, { onSuccess: () => setBody((current) => current.trim() === text ? "" : current), onError: (cause) => setSendError(userMessage(cause, lang)) });
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
   };
 
@@ -110,6 +111,7 @@ export default function Conversation() {
           />
         )}
 
+        {sendError ? <Text accessibilityRole="alert" style={[ui.error, { paddingHorizontal: 16 }]}>{sendError}</Text> : null}
         <View
           style={{
             flexDirection: "row",
@@ -134,6 +136,7 @@ export default function Conversation() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t("send")}
+            accessibilityState={{ disabled: !body.trim() || send.isPending, busy: send.isPending }}
             onPress={submit}
             style={{
               minWidth: 56,
