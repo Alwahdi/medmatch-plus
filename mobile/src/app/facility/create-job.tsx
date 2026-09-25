@@ -52,7 +52,8 @@ export default function CreateJobScreen() {
      create.mutate({ facilityId: f.id, title: form.title.trim(), description: form.description.trim(), specialtyId: form.specialtyId || null, employmentType: form.employmentType, country: form.country, city: form.city.trim(), salaryMin: Number(form.salaryMin), salaryMax: Number(form.salaryMax), minExperience: Number(form.minExperience), vacancies: Number(form.vacancies), requiredLicense: form.requiredLicense || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) });
   };
 
-  if (facility.isPending || specialties.isPending) return <Screen><Loading /></Screen>;
+   if (facility.isPending || specialties.isPending) return <Screen><Loading /></Screen>;
+   if (facility.isError || specialties.isError) return <Screen><ErrorState message={userMessage(facility.error ?? specialties.error, lang)} onRetry={() => { void facility.refetch(); void specialties.refetch(); }} /></Screen>;
   if (!f) return <Screen><EmptyState icon={BriefcaseBusiness} text={t("completeProfile")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} /></Screen>;
   return <><Stack.Screen options={{ title: t("publishJob") }} /><Screen>
     {reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[

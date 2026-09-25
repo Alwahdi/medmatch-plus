@@ -17,7 +17,7 @@ import {
   styles as ui,
 } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useShift } from "@/lib/queries";
+import { useMyBookings, useShift } from "@/lib/queries";
 import { formatDateTime, formatMoney, relativeTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { supabase } from "@/lib/supabase";
@@ -31,6 +31,7 @@ export default function ShiftDetail() {
   const router = useRouter();
   const { session, isProfessional } = useAuth();
   const shift = useShift(String(id));
+  const bookings = useMyBookings();
   const consent = useConsentGate("applicant_commitments");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,10 +55,12 @@ export default function ShiftDetail() {
     }
     if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setBooked(true);
+    void bookings.refetch();
     void shift.refetch();
   };
 
   const data = shift.data;
+  const existingBooking = bookings.data?.find((item) => item.shift_id === id && item.status === "booked");
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -96,11 +99,11 @@ export default function ShiftDetail() {
               </Card>
             ) : null}
 
-            {booked ? (
+            {booked || existingBooking ? (
               <Card style={{ borderColor: colors.success, backgroundColor: colors.successSoft }}>
                 <Row gap={8}>
                   <CheckCircle2 size={20} color={colors.success} />
-                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{t("bookSuccess")}</Text>
+                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{booked ? t("bookSuccess") : (lang === "ar" ? "هذه المناوبة محجوزة لك. تابعها في نشاطي." : "You booked this shift. Track it in Activity.")}</Text>
                 </Row>
                 <Button label={t("activity")} variant="secondary" small onPress={() => router.push("/activity")} />
               </Card>
@@ -112,10 +115,10 @@ export default function ShiftDetail() {
         {consent.node}
       </Screen>
 
-      {data && !booked ? (
+       {data && !booked && !existingBooking ? (
         <StickyBar>
           {session ? (
-            <Button label={t("book")} onPress={book} loading={busy} />
+             <Button label={t("book")} onPress={book} loading={busy} disabled={bookings.isPending} />
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>
