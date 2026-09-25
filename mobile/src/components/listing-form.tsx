@@ -18,7 +18,7 @@ export function ChoiceField<T extends string>({ label, value, options, onChange 
 
 export function ListingReview({ title, rows, privacyNote, busy, onBack, onConfirm, consentNode }: {
   title: string; rows: { label: string; value: string }[]; privacyNote: string; busy: boolean;
-  onBack: () => void; onConfirm: () => void; consentNode: React.ReactNode;
+  onBack: () => void; onConfirm: () => void; consentNode: React.ReactNode; error?: string | null;
 }) {
   const { t } = useI18n();
   return <>
