@@ -4,6 +4,7 @@ import DateTimePicker, { type DateTimePickerEvent } from "@react-native-communit
 import { Button, Field, styles as ui } from "@/components/ui";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { Sheet } from "@/components/sheet";
 
 type Props = { label: string; value: string; onChange: (value: string) => void; dateOnly?: boolean; minimumDate?: Date; required?: boolean };
 
@@ -15,6 +16,7 @@ export function DateTimeField({ label, value, onChange, dateOnly = false, minimu
   const selected = parsed && !Number.isNaN(parsed.getTime()) ? parsed : minimumDate ?? new Date(Date.now() + 3600000);
   const pick = (event: DateTimePickerEvent, date?: Date) => {
     if (event.type === "dismissed" || !date) { setMode(null); setDraft(null); return; }
+    if (Platform.OS === "ios") { setDraft(date); return; }
     if (dateOnly) {
       const year = date.getFullYear();
       onChange(`${year}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`);
@@ -30,5 +32,10 @@ export function DateTimeField({ label, value, onChange, dateOnly = false, minimu
     }
   };
   if (Platform.OS === "web") return <Field label={label} value={value} onChangeText={onChange} placeholder={dateOnly ? "YYYY-MM-DD" : "YYYY-MM-DDTHH:mm:ss+03:00"} required={required} />;
-  return <View style={{ gap: 8 }}><Text style={ui.label}>{label}{required ? " *" : ""}</Text><Button label={value ? (dateOnly ? formatDate(value, lang) : formatDateTime(value, lang)) : (lang === "ar" ? dateOnly ? "اختر التاريخ" : "اختر التاريخ والوقت" : dateOnly ? "Choose date" : "Choose date and time")} variant="secondary" onPress={() => setMode("date")} />{mode ? <DateTimePicker value={mode === "time" ? draft ?? selected : selected} mode={Platform.OS === "ios" && !dateOnly ? "datetime" : mode} minimumDate={mode === "date" ? minimumDate : undefined} onChange={pick} /> : null}</View>;
+  const confirmIos = () => {
+    const date = draft ?? selected;
+    onChange(dateOnly ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : date.toISOString());
+    setMode(null); setDraft(null);
+  };
+  return <View style={{ gap: 8 }}><Text style={ui.label}>{label}{required ? " *" : ""}</Text><Button label={value ? (dateOnly ? formatDate(value, lang) : formatDateTime(value, lang)) : (lang === "ar" ? dateOnly ? "اختر التاريخ" : "اختر التاريخ والوقت" : dateOnly ? "Choose date" : "Choose date and time")} variant="secondary" onPress={() => setMode("date")} />{Platform.OS === "ios" ? <Sheet visible={mode !== null} title={label} onClose={() => { setMode(null); setDraft(null); }} footer={<Button label={lang === "ar" ? "تأكيد الموعد" : "Confirm date"} onPress={confirmIos} />}><DateTimePicker value={draft ?? selected} mode={dateOnly ? "date" : "datetime"} display="spinner" minimumDate={minimumDate} onChange={pick} /></Sheet> : mode ? <DateTimePicker value={mode === "time" ? draft ?? selected : selected} mode={mode} minimumDate={mode === "date" ? minimumDate : undefined} onChange={pick} /> : null}</View>;
 }
