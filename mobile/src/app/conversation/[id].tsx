@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -11,7 +10,6 @@ import { dayKey, formatDayLabel, formatTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { colors, radii } from "@/lib/theme";
 import { Send } from "lucide-react-native";
-import { supabase } from "@/lib/supabase";
 
 export default function Conversation() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,24 +22,10 @@ export default function Conversation() {
   const markRead = useMarkConversationRead(String(id));
   const [body, setBody] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (id) markRead.mutate();
   }, [id]);
-
-  useEffect(() => {
-    if (!id) return;
-    const channel = supabase
-      .channel(`conversation:${String(id)}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${String(id)}` }, () => {
-        void queryClient.invalidateQueries({ queryKey: ["messages", String(id)] });
-        void queryClient.invalidateQueries({ queryKey: ["conversations"] });
-        markRead.mutate();
-      })
-      .subscribe();
-    return () => { void supabase.removeChannel(channel); };
-  }, [id, queryClient]);
 
   const submit = () => {
     const text = body.trim();
@@ -73,6 +57,8 @@ export default function Conversation() {
             contentContainerStyle={{ padding: 16, gap: 10, flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+            onRefresh={() => { void messages.refetch(); markRead.mutate(); }}
+            refreshing={messages.isFetching}
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
             ListEmptyComponent={<EmptyState text={t("emptyMessages")} />}
             renderItem={({ item, index }) => {
