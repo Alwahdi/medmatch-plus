@@ -58,12 +58,17 @@ jobs:
       - name: Publish this commit to its own Expo branch
         if: github.event_name == 'push'
         working-directory: mobile
-        run: eas update --branch "$EAS_BRANCH" --message "${{ github.event.head_commit.message }}" --non-interactive
+        env:
+          UPDATE_MESSAGE: ${{ github.event.head_commit.message }}
+        run: eas update --branch "$EAS_BRANCH" --message "$UPDATE_MESSAGE" --non-interactive
 
       - name: Publish update (pull request preview)
         if: github.event_name == 'pull_request'
         working-directory: mobile
-        run: eas update --branch "pr-${{ github.event.pull_request.number }}" --message "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}" --non-interactive
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: eas update --branch "pr-$PR_NUMBER" --message "PR #$PR_NUMBER: $PR_TITLE" --non-interactive
 
       - name: Comment QR code on PR
         if: github.event_name == 'pull_request'
