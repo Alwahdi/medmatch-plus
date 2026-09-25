@@ -19,7 +19,8 @@ export default function NotificationsScreen() {
     const link = rawLink?.trim().split("#")[0];
     if (!link?.startsWith("/") || link.startsWith("//") || link.includes("\\")) return;
     if (/^\/(settings|alerts|preferences)(\?|$)/.test(link)) return router.push("/account");
-    if (/^\/(facility\/verification|credentials)(\?|$)/.test(link)) return router.push({ pathname: "/verification", params: { target: "facility" } });
+    if (/^\/facility\/verification(\?|$)/.test(link)) return router.push({ pathname: "/verification", params: { target: "facility" } });
+    if (/^\/credentials(\?|$)/.test(link)) return router.push({ pathname: "/verification", params: { target: "professional" } });
     if (link === "/profile?tab=credentials") return router.push({ pathname: "/verification", params: { target: "professional" } });
     const applicantJob = link.match(/^\/facility\/applicants\/([0-9a-f-]{36})$/i);
     if (applicantJob) return router.push({ pathname: "/facility/job/[id]", params: { id: applicantJob[1] } });

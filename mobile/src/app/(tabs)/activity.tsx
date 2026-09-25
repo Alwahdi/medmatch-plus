@@ -44,6 +44,7 @@ export default function ActivityTab() {
   const { isFacility } = useAuth();
   const initialTab: Tab = ["applications", "bookings", "invitations", "interviews", "reviews"].includes(params.tab ?? "") ? params.tab as Tab : "applications";
   const [tab, setTab] = useState<Tab>(initialTab);
+  const [actionError, setActionError] = useState<string | null>(null);
   useEffect(() => { setTab(initialTab); }, [initialTab]);
   const [range, setRange] = useState<TimeRange>("upcoming");
 
@@ -214,9 +215,12 @@ export default function ActivityTab() {
         )
       ) : null}
 
-      {tab === "reviews" ? (
-        reviews.isPending ? (
+       {actionError ? <Text accessibilityRole="alert" style={ui.error}>{actionError}</Text> : null}
+       {tab === "reviews" ? (
+         reviews.isPending ? (
           <Loading />
+         ) : reviews.isError ? (
+           <ErrorState message={userMessage(reviews.error, lang)} onRetry={() => void reviews.refetch()} />
         ) : reviewCount === 0 ? (
           <EmptyState icon={Star} text={lang === "ar" ? "لا توجد تقييمات معلّقة." : "No pending reviews."} desc={t("emptyReviewsDesc")} />
         ) : (
@@ -228,7 +232,7 @@ export default function ActivityTab() {
       {tab === "interviews" ? interviews.isPending ? <Loading /> : interviews.isError ? <ErrorState message={userMessage(interviews.error, lang)} onRetry={() => void interviews.refetch()} /> : (interviews.data ?? []).length === 0 ? <EmptyState icon={CalendarClock} text={t("noUpcoming")} /> : (interviews.data ?? []).map((interview) => {
         const context = interview as unknown as { jobs?: { title?: string }; shifts?: { title?: string } };
         const title = context.jobs?.title ?? context.shifts?.title ?? t("interviewInvite");
-        return <Card key={interview.id}><Row gap={8} wrap><Text style={[ui.bodyStrong, { flex: 1 }]}>{title}</Text><Badge label={interview.status} tone={interview.status === "confirmed" ? "success" : interview.status === "declined" ? "danger" : "warning"} /></Row><Text style={ui.body}>{formatDateTime(interview.scheduled_at, lang)}</Text>{interview.location ? <Text style={ui.muted}>{interview.location}</Text> : null}{interview.status === "scheduled" ? <Row gap={8}><View style={{ flex: 1 }}><Button label={t("accept")} small loading={respondInterview.isPending} onPress={() => respondInterview.mutate({ id: interview.id, accept: true })} /></View><View style={{ flex: 1 }}><Button label={t("decline")} variant="secondary" small onPress={() => respondInterview.mutate({ id: interview.id, accept: false })} /></View></Row> : null}</Card>;
+         return <Card key={interview.id}><Row gap={8} wrap><Text style={[ui.bodyStrong, { flex: 1 }]}>{title}</Text><Badge label={interview.status} tone={interview.status === "confirmed" ? "success" : interview.status === "declined" ? "danger" : "warning"} /></Row><Text style={ui.body}>{formatDateTime(interview.scheduled_at, lang)}</Text>{interview.location ? <Text style={ui.muted}>{interview.location}</Text> : null}{interview.status === "scheduled" ? <Row gap={8}><View style={{ flex: 1 }}><Button label={t("accept")} small loading={respondInterview.isPending} onPress={() => respondInterview.mutate({ id: interview.id, accept: true }, { onError: (cause) => setActionError(userMessage(cause, lang)) })} /></View><View style={{ flex: 1 }}><Button label={t("decline")} variant="secondary" small disabled={respondInterview.isPending} onPress={() => respondInterview.mutate({ id: interview.id, accept: false }, { onError: (cause) => setActionError(userMessage(cause, lang)) })} /></View></Row> : null}</Card>;
       }) : null}
     </Screen>
   );
