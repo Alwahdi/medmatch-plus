@@ -1,6 +1,8 @@
 # Mobile experience quality pass
 
-- [ ] Repair critical journeys: facility shift management entry, interview scheduling, message failure and verification states
-- [ ] Improve publishing and discovery: full specialty selection, validation and clear feedback
-- [ ] Align accessibility, navigation, permissions and manual refresh with product preferences
-- [ ] Verify type safety, Android/iOS export, and real device journeys when a device and test accounts are available
+- [x] Repair critical journey entry points: facility shift detail, interview date selection, message failure and verification states
+- [x] Improve publishing: full searchable specialty selection, validation, review-stage errors and existing application/booking feedback
+- [x] Align navigation, permissions, accessible labels and manual message/notification refresh with product preferences
+- [ ] Validate all changes with Expo Android/iOS export and typechecks through CI; run real-device RTL/LTR, keyboard and screen-reader journeys with test accounts
+- [ ] Extend shift detail with actual owner actions and bookings only after verifying available authorized RPCs and business rules
+- [ ] Conduct moderated usability tests with Yemeni professionals and facilities; refine typography, copy, and layouts from device screenshots rather than claiming pixel-perfect results without device testing
