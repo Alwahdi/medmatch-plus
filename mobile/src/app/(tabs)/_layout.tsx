@@ -2,6 +2,7 @@ import React from "react";
 import { Redirect, Tabs } from "expo-router";
 import { View, type ColorValue } from "react-native";
 import { BriefcaseBusiness, Compass, Home, ClipboardList, MessageCircle, UserRound, UsersRound, type LucideIcon } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts } from "@/lib/theme";
@@ -12,7 +13,7 @@ import { supabase } from "@/lib/supabase";
 
 function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: ColorValue; focused: boolean }) {
   return (
-    <View style={{ width: 38, height: 32, borderRadius: 12, backgroundColor: focused ? colors.primarySoft : "transparent", alignItems: "center", justifyContent: "center" }}>
+    <View style={{ width: 44, height: 28, borderRadius: 12, backgroundColor: focused ? colors.primarySoft : "transparent", alignItems: "center", justifyContent: "center" }}>
       <Icon size={21} color={String(color)} strokeWidth={focused ? 2.5 : 2} />
     </View>
   );
@@ -24,6 +25,8 @@ export default function TabsLayout() {
   const invitations = useMyInvitations();
   const reviews = usePendingReviews();
   const unreadMessages = useUnreadMessages();
+  const insets = useSafeAreaInsets();
+  const bottomPad = Math.max(insets.bottom, 8);
 
   const activityCount =
     (invitations.data ?? []).filter((i) => i.status === "pending").length +
@@ -43,7 +46,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 76, paddingTop: 8, paddingBottom: 10 },
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 58 + bottomPad, paddingTop: 6, paddingBottom: bottomPad },
         tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
         tabBarBadgeStyle: { backgroundColor: colors.danger, fontFamily: fonts.bold, fontSize: 10 },
         tabBarHideOnKeyboard: true,
