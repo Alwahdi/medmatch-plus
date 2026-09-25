@@ -8,6 +8,7 @@ import { colors, fonts } from "@/lib/theme";
 import { Button, ErrorState, Loading, Screen } from "@/components/ui";
 import { useMyInvitations, usePendingReviews, useUnreadMessages } from "@/lib/queries";
 import { userMessage } from "@/lib/errors";
+import { supabase } from "@/lib/supabase";
 
 function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: ColorValue; focused: boolean }) {
   return (
