@@ -57,7 +57,7 @@ export default function ProfileScreen() {
   }, [profile.data]);
 
   const save = async () => {
-    if (!fullName.trim() || (years.trim() && (!/^\d+$/.test(years.trim()) || Number(years) > 70)) || (preferredRate.trim() && (!(Number(preferredRate) > 0) || !Number.isFinite(Number(preferredRate))))) { setError(lang === "ar" ? "تحقق من الاسم وسنوات الخبرة والأجر." : "Check your name, experience and preferred rate."); return; }
+    if (fullName.trim().length < 2 || fullName.trim().length > 100 || !specialtyId || !city.trim() || !country.trim() || !/^\d+$/.test(years.trim()) || Number(years) > 60 || (preferredRate.trim() && (!(Number(preferredRate) > 0) || !Number.isFinite(Number(preferredRate))))) { setError(lang === "ar" ? "أكمل الاسم والتخصص والمدينة وسنوات الخبرة الصحيحة (0–60)." : "Complete your name, specialty, city and valid experience (0–60)." ); return; }
     setBusy(true);
     setError(null);
     setSaved(false);
@@ -74,7 +74,6 @@ export default function ProfileScreen() {
         license_country: licenseCountry.trim() || null,
         preferred_rate: Number(preferredRate) || null,
         is_open_to_shifts: openToShifts,
-        is_searchable: searchable,
       };
     const existing = profile.data;
     const result = existing
@@ -91,7 +90,13 @@ export default function ProfileScreen() {
     if ((roles ?? []).length === 0) {
       const claimed = await supabase.rpc("claim_professional_role");
       if (claimed.error) { setBusy(false); setError(userMessage(claimed.error, lang)); return; }
+      if (!claimed.data) { setBusy(false); setError(userMessage("PROFILE_INCOMPLETE", lang)); return; }
       await refreshRoles();
+    }
+    const visibilityChanged = Boolean((existing as { is_searchable?: boolean } | null)?.is_searchable) !== searchable;
+    if (visibilityChanged) {
+      const visibility = await supabase.rpc("set_search_visibility", { _visible: searchable });
+      if (visibility.error) { setBusy(false); setError(userMessage(visibility.error, lang)); return; }
     }
     setBusy(false);
     setSaved(true);
@@ -116,11 +121,11 @@ export default function ProfileScreen() {
                 <Badge label={t("verified")} tone="success" />
               ) : null}
             </Row>
-            <Field label={t("fullName")} value={fullName} onChangeText={setFullName} />
+             <Field label={t("fullName")} value={fullName} onChangeText={setFullName} required maxLength={100} />
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
-            <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
-            <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" />
-            <Field label={lang === "ar" ? "المدينة" : "City"} value={city} onChangeText={setCity} />
+             <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
+             <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" required maxLength={2} />
+             <Field label={lang === "ar" ? "المدينة" : "City"} value={city} onChangeText={setCity} required maxLength={60} />
             <Field label={t("country")} value={country} onChangeText={setCountry} />
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
             <Field label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChangeText={setLicenseCountry} />

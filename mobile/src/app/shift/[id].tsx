@@ -60,7 +60,7 @@ export default function ShiftDetail() {
   };
 
   const data = shift.data;
-  const existingBooking = bookings.data?.find((item) => item.shift_id === id && item.status === "booked");
+  const existingBooking = bookings.data?.find((item) => item.shift_id === String(id) && item.status === "confirmed");
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>

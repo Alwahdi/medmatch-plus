@@ -65,7 +65,7 @@ export default function JobDetail() {
   };
 
   const data = job.data;
-  const existingApplication = applications.data?.find((item) => item.job_id === id && item.status !== "withdrawn");
+  const existingApplication = applications.data?.find((item) => item.job_id === String(id) && item.status !== "withdrawn");
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>

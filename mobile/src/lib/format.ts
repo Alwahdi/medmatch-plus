@@ -136,6 +136,7 @@ export const applicationStatusLabel = (status: string, lang: Lang) => {
 
 export const bookingStatusLabel = (status: string, lang: Lang) => {
   const map: Record<string, { ar: string; en: string }> = {
+    confirmed: { ar: "مؤكدة", en: "Confirmed" },
     booked: { ar: "محجوزة", en: "Booked" },
     cancelled: { ar: "ملغاة", en: "Cancelled" },
     completed: { ar: "منتهية", en: "Completed" },
