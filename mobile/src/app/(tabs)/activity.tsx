@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { RefreshControl, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { CalendarClock, ClipboardList, MailOpen, Star, UsersRound } from "lucide-react-native";
@@ -44,6 +44,7 @@ export default function ActivityTab() {
   const { isFacility } = useAuth();
   const initialTab: Tab = ["applications", "bookings", "invitations", "interviews", "reviews"].includes(params.tab ?? "") ? params.tab as Tab : "applications";
   const [tab, setTab] = useState<Tab>(initialTab);
+  useEffect(() => { setTab(initialTab); }, [initialTab]);
   const [range, setRange] = useState<TimeRange>("upcoming");
 
   const applications = useMyApplications();

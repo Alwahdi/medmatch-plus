@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
@@ -20,6 +20,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
   const docs = useVerificationDocuments("facility", facilityId);
   const documents = docs.data ?? [];
   const [tab, setTab] = useState<"jobs" | "shifts">(params.tab === "shifts" ? "shifts" : "jobs");
+  useEffect(() => { setTab(params.tab === "shifts" ? "shifts" : "jobs"); }, [params.tab]);
 
 
   return (
@@ -40,6 +41,8 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
 
         {facility.isPending ? (
           <Loading />
+        ) : facility.isError ? (
+          <ErrorState message={userMessage(facility.error, lang)} onRetry={() => void facility.refetch()} />
         ) : !facility.data ? (
           <EmptyState icon={Building2} text={t("completeProfile")} desc={t("nextFac1Sub")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} />
         ) : (

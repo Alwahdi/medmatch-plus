@@ -36,8 +36,8 @@ export function ScreenHeader({ title, sub, action }: { title: string; sub?: stri
   return (
     <View style={styles.screenHeader}>
       <View style={styles.screenHeaderText}>
-        <Text accessibilityRole="header" style={styles.title} numberOfLines={1}>{title}</Text>
-        {sub ? <Text style={styles.muted} numberOfLines={1}>{sub}</Text> : null}
+         <Text accessibilityRole="header" style={styles.title} numberOfLines={2}>{title}</Text>
+         {sub ? <Text style={styles.muted} numberOfLines={2}>{sub}</Text> : null}
       </View>
       {action}
     </View>
