@@ -1,19 +1,12 @@
 import React from "react";
-import { useRouter } from "expo-router";
-import { CircleHelp } from "lucide-react-native";
+import { Stack, useRouter } from "expo-router";
 import { Button, EmptyState, Screen } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 
-export default function NotFoundScreen() {
+export default function NotFound() {
+  const { lang } = useI18n();
   const router = useRouter();
-  const { t } = useI18n();
-  return (
-    <Screen scroll={false}>
-      <EmptyState
-        icon={CircleHelp}
-        text={t("pageNotFound")}
-        action={<Button label={t("backHome")} onPress={() => router.replace("/")} />}
-      />
-    </Screen>
-  );
+  return <><Stack.Screen options={{ title: lang === "ar" ? "الصفحة غير متاحة" : "Page unavailable" }} /><Screen>
+    <EmptyState text={lang === "ar" ? "لم نعد نجد هذه الصفحة" : "This page isn't available"} desc={lang === "ar" ? "ربما انتهت صلاحية الرابط أو تغير عنوانه." : "This link may have expired or changed."} action={<Button label={lang === "ar" ? "العودة للرئيسية" : "Back to home"} onPress={() => router.replace("/")} />} />
+  </Screen></>;
 }
