@@ -10,7 +10,7 @@ export const colors = {
   text: "#202A33",
   textMuted: "#667581",
   textSubtle: "#94A1AA",
-  primary: "#2F8194",
+  primary: "#256B7B",
   primaryStrong: "#256B7B",
   primarySoft: "#E5F2F4",
   primaryText: "#FFFFFF",

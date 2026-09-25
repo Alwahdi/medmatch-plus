@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useFacilityJobs, useFacilityShifts, useMyFacility, useVerificationDocuments } from "@/lib/queries";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { bookingStatusLabel, formatDate, formatDateTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { Building2, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
 import { colors } from "@/lib/theme";
@@ -20,6 +20,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
   const docs = useVerificationDocuments("facility", facilityId);
   const documents = docs.data ?? [];
   const [tab, setTab] = useState<"jobs" | "shifts">(params.tab === "shifts" ? "shifts" : "jobs");
+  useEffect(() => { setTab(params.tab === "shifts" ? "shifts" : "jobs"); }, [params.tab]);
 
 
   return (
@@ -28,10 +29,12 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
       <Screen
         refreshControl={
           <RefreshControl
-            refreshing={jobs.isFetching || shifts.isFetching}
+            refreshing={jobs.isRefetching || shifts.isRefetching || facility.isRefetching || docs.isRefetching}
             onRefresh={() => {
+              void facility.refetch();
               void jobs.refetch();
               void shifts.refetch();
+              if (facilityId) void docs.refetch();
             }}
           />
         }
@@ -40,6 +43,8 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
 
         {facility.isPending ? (
           <Loading />
+        ) : facility.isError ? (
+          <ErrorState message={userMessage(facility.error, lang)} onRetry={() => void facility.refetch()} />
         ) : !facility.data ? (
           <EmptyState icon={Building2} text={t("completeProfile")} desc={t("nextFac1Sub")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} />
         ) : (
@@ -48,18 +53,16 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
               <View style={{ flex: 1 }}><Button label={t("publishJob")} icon={FilePlus2} small onPress={() => router.push("/facility/create-job")} /></View>
               <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} small onPress={() => router.push("/facility/create-shift")} /></View>
             </Row>
-            {(facility.data as { is_verified?: boolean }).is_verified ? null : (
+            {(facility.data as { is_verified?: boolean }).is_verified ? null : docs.isError ? <ErrorState message={userMessage(docs.error, lang)} onRetry={() => void docs.refetch()} /> : (
               <Card style={{ backgroundColor: colors.warningSoft, borderColor: colors.warningSoft }}>
                 <Row gap={10}>
                   <ShieldCheck size={22} color={colors.warning} />
                   <View style={{ flex: 1 }}>
-                    <Text style={ui.bodyStrong}>{documents.length === 0 ? (lang === "ar" ? "لم يتم رفع مستندات التوثيق" : "No verification documents yet") : (lang === "ar" ? "التوثيق قيد المراجعة" : "Verification under review")}</Text>
-                    <Text style={ui.muted}>{documents.length === 0 ? (lang === "ar" ? "ارفع رخصة المنشأة والسجل التجاري لتفعيل التوثيق." : "Upload the facility licence and commercial registry to start verification.") : (lang === "ar" ? "تظهر الشارة فقط بعد اعتماد المنشأة." : "The badge appears only after approval.")}</Text>
+                    <Text style={ui.bodyStrong}>{docs.isPending ? t("loading") : documents.some((d) => d.status === "rejected") ? t("documentRejected") : documents.some((d) => d.status === "pending") ? t("documentPending") : (lang === "ar" ? "لم يبدأ التوثيق" : "Verification not started")}</Text>
+                    <Text style={ui.muted}>{documents.length === 0 ? (lang === "ar" ? "ارفع مستندات المنشأة لبدء المراجعة." : "Upload facility documents to start review.") : (lang === "ar" ? "راجع حالة كل مستند وملاحظات المراجعة." : "See each document's status and review notes.")}</Text>
                   </View>
                 </Row>
-                {documents.length === 0 ? (
-                  <Button label={lang === "ar" ? "رفع المستندات" : "Upload documents"} small onPress={() => router.push({ pathname: "/verification", params: { target: "facility" } })} />
-                ) : null}
+                <Button label={t("verificationDocuments")} small onPress={() => router.push({ pathname: "/verification", params: { target: "facility" } })} />
               </Card>
             )}
             <Segmented value={tab} onChange={setTab} options={[{ value: "jobs", label: t("jobs"), count: jobs.data?.length }, { value: "shifts", label: t("shifts"), count: shifts.data?.length }]} />
@@ -102,13 +105,13 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
               <EmptyState text={t("emptyShifts")} />
             ) : (
               (shifts.data ?? []).map((s) => (
-                <Card key={s.id}>
+                 <Pressable key={s.id} accessibilityRole="button" accessibilityLabel={s.title} onPress={() => router.push({ pathname: "/facility/shift/[id]", params: { id: s.id } })}><Card>
                   <Row gap={8} wrap>
                     <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{s.title}</Text>
-                    <Badge label={s.status} />
+                     <Badge label={bookingStatusLabel(s.status, lang)} />
                   </Row>
                   <Text style={ui.muted}>{formatDateTime(s.starts_at, lang)}</Text>
-                </Card>
+                 </Card></Pressable>
               ))
             )}
           </>

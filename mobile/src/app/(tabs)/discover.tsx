@@ -28,6 +28,7 @@ export default function DiscoverTab() {
   const [specialtyDraft, setSpecialtyDraft] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
+
   const specialties = useSpecialties();
   const jobs = useJobSearch({ q: term, specialtyId, city: city || null });
   const shifts = useShiftSearch({ q: term, specialtyId, city: city || null });
@@ -73,7 +74,7 @@ export default function DiscoverTab() {
               onSubmitEditing={() => setTerm(q.trim())}
               returnKeyType="search"
               placeholder={mode === "jobs" ? t("search") : t("searchShifts")}
-              placeholderTextColor={colors.textSubtle}
+               placeholderTextColor={colors.textMuted}
               accessibilityLabel={t("search")}
               style={[ui.input, { flex: 1, borderWidth: 0, backgroundColor: "transparent", paddingHorizontal: 0 }]}
             />

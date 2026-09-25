@@ -193,7 +193,6 @@ export function useUnreadMessages() {
   return useQuery({
     queryKey: ["unread-messages", user?.id],
     enabled: Boolean(user?.id),
-    refetchInterval: 15000,
     queryFn: async () => {
       if (!user?.id) return [];
       return unwrap(
@@ -211,7 +210,6 @@ export function useMessages(conversationId: string) {
   return useQuery({
     queryKey: ["messages", conversationId],
     enabled: Boolean(conversationId),
-    refetchInterval: 15000,
     queryFn: async () =>
       unwrap(
         await supabase
@@ -260,7 +258,6 @@ export function useNotifications() {
   return useQuery({
     queryKey: ["notifications", user?.id],
     enabled: Boolean(user?.id),
-    refetchInterval: 45000,
     queryFn: async () =>
       unwrap(
         await supabase
@@ -397,6 +394,20 @@ export function useFacilityShifts(facilityId: string | undefined) {
           .eq("facility_id", facilityId!)
           .order("starts_at", { ascending: false }),
       ),
+  });
+}
+
+export function useFacilityShift(shiftId: string, facilityId?: string) {
+  return useQuery({
+    queryKey: ["facility-shift", facilityId, shiftId],
+    enabled: Boolean(facilityId && shiftId),
+    queryFn: async () => {
+      const res = await supabase.from("shifts")
+        .select("id,title,status,starts_at,ends_at,city,hourly_rate,currency,applications_count,notes")
+        .eq("facility_id", facilityId ?? "").eq("id", shiftId).maybeSingle();
+      if (res.error) throw new Error(res.error.message);
+      return res.data;
+    },
   });
 }
 

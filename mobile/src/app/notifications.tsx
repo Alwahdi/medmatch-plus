@@ -16,11 +16,21 @@ export default function NotificationsScreen() {
   const markRead = useMarkNotificationRead();
   const unreadCount = (list.data ?? []).filter((n) => !n.read_at).length;
   const openNotification = (rawLink: string | null) => {
-    const link = rawLink?.trim();
-    if (!link?.startsWith("/")) return;
-    if (link.startsWith("/settings")) return router.push("/account");
-    if (link.startsWith("/profile?tab=credentials")) return router.push("/verification");
-    router.push(link as never);
+    const link = rawLink?.trim().split("#")[0];
+    if (!link?.startsWith("/") || link.startsWith("//") || link.includes("\\")) return;
+    if (/^\/(settings|alerts|preferences)(\?|$)/.test(link)) return router.push("/account");
+    if (/^\/facility\/verification(\?|$)/.test(link)) return router.push({ pathname: "/verification", params: { target: "facility" } });
+    if (/^\/credentials(\?|$)/.test(link)) return router.push({ pathname: "/verification", params: { target: "professional" } });
+    if (link === "/profile?tab=credentials") return router.push({ pathname: "/verification", params: { target: "professional" } });
+    const applicantJob = link.match(/^\/facility\/applicants\/([0-9a-f-]{36})$/i);
+    if (applicantJob) return router.push({ pathname: "/facility/job/[id]", params: { id: applicantJob[1] } });
+    if (/^\/(my-shifts|activity\?tab=shifts)/.test(link)) return router.push({ pathname: "/activity", params: { tab: "bookings" } });
+    if (/^\/(applications|activity\?tab=applications)/.test(link)) return router.push({ pathname: "/activity", params: { tab: "applications" } });
+    if (link === "/facility" || /^\/facility\?tab=(jobs|shifts)$/.test(link)) return router.push(link as never);
+    if (["/activity", "/discover", "/account", "/profile", "/verification", "/messages", "/notifications", "/facility/profile"].includes(link)) return router.push(link as never);
+    const detail = link.match(/^\/(job|shift|conversation|facility\/job|facility\/shift)\/([0-9a-f-]{36})$/i);
+    if (detail) return router.push(link as never);
+    router.push("/activity");
   };
 
   return (

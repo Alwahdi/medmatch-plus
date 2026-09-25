@@ -8,6 +8,7 @@ import { applicationStatusLabel, formatDate } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { ShieldCheck, UserRound } from "lucide-react-native";
 import { colors } from "@/lib/theme";
+import { DateTimeField } from "@/components/date-time-field";
 
 const STAGES = ["reviewing", "shortlisted", "interview", "rejected"] as const;
 
@@ -33,6 +34,24 @@ export default function FacilityJobApplicants() {
   const [interviewingId, setInterviewingId] = useState<string | null>(null);
   const [scheduledAt, setScheduledAt] = useState("");
   const [meetingUrl, setMeetingUrl] = useState("");
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const submitInterview = (applicationId: string) => {
+    const when = new Date(scheduledAt);
+    if (!scheduledAt || Number.isNaN(when.getTime()) || when.getTime() <= Date.now()) {
+      setActionError(lang === "ar" ? "اختر موعداً مستقبلياً للمقابلة." : "Choose a future interview time.");
+      return;
+    }
+    if (meetingUrl.trim() && !/^https:\/\/[^\s]+\.[^\s]+$/i.test(meetingUrl.trim())) {
+      setActionError(lang === "ar" ? "أدخل رابط اجتماع آمن يبدأ بـ https://" : "Enter a secure meeting link starting with https://");
+      return;
+    }
+    setActionError(null);
+    schedule.mutate({ applicationId, scheduledAt: when.toISOString(), mode: "video", meetingUrl: meetingUrl.trim() }, {
+      onSuccess: () => { setInterviewingId(null); setScheduledAt(""); setMeetingUrl(""); },
+      onError: (cause) => setActionError(userMessage(cause, lang)),
+    });
+  };
 
   const changeStage = (applicationId: string, status: typeof STAGES[number]) => {
     Alert.alert(
@@ -42,7 +61,8 @@ export default function FacilityJobApplicants() {
         { text: t("cancel"), style: "cancel" },
         { text: t("confirmAction"), style: status === "rejected" ? "destructive" : "default", onPress: () => {
           setChangingId(applicationId);
-          setStage.mutate({ id: applicationId, status }, { onSettled: () => setChangingId(null) });
+           setActionError(null);
+           setStage.mutate({ id: applicationId, status }, { onError: (cause) => setActionError(userMessage(cause, lang)), onSettled: () => setChangingId(null) });
         } },
       ],
     );
@@ -57,6 +77,7 @@ export default function FacilityJobApplicants() {
         }
       >
         <Title sub={t("applicants")}>{job.data?.title ?? "—"}</Title>
+        {actionError ? <Text accessibilityRole="alert" style={ui.error}>{actionError}</Text> : null}
 
         {applicants.isPending ? (
           <Loading />
@@ -109,8 +130,8 @@ export default function FacilityJobApplicants() {
                 </View>
               </View>
 
-              <Row gap={8}><View style={{ flex: 1 }}><Button label={t("scheduleInterview")} variant="secondary" small onPress={() => setInterviewingId(a.id)} /></View><View style={{ flex: 1 }}><Button label={t("hire")} small loading={hire.isPending} onPress={() => Alert.alert(t("hireConfirm"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("hire"), onPress: () => hire.mutate(a.id) }])} /></View></Row>
-              {interviewingId === a.id ? <View style={{ gap: 8, paddingTop: 8 }}><Field label={t("interviewTime")} value={scheduledAt} onChangeText={setScheduledAt} placeholder="2026-09-22T10:00:00+03:00" required /><Field label={t("meetingLink")} value={meetingUrl} onChangeText={setMeetingUrl} keyboardType="url" /><Row gap={8}><View style={{ flex: 1 }}><Button label={t("submit")} small loading={schedule.isPending} onPress={() => schedule.mutate({ applicationId: a.id, scheduledAt, mode: "video", meetingUrl }, { onSuccess: () => { setInterviewingId(null); setScheduledAt(""); setMeetingUrl(""); } })} /></View><View style={{ flex: 1 }}><Button label={t("cancel")} variant="ghost" small onPress={() => setInterviewingId(null)} /></View></Row></View> : null}
+               <Row gap={8}><View style={{ flex: 1 }}><Button label={t("scheduleInterview")} variant="secondary" small onPress={() => { setInterviewingId(a.id); setActionError(null); }} /></View><View style={{ flex: 1 }}><Button label={t("hire")} small loading={hire.isPending} disabled={a.status === "hired" || a.status === "rejected" || a.status === "withdrawn"} onPress={() => Alert.alert(t("hireConfirm"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("hire"), onPress: () => hire.mutate(a.id, { onError: (cause) => setActionError(userMessage(cause, lang)) }) }])} /></View></Row>
+               {interviewingId === a.id ? <View style={{ gap: 8, paddingTop: 8 }}><DateTimeField label={t("interviewTime")} value={scheduledAt} onChange={setScheduledAt} minimumDate={new Date()} required /><Field label={t("meetingLink")} value={meetingUrl} onChangeText={setMeetingUrl} keyboardType="url" autoCapitalize="none" /><Row gap={8}><View style={{ flex: 1 }}><Button label={t("submit")} small loading={schedule.isPending} onPress={() => submitInterview(a.id)} /></View><View style={{ flex: 1 }}><Button label={t("cancel")} variant="ghost" small onPress={() => setInterviewingId(null)} /></View></Row></View> : null}
             </Card>
           );})
         )}
@@ -140,7 +161,7 @@ export default function FacilityJobApplicants() {
               <View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "مرشح مطابق" : "Matching candidate"}</Text><Text style={ui.muted}>{[candidate.city, candidate.years_experience != null ? `${candidate.years_experience} ${t("yearsShort")}` : null].filter(Boolean).join(" · ")}</Text></View>
               {candidate.is_verified ? <ShieldCheck size={20} color={colors.success} /> : null}
             </Row>
-            <Button label={t("invite")} variant="secondary" small loading={invite.isPending} onPress={() => Alert.alert(t("confirmAction"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("invite"), onPress: () => invite.mutate(candidate.id) }])} />
+             <Button label={t("invite")} variant="secondary" small loading={invite.isPending} onPress={() => Alert.alert(t("confirmAction"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("invite"), onPress: () => invite.mutate(candidate.id, { onError: (cause) => setActionError(userMessage(cause, lang)) }) }])} />
           </Card>
         ))}
 

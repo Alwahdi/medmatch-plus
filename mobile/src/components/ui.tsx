@@ -36,8 +36,8 @@ export function ScreenHeader({ title, sub, action }: { title: string; sub?: stri
   return (
     <View style={styles.screenHeader}>
       <View style={styles.screenHeaderText}>
-        <Text accessibilityRole="header" style={styles.title} numberOfLines={1}>{title}</Text>
-        {sub ? <Text style={styles.muted} numberOfLines={1}>{sub}</Text> : null}
+         <Text accessibilityRole="header" style={styles.title} numberOfLines={2}>{title}</Text>
+         {sub ? <Text style={styles.muted} numberOfLines={2}>{sub}</Text> : null}
       </View>
       {action}
     </View>
@@ -90,7 +90,7 @@ export const Field = React.forwardRef<TextInput, TextInputProps & { label?: stri
           <TextInput
             ref={ref}
             accessibilityLabel={label}
-            placeholderTextColor={colors.textSubtle}
+             placeholderTextColor={colors.textMuted}
             style={[
               styles.input,
               props.multiline ? styles.inputMultiline : null,
@@ -190,7 +190,7 @@ export function StatTile({ icon: Icon, value, label, tone = "primary", onPress }
     <Pressable accessibilityRole={onPress ? "button" : undefined} onPress={onPress} style={({ pressed }) => [styles.statTile, { opacity: pressed && onPress ? .75 : 1 }]}>
       <View style={[styles.statIcon, { backgroundColor: p.bg }]}><Icon size={17} color={p.fg} strokeWidth={2.2} /></View>
       <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel} numberOfLines={1}>{label}</Text>
+       <Text style={styles.statLabel} numberOfLines={2}>{label}</Text>
     </Pressable>
   );
 }

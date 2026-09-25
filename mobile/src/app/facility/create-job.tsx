@@ -39,8 +39,9 @@ export default function CreateJobScreen() {
   const validate = () => {
     if (!form.title.trim() || form.title.trim().length < 3 || form.description.trim().length < 20 || !form.city.trim()) return t("requiredField");
     const min = Number(form.salaryMin); const max = Number(form.salaryMax);
-    if (!Number.isFinite(min) || !Number.isFinite(max) || min < 0 || max < 0) return t("invalidAmount");
+    if (!form.salaryMin.trim() || !form.salaryMax.trim() || !Number.isFinite(min) || !Number.isFinite(max) || min < 0 || max < 0) return t("invalidAmount");
     if (max < min) return t("salaryOrder");
+    if (!Number.isInteger(Number(form.minExperience)) || Number(form.minExperience) < 0 || !Number.isInteger(Number(form.vacancies)) || Number(form.vacancies) < 1 || Number(form.vacancies) > 50) return t("invalidAmount");
     if (hasDisclosure(`${form.title} ${form.description}`)) return t("privacyListingError");
     return null;
   };
@@ -48,19 +49,20 @@ export default function CreateJobScreen() {
   const submit = async () => {
     const problem = validate(); if (problem) return setError(problem);
     if (!(await consent.ensure()) || !f) return;
-    create.mutate({ facilityId: f.id, title: form.title.trim(), description: form.description.trim(), specialtyId: form.specialtyId || null, employmentType: form.employmentType, country: form.country, city: form.city.trim(), salaryMin: Number(form.salaryMin), salaryMax: Number(form.salaryMax), minExperience: Math.max(Number(form.minExperience) || 0, 0), vacancies: Math.min(Math.max(Number(form.vacancies) || 1, 1), 50), requiredLicense: form.requiredLicense || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) });
+     create.mutate({ facilityId: f.id, title: form.title.trim(), description: form.description.trim(), specialtyId: form.specialtyId || null, employmentType: form.employmentType, country: form.country, city: form.city.trim(), salaryMin: Number(form.salaryMin), salaryMax: Number(form.salaryMax), minExperience: Number(form.minExperience), vacancies: Number(form.vacancies), requiredLicense: form.requiredLicense || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) });
   };
 
-  if (facility.isPending || specialties.isPending) return <Screen><Loading /></Screen>;
+   if (facility.isPending || specialties.isPending) return <Screen><Loading /></Screen>;
+   if (facility.isError || specialties.isError) return <Screen><ErrorState message={userMessage(facility.error ?? specialties.error, lang)} onRetry={() => { void facility.refetch(); void specialties.refetch(); }} /></Screen>;
   if (!f) return <Screen><EmptyState icon={BriefcaseBusiness} text={t("completeProfile")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} /></Screen>;
   return <><Stack.Screen options={{ title: t("publishJob") }} /><Screen>
-    {reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[
+    {reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} error={error} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[
       { label: t("jobTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("employmentType"), value: t(form.employmentType === "full_time" ? "fullTime" : form.employmentType === "part_time" ? "partTime" : form.employmentType as "contract" | "locum") }, { label: t("city"), value: form.city }, { label: t("salary"), value: `${form.salaryMin} – ${form.salaryMax} YER` }, { label: t("description"), value: form.description },
     ]} /> : <>
       <ScreenHeader title={t("publishJob")} sub={t("draftSaved")} />
       <ListingField label={t("jobTitle")} value={form.title} onChangeText={(v) => update("title", v)} />
       <ChoiceField label={t("employmentType")} value={form.employmentType} onChange={(v) => update("employmentType", v)} options={[{ value: "full_time", label: t("fullTime") }, { value: "part_time", label: t("partTime") }, { value: "contract", label: t("contract") }, { value: "locum", label: t("locum") }]} />
-      <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).slice(0, 12).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
+       <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
       <ListingField label={t("city")} value={form.city} onChangeText={(v) => update("city", v)} />
       <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("salaryFrom")} value={form.salaryMin} onChangeText={(v) => update("salaryMin", v)} numeric /></View><View style={{ flex: 1 }}><ListingField label={t("salaryTo")} value={form.salaryMax} onChangeText={(v) => update("salaryMax", v)} numeric /></View></View>
       <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("minExperience")} value={form.minExperience} onChangeText={(v) => update("minExperience", v)} numeric /></View><View style={{ flex: 1 }}><ListingField label={t("vacancies")} value={form.vacancies} onChangeText={(v) => update("vacancies", v)} numeric /></View></View>

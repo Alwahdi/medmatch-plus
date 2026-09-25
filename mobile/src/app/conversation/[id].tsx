@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -11,7 +10,6 @@ import { dayKey, formatDayLabel, formatTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { colors, radii } from "@/lib/theme";
 import { Send } from "lucide-react-native";
-import { supabase } from "@/lib/supabase";
 
 export default function Conversation() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,30 +21,17 @@ export default function Conversation() {
   const send = useSendMessage(String(id));
   const markRead = useMarkConversationRead(String(id));
   const [body, setBody] = useState("");
-  const queryClient = useQueryClient();
+  const [sendError, setSendError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) markRead.mutate();
   }, [id]);
 
-  useEffect(() => {
-    if (!id) return;
-    const channel = supabase
-      .channel(`conversation:${String(id)}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${String(id)}` }, () => {
-        void queryClient.invalidateQueries({ queryKey: ["messages", String(id)] });
-        void queryClient.invalidateQueries({ queryKey: ["conversations"] });
-        markRead.mutate();
-      })
-      .subscribe();
-    return () => { void supabase.removeChannel(channel); };
-  }, [id, queryClient]);
-
   const submit = () => {
     const text = body.trim();
     if (!text || send.isPending) return;
-    setBody("");
-    send.mutate(text);
+    setSendError(null);
+    send.mutate(text, { onSuccess: () => setBody((current) => current.trim() === text ? "" : current), onError: (cause) => setSendError(userMessage(cause, lang)) });
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
   };
 
@@ -72,6 +57,8 @@ export default function Conversation() {
             contentContainerStyle={{ padding: 16, gap: 10, flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+            onRefresh={() => { void messages.refetch(); markRead.mutate(); }}
+            refreshing={messages.isFetching}
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
             ListEmptyComponent={<EmptyState text={t("emptyMessages")} />}
             renderItem={({ item, index }) => {
@@ -99,7 +86,7 @@ export default function Conversation() {
                   >
                     <Text style={[ui.body, { color: mine ? colors.primaryText : colors.text }]}>{item.body}</Text>
                     <Text
-                      style={[ui.muted, { color: mine ? colors.messageOnPrimary : colors.textSubtle, fontSize: 11, textAlign: "right" }]}
+                       style={[ui.muted, { color: mine ? colors.messageOnPrimary : colors.textMuted, fontSize: 12, textAlign: "right" }]}
                     >
                       {formatTime(item.created_at, lang)}
                     </Text>
@@ -110,6 +97,7 @@ export default function Conversation() {
           />
         )}
 
+        {sendError ? <Text accessibilityRole="alert" style={[ui.error, { paddingHorizontal: 16 }]}>{sendError}</Text> : null}
         <View
           style={{
             flexDirection: "row",
@@ -134,6 +122,7 @@ export default function Conversation() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t("send")}
+            accessibilityState={{ disabled: !body.trim() || send.isPending, busy: send.isPending }}
             onPress={submit}
             style={{
               minWidth: 56,

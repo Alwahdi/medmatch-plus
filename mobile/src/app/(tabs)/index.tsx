@@ -115,7 +115,7 @@ export default function HomeTab() {
           title={f?.is_verified ? t("facilityPriority") : t("nextFac2")}
           description={f?.is_verified ? t("facilityPriorityDesc") : t("nextFac2Sub")}
           actionLabel={f?.is_verified ? t("manageListings") : t("completeNow")}
-          onPress={() => router.push("/facility")}
+           onPress={() => router.push(!f ? "/facility/profile" : f.is_verified ? "/discover" : { pathname: "/verification", params: { target: "facility" } })}
           tone={f?.is_verified ? "primary" : "warning"}
         />
         <SectionHeader title={t("quickActions")} />

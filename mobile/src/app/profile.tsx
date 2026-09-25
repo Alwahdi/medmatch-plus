@@ -57,6 +57,7 @@ export default function ProfileScreen() {
   }, [profile.data]);
 
   const save = async () => {
+    if (!fullName.trim() || (years.trim() && (!/^\d+$/.test(years.trim()) || Number(years) > 70)) || (preferredRate.trim() && (!(Number(preferredRate) > 0) || !Number.isFinite(Number(preferredRate))))) { setError(lang === "ar" ? "تحقق من الاسم وسنوات الخبرة والأجر." : "Check your name, experience and preferred rate."); return; }
     setBusy(true);
     setError(null);
     setSaved(false);
@@ -80,19 +81,20 @@ export default function ProfileScreen() {
       ? await supabase.from("healthcare_professionals").update(payload).eq("user_id", user?.id ?? "")
       : await supabase.from("healthcare_professionals").insert({ ...payload, user_id: user?.id ?? "" });
     const err = result.error;
-    setBusy(false);
     if (err) {
+      setBusy(false);
       setError(userMessage(err, lang));
       return;
     }
-    setSaved(true);
     // Retry role claiming whenever the account has no role yet (not just on
     // first save) so a previously incomplete profile can still activate.
     if ((roles ?? []).length === 0) {
       const claimed = await supabase.rpc("claim_professional_role");
-      if (claimed.error) { setError(userMessage(claimed.error, lang)); return; }
+      if (claimed.error) { setBusy(false); setError(userMessage(claimed.error, lang)); return; }
       await refreshRoles();
     }
+    setBusy(false);
+    setSaved(true);
     void qc.invalidateQueries({ queryKey: ["professional-profile"] });
     const returnTo = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : null;
     if (returnTo) router.replace(returnTo as never);
@@ -116,7 +118,7 @@ export default function ProfileScreen() {
             </Row>
             <Field label={t("fullName")} value={fullName} onChangeText={setFullName} />
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
-            <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).slice(0, 12).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
+            <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
             <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" />
             <Field label={lang === "ar" ? "المدينة" : "City"} value={city} onChangeText={setCity} />
             <Field label={t("country")} value={country} onChangeText={setCountry} />
@@ -131,7 +133,7 @@ export default function ProfileScreen() {
             {error ? <Text style={ui.error}>{error}</Text> : null}
             {saved ? <Text style={ui.muted}>{lang === "ar" ? "تم الحفظ." : "Saved."}</Text> : null}
             <View>
-              <Button label={t("save")} onPress={save} loading={busy} disabled={!fullName.trim()} />
+              <Button label={(roles ?? []).length === 0 ? (lang === "ar" ? "حفظ وتفعيل ملفي" : "Save and activate profile") : t("save")} onPress={save} loading={busy} disabled={!fullName.trim()} />
             </View>
             {profile.data ? <Button label={t("verificationDocuments")} variant="secondary" onPress={() => router.push({ pathname: "/verification", params: { target: "professional" } })} /> : null}
           </Card>

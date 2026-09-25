@@ -18,7 +18,7 @@ import {
   styles as ui,
 } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useJob } from "@/lib/queries";
+import { useJob, useMyApplications } from "@/lib/queries";
 import { employmentTypeLabel, formatDate, formatSalaryRange } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { supabase } from "@/lib/supabase";
@@ -32,6 +32,7 @@ export default function JobDetail() {
   const router = useRouter();
   const { session, isProfessional } = useAuth();
   const job = useJob(String(id));
+  const applications = useMyApplications();
   const consent = useConsentGate("applicant_commitments");
   const [cover, setCover] = useState("");
   const [busy, setBusy] = useState(false);
@@ -59,10 +60,12 @@ export default function JobDetail() {
     }
     if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setApplied(true);
+    void applications.refetch();
     void job.refetch();
   };
 
   const data = job.data;
+  const existingApplication = applications.data?.find((item) => item.job_id === id && item.status !== "withdrawn");
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -98,11 +101,11 @@ export default function JobDetail() {
               </Card>
             ) : null}
 
-            {applied ? (
+            {applied || existingApplication ? (
               <Card style={{ borderColor: colors.success, backgroundColor: colors.successSoft }}>
                 <Row gap={8}>
                   <CheckCircle2 size={20} color={colors.success} />
-                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{t("applySuccess")}</Text>
+                  <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{applied ? t("applySuccess") : (lang === "ar" ? "قدّمت على هذه الوظيفة سابقاً. تابع حالة طلبك في نشاطي." : "You've already applied. Track your application in Activity.")}</Text>
                 </Row>
                 <Button label={t("activity")} variant="secondary" small onPress={() => router.push("/activity")} />
               </Card>
@@ -117,10 +120,10 @@ export default function JobDetail() {
         {consent.node}
       </Screen>
 
-      {data && !applied ? (
+       {data && !applied && !existingApplication ? (
         <StickyBar>
           {session ? (
-            <Button label={t("apply")} onPress={apply} loading={busy} />
+             <Button label={t("apply")} onPress={apply} loading={busy} disabled={applications.isPending} />
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>
