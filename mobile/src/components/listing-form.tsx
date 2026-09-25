@@ -35,8 +35,8 @@ export function ListingReview({ title, rows, privacyNote, busy, onBack, onConfir
   </>;
 }
 
-export function ListingField({ label, value, onChangeText, numeric, multiline }: {
-  label: string; value: string; onChangeText: (value: string) => void; numeric?: boolean; multiline?: boolean;
+export function ListingField({ label, value, onChangeText, numeric, multiline, required, maxLength }: {
+  label: string; value: string; onChangeText: (value: string) => void; numeric?: boolean; multiline?: boolean; required?: boolean; maxLength?: number;
 }) {
-  return <Field label={label} value={value} onChangeText={onChangeText} keyboardType={numeric ? "numeric" : "default"} multiline={multiline} />;
+  return <Field label={label} value={value} onChangeText={onChangeText} keyboardType={numeric ? "numeric" : "default"} multiline={multiline} required={required} maxLength={maxLength} />;
 }

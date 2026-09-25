@@ -70,7 +70,7 @@ export default function HomeTab() {
     const now = Date.now();
     return (bookings.data ?? [])
       .map((booking) => ({ booking, shift: (booking as unknown as { shifts?: { title?: string; starts_at?: string; city?: string } }).shifts }))
-      .filter((item) => item.shift?.starts_at && new Date(item.shift.starts_at).getTime() > now && item.booking.status === "booked")
+      .filter((item) => item.shift?.starts_at && new Date(item.shift.starts_at).getTime() > now && item.booking.status === "confirmed")
       .sort((a, b) => new Date(a.shift?.starts_at ?? 0).getTime() - new Date(b.shift?.starts_at ?? 0).getTime())[0];
   }, [bookings.data]);
 
