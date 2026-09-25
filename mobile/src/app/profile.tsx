@@ -13,7 +13,7 @@ import { colors } from "@/lib/theme";
 
 export default function ProfileScreen() {
   const { t, lang } = useI18n();
-  const { user, refreshRoles } = useAuth();
+  const { user, refreshRoles, roles } = useAuth();
   const qc = useQueryClient();
   const router = useRouter();
   const params = useLocalSearchParams<{ returnTo?: string }>();
@@ -24,6 +24,7 @@ export default function ProfileScreen() {
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [city, setCity] = useState("");
+  const [country, setCountry] = useState("YE");
   const [years, setYears] = useState("");
   const [specialtyId, setSpecialtyId] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
