@@ -190,7 +190,7 @@ export function StatTile({ icon: Icon, value, label, tone = "primary", onPress }
     <Pressable accessibilityRole={onPress ? "button" : undefined} onPress={onPress} style={({ pressed }) => [styles.statTile, { opacity: pressed && onPress ? .75 : 1 }]}>
       <View style={[styles.statIcon, { backgroundColor: p.bg }]}><Icon size={17} color={p.fg} strokeWidth={2.2} /></View>
       <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel} numberOfLines={1}>{label}</Text>
+       <Text style={styles.statLabel} numberOfLines={2}>{label}</Text>
     </Pressable>
   );
 }
