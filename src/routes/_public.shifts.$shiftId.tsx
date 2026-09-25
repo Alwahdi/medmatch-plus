@@ -201,13 +201,20 @@ function ShiftDetail() {
       if (publicRow) return toPublicShift(publicRow);
 
       // Booked/past shifts stay reachable for the owner, admin, or engaged users
-      // through the base table policy — with explicit columns only.
+      // through the base table policy — with explicit columns only. Anonymous
+      // visitors have no base-table grant, so never attempt the fallback for them.
+      if (!user) throw notFound();
       const { data, error } = await supabase
         .from("shifts")
         .select(OWNER_SHIFT_COLUMNS)
         .eq("id", shiftId)
         .maybeSingle();
-      if (error) throw error;
+      if (error) {
+        // 42501 = permission denied (e.g. RLS/grant boundary): treat as not
+        // available rather than surfacing a database error.
+        if ((error as { code?: string }).code === "42501") throw notFound();
+        throw error;
+      }
       if (!data) throw notFound();
       return data;
     },
