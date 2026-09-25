@@ -29,10 +29,12 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
       <Screen
         refreshControl={
           <RefreshControl
-            refreshing={jobs.isFetching || shifts.isFetching}
+            refreshing={jobs.isRefetching || shifts.isRefetching || facility.isRefetching || docs.isRefetching}
             onRefresh={() => {
+              void facility.refetch();
               void jobs.refetch();
               void shifts.refetch();
+              if (facilityId) void docs.refetch();
             }}
           />
         }
@@ -51,7 +53,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
               <View style={{ flex: 1 }}><Button label={t("publishJob")} icon={FilePlus2} small onPress={() => router.push("/facility/create-job")} /></View>
               <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} small onPress={() => router.push("/facility/create-shift")} /></View>
             </Row>
-            {(facility.data as { is_verified?: boolean }).is_verified ? null : (
+            {(facility.data as { is_verified?: boolean }).is_verified ? null : docs.isError ? <ErrorState message={userMessage(docs.error, lang)} onRetry={() => void docs.refetch()} /> : (
               <Card style={{ backgroundColor: colors.warningSoft, borderColor: colors.warningSoft }}>
                 <Row gap={10}>
                   <ShieldCheck size={22} color={colors.warning} />
