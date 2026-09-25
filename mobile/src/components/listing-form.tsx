@@ -16,7 +16,7 @@ export function ChoiceField<T extends string>({ label, value, options, onChange 
   return <View style={{ gap: 8 }}><Text style={ui.label}>{label}</Text><Row gap={8} wrap>{options.map((option) => <Chip key={option.value} label={option.label} active={option.value === value} onPress={() => onChange(option.value)} />)}</Row></View>;
 }
 
-export function ListingReview({ title, rows, privacyNote, busy, onBack, onConfirm, consentNode }: {
+export function ListingReview({ title, rows, privacyNote, busy, onBack, onConfirm, consentNode, error }: {
   title: string; rows: { label: string; value: string }[]; privacyNote: string; busy: boolean;
   onBack: () => void; onConfirm: () => void; consentNode: React.ReactNode; error?: string | null;
 }) {
@@ -28,6 +28,7 @@ export function ListingReview({ title, rows, privacyNote, busy, onBack, onConfir
       <Badge label={t("privacy")} tone="primary" />
       <Text style={ui.muted}>{privacyNote}</Text>
     </View>
+    {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
     <Button label={t("confirmPublish")} loading={busy} onPress={onConfirm} />
     <Button label={t("backToEdit")} variant="ghost" disabled={busy} onPress={onBack} />
     {consentNode}
