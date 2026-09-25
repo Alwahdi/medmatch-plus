@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 import { colors, fonts, radii } from "@/lib/theme";
@@ -17,7 +17,7 @@ export function Sheet({ visible, title, onClose, children, footer }: {
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable accessibilityRole="button" accessibilityLabel={t("close")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View style={{ backgroundColor: colors.surface, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, maxHeight: "82%" }}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ backgroundColor: colors.surface, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, maxHeight: "82%" }}>
         <View style={{ alignItems: "center", paddingTop: 10 }}>
           <View style={{ width: 42, height: 4, borderRadius: 999, backgroundColor: colors.border }} />
         </View>
@@ -35,7 +35,7 @@ export function Sheet({ visible, title, onClose, children, footer }: {
             <View style={{ padding: 14, gap: 8 }}>{footer}</View>
           </SafeAreaView>
         ) : null}
-      </View>
+      </KeyboardAvoidingView>
       <View style={ui.fill} pointerEvents="none" />
     </Modal>
   );

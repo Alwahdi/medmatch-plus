@@ -70,7 +70,7 @@ export default function HomeTab() {
     const now = Date.now();
     return (bookings.data ?? [])
       .map((booking) => ({ booking, shift: (booking as unknown as { shifts?: { title?: string; starts_at?: string; city?: string } }).shifts }))
-      .filter((item) => item.shift?.starts_at && new Date(item.shift.starts_at).getTime() > now && item.booking.status === "booked")
+      .filter((item) => item.shift?.starts_at && new Date(item.shift.starts_at).getTime() > now && item.booking.status === "confirmed")
       .sort((a, b) => new Date(a.shift?.starts_at ?? 0).getTime() - new Date(b.shift?.starts_at ?? 0).getTime())[0];
   }, [bookings.data]);
 
@@ -120,9 +120,9 @@ export default function HomeTab() {
         />
         <SectionHeader title={t("quickActions")} />
         <View style={{ gap: 10 }}>
-          <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push("/facility/create-job")} />
+          <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push(f?.is_verified ? "/facility/create-job" : { pathname: "/verification", params: { target: "facility" } })} />
           <View style={{ flexDirection: "row", alignItems: "stretch", gap: 10 }}>
-            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push("/facility/create-shift")} /></View>
+            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push(f?.is_verified ? "/facility/create-shift" : { pathname: "/verification", params: { target: "facility" } })} /></View>
             <View style={{ flex: 1 }}><Button label={t("applicants")} variant="secondary" icon={UsersRound} onPress={() => router.push("/activity")} /></View>
           </View>
         </View>

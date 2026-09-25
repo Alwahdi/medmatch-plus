@@ -18,7 +18,7 @@ import {
   styles as ui,
 } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useJob, useMyApplications } from "@/lib/queries";
+import { useJob, useMyApplications, useProfessionalProfile } from "@/lib/queries";
 import { employmentTypeLabel, formatDate, formatSalaryRange } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { supabase } from "@/lib/supabase";
@@ -33,6 +33,7 @@ export default function JobDetail() {
   const { session, isProfessional } = useAuth();
   const job = useJob(String(id));
   const applications = useMyApplications();
+  const professional = useProfessionalProfile();
   const consent = useConsentGate("applicant_commitments");
   const [cover, setCover] = useState("");
   const [busy, setBusy] = useState(false);
@@ -43,6 +44,10 @@ export default function JobDetail() {
     setError(null);
     if (!isProfessional) {
       router.push({ pathname: "/profile", params: { returnTo: `/job/${String(id)}` } });
+      return;
+    }
+    if (!(professional.data as { is_verified?: boolean } | null)?.is_verified) {
+      router.push({ pathname: "/verification", params: { target: "professional" } });
       return;
     }
     const ok = await consent.ensure();
@@ -65,7 +70,7 @@ export default function JobDetail() {
   };
 
   const data = job.data;
-  const existingApplication = applications.data?.find((item) => item.job_id === id && item.status !== "withdrawn");
+  const existingApplication = applications.data?.find((item) => item.job_id === String(id) && item.status !== "withdrawn");
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -123,7 +128,7 @@ export default function JobDetail() {
        {data && !applied && !existingApplication ? (
         <StickyBar>
           {session ? (
-             <Button label={t("apply")} onPress={apply} loading={busy} disabled={applications.isPending} />
+             <Button label={(professional.data as { is_verified?: boolean } | null)?.is_verified ? t("apply") : t("verificationDocuments")} onPress={apply} loading={busy} disabled={applications.isPending || professional.isPending} />
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>
