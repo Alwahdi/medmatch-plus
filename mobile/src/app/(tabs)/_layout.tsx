@@ -5,8 +5,9 @@ import { BriefcaseBusiness, Compass, Home, ClipboardList, MessageCircle, UserRou
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts } from "@/lib/theme";
-import { Loading } from "@/components/ui";
+import { Button, ErrorState, Loading, Screen } from "@/components/ui";
 import { useMyInvitations, usePendingReviews, useUnreadMessages } from "@/lib/queries";
+import { userMessage } from "@/lib/errors";
 
 function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: ColorValue; focused: boolean }) {
   return (
@@ -17,7 +18,7 @@ function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: Colo
 }
 
 export default function TabsLayout() {
-  const { session, user, roles, loading, isFacility } = useAuth();
+  const { session, user, roles, loading, rolesError, refreshRoles, isFacility } = useAuth();
   const { t, lang } = useI18n();
   const invitations = useMyInvitations();
   const reviews = usePendingReviews();
@@ -29,6 +30,7 @@ export default function TabsLayout() {
 
   if (loading) return <Loading />;
   if (!session) return <Redirect href="/sign-in" />;
+  if (rolesError) return <Screen><ErrorState message={userMessage(rolesError, lang)} onRetry={() => void refreshRoles()} /><Button label={t("signOut")} variant="ghost" onPress={() => void supabase.auth.signOut()} /></Screen>;
   if (roles.length === 0) {
     const intendedRole = user?.user_metadata?.intended_role;
     return <Redirect href={intendedRole === "facility" ? "/facility/profile" : "/profile"} />;

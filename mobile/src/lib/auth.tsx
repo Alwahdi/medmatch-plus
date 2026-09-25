@@ -9,6 +9,7 @@ type AuthState = {
   user: User | null;
   roles: AppRole[];
   loading: boolean;
+  rolesError: unknown | null;
   isProfessional: boolean;
   isFacility: boolean;
   refreshRoles: () => Promise<void>;
@@ -21,13 +22,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesError, setRolesError] = useState<unknown | null>(null);
 
   const loadRoles = async (userId: string | undefined) => {
     if (!userId) {
       setRoles([]);
+      setRolesError(null);
       return;
     }
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    if (error) {
+      setRolesError(error);
+      return;
+    }
+    setRolesError(null);
     setRoles((data ?? []).map((row) => row.role as AppRole));
   };
 
@@ -57,15 +65,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user: session?.user ?? null,
       roles,
       loading,
+      rolesError,
       isProfessional: roles.includes("professional"),
       isFacility: roles.includes("facility"),
       refreshRoles: () => loadRoles(session?.user?.id),
       signOut: async () => {
         await supabase.auth.signOut();
         setRoles([]);
+        setRolesError(null);
       },
     }),
-    [session, roles, loading],
+    [session, roles, loading, rolesError],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
