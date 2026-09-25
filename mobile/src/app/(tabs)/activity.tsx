@@ -202,10 +202,10 @@ export default function ActivityTab() {
                 {inv.status === "pending" ? (
                   <Row gap={8}>
                     <View style={{ flex: 1 }}>
-                      <Button label={t("accept")} small loading={respond.isPending} onPress={() => respond.mutate({ id: inv.id, accept: true })} />
+                       <Button label={t("accept")} small loading={respond.isPending} onPress={() => { setActionError(null); respond.mutate({ id: inv.id, accept: true }, { onError: (cause) => setActionError(userMessage(cause, lang)) }); }} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Button label={t("decline")} variant="secondary" small onPress={() => respond.mutate({ id: inv.id, accept: false })} />
+                       <Button label={t("decline")} variant="secondary" small disabled={respond.isPending} onPress={() => { setActionError(null); respond.mutate({ id: inv.id, accept: false }, { onError: (cause) => setActionError(userMessage(cause, lang)) }); }} />
                     </View>
                   </Row>
                 ) : null}
