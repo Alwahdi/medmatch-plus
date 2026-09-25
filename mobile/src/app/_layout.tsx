@@ -12,7 +12,7 @@ import { ActivityIndicator, View } from "react-native";
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, staleTime: 30_000, refetchOnWindowFocus: false, refetchOnReconnect: false },
+    queries: { retry: 1, staleTime: Infinity, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false },
   },
 });
 

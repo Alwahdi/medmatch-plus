@@ -15,7 +15,7 @@ export default function FacilityShiftDetail() {
   const data = shift.data;
   return <><Stack.Screen options={{ title: t("shifts") }} /><Screen>
     <ScreenHeader title={t("shifts")} sub={lang === "ar" ? "تفاصيل مناوبتك" : "Your shift details"} />
-    {facility.isPending || (facility.data && shift.isPending) ? <Loading /> : facility.isError || shift.isError ?
+    {facility.isPending || (Boolean(facility.data) && shift.isPending) ? <Loading /> : facility.isError || shift.isError ?
       <ErrorState message={userMessage(facility.error ?? shift.error, lang)} onRetry={() => { void facility.refetch(); void shift.refetch(); }} /> : !data ?
       <EmptyState text={lang === "ar" ? "لم نعد نجد هذه المناوبة ضمن فرص منشأتك." : "This shift is not in your facility listings."} /> : <>
         <Text style={ui.title}>{data.title}</Text>
