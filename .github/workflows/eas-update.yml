@@ -2,7 +2,7 @@ name: EAS Update (Expo Go)
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
     paths:
       - "mobile/**"
       - ".github/workflows/eas-update.yml"
@@ -51,10 +51,14 @@ jobs:
         working-directory: mobile
         run: npx tsc --noEmit
 
-      - name: Publish update (main)
+      - name: Create a unique Expo branch name
+        if: github.event_name == 'push'
+        run: echo "EAS_BRANCH=commit-${GITHUB_SHA::12}" >> "$GITHUB_ENV"
+
+      - name: Publish this commit to its own Expo branch
         if: github.event_name == 'push'
         working-directory: mobile
-        run: eas update --branch main --message "${{ github.event.head_commit.message }}" --non-interactive
+        run: eas update --branch "$EAS_BRANCH" --message "${{ github.event.head_commit.message }}" --non-interactive
 
       - name: Publish update (pull request preview)
         if: github.event_name == 'pull_request'
