@@ -12,3 +12,5 @@
 - [ ] Eliminate confirmed mobile creation failures: trusted search-visibility update, booking-status alignment, role activation, validation parity, and actionable error mapping
 - [ ] Complete end-to-end professional and facility journey QA with isolated accounts, including create/profile/publish/apply/book/interview/message/review states
 - [ ] Run a focused mobile design-system and information-architecture pass only after critical flows are reliable
+
+- [x] Fix publisher-consent persistence and human-readable shift review dates

@@ -10,6 +10,7 @@ import { useConsentGate } from "@/components/consent-gate";
 import { useI18n } from "@/lib/i18n";
 import { useCreateShift, useMyFacility, useSpecialties } from "@/lib/queries";
 import { userMessage } from "@/lib/errors";
+import { formatDateTime, formatMoney } from "@/lib/format";
 
 type Draft = { title: string; specialtyId: string; startsAt: string; endsAt: string; hourlyRate: string; city: string; country: string; notes: string };
 const blank: Draft = { title: "", specialtyId: "", startsAt: "", endsAt: "", hourlyRate: "", city: "", country: "YE", notes: "" };
@@ -38,7 +39,7 @@ export default function CreateShiftScreen() {
    if (facility.isError || specialties.isError) return <Screen><ErrorState message={userMessage(facility.error ?? specialties.error, lang)} onRetry={() => { void facility.refetch(); void specialties.refetch(); }} /></Screen>;
   if (!f) return <Screen><EmptyState icon={CalendarClock} text={t("completeProfile")} action={<Button label={t("completeNow")} onPress={() => router.replace("/facility/profile")} />} /></Screen>;
    if (!f.is_verified) return <Screen><EmptyState icon={CalendarClock} text={lang === "ar" ? "وثّق المنشأة قبل النشر" : "Verify your facility before publishing"} desc={userMessage("FACILITY_NOT_VERIFIED", lang)} action={<Button label={t("verificationDocuments")} onPress={() => router.replace({ pathname: "/verification", params: { target: "facility" } })} />} /></Screen>;
-   return <><Stack.Screen options={{ title: t("publishShift") }} /><Screen>{reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} error={error} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[{ label: t("shiftTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("startsAt"), value: form.startsAt }, { label: t("endsAt"), value: form.endsAt }, { label: t("hourlyRate"), value: `${form.hourlyRate} YER` }, { label: t("city"), value: form.city }, { label: t("notes"), value: form.notes }]} /> : <>
+    return <><Stack.Screen options={{ title: t("publishShift") }} /><Screen>{reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} error={error} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[{ label: t("shiftTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("startsAt"), value: formatDateTime(form.startsAt, lang) }, { label: t("endsAt"), value: formatDateTime(form.endsAt, lang) }, { label: t("hourlyRate"), value: formatMoney(Number(form.hourlyRate), "YER", lang) }, { label: t("city"), value: form.city }, { label: t("notes"), value: form.notes }]} /> : <>
     <ScreenHeader title={t("publishShift")} sub={t("draftSaved")} />
      <ListingField label={t("shiftTitle")} value={form.title} onChangeText={(v) => update("title", v)} required maxLength={120} />
     <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
