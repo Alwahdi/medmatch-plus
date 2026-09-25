@@ -19,6 +19,7 @@ const MAP: Record<string, { ar: string; en: string }> = {
   },
   ALREADY_APPLIED: { ar: "سبق أن قدّمت على هذه الوظيفة.", en: "You already applied to this job." },
   SHIFT_NOT_OPEN: { ar: "هذه المناوبة لم تعد متاحة.", en: "This shift is no longer available." },
+  FILE_TOO_LARGE: { ar: "حجم الملف يتجاوز 10 م.ب. اختر ملفاً أصغر.", en: "File exceeds 10 MB. Choose a smaller file." },
   JOB_CLOSED: { ar: "هذه الوظيفة مغلقة.", en: "This job is closed." },
 };
 

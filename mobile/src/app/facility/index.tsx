@@ -53,13 +53,11 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
                 <Row gap={10}>
                   <ShieldCheck size={22} color={colors.warning} />
                   <View style={{ flex: 1 }}>
-                    <Text style={ui.bodyStrong}>{documents.length === 0 ? (lang === "ar" ? "لم يتم رفع مستندات التوثيق" : "No verification documents yet") : (lang === "ar" ? "التوثيق قيد المراجعة" : "Verification under review")}</Text>
-                    <Text style={ui.muted}>{documents.length === 0 ? (lang === "ar" ? "ارفع رخصة المنشأة والسجل التجاري لتفعيل التوثيق." : "Upload the facility licence and commercial registry to start verification.") : (lang === "ar" ? "تظهر الشارة فقط بعد اعتماد المنشأة." : "The badge appears only after approval.")}</Text>
+                    <Text style={ui.bodyStrong}>{docs.isPending ? t("loading") : documents.some((d) => d.status === "rejected") ? t("documentRejected") : documents.some((d) => d.status === "pending") ? t("documentPending") : (lang === "ar" ? "لم يبدأ التوثيق" : "Verification not started")}</Text>
+                    <Text style={ui.muted}>{documents.length === 0 ? (lang === "ar" ? "ارفع مستندات المنشأة لبدء المراجعة." : "Upload facility documents to start review.") : (lang === "ar" ? "راجع حالة كل مستند وملاحظات المراجعة." : "See each document's status and review notes.")}</Text>
                   </View>
                 </Row>
-                {documents.length === 0 ? (
-                  <Button label={lang === "ar" ? "رفع المستندات" : "Upload documents"} small onPress={() => router.push({ pathname: "/verification", params: { target: "facility" } })} />
-                ) : null}
+                <Button label={t("verificationDocuments")} small onPress={() => router.push({ pathname: "/verification", params: { target: "facility" } })} />
               </Card>
             )}
             <Segmented value={tab} onChange={setTab} options={[{ value: "jobs", label: t("jobs"), count: jobs.data?.length }, { value: "shifts", label: t("shifts"), count: shifts.data?.length }]} />
