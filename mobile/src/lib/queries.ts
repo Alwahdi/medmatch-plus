@@ -397,6 +397,20 @@ export function useFacilityShifts(facilityId: string | undefined) {
   });
 }
 
+export function useFacilityShift(shiftId: string, facilityId?: string) {
+  return useQuery({
+    queryKey: ["facility-shift", facilityId, shiftId],
+    enabled: Boolean(facilityId && shiftId),
+    queryFn: async () => {
+      const res = await supabase.from("shifts")
+        .select("id,title,status,starts_at,ends_at,city,hourly_rate,currency,applications_count,notes")
+        .eq("facility_id", facilityId ?? "").eq("id", shiftId).maybeSingle();
+      if (res.error) throw new Error(res.error.message);
+      return res.data;
+    },
+  });
+}
+
 export function useJobApplicants(jobId: string) {
   return useQuery({
     queryKey: ["job-applicants", jobId],

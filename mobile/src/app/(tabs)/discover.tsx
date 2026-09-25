@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, RefreshControl, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -27,6 +27,8 @@ export default function DiscoverTab() {
   const [cityDraft, setCityDraft] = useState("");
   const [specialtyDraft, setSpecialtyDraft] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  useEffect(() => { const timer = setTimeout(() => setTerm(q.trim()), 350); return () => clearTimeout(timer); }, [q]);
 
   const specialties = useSpecialties();
   const jobs = useJobSearch({ q: term, specialtyId, city: city || null });
