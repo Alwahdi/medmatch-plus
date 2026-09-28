@@ -33,26 +33,31 @@ export default function AccountTab() {
 
     <View style={s.group}>
       <Text style={s.groupTitle}>{lang === "ar" ? "الملف والتوثيق" : "PROFILE & VERIFICATION"}</Text>
-      {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
-      {isFacility ? <MenuRow icon={Building2} title={t("editFacility")} subtitle={lang === "ar" ? "الاسم والنوع والموقع" : "Name, type and location"} onPress={() => router.push("/facility/profile")}/> : null}
+      <View style={s.list}>
+      {isProfessional ? <View style={s.listItem}><MenuRow plain icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/></View> : null}
+      {isFacility ? <View style={s.listItem}><MenuRow plain icon={Building2} title={t("editFacility")} subtitle={lang === "ar" ? "الاسم والنوع والموقع" : "Name, type and location"} onPress={() => router.push("/facility/profile")}/></View> : null}
       <MenuRow
+      plain
       icon={ShieldCheck}
       title={lang === "ar" ? "مستندات التوثيق" : "Verification documents"}
        subtitle={verified ? (lang === "ar" ? "حسابك موثّق" : "Your account is verified") : (lang === "ar" ? "قدّم المستندات للمراجعة؛ الشارة بعد اعتمادها" : "Submit documents for review; the badge follows approval")}
       tone={verified ? "primary" : "accent"}
       onPress={() => router.push({ pathname: "/verification", params: { target: isFacility ? "facility" : "professional" } })}
       />
+      </View>
     </View>
 
     <View style={s.group}>
       <Text style={s.groupTitle}>{lang === "ar" ? "الإعدادات" : "SETTINGS"}</Text>
-      <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
+      <View style={s.list}>
+      <View style={s.listItem}><MenuRow plain icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/></View>
       <View style={s.languageRow}>
         <View style={s.languageHeading}><View style={s.languageIcon}><Globe2 size={21} color={colors.primary}/></View><Text style={ui.menuTitle}>{t("language")}</Text></View>
         <Segmented value={lang} options={[{ value: "ar", label: t("arabic") }, { value: "en", label: t("english") }]} onChange={(v) => void setLang(v)}/>
       </View>
-      <MenuRow icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
-      {webUrl ? <MenuRow icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
+      <View style={s.listItem}><MenuRow plain icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/></View>
+      {webUrl ? <MenuRow plain icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
+      </View>
     </View>
     <View style={s.signOut}><MenuRow icon={LogOut} title={t("signOut")} tone="danger" onPress={() => void signOut()}/></View>
   </Screen>;
@@ -65,7 +70,9 @@ const s = StyleSheet.create({
   detail: { ...ui.muted, textAlign: "center" },
   group: { gap: space.md, marginTop: space.md },
   groupTitle: { ...ui.label, color: colors.textMuted, marginBottom: space.xs },
-  languageRow: { gap: space.md, padding: space.lg, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  list: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radii.lg, overflow: "hidden" },
+  listItem: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  languageRow: { gap: space.md, padding: space.lg, borderBottomWidth: 1, borderBottomColor: colors.border, backgroundColor: colors.surface },
   languageHeading: { flexDirection: "row", alignItems: "center", gap: space.lg },
   languageIcon: { width: 40, height: 40, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
   signOut: { marginTop: space.lg, marginBottom: space.xl },

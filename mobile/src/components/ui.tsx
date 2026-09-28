@@ -75,10 +75,10 @@ export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { i
   return <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [styles.iconButton, { opacity: pressed ? .65 : 1 }]}><Icon size={22} color={fg} strokeWidth={2.1} /></Pressable>;
 }
 
-export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary" }: { icon: LucideIcon; title: string; subtitle?: string; onPress?: () => void; tone?: "primary" | "accent" | "violet" | "danger" }) {
+export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary", plain = false }: { icon: LucideIcon; title: string; subtitle?: string; onPress?: () => void; tone?: "primary" | "accent" | "violet" | "danger"; plain?: boolean }) {
   const { rtl, lang } = useI18n();
   const p = tone === "danger" ? { bg: colors.dangerSoft, fg: colors.danger } : tone === "accent" ? { bg: colors.accentSoft, fg: colors.accent } : tone === "violet" ? { bg: colors.brandVioletSoft, fg: colors.brandViolet } : { bg: colors.primarySoft, fg: colors.primary };
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityHint={subtitle} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1, backgroundColor: pressed ? colors.surfaceMuted : colors.surface }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={[styles.menuTitle, lang === "en" && styles.latinTitle]}>{title}</Text>{subtitle ? <Text style={[styles.menuSubtitle, lang === "en" && styles.latinBody]} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityHint={subtitle} onPress={onPress} style={({ pressed }) => [styles.menuRow, plain && styles.menuRowPlain, { opacity: pressed ? .72 : 1, backgroundColor: pressed ? colors.surfaceMuted : colors.surface }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={[styles.menuTitle, lang === "en" && styles.latinTitle]}>{title}</Text>{subtitle ? <Text style={[styles.menuSubtitle, lang === "en" && styles.latinBody]} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
 }
 
 type FieldProps = TextInputProps & { label?: string; error?: string | null; required?: boolean; helper?: string; showCount?: boolean };
@@ -265,6 +265,7 @@ export const styles = StyleSheet.create({
   chipLabel: { ...typo.micro, fontSize: 13 },
 
   menuRow: { minHeight: 64, flexDirection: "row", alignItems: "center", gap: space.lg, paddingHorizontal: space.lg, paddingVertical: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  menuRowPlain: { borderWidth: 0, borderRadius: 0, paddingHorizontal: space.md },
   menuIcon: { width: 40, height: 40, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
   menuText: { flex: 1, minWidth: 0, gap: space.xs },
   menuTitle: { ...typo.label, fontSize: 15, color: colors.text },
