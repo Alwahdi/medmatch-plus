@@ -6,12 +6,11 @@ import {
   BriefcaseBusiness,
   CalendarClock,
   ClipboardList,
-  FilePlus2,
   ShieldCheck,
   UserRound,
   UsersRound,
 } from "lucide-react-native";
-import { Button, EmptyState, IconButton, PriorityCard, Row, Screen, ScreenHeader, SectionHeader, StatTile, styles as ui } from "@/components/ui";
+import { Button, EmptyState, IconButton, PriorityCard, Screen, ScreenHeader, SectionHeader } from "@/components/ui";
 import { JobCard, ShiftCard, StatusCard } from "@/components/cards";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -103,9 +102,6 @@ export default function HomeTab() {
   );
 
   if (isFacility) {
-    const activeJobs = (facilityJobs.data ?? []).filter((job) => job.is_active);
-    const activeShifts = (facilityShifts.data ?? []).filter((shift) => shift.status === "open");
-    const applicantCount = (facilityJobs.data ?? []).reduce((total, job) => total + (job.applications_count ?? 0), 0);
     return (
       <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
         {header}
@@ -118,21 +114,13 @@ export default function HomeTab() {
            onPress={() => router.push(!f ? "/facility/profile" : f.is_verified ? "/discover" : { pathname: "/verification", params: { target: "facility" } })}
           tone={f?.is_verified ? "primary" : "warning"}
         />
-        <SectionHeader title={t("quickActions")} />
-        <View style={{ gap: 10 }}>
-          <Button label={t("publishJob")} icon={FilePlus2} onPress={() => router.push(f?.is_verified ? "/facility/create-job" : { pathname: "/verification", params: { target: "facility" } })} />
-          <View style={{ flexDirection: "row", alignItems: "stretch", gap: 10 }}>
-            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} onPress={() => router.push(f?.is_verified ? "/facility/create-shift" : { pathname: "/verification", params: { target: "facility" } })} /></View>
-            <View style={{ flex: 1 }}><Button label={t("applicants")} variant="secondary" icon={UsersRound} onPress={() => router.push("/activity")} /></View>
+        {f?.is_verified ? <>
+          <SectionHeader title={t("quickActions")} />
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <View style={{ flex: 1 }}><Button label={t("publishJob")} onPress={() => router.push("/facility/create-job")} /></View>
+            <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" onPress={() => router.push("/facility/create-shift")} /></View>
           </View>
-        </View>
-
-        <SectionHeader title={t("activeListings")} action={<Button label={t("viewAll")} variant="ghost" small onPress={() => router.push("/discover")} />} />
-        <Row gap={10}>
-          <StatTile icon={BriefcaseBusiness} value={activeJobs.length} label={t("jobs")} onPress={() => router.push("/discover")} />
-          <StatTile icon={CalendarClock} value={activeShifts.length} label={t("shifts")} tone="accent" onPress={() => router.push("/discover")} />
-          <StatTile icon={UsersRound} value={applicantCount} label={t("applicants")} tone="success" onPress={() => router.push("/activity")} />
-        </Row>
+        </> : null}
       </Screen>
     );
   }
@@ -141,7 +129,6 @@ export default function HomeTab() {
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
       {header}
-      <SectionHeader title={t("priorityNow")} />
       {profileIncomplete ? (
         <PriorityCard
           icon={UserRound}
@@ -170,7 +157,7 @@ export default function HomeTab() {
           tone="accent"
         />
       )}
-      <SectionHeader title={t("matchedForYou")} action={<Button label={t("viewAll")} variant="ghost" small onPress={() => router.push("/discover")} />} />
+      <SectionHeader title={t("matchedForYou")} />
       {((jobs.data ?? []) as JobRow[]).slice(0, 2).map((job) => (
         <JobCard key={job.id} job={job} lang={lang} onPress={() => router.push({ pathname: "/job/[id]", params: { id: job.id } })} />
       ))}
@@ -178,7 +165,7 @@ export default function HomeTab() {
         <ShiftCard key={shift.id} shift={shift} lang={lang} urgentLabel={t("urgent")} perHour={t("perHour")} onPress={() => router.push({ pathname: "/shift/[id]", params: { id: shift.id } })} />
       ))}
       {(jobs.data ?? []).length === 0 && (shifts.data ?? []).length === 0 ? (
-        <EmptyState icon={BriefcaseBusiness} text={t("emptyJobs")} desc={t("emptyJobsDesc")} action={<Button label={t("browseJobs")} small onPress={() => router.push("/discover")} />} />
+        <EmptyState icon={BriefcaseBusiness} text={t("emptyJobs")} desc={t("emptyJobsDesc")}  />
       ) : null}
     </Screen>
   );
