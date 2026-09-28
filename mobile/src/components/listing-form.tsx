@@ -23,7 +23,7 @@ export function ListingReview({ title, rows, privacyNote, busy, onBack, onConfir
   const { t } = useI18n();
   return <>
     <ScreenHeader title={t("reviewPublish")} sub={title} />
-    <Card>{rows.map((row) => <KeyValue key={row.label} k={row.label} v={row.value || "—"} />)}</Card>
+    <View style={{ gap: 8 }}>{rows.map((row) => <KeyValue key={row.label} k={row.label} v={row.value || "—"} />)}</View>
     <View style={{ borderRadius: 12, backgroundColor: colors.primarySoft, padding: 14, gap: 6 }}>
       <Badge label={t("privacy")} tone="primary" />
       <Text style={ui.muted}>{privacyNote}</Text>

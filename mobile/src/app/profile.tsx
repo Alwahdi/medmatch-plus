@@ -3,14 +3,14 @@ import React, { useEffect, useState } from "react";
 import { Switch, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Badge, Button, Card, ErrorState, Field, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
+import { Badge, Button, ErrorState, Field, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useProfessionalProfile, useSpecialties } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { userMessage } from "@/lib/errors";
 import { ChoiceField } from "@/components/listing-form";
-import { colors } from "@/lib/theme";
+import { colors, space } from "@/lib/theme";
 
 export default function ProfileScreen() {
   const { t, lang } = useI18n();
@@ -116,7 +116,7 @@ export default function ProfileScreen() {
         ) : profile.isError ? (
           <ErrorState message={userMessage(profile.error, lang)} onRetry={() => void profile.refetch()} />
         ) : (
-          <Card style={{ gap: 12 }}>
+           <View style={{ gap: space.xl }}>
             <Row gap={8} wrap>
               {(profile.data as { is_verified?: boolean } | null)?.is_verified ? (
                 <Badge label={t("verified")} tone="success" />
@@ -132,7 +132,7 @@ export default function ProfileScreen() {
              <CountryChoice label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChange={setLicenseCountry} />
             <Field label={lang === "ar" ? "الأجر المفضل" : "Preferred rate"} value={preferredRate} onChangeText={setPreferredRate} keyboardType="numeric" />
             <Field label={lang === "ar" ? "نبذة" : "Bio"} value={bio} onChangeText={setBio} multiline />
-            <View style={{ gap: 10 }}>
+             <View style={{ gap: space.lg, paddingVertical: space.md, borderTopWidth: 1, borderTopColor: colors.border }}>
               <View style={{ minHeight: 52, flexDirection: "row", alignItems: "center", gap: 12 }}><View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "متاح للمناوبات" : "Available for shifts"}</Text><Text style={ui.muted}>{lang === "ar" ? "اظهر توفرّك للمناوبات المطابقة" : "Show availability for matching shifts"}</Text></View><Switch value={openToShifts} onValueChange={setOpenToShifts} trackColor={{ true: colors.primary }} /></View>
               <View style={{ minHeight: 52, flexDirection: "row", alignItems: "center", gap: 12 }}><View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "الظهور في بحث المنشآت" : "Visible in facility search"}</Text><Text style={ui.muted}>{lang === "ar" ? "تظهر بيانات مهنية محدودة وفق الخصوصية" : "Only limited professional details appear"}</Text></View><Switch value={searchable} onValueChange={setSearchable} trackColor={{ true: colors.primary }} /></View>
             </View>
@@ -142,7 +142,7 @@ export default function ProfileScreen() {
               <Button label={(roles ?? []).length === 0 ? (lang === "ar" ? "حفظ وتفعيل ملفي" : "Save and activate profile") : t("save")} onPress={save} loading={busy} disabled={!fullName.trim()} />
             </View>
             {profile.data ? <Button label={t("verificationDocuments")} variant="secondary" onPress={() => router.push({ pathname: "/verification", params: { target: "professional" } })} /> : null}
-          </Card>
+           </View>
         )}
       </Screen>
     </>
