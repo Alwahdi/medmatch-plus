@@ -1,4 +1,4 @@
-import { CityChoice } from "@/components/location-choice";
+import { CityChoice, CountryChoice } from "@/components/location-choice";
 import React, { useEffect, useState } from "react";
 import { Text } from "react-native";
 import { Stack, useRouter } from "expo-router";
@@ -26,7 +26,7 @@ export default function FacilityProfileScreen() {
      <Field label={t("facilityNameAr")} value={nameAr} onChangeText={setNameAr} required maxLength={120} />
      <Field label={t("facilityNameEn")} value={nameEn} onChangeText={setNameEn} autoCapitalize="words" maxLength={120} />
     <ChoiceField label={t("facilityType")} value={type} onChange={setType} options={[{ value: "hospital", label: lang === "ar" ? "مستشفى" : "Hospital" }, { value: "clinic", label: lang === "ar" ? "عيادة" : "Clinic" }, { value: "polyclinic", label: lang === "ar" ? "مجمع طبي" : "Medical complex" }, { value: "pharmacy", label: lang === "ar" ? "صيدلية" : "Pharmacy" }, { value: "lab", label: lang === "ar" ? "مختبر / أشعة" : "Lab / imaging" }, ...(type && !["hospital", "clinic", "polyclinic", "pharmacy", "lab"].includes(type) ? [{ value: type, label: type }] : [])]} />
-    <Field label={t("country")} value={country} onChangeText={setCountry} />
+    <CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} />
      <CityChoice label={t("city")} country={country} value={city} onChange={setCity} />
     <Field label={t("website")} value={website} onChangeText={setWebsite} keyboardType="url" autoCapitalize="none" />
      <Field label={t("description")} value={description} onChangeText={setDescription} multiline maxLength={1000} />

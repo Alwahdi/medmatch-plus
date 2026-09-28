@@ -1,4 +1,4 @@
-import { CityChoice } from "@/components/location-choice";
+import { CityChoice, CountryChoice } from "@/components/location-choice";
 import React, { useEffect, useState } from "react";
 import { Switch, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -127,7 +127,7 @@ export default function ProfileScreen() {
              <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
              <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" required maxLength={2} />
              <CityChoice label={t("city")} country={country} value={city} onChange={setCity} />
-            <Field label={t("country")} value={country} onChangeText={setCountry} />
+            <CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} />
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
             <Field label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChangeText={setLicenseCountry} />
             <Field label={lang === "ar" ? "الأجر المفضل" : "Preferred rate"} value={preferredRate} onChangeText={setPreferredRate} keyboardType="numeric" />

@@ -26,3 +26,15 @@ export function CityChoice({ country, value, onChange, label }: {
     {!locations.isError && !locations.isPending && options.length === 0 ? <Text style={ui.muted}>{lang === "ar" ? "لا توجد مدن متاحة لهذه الدولة حالياً." : "No cities available for this country yet."}</Text> : null}
   </>;
 }
+
+/** Country values are kept exactly as provided by the administrator's location list. */
+export function CountryChoice({ value, onChange, label }: {
+  value: string; onChange: (country: string) => void; label: string;
+}) {
+  const { lang } = useI18n();
+  const locations = useLocations();
+  const unique = [...new Set((locations.data ?? []).map((row) => row.country))];
+  if (value && !unique.includes(value)) unique.unshift(value);
+  if (!unique.length) unique.push("YE");
+  return <ChoiceField label={label} value={value} onChange={onChange} options={unique.map((country) => ({ value: country, label: country === "YE" ? (lang === "ar" ? "اليمن" : "Yemen") : country }))} />;
+}
