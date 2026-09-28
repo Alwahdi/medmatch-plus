@@ -1,5 +1,9 @@
 # Mobile experience quality pass
 
+- [x] Audit onboarding, professional discovery/home, detail actions, facility shift state, and activity status language; fix confirmed mobile navigation and recovery issues
+- [x] Keep candidate search visibility behind the authorized visibility action rather than writing the protected profile field directly
+- [ ] Verify application, booking, publishing, messaging, and interview journeys on physical Arabic/English devices with isolated professional and facility accounts (device access and QA accounts required)
+
 - [x] Replace free-text countries and cities with administrator-managed searchable choices in mobile profiles and publishing; preserve historic values
 - [x] Replace free-text facility type with existing categories and retain historic types
 - [x] Consolidate applicant decisions into one action and remove repeated home actions/statistics
