@@ -16,6 +16,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import {
   useFacilityJobs,
+  useFacilityShifts,
   useJobSearch,
   useMyApplications,
   useMyBookings,
