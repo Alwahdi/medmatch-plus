@@ -10,7 +10,7 @@ import {
   UserRound,
   UsersRound,
 } from "lucide-react-native";
-import { Button, EmptyState, IconButton, PriorityCard, Screen, ScreenHeader, SectionHeader } from "@/components/ui";
+import { Button, EmptyState, ErrorState, IconButton, Loading, PriorityCard, Screen, ScreenHeader, SectionHeader } from "@/components/ui";
 import { JobCard, ShiftCard, StatusCard } from "@/components/cards";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -30,6 +30,7 @@ import {
 } from "@/lib/queries";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { colors, fonts, radii } from "@/lib/theme";
+import { userMessage } from "@/lib/errors";
 
 function NotificationButton({ count, onPress, label }: { count: number; onPress: () => void; label: string }) {
   return (
@@ -105,7 +106,7 @@ export default function HomeTab() {
     return (
       <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
         {header}
-         {facility.isPending ? <EmptyState text={t("loading")} /> : facility.isError ? <EmptyState text={lang === "ar" ? "تعذّر تحميل بيانات المنشأة. اسحب للتحديث." : "Could not load facility details. Pull to refresh."} /> : <PriorityCard
+         {facility.isPending ? <Loading rows={1} /> : facility.isError ? <ErrorState message={userMessage(facility.error, lang)} onRetry={() => void facility.refetch()} /> : <PriorityCard
           icon={f?.is_verified ? UsersRound : ShieldCheck}
           eyebrow={t("priorityNow")}
            title={!f ? t("nextFac1") : f.is_verified ? t("facilityPriority") : t("nextFac2")}
@@ -129,7 +130,7 @@ export default function HomeTab() {
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
       {header}
-       {professional.isPending ? <EmptyState text={t("loading")} /> : professional.isError ? <EmptyState text={lang === "ar" ? "تعذّر تحميل ملفك. اسحب للتحديث." : "Could not load your profile. Pull to refresh."} /> : profileIncomplete ? (
+       {professional.isPending ? <Loading rows={1} /> : professional.isError ? <ErrorState message={userMessage(professional.error, lang)} onRetry={() => void professional.refetch()} /> : profileIncomplete ? (
         <PriorityCard
           icon={UserRound}
           eyebrow={t("completeYourProfile")}
