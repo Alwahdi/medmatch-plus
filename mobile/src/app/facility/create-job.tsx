@@ -1,3 +1,4 @@
+import { CityChoice } from "@/components/location-choice";
 import React, { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -72,7 +73,7 @@ export default function CreateJobScreen() {
        <ListingField label={t("jobTitle")} value={form.title} onChangeText={(v) => update("title", v)} required maxLength={120} />
       <ChoiceField label={t("employmentType")} value={form.employmentType} onChange={(v) => update("employmentType", v)} options={[{ value: "full_time", label: t("fullTime") }, { value: "part_time", label: t("partTime") }, { value: "contract", label: t("contract") }, { value: "locum", label: t("locum") }]} />
        <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
-       <ListingField label={t("city")} value={form.city} onChangeText={(v) => update("city", v)} required maxLength={60} />
+       <CityChoice label={t("city")} country={form.country} value={form.city} onChange={(v) => update("city", v)} />
       <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("salaryFrom")} value={form.salaryMin} onChangeText={(v) => update("salaryMin", v)} numeric /></View><View style={{ flex: 1 }}><ListingField label={t("salaryTo")} value={form.salaryMax} onChangeText={(v) => update("salaryMax", v)} numeric /></View></View>
       <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("minExperience")} value={form.minExperience} onChangeText={(v) => update("minExperience", v)} numeric /></View><View style={{ flex: 1 }}><ListingField label={t("vacancies")} value={form.vacancies} onChangeText={(v) => update("vacancies", v)} numeric /></View></View>
        <ListingField label={t("description")} value={form.description} onChangeText={(v) => update("description", v)} multiline required maxLength={5000} />

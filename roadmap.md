@@ -1,5 +1,9 @@
 # Mobile experience quality pass
 
+- [x] Replace free-text countries and cities with administrator-managed searchable choices in mobile profiles and publishing; preserve historic values
+- [x] Replace free-text facility type with existing categories and retain historic types
+- [x] Consolidate applicant decisions into one action and remove repeated home actions/statistics
+
 - [x] Publish every pushed commit to a unique Expo branch for independent Expo Go testing
 
 - [x] Repair critical journey entry points: facility shift detail, interview date selection, message failure and verification states

@@ -6,13 +6,13 @@ import { colors } from "@/lib/theme";
 import { Sheet } from "@/components/sheet";
 
 export function ChoiceField<T extends string>({ label, value, options, onChange }: {
-  label: string; value: T; options: { value: T; label: string }[]; onChange: (value: T) => void;
+  label: string; value: T; options: { value: T; label: string; keywords?: string }[]; onChange: (value: T) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const { lang } = useI18n();
   const selected = options.find((option) => option.value === value);
-  if (options.length > 12) return <View style={{ gap: 8 }}><Text style={ui.label}>{label}</Text><Button label={selected?.label ?? (lang === "ar" ? "اختر من القائمة" : "Choose from list")} variant="secondary" onPress={() => setOpen(true)} /><Sheet visible={open} title={label} onClose={() => setOpen(false)}><Field label={lang === "ar" ? "ابحث في الخيارات" : "Search options"} value={search} onChangeText={setSearch} /><Row gap={8} wrap>{options.filter((option) => option.label.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).map((option) => <Chip key={option.value} label={option.label} active={option.value === value} onPress={() => { onChange(option.value); setOpen(false); setSearch(""); }} />)}</Row></Sheet></View>;
+  if (options.length > 6) return <View style={{ gap: 8 }}><Text style={ui.label}>{label}</Text><Button label={selected?.label ?? (lang === "ar" ? "اختر من القائمة" : "Choose from list")} variant="secondary" onPress={() => setOpen(true)} /><Sheet visible={open} title={label} onClose={() => setOpen(false)}><Field label={lang === "ar" ? "ابحث في الخيارات" : "Search options"} value={search} onChangeText={setSearch} /><Row gap={8} wrap>{options.filter((option) => `${option.label} ${option.keywords ?? ""}`.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).map((option) => <Chip key={option.value} label={option.label} active={option.value === value} onPress={() => { onChange(option.value); setOpen(false); setSearch(""); }} />)}</Row></Sheet></View>;
   return <View style={{ gap: 8 }}><Text style={ui.label}>{label}</Text><Row gap={8} wrap>{options.map((option) => <Chip key={option.value} label={option.label} active={option.value === value} onPress={() => onChange(option.value)} />)}</Row></View>;
 }
 

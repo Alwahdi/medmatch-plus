@@ -9,6 +9,7 @@ import { userMessage } from "@/lib/errors";
 import { ShieldCheck, UserRound } from "lucide-react-native";
 import { colors } from "@/lib/theme";
 import { DateTimeField } from "@/components/date-time-field";
+import { Sheet } from "@/components/sheet";
 
 const STAGES = ["reviewing", "shortlisted", "interview", "rejected"] as const;
 
@@ -30,6 +31,7 @@ export default function FacilityJobApplicants() {
   const invite = useInviteSuggestedCandidate(String(id));
   const schedule = useScheduleInterview(String(id));
   const hire = useHireApplicant(String(id));
+  const [decisionId, setDecisionId] = useState<string | null>(null);
   const [changingId, setChangingId] = useState<string | null>(null);
   const [interviewingId, setInterviewingId] = useState<string | null>(null);
   const [scheduledAt, setScheduledAt] = useState("");
@@ -112,25 +114,19 @@ export default function FacilityJobApplicants() {
               </Text>
               {a.cover_letter ? <Text style={ui.body} numberOfLines={4}>{a.cover_letter}</Text> : null}
 
-              <View style={{ gap: 8 }}>
-                <Text style={ui.label}>{t("applicantDecision")}</Text>
-                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                  {STAGES.map((s) => (
-                    <View key={s} style={{ flexBasis: "47%", flexGrow: 1 }}>
-                      <Button
-                        label={applicationStatusLabel(s, lang)}
-                        variant={a.status === s ? "primary" : "secondary"}
-                        small
-                        loading={setStage.isPending && changingId === a.id}
-                        disabled={a.status === s || (setStage.isPending && changingId !== a.id)}
-                        onPress={() => changeStage(a.id, s)}
-                      />
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-               <Row gap={8}><View style={{ flex: 1 }}><Button label={t("scheduleInterview")} variant="secondary" small onPress={() => { setInterviewingId(a.id); setActionError(null); }} /></View><View style={{ flex: 1 }}><Button label={t("hire")} small loading={hire.isPending} disabled={a.status === "hired" || a.status === "rejected" || a.status === "withdrawn"} onPress={() => Alert.alert(t("hireConfirm"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("hire"), onPress: () => hire.mutate(a.id, { onError: (cause) => setActionError(userMessage(cause, lang)) }) }])} /></View></Row>
+              {a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn" ? <Button label={t("applicantDecision")} variant="secondary" small onPress={() => { setDecisionId(a.id); setActionError(null); }} /> : null}
+              <Sheet visible={decisionId === a.id} title={professional?.full_name ?? t("applicantDecision")} onClose={() => setDecisionId(null)}>
+                <Text style={ui.muted}>{applicationStatusLabel(a.status, lang)}</Text>
+                {STAGES.filter((stage) => stage !== a.status).map((stage) => (
+                  <Button key={stage} label={applicationStatusLabel(stage, lang)} variant={stage === "rejected" ? "danger" : "secondary"} small
+                    loading={setStage.isPending && changingId === a.id} disabled={setStage.isPending || hire.isPending}
+                    onPress={() => { setDecisionId(null); changeStage(a.id, stage); }} />
+                ))}
+                {a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn" ? <>
+                  <Button label={t("scheduleInterview")} variant="secondary" small onPress={() => { setDecisionId(null); setInterviewingId(a.id); setActionError(null); }} />
+                  <Button label={t("hire")} small loading={hire.isPending} onPress={() => Alert.alert(t("hireConfirm"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("hire"), onPress: () => { setDecisionId(null); hire.mutate(a.id, { onError: (cause) => setActionError(userMessage(cause, lang)) }); } }])} />
+                </> : null}
+              </Sheet>
                {interviewingId === a.id ? <View style={{ gap: 8, paddingTop: 8 }}><DateTimeField label={t("interviewTime")} value={scheduledAt} onChange={setScheduledAt} minimumDate={new Date()} required /><Field label={t("meetingLink")} value={meetingUrl} onChangeText={setMeetingUrl} keyboardType="url" autoCapitalize="none" /><Row gap={8}><View style={{ flex: 1 }}><Button label={t("submit")} small loading={schedule.isPending} onPress={() => submitInterview(a.id)} /></View><View style={{ flex: 1 }}><Button label={t("cancel")} variant="ghost" small onPress={() => setInterviewingId(null)} /></View></Row></View> : null}
             </Card>
           );})

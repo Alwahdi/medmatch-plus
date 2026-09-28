@@ -1,3 +1,4 @@
+import { CityChoice, CountryChoice } from "@/components/location-choice";
 import React, { useEffect, useState } from "react";
 import { Text } from "react-native";
 import { Stack, useRouter } from "expo-router";
@@ -9,6 +10,7 @@ import { useMyFacility, useVerificationDocuments } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
 import { userMessage } from "@/lib/errors";
 import { useAuth } from "@/lib/auth";
+import { ChoiceField } from "@/components/listing-form";
 
 export default function FacilityProfileScreen() {
   const { t, lang } = useI18n(); const queryClient = useQueryClient(); const facility = useMyFacility(); const { user, refreshRoles, roles } = useAuth();
@@ -23,9 +25,9 @@ export default function FacilityProfileScreen() {
      <Badge label={facility.data?.is_verified ? t("verified") : documents.isPending ? t("loading") : documents.isError ? t("errorTitle") : documents.data?.some((d) => d.status === "rejected") ? t("documentRejected") : documents.data?.some((d) => d.status === "pending") ? t("documentPending") : lang === "ar" ? "لم يبدأ التوثيق" : "Verification not started"} tone={facility.data?.is_verified ? "success" : documents.data?.some((d) => d.status === "rejected") ? "danger" : documents.data?.some((d) => d.status === "pending") ? "warning" : "neutral"} />
      <Field label={t("facilityNameAr")} value={nameAr} onChangeText={setNameAr} required maxLength={120} />
      <Field label={t("facilityNameEn")} value={nameEn} onChangeText={setNameEn} autoCapitalize="words" maxLength={120} />
-    <Field label={t("facilityType")} value={type} onChangeText={setType} />
-    <Field label={t("country")} value={country} onChangeText={setCountry} />
-     <Field label={t("city")} value={city} onChangeText={setCity} required maxLength={60} />
+    <ChoiceField label={t("facilityType")} value={type} onChange={setType} options={[{ value: "hospital", label: lang === "ar" ? "مستشفى" : "Hospital" }, { value: "clinic", label: lang === "ar" ? "عيادة" : "Clinic" }, { value: "polyclinic", label: lang === "ar" ? "مجمع طبي" : "Medical complex" }, { value: "pharmacy", label: lang === "ar" ? "صيدلية" : "Pharmacy" }, { value: "lab", label: lang === "ar" ? "مختبر / أشعة" : "Lab / imaging" }, ...(type && !["hospital", "clinic", "polyclinic", "pharmacy", "lab"].includes(type) ? [{ value: type, label: type }] : [])]} />
+    <CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} />
+     <CityChoice label={t("city")} country={country} value={city} onChange={setCity} />
     <Field label={t("website")} value={website} onChangeText={setWebsite} keyboardType="url" autoCapitalize="none" />
      <Field label={t("description")} value={description} onChangeText={setDescription} multiline maxLength={1000} />
     {error ? <ErrorState message={error} /> : null}{saved ? <Text style={ui.muted}>{t("savedSuccess")}</Text> : null}
