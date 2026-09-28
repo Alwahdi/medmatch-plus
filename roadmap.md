@@ -1,6 +1,7 @@
 # Mobile experience quality pass
 
 - [x] Establish logo-derived teal/violet visual direction and Cairo typography for the mobile shell and sign-in
+- [x] Improve shared listing cards, publishing-field feedback, applicant decisions, interview form, message composer, and verification-gated facility actions
 - [ ] Complete an award-caliber visual/interaction pass across every mobile workspace and form (requires screen-by-screen native device review)
 
 - [x] Audit onboarding, professional discovery/home, detail actions, facility shift state, and activity status language; fix confirmed mobile navigation and recovery issues
@@ -22,6 +23,6 @@
 
 - [ ] Eliminate confirmed mobile creation failures: trusted search-visibility update, booking-status alignment, role activation, validation parity, and actionable error mapping
 - [ ] Complete end-to-end professional and facility journey QA with isolated accounts, including create/profile/publish/apply/book/interview/message/review states
-- [ ] Run a focused mobile design-system and information-architecture pass only after critical flows are reliable
+- [ ] Complete native screen-by-screen design-system and information-architecture review after critical flows are reliable (requires real device captures)
 
 - [x] Fix publisher-consent persistence and human-readable shift review dates

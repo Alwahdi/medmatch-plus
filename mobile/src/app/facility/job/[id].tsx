@@ -24,7 +24,7 @@ export default function FacilityJobApplicants() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t, lang } = useI18n();
-  const job = useJob(String(id));
+   const job = useJob(String(id));
   const applicants = useJobApplicants(String(id));
   const setStage = useSetApplicationStage(String(id));
   const suggested = useSuggestedCandidates(String(id));
@@ -78,7 +78,8 @@ export default function FacilityJobApplicants() {
           <RefreshControl refreshing={applicants.isFetching} onRefresh={() => void applicants.refetch()} />
         }
       >
-        <Title sub={t("applicants")}>{job.data?.title ?? "—"}</Title>
+         <Title sub={t("applicants")}>{job.data?.title ?? "—"}</Title>
+         {job.isError ? <ErrorState message={userMessage(job.error, lang)} onRetry={() => void job.refetch()} /> : null}
 
         {applicants.isPending ? (
           <Loading />
