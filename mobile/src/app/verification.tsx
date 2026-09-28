@@ -48,7 +48,9 @@ export default function VerificationScreen() {
     if (selected.requires_issue_date && !issueDate) return setError(t("requiredField"));
     if (selected.requires_issuer && !issuer.trim()) return setError(t("requiredField"));
     const isDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T12:00:00`)) && new Date(`${value}T12:00:00`).toISOString().slice(0, 10) === value;
-    if ((issueDate && (!isDate(issueDate) || issueDate > new Date().toISOString().slice(0, 10))) || (expiryDate && (!isDate(expiryDate) || (issueDate && expiryDate <= issueDate)))) return setError(lang === "ar" ? "راجع تواريخ المستند؛ يجب أن يكون الانتهاء بعد الإصدار." : "Check the document dates; expiry must follow issue date.");
+     const now = new Date();
+     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+     if ((issueDate && (!isDate(issueDate) || issueDate > today)) || (expiryDate && (!isDate(expiryDate) || (issueDate && expiryDate <= issueDate)))) return setError(lang === "ar" ? "راجع تواريخ المستند؛ يجب أن يكون الانتهاء بعد الإصدار." : "Check the document dates; expiry must follow issue date.");
     if (target === "facility" && !facility.data?.id) return setError(t("completeProfile"));
     setBusy(true); setError(null);
     try {

@@ -120,7 +120,7 @@ export default function ShiftDetail() {
         {consent.node}
       </Screen>
 
-        {data && data.status === "open" && new Date(data.starts_at).getTime() > Date.now() && !booked && !existingBooking ? (
+        {data && (!session || isProfessional) && data.status === "open" && new Date(data.starts_at).getTime() > Date.now() && !booked && !existingBooking ? (
         <StickyBar>
           {session ? (
              <Button label={(professional.data as { is_verified?: boolean } | null)?.is_verified ? t("book") : t("verificationDocuments")} onPress={book} loading={busy} disabled={bookings.isPending || professional.isPending} />

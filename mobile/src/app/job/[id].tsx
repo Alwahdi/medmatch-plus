@@ -125,7 +125,7 @@ export default function JobDetail() {
         {consent.node}
       </Screen>
 
-       {data && !applied && !existingApplication ? (
+       {data && (!session || isProfessional) && !applied && !existingApplication ? (
         <StickyBar>
           {session ? (
              <Button label={(professional.data as { is_verified?: boolean } | null)?.is_verified ? t("apply") : t("verificationDocuments")} onPress={apply} loading={busy} disabled={applications.isPending || professional.isPending} />
