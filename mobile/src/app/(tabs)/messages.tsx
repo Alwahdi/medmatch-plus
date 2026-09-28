@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { useConversations, useUnreadMessages } from "@/lib/queries";
 import { relativeTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
-import { colors, fonts, radii } from "@/lib/theme";
+import { colors, fonts, radii, space } from "@/lib/theme";
 
 export default function MessagesTab() {
   const { t, lang } = useI18n();
@@ -51,8 +51,8 @@ export default function MessagesTab() {
               accessibilityLabel={count ? `${title} — ${count} ${lang === "ar" ? "غير مقروءة" : "unread"}` : title}
               onPress={() => router.push({ pathname: "/conversation/[id]", params: { id: c.id } })}
             >
-              <Card style={count ? { borderColor: colors.primary, padding: 14 } : { padding: 14 }}>
-                <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
+               <Card style={count ? { borderColor: colors.primary } : undefined}>
+                 <View style={{ flexDirection: "row", gap: space.lg, alignItems: "center" }}>
                   <View style={{ width: 48, height: 48, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
                     <MessageCircle size={23} color={colors.primary} />
                   </View>

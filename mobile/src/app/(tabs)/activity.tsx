@@ -32,7 +32,7 @@ import { useAuth } from "@/lib/auth";
 import { applicationStatusLabel, bookingStatusLabel, formatDate, formatDateTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { ReviewDialog } from "@/components/review-dialog";
-import { colors } from "@/lib/theme";
+import { colors, space } from "@/lib/theme";
 
 type Tab = "applications" | "bookings" | "invitations" | "interviews" | "reviews";
 type TimeRange = "upcoming" | "past";
@@ -93,7 +93,7 @@ export default function ActivityTab() {
         sub={lang === "ar" ? "طلباتك ومناوباتك ودعواتك في مكان واحد" : "Applications, shifts and invitations in one place"}
       />
 
-       <Row gap={8} wrap>
+       <Row gap={space.sm} wrap>
         <Chip label={t("myApplications")} active={tab === "applications"} onPress={() => setTab("applications")} />
         <Chip label={t("myBookings")} active={tab === "bookings"} onPress={() => setTab("bookings")} />
         <Chip label={pendingInvites ? `${t("myInvitations")} (${pendingInvites})` : t("myInvitations")} active={tab === "invitations"} onPress={() => setTab("invitations")} />
@@ -101,7 +101,8 @@ export default function ActivityTab() {
         <Chip label={reviewCount ? `${t("pendingReviews")} (${reviewCount})` : t("pendingReviews")} active={tab === "reviews"} onPress={() => setTab("reviews")} />
       </Row>
 
-      {tab === "applications" ? (
+       <View style={{ height: space.sm }} />
+       {tab === "applications" ? (
         applications.isPending ? (
           <Loading />
         ) : applications.isError ? (
