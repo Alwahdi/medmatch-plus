@@ -5,7 +5,7 @@ import { FormScreen } from "@/components/keyboard";
 import { Brand } from "@/components/brand";
 import { styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { colors, fonts, radii } from "@/lib/theme";
+import { colors, fonts, radii, space, type as typo } from "@/lib/theme";
 
 /**
  * الهيكل الموحد لشاشات المصادقة: شعار مدمج، شريط خطوات مترابط مع تسميته،
@@ -29,9 +29,8 @@ export function AuthScaffold({
   const { t, rtl } = useI18n();
 
   return (
-    <FormScreen contentStyle={{ gap: 18, paddingTop: 18 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 44 }}>
-        <Brand compact />
+    <FormScreen contentStyle={{ gap: space.xl, paddingTop: space.lg, paddingHorizontal: space.xl, paddingBottom: 40 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", minHeight: 44 }}>
         {onBack ? (
           <Pressable
             accessibilityRole="button"
@@ -57,6 +56,11 @@ export function AuthScaffold({
         ) : null}
       </View>
 
+      <View style={{ alignItems: "center", gap: 12, paddingTop: onBack ? 4 : 20, paddingBottom: 8 }}>
+        <Brand />
+        <View style={{ width: 56, height: 3, borderRadius: 2, backgroundColor: colors.accent }} />
+      </View>
+
       {step != null && totalSteps != null ? (
         <View style={{ gap: 7 }}>
           <View style={{ flexDirection: "row", gap: 6 }}>
@@ -78,9 +82,9 @@ export function AuthScaffold({
         </View>
       ) : null}
 
-      <View style={{ gap: 5 }}>
-        <Text style={ui.title}>{title}</Text>
-        {sub ? <Text style={ui.muted}>{sub}</Text> : null}
+       <View style={{ gap: 5, paddingTop: 4 }}>
+         <Text accessibilityRole="header" style={[ui.title, { ...typo.display }]}>{title}</Text>
+         {sub ? <Text style={ui.muted}>{sub}</Text> : null}
       </View>
 
       {children}

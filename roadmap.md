@@ -1,5 +1,8 @@
 # Mobile experience quality pass
 
+- [x] Establish logo-derived teal/violet visual direction and Cairo typography for the mobile shell and sign-in
+- [ ] Complete an award-caliber visual/interaction pass across every mobile workspace and form (requires screen-by-screen native device review)
+
 - [x] Audit onboarding, professional discovery/home, detail actions, facility shift state, and activity status language; fix confirmed mobile navigation and recovery issues
 - [x] Keep candidate search visibility behind the authorized visibility action rather than writing the protected profile field directly
 - [ ] Verify application, booking, publishing, messaging, and interview journeys on physical Arabic/English devices with isolated professional and facility accounts (device access and QA accounts required)

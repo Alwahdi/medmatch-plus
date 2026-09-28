@@ -84,17 +84,11 @@ export default function SignIn() {
   return (
     <AuthScaffold
       title={step === "email" ? t("emailStepTitle") : step === "password" ? t("passwordStepTitle") : t("resetSentTitle")}
-      sub={step === "email" ? (lang === "ar" ? "مرحباً بعودتك." : "Welcome back.") : undefined}
+      sub={step === "email" ? (lang === "ar" ? "مرحباً بعودتك. تابع إلى مساحتك المهنية." : "Welcome back to your workspace.") : undefined}
       onBack={step === "password" ? backToEmail : undefined}
     >
       {step === "email" ? (
-        <View style={{ gap: 14 }}>
-          <GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
-            <Text style={ui.muted}>{t("orDivider")}</Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
-          </View>
+        <View style={{ gap: 16 }}>
           <Field
             label={t("email")}
             value={email}
@@ -113,6 +107,12 @@ export default function SignIn() {
           {error ? <ErrorState message={error} /> : null}
           {notice ? <Text style={ui.muted}>{notice}</Text> : null}
           <Button label={t("continueLabel")} icon={Mail} onPress={goToPassword} disabled={!email.trim() || googleBusy} />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 8 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+            <Text style={ui.muted}>{t("orDivider")}</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+          </View>
+          <GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} />
         </View>
       ) : null}
 
