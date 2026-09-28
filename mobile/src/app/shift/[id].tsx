@@ -29,7 +29,7 @@ export default function ShiftDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useI18n();
   const router = useRouter();
-  const { session, isProfessional } = useAuth();
+   const { session, isProfessional, isFacility } = useAuth();
   const shift = useShift(String(id));
   const bookings = useMyBookings();
   const professional = useProfessionalProfile();
@@ -120,10 +120,10 @@ export default function ShiftDetail() {
         {consent.node}
       </Screen>
 
-        {data && (!session || isProfessional) && data.status === "open" && new Date(data.starts_at).getTime() > Date.now() && !booked && !existingBooking ? (
+        {data && !isFacility && data.status === "open" && new Date(data.starts_at).getTime() > Date.now() && !booked && !existingBooking ? (
         <StickyBar>
           {session ? (
-             <Button label={(professional.data as { is_verified?: boolean } | null)?.is_verified ? t("book") : t("verificationDocuments")} onPress={book} loading={busy} disabled={bookings.isPending || professional.isPending} />
+              <Button label={!isProfessional ? t("completeNow") : (professional.data as { is_verified?: boolean } | null)?.is_verified ? t("book") : t("verificationDocuments")} onPress={book} loading={busy} disabled={bookings.isPending || professional.isPending} />
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>
