@@ -7,7 +7,7 @@ import { Badge, MenuRow, Row, Screen, ScreenHeader, Segmented, styles as ui } fr
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useMyFacility, useProfessionalProfile } from "@/lib/queries";
-import { colors, fonts, radii, shadow, space } from "@/lib/theme";
+import { colors, fonts, radii, space } from "@/lib/theme";
 
 export default function AccountTab() {
   const { t, lang, setLang } = useI18n();
@@ -19,15 +19,19 @@ export default function AccountTab() {
   const p = professional.data as { full_name?: string; headline?: string | null; city?: string | null; is_verified?: boolean } | null;
   const f = facility.data as { name_ar?: string; name_en?: string | null; city?: string | null; is_verified?: boolean } | null;
   const displayName = (lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "—";
-  const detail = f?.city ?? p?.headline ?? p?.city ?? user?.email ?? "";
+  const detail = f?.city ?? p?.headline ?? p?.city ?? (displayName !== user?.email ? user?.email : "");
   const verified = isFacility ? Boolean(f?.is_verified) : isProfessional ? Boolean(p?.is_verified) : false;
 
   return <Screen>
     <ScreenHeader title={t("account")} sub={lang === "ar" ? "ملفك وإعداداتك" : "Your profile and settings"}/>
-    <View style={[s.identity, shadow]}>
-      <View style={s.avatar}><UserRound size={42} color={colors.primary}/></View>
-      <Text style={s.name} numberOfLines={2}>{displayName}</Text>
-      {detail ? <Text style={s.detail} numberOfLines={2}>{detail}</Text> : null}
+    <View style={s.identity}>
+      <View style={s.identityTop}>
+        <View style={s.avatar}><UserRound size={27} color={colors.primary}/></View>
+        <View style={s.identityText}>
+          <Text style={s.name} numberOfLines={2}>{displayName}</Text>
+          {detail ? <Text style={s.detail} numberOfLines={2}>{detail}</Text> : null}
+        </View>
+      </View>
       <Row gap={space.sm} wrap>{verified ? <Badge label={t("verified")} tone="success"/> : null}{roles.map((r) => <Badge key={r} label={r === "facility" ? t("roleFacility") : r === "professional" ? t("roleProfessional") : "Admin"} tone="primary"/>)}</Row>
     </View>
 
@@ -64,10 +68,12 @@ export default function AccountTab() {
 }
 
 const s = StyleSheet.create({
-  identity: { backgroundColor: colors.surface, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, paddingHorizontal: space.xl, paddingVertical: space.xxl, alignItems: "center", gap: space.sm },
-  avatar: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", marginBottom: space.sm },
-  name: { fontFamily: fonts.bold, fontSize: 20, lineHeight: 30, color: colors.primary, textAlign: "center" },
-  detail: { ...ui.muted, textAlign: "center" },
+  identity: { paddingHorizontal: space.sm, paddingVertical: space.md, gap: space.md },
+  identityTop: { flexDirection: "row", alignItems: "center", gap: space.md },
+  identityText: { flex: 1, minWidth: 0, gap: space.xs },
+  avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
+  name: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 26, color: colors.primary, writingDirection: "auto" },
+  detail: { ...ui.muted, writingDirection: "auto" },
   group: { gap: space.md, marginTop: space.md },
   groupTitle: { ...ui.label, color: colors.textMuted, marginBottom: space.xs },
   list: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radii.lg, overflow: "hidden" },
