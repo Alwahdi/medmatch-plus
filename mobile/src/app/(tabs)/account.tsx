@@ -20,7 +20,7 @@ export default function AccountTab() {
   const f = facility.data as { name_ar?: string; name_en?: string | null; city?: string | null; is_verified?: boolean } | null;
   const displayName = (lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "—";
   const detail = f?.city ?? p?.headline ?? p?.city ?? user?.email ?? "";
-  const verified = Boolean(f?.is_verified) || Boolean(p?.is_verified);
+  const verified = isFacility ? Boolean(f?.is_verified) : isProfessional ? Boolean(p?.is_verified) : false;
 
   return <Screen>
     <ScreenHeader title={t("account")} sub={lang === "ar" ? "ملفك وإعداداتك" : "Your profile and settings"}/>
@@ -48,9 +48,8 @@ export default function AccountTab() {
       <Text style={s.groupTitle}>{lang === "ar" ? "الإعدادات" : "SETTINGS"}</Text>
       <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
       <View style={s.languageRow}>
-        <View style={s.languageIcon}><Globe2 size={21} color={colors.primary}/></View>
-        <Text style={[ui.menuTitle, { flex: 1 }]}>{t("language")}</Text>
-        <View style={s.languageControl}><Segmented value={lang} options={[{ value: "ar", label: t("arabic") }, { value: "en", label: t("english") }]} onChange={(v) => void setLang(v)}/></View>
+        <View style={s.languageHeading}><View style={s.languageIcon}><Globe2 size={21} color={colors.primary}/></View><Text style={ui.menuTitle}>{t("language")}</Text></View>
+        <Segmented value={lang} options={[{ value: "ar", label: t("arabic") }, { value: "en", label: t("english") }]} onChange={(v) => void setLang(v)}/>
       </View>
       <MenuRow icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
       {webUrl ? <MenuRow icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
@@ -66,8 +65,8 @@ const s = StyleSheet.create({
   detail: { ...ui.muted, textAlign: "center" },
   group: { gap: space.md, marginTop: space.md },
   groupTitle: { ...ui.label, color: colors.textMuted, marginBottom: space.xs },
-  languageRow: { minHeight: 64, flexDirection: "row", alignItems: "center", gap: space.md, padding: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  languageRow: { gap: space.md, padding: space.lg, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  languageHeading: { flexDirection: "row", alignItems: "center", gap: space.lg },
   languageIcon: { width: 40, height: 40, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
-  languageControl: { width: 148, flexShrink: 1 },
   signOut: { marginTop: space.lg, marginBottom: space.xl },
 });
