@@ -1,6 +1,6 @@
 import { CityChoice } from "@/components/location-choice";
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter } from "expo-router";
 import { CalendarClock, CheckCircle2 } from "lucide-react-native";

@@ -26,7 +26,7 @@ export default function NotificationsScreen() {
     if (applicantJob) return router.push({ pathname: "/facility/job/[id]", params: { id: applicantJob[1] } });
     if (/^\/(my-shifts|activity\?tab=shifts)/.test(link)) return router.push({ pathname: "/activity", params: { tab: "bookings" } });
     if (/^\/(applications|activity\?tab=applications)/.test(link)) return router.push({ pathname: "/activity", params: { tab: "applications" } });
-    if (link === "/facility" || /^\/facility\?tab=(jobs|shifts)$/.test(link)) return router.push(link as never);
+     if (link === "/facility" || /^\/facility\?tab=(jobs|shifts)$/.test(link)) return router.push(link as never);
     if (["/activity", "/discover", "/account", "/profile", "/verification", "/messages", "/notifications", "/facility/profile"].includes(link)) return router.push(link as never);
     const detail = link.match(/^\/(job|shift|conversation|facility\/job|facility\/shift)\/([0-9a-f-]{36})$/i);
     if (detail) return router.push(link as never);
