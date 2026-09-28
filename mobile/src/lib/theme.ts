@@ -37,6 +37,9 @@ export const fonts = {
   medium: "Cairo_500Medium",
   semibold: "Cairo_600SemiBold",
   bold: "Cairo_700Bold",
+  latinRegular: "PlusJakartaSans_400Regular",
+  latinSemibold: "PlusJakartaSans_600SemiBold",
+  latinBold: "PlusJakartaSans_700Bold",
 } as const;
 
 /** Layout rhythm: one 4pt scale used everywhere. */

@@ -28,16 +28,18 @@ export function Screen({ children, scroll = true, refreshControl, padded = true 
 }
 
 export function Title({ children, sub, eyebrow }: { children: React.ReactNode; sub?: string; eyebrow?: string }) {
-  return <View style={styles.titleWrap}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text accessibilityRole="header" style={styles.title}>{children}</Text>{sub ? <Text style={styles.muted}>{sub}</Text> : null}</View>;
+  const { lang } = useI18n();
+  return <View style={styles.titleWrap}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text accessibilityRole="header" style={[styles.title, lang === "en" && styles.latinTitle]}>{children}</Text>{sub ? <Text style={[styles.muted, lang === "en" && styles.latinBody]}>{sub}</Text> : null}</View>;
 }
 
 /** One header pattern for every screen: title start-aligned, optional action at the end. */
 export function ScreenHeader({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
+  const { lang } = useI18n();
   return (
     <View style={styles.screenHeader}>
       <View style={styles.screenHeaderText}>
-         <Text accessibilityRole="header" style={styles.title} numberOfLines={2}>{title}</Text>
-         {sub ? <Text style={styles.muted} numberOfLines={2}>{sub}</Text> : null}
+          <Text accessibilityRole="header" style={[styles.title, lang === "en" && styles.latinTitle]} numberOfLines={2}>{title}</Text>
+          {sub ? <Text style={[styles.muted, lang === "en" && styles.latinBody]} numberOfLines={2}>{sub}</Text> : null}
       </View>
       {action}
     </View>
@@ -45,7 +47,8 @@ export function ScreenHeader({ title, sub, action }: { title: string; sub?: stri
 }
 
 export function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
-  return <View style={styles.sectionHeader}><Text accessibilityRole="header" style={styles.sectionTitle}>{title}</Text>{action}</View>;
+  const { lang } = useI18n();
+  return <View style={styles.sectionHeader}><Text accessibilityRole="header" style={[styles.sectionTitle, lang === "en" && styles.latinTitle]}>{title}</Text>{action}</View>;
 }
 
 export function Card({ children, style, elevated = false }: { children: React.ReactNode; style?: ViewStyle; elevated?: boolean }) {
@@ -55,6 +58,7 @@ export function Card({ children, style, elevated = false }: { children: React.Re
 export function Button({ label, onPress, variant = "primary", disabled, loading, small, icon: Icon }: {
   label: string; onPress?: () => void; variant?: "primary" | "secondary" | "ghost" | "danger"; disabled?: boolean; loading?: boolean; small?: boolean; icon?: LucideIcon;
 }) {
+  const { lang } = useI18n();
   const palette = {
     primary: { bg: colors.primary, fg: colors.primaryText, border: colors.primary },
     secondary: { bg: colors.surface, fg: colors.text, border: colors.borderStrong },
@@ -63,7 +67,7 @@ export function Button({ label, onPress, variant = "primary", disabled, loading,
   }[variant];
   const isOff = Boolean(disabled) || Boolean(loading);
   const handlePress = () => { if (Platform.OS !== "web") void Haptics.selectionAsync(); onPress?.(); };
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : handlePress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 48, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: isOff, busy: Boolean(loading) }} onPress={isOff ? undefined : handlePress} style={({ pressed }) => [styles.button, { backgroundColor: palette.bg, borderColor: palette.border, opacity: isOff ? .5 : pressed ? .82 : 1, minHeight: small ? 44 : 48, paddingHorizontal: small ? 14 : 18 }]}>{loading ? <ActivityIndicator color={palette.fg} /> : <View style={styles.buttonContent}>{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.2} /> : null}<Text style={[styles.buttonLabel, lang === "en" && styles.latinButton, { color: palette.fg, fontSize: small ? 13 : 15 }]}>{label}</Text></View>}</Pressable>;
 }
 
 export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { icon: LucideIcon; label: string; onPress?: () => void; tone?: "neutral" | "primary" }) {
@@ -72,9 +76,9 @@ export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { i
 }
 
 export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary" }: { icon: LucideIcon; title: string; subtitle?: string; onPress?: () => void; tone?: "primary" | "accent" | "violet" | "danger" }) {
-  const { rtl } = useI18n();
+  const { rtl, lang } = useI18n();
   const p = tone === "danger" ? { bg: colors.dangerSoft, fg: colors.danger } : tone === "accent" ? { bg: colors.accentSoft, fg: colors.accent } : tone === "violet" ? { bg: colors.brandVioletSoft, fg: colors.brandViolet } : { bg: colors.primarySoft, fg: colors.primary };
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityHint={subtitle} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1, backgroundColor: pressed ? colors.surfaceMuted : colors.surface }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityHint={subtitle} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1, backgroundColor: pressed ? colors.surfaceMuted : colors.surface }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={[styles.menuTitle, lang === "en" && styles.latinTitle]}>{title}</Text>{subtitle ? <Text style={[styles.menuSubtitle, lang === "en" && styles.latinBody]} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
 }
 
 type FieldProps = TextInputProps & { label?: string; error?: string | null; required?: boolean; helper?: string; showCount?: boolean };
@@ -223,6 +227,9 @@ export const styles = StyleSheet.create({
   titleWrap: { gap: space.xs, marginBottom: space.xs },
   eyebrow: { ...typo.micro, color: colors.primary },
   title: { ...typo.title, color: colors.text, writingDirection: "auto" },
+  latinTitle: { fontFamily: fonts.latinBold },
+  latinBody: { fontFamily: fonts.latinRegular },
+  latinButton: { fontFamily: fonts.latinBold },
   screenHeader: { minHeight: 52, flexDirection: "row", alignItems: "center", gap: space.md, marginBottom: space.sm },
   screenHeaderText: { flex: 1, minWidth: 0, gap: space.xs },
   sectionHeader: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: space.lg },
