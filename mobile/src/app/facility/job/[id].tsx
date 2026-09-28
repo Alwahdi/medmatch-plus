@@ -24,7 +24,7 @@ export default function FacilityJobApplicants() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t, lang } = useI18n();
-  const job = useJob(String(id));
+   const job = useJob(String(id));
   const applicants = useJobApplicants(String(id));
   const setStage = useSetApplicationStage(String(id));
   const suggested = useSuggestedCandidates(String(id));
@@ -36,22 +36,22 @@ export default function FacilityJobApplicants() {
   const [interviewingId, setInterviewingId] = useState<string | null>(null);
   const [scheduledAt, setScheduledAt] = useState("");
   const [meetingUrl, setMeetingUrl] = useState("");
-  const [actionError, setActionError] = useState<string | null>(null);
+   const [actionError, setActionError] = useState<{ id: string; message: string } | null>(null);
 
   const submitInterview = (applicationId: string) => {
     const when = new Date(scheduledAt);
     if (!scheduledAt || Number.isNaN(when.getTime()) || when.getTime() <= Date.now()) {
-      setActionError(lang === "ar" ? "اختر موعداً مستقبلياً للمقابلة." : "Choose a future interview time.");
+       setActionError({ id: applicationId, message: lang === "ar" ? "اختر موعداً مستقبلياً للمقابلة." : "Choose a future interview time." });
       return;
     }
     if (meetingUrl.trim() && !/^https:\/\/[^\s]+\.[^\s]+$/i.test(meetingUrl.trim())) {
-      setActionError(lang === "ar" ? "أدخل رابط اجتماع آمن يبدأ بـ https://" : "Enter a secure meeting link starting with https://");
+       setActionError({ id: applicationId, message: lang === "ar" ? "أدخل رابط اجتماع آمن يبدأ بـ https://" : "Enter a secure meeting link starting with https://" });
       return;
     }
     setActionError(null);
     schedule.mutate({ applicationId, scheduledAt: when.toISOString(), mode: "video", meetingUrl: meetingUrl.trim() }, {
       onSuccess: () => { setInterviewingId(null); setScheduledAt(""); setMeetingUrl(""); },
-      onError: (cause) => setActionError(userMessage(cause, lang)),
+       onError: (cause) => setActionError({ id: applicationId, message: userMessage(cause, lang) }),
     });
   };
 
@@ -64,7 +64,7 @@ export default function FacilityJobApplicants() {
         { text: t("confirmAction"), style: status === "rejected" ? "destructive" : "default", onPress: () => {
           setChangingId(applicationId);
            setActionError(null);
-           setStage.mutate({ id: applicationId, status }, { onError: (cause) => setActionError(userMessage(cause, lang)), onSettled: () => setChangingId(null) });
+            setStage.mutate({ id: applicationId, status }, { onError: (cause) => setActionError({ id: applicationId, message: userMessage(cause, lang) }), onSettled: () => setChangingId(null) });
         } },
       ],
     );
@@ -78,8 +78,8 @@ export default function FacilityJobApplicants() {
           <RefreshControl refreshing={applicants.isFetching} onRefresh={() => void applicants.refetch()} />
         }
       >
-        <Title sub={t("applicants")}>{job.data?.title ?? "—"}</Title>
-        {actionError ? <Text accessibilityRole="alert" style={ui.error}>{actionError}</Text> : null}
+         <Title sub={t("applicants")}>{job.data?.title ?? "—"}</Title>
+         {job.isError ? <ErrorState message={userMessage(job.error, lang)} onRetry={() => void job.refetch()} /> : null}
 
         {applicants.isPending ? (
           <Loading />
@@ -112,7 +112,8 @@ export default function FacilityJobApplicants() {
                   : ""}
                 {lang === "ar" ? "قدّم في" : "Applied on"} {formatDate(a.created_at, lang)}
               </Text>
-              {a.cover_letter ? <Text style={ui.body} numberOfLines={4}>{a.cover_letter}</Text> : null}
+               {a.cover_letter ? <Text style={ui.body} numberOfLines={4}>{a.cover_letter}</Text> : null}
+               {actionError?.id === a.id ? <Text accessibilityRole="alert" style={ui.error}>{actionError.message}</Text> : null}
 
               {a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn" ? <Button label={t("applicantDecision")} variant="secondary" small onPress={() => { setDecisionId(a.id); setActionError(null); }} /> : null}
               <Sheet visible={decisionId === a.id} title={professional?.full_name ?? t("applicantDecision")} onClose={() => setDecisionId(null)}>
@@ -120,14 +121,14 @@ export default function FacilityJobApplicants() {
                 {STAGES.filter((stage) => stage !== a.status).map((stage) => (
                   <Button key={stage} label={applicationStatusLabel(stage, lang)} variant={stage === "rejected" ? "danger" : "secondary"} small
                     loading={setStage.isPending && changingId === a.id} disabled={setStage.isPending || hire.isPending}
-                    onPress={() => { setDecisionId(null); changeStage(a.id, stage); }} />
+                     onPress={() => { setDecisionId(null); setTimeout(() => changeStage(a.id, stage), 350); }} />
                 ))}
                 {a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn" ? <>
                   <Button label={t("scheduleInterview")} variant="secondary" small onPress={() => { setDecisionId(null); setInterviewingId(a.id); setActionError(null); }} />
-                  <Button label={t("hire")} small loading={hire.isPending} onPress={() => Alert.alert(t("hireConfirm"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("hire"), onPress: () => { setDecisionId(null); hire.mutate(a.id, { onError: (cause) => setActionError(userMessage(cause, lang)) }); } }])} />
+                   <Button label={t("hire")} small loading={hire.isPending} onPress={() => { setDecisionId(null); setTimeout(() => Alert.alert(t("hireConfirm"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("hire"), onPress: () => hire.mutate(a.id, { onError: (cause) => setActionError({ id: a.id, message: userMessage(cause, lang) }) }) }]), 350); }} />
                 </> : null}
               </Sheet>
-               {interviewingId === a.id ? <View style={{ gap: 8, paddingTop: 8 }}><DateTimeField label={t("interviewTime")} value={scheduledAt} onChange={setScheduledAt} minimumDate={new Date()} required /><Field label={t("meetingLink")} value={meetingUrl} onChangeText={setMeetingUrl} keyboardType="url" autoCapitalize="none" /><Row gap={8}><View style={{ flex: 1 }}><Button label={t("submit")} small loading={schedule.isPending} onPress={() => submitInterview(a.id)} /></View><View style={{ flex: 1 }}><Button label={t("cancel")} variant="ghost" small onPress={() => setInterviewingId(null)} /></View></Row></View> : null}
+                <Sheet visible={interviewingId === a.id} title={t("scheduleInterview")} onClose={() => setInterviewingId(null)} footer={<Row gap={8}><View style={{ flex: 1 }}><Button label={t("cancel")} variant="secondary" small onPress={() => setInterviewingId(null)} /></View><View style={{ flex: 1 }}><Button label={t("submit")} small loading={schedule.isPending} onPress={() => submitInterview(a.id)} /></View></Row>}><DateTimeField label={t("interviewTime")} value={scheduledAt} onChange={setScheduledAt} minimumDate={new Date()} required /><Field label={t("meetingLink")} value={meetingUrl} onChangeText={setMeetingUrl} keyboardType="url" autoCapitalize="none" />{actionError?.id === a.id ? <Text accessibilityRole="alert" style={ui.error}>{actionError.message}</Text> : null}</Sheet>
             </Card>
           );})
         )}
@@ -157,7 +158,8 @@ export default function FacilityJobApplicants() {
               <View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "مرشح مطابق" : "Matching candidate"}</Text><Text style={ui.muted}>{[candidate.city, candidate.years_experience != null ? `${candidate.years_experience} ${t("yearsShort")}` : null].filter(Boolean).join(" · ")}</Text></View>
               {candidate.is_verified ? <ShieldCheck size={20} color={colors.success} /> : null}
             </Row>
-             <Button label={t("invite")} variant="secondary" small loading={invite.isPending} onPress={() => Alert.alert(t("confirmAction"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("invite"), onPress: () => invite.mutate(candidate.id, { onError: (cause) => setActionError(userMessage(cause, lang)) }) }])} />
+              {actionError?.id === candidate.id ? <Text accessibilityRole="alert" style={ui.error}>{actionError.message}</Text> : null}
+              <Button label={t("invite")} variant="secondary" small loading={invite.isPending} onPress={() => Alert.alert(t("confirmAction"), t("actionCannotUndo"), [{ text: t("cancel"), style: "cancel" }, { text: t("invite"), onPress: () => invite.mutate(candidate.id, { onError: (cause) => setActionError({ id: candidate.id, message: userMessage(cause, lang) }) }) }])} />
           </Card>
         ))}
 

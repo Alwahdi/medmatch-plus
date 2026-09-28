@@ -51,9 +51,10 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
         ) : (
           <>
             <Row gap={10}>
-              <View style={{ flex: 1 }}><Button label={t("publishJob")} icon={FilePlus2} small onPress={() => router.push(isVerified ? "/facility/create-job" : { pathname: "/verification", params: { target: "facility" } })} /></View>
-              <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} small onPress={() => router.push(isVerified ? "/facility/create-shift" : { pathname: "/verification", params: { target: "facility" } })} /></View>
+               <View style={{ flex: 1 }}><Button label={t("publishJob")} icon={FilePlus2} small disabled={!isVerified} onPress={() => router.push("/facility/create-job")} /></View>
+               <View style={{ flex: 1 }}><Button label={t("publishShift")} variant="secondary" icon={CalendarClock} small disabled={!isVerified} onPress={() => router.push("/facility/create-shift")} /></View>
             </Row>
+             {!isVerified ? <Text style={ui.muted}>{lang === "ar" ? "النشر متاح بعد اعتماد مستندات المنشأة؛ يمكنك متابعة حالتها أدناه." : "Publishing becomes available once your facility documents are approved. Track their status below."}</Text> : null}
             {(facility.data as { is_verified?: boolean }).is_verified ? null : docs.isError ? <ErrorState message={userMessage(docs.error, lang)} onRetry={() => void docs.refetch()} /> : (
               <Card style={{ backgroundColor: colors.warningSoft, borderColor: colors.warningSoft }}>
                 <Row gap={10}>

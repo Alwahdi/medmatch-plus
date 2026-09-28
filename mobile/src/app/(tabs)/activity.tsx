@@ -93,7 +93,7 @@ export default function ActivityTab() {
         sub={lang === "ar" ? "طلباتك ومناوباتك ودعواتك في مكان واحد" : "Applications, shifts and invitations in one place"}
       />
 
-      <Row gap={8} wrap>
+       <Row gap={8} wrap>
         <Chip label={t("myApplications")} active={tab === "applications"} onPress={() => setTab("applications")} />
         <Chip label={t("myBookings")} active={tab === "bookings"} onPress={() => setTab("bookings")} />
         <Chip label={pendingInvites ? `${t("myInvitations")} (${pendingInvites})` : t("myInvitations")} active={tab === "invitations"} onPress={() => setTab("invitations")} />

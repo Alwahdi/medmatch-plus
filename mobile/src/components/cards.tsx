@@ -27,11 +27,13 @@ export function JobCard({ job, lang, onPress }: { job: JobRow; lang: Lang; onPre
             </Row>
           </View>
         </View>
-        <View style={s.footer}>
-          <Text style={s.amount} numberOfLines={1}>{formatSalaryRange(job.salary_min, job.salary_max, job.currency, lang)}</Text>
-          <Badge label={employmentTypeLabel(job.employment_type, lang)} />
-          <Text style={[ui.muted, s.time]} numberOfLines={1}>{relativeTime(job.created_at, lang)}</Text>
-        </View>
+         <View style={s.footer}>
+           <View style={s.footerMain}>
+             <Text style={s.amount} numberOfLines={2}>{formatSalaryRange(job.salary_min, job.salary_max, job.currency, lang)}</Text>
+             <Badge label={employmentTypeLabel(job.employment_type, lang)} />
+           </View>
+           <Text style={[ui.muted, s.time]}>{relativeTime(job.created_at, lang)}</Text>
+         </View>
       </Card>
     </Pressable>
   );
@@ -56,13 +58,15 @@ export function ShiftCard({ shift, lang, urgentLabel, perHour, onPress }: { shif
             </Row>
           </View>
         </View>
-        <View style={s.footer}>
-          <Text style={s.amount} numberOfLines={1}>{formatMoney(shift.hourly_rate, shift.currency, lang)} / {perHour}</Text>
-          <Row gap={5}>
-            <MapPin size={14} color={colors.textMuted} />
-            <Text style={ui.muted} numberOfLines={1}>{shift.city}</Text>
-          </Row>
-        </View>
+         <View style={s.footer}>
+           <View style={s.footerMain}>
+             <Text style={s.amount} numberOfLines={2}>{formatMoney(shift.hourly_rate, shift.currency, lang)} / {perHour}</Text>
+             <Row gap={5}>
+               <MapPin size={14} color={colors.textMuted} />
+               <Text style={ui.muted} numberOfLines={1}>{shift.city}</Text>
+             </Row>
+           </View>
+         </View>
       </Card>
     </Pressable>
   );
@@ -84,7 +88,8 @@ export function StatusCard({ title, when, place, note, actionLabel, onPress }: {
       ) : null}
       {note ? <Text style={s.statusMeta} numberOfLines={2}>{note}</Text> : null}
       <Pressable
-        accessibilityRole="button"
+         accessibilityRole="button"
+         accessibilityLabel={actionLabel}
         onPress={onPress}
         style={({ pressed }) => [s.statusAction, { opacity: pressed ? 0.85 : 1 }]}
       >
@@ -100,9 +105,10 @@ const s = StyleSheet.create({
   headText: { flex: 1, minWidth: 0, gap: space.xs },
   avatar: { width: 48, height: 48, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
   title: { ...typo.cardTitle, color: colors.text, writingDirection: "auto" },
-  footer: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingTop: space.md, borderTopWidth: 1, borderTopColor: colors.border },
-  amount: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 26, color: colors.primary, flexShrink: 1 },
-  time: { marginStart: "auto" },
+   footer: { gap: space.xs, paddingTop: space.md, borderTopWidth: 1, borderTopColor: colors.border },
+   footerMain: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: space.sm },
+   amount: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 26, color: colors.primary, flexShrink: 1 },
+   time: { alignSelf: "flex-end" },
   status: { backgroundColor: colors.primary, borderRadius: radii.xl, padding: space.xl, gap: space.md },
   statusTitle: { ...typo.title, color: colors.primaryText },
   statusWhen: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 24, color: colors.messageOnPrimary },

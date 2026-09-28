@@ -37,7 +37,7 @@ export default function AccountTab() {
     <MenuRow
       icon={ShieldCheck}
       title={lang === "ar" ? "مستندات التوثيق" : "Verification documents"}
-      subtitle={verified ? (lang === "ar" ? "حسابك موثّق" : "Your account is verified") : (lang === "ar" ? "ارفع مستنداتك للحصول على شارة التوثيق" : "Upload documents to get the verified badge")}
+       subtitle={verified ? (lang === "ar" ? "حسابك موثّق" : "Your account is verified") : (lang === "ar" ? "قدّم المستندات للمراجعة؛ الشارة بعد اعتمادها" : "Submit documents for review; the badge follows approval")}
       tone={verified ? "primary" : "accent"}
       onPress={() => router.push({ pathname: "/verification", params: { target: isFacility ? "facility" : "professional" } })}
     />

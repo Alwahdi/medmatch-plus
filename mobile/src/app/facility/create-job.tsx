@@ -27,6 +27,7 @@ export default function CreateJobScreen() {
   const [reviewing, setReviewing] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showFieldErrors, setShowFieldErrors] = useState(false);
 
   useEffect(() => {
     void AsyncStorage.getItem(key)
@@ -54,11 +55,11 @@ export default function CreateJobScreen() {
     if (hasDisclosure(`${form.title} ${form.description}`)) return t("privacyListingError");
     return null;
   };
-  const update = <K extends keyof Draft>(field: K, value: Draft[K]) => setForm((current) => ({ ...current, [field]: value }));
+   const update = <K extends keyof Draft>(field: K, value: Draft[K]) => { setError(null); setForm((current) => ({ ...current, [field]: value })); };
   const submit = async () => {
     const problem = validate(); if (problem) return setError(problem);
     if (!(await consent.ensure()) || !f) return;
-     create.mutate({ facilityId: f.id, title: form.title.trim(), description: form.description.trim(), specialtyId: form.specialtyId || null, employmentType: form.employmentType, country: form.country, city: form.city.trim(), salaryMin: Number(form.salaryMin), salaryMax: Number(form.salaryMax), minExperience: Number(form.minExperience), vacancies: Number(form.vacancies), requiredLicense: form.requiredLicense || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) });
+      create.mutate({ facilityId: f.id, title: form.title.trim(), description: form.description.trim(), specialtyId: form.specialtyId || null, employmentType: form.employmentType, country: form.country, city: form.city.trim(), salaryMin: Number(form.salaryMin), salaryMax: Number(form.salaryMax), minExperience: Number(form.minExperience), vacancies: Number(form.vacancies), requiredLicense: form.requiredLicense || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) });
   };
 
    if (facility.isPending || specialties.isPending) return <Screen><Loading /></Screen>;
@@ -70,15 +71,16 @@ export default function CreateJobScreen() {
       { label: t("jobTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("employmentType"), value: t(form.employmentType === "full_time" ? "fullTime" : form.employmentType === "part_time" ? "partTime" : form.employmentType as "contract" | "locum") }, { label: t("city"), value: form.city }, { label: t("salary"), value: `${form.salaryMin} – ${form.salaryMax} YER` }, { label: t("description"), value: form.description },
     ]} /> : <>
       <ScreenHeader title={t("publishJob")} sub={t("draftSaved")} />
-       <ListingField label={t("jobTitle")} value={form.title} onChangeText={(v) => update("title", v)} required maxLength={120} />
+        {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
+        <ListingField label={t("jobTitle")} value={form.title} onChangeText={(v) => update("title", v)} required maxLength={120} error={showFieldErrors && (form.title.trim().length < 3 || form.title.trim().length > 120) ? t("requiredField") : null} />
       <ChoiceField label={t("employmentType")} value={form.employmentType} onChange={(v) => update("employmentType", v)} options={[{ value: "full_time", label: t("fullTime") }, { value: "part_time", label: t("partTime") }, { value: "contract", label: t("contract") }, { value: "locum", label: t("locum") }]} />
        <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
        <CityChoice label={t("city")} country={form.country} value={form.city} onChange={(v) => update("city", v)} />
-      <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("salaryFrom")} value={form.salaryMin} onChangeText={(v) => update("salaryMin", v)} numeric /></View><View style={{ flex: 1 }}><ListingField label={t("salaryTo")} value={form.salaryMax} onChangeText={(v) => update("salaryMax", v)} numeric /></View></View>
+       <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("salaryFrom")} value={form.salaryMin} onChangeText={(v) => update("salaryMin", v)} numeric error={showFieldErrors && (!form.salaryMin.trim() || Number(form.salaryMin) < 0 || !Number.isFinite(Number(form.salaryMin))) ? t("invalidAmount") : null} /></View><View style={{ flex: 1 }}><ListingField label={t("salaryTo")} value={form.salaryMax} onChangeText={(v) => update("salaryMax", v)} numeric error={showFieldErrors && (!form.salaryMax.trim() || Number(form.salaryMax) < Number(form.salaryMin) || !Number.isFinite(Number(form.salaryMax))) ? t("salaryOrder") : null} /></View></View>
       <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("minExperience")} value={form.minExperience} onChangeText={(v) => update("minExperience", v)} numeric /></View><View style={{ flex: 1 }}><ListingField label={t("vacancies")} value={form.vacancies} onChangeText={(v) => update("vacancies", v)} numeric /></View></View>
-       <ListingField label={t("description")} value={form.description} onChangeText={(v) => update("description", v)} multiline required maxLength={5000} />
-      <Text style={ui.muted}>{t("privacyListingHint")}</Text>{error ? <ErrorState message={error} /> : null}
-      <Button label={t("reviewPublish")} icon={CheckCircle2} onPress={() => { const problem = validate(); setError(problem); if (!problem) setReviewing(true); }} />
+        <ListingField label={t("description")} value={form.description} onChangeText={(v) => update("description", v)} multiline required maxLength={5000} error={showFieldErrors && form.description.trim().length < 20 ? t("requiredField") : null} />
+       <Text style={ui.muted}>{t("privacyListingHint")}</Text>
+       <Button label={t("reviewPublish")} icon={CheckCircle2} onPress={() => { setShowFieldErrors(true); const problem = validate(); setError(problem); if (!problem) setReviewing(true); }} />
     </>}
   </Screen></>;
 }

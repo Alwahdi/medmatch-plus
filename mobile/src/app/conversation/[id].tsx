@@ -32,7 +32,6 @@ export default function Conversation() {
     if (!text || send.isPending) return;
     setSendError(null);
     send.mutate(text, { onSuccess: () => setBody((current) => current.trim() === text ? "" : current), onError: (cause) => setSendError(userMessage(cause, lang)) });
-    requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
   };
 
   return (
@@ -59,7 +58,7 @@ export default function Conversation() {
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
             onRefresh={() => { void messages.refetch(); markRead.mutate(); }}
             refreshing={messages.isFetching}
-            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
             ListEmptyComponent={<EmptyState text={t("emptyMessages")} />}
             renderItem={({ item, index }) => {
               const mine = item.sender_id === user?.id;
@@ -115,9 +114,8 @@ export default function Conversation() {
             placeholder={t("typeMessage")}
             placeholderTextColor={colors.textMuted}
             accessibilityLabel={t("typeMessage")}
-            style={[ui.input, { flex: 1, maxHeight: 130, paddingTop: 14 }]}
+             style={[ui.input, { flex: 1, maxHeight: 104, paddingTop: 14 }]}
             multiline
-            onFocus={() => requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }))}
           />
           <Pressable
             accessibilityRole="button"
