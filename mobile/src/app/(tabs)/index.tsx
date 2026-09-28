@@ -60,7 +60,7 @@ export default function HomeTab() {
   const jobs = useJobSearch({ q: "" });
   const shifts = useShiftSearch({ q: "" });
 
-  const p = professional.data as { full_name?: string; headline?: string | null; is_verified?: boolean } | null;
+  const p = professional.data as { full_name?: string; specialty_id?: string | null; city?: string | null; years_experience?: number | null; is_verified?: boolean } | null;
   const f = facility.data as { name_ar?: string; name_en?: string | null; is_verified?: boolean } | null;
   const name = ((lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "").split("@")[0] ?? "";
   const unread = (notifications.data ?? []).filter((item) => !item.read_at).length;
@@ -105,15 +105,15 @@ export default function HomeTab() {
     return (
       <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
         {header}
-        <PriorityCard
+         {facility.isPending ? <EmptyState text={t("loading")} /> : facility.isError ? <EmptyState text={lang === "ar" ? "تعذّر تحميل بيانات المنشأة. اسحب للتحديث." : "Could not load facility details. Pull to refresh."} /> : <PriorityCard
           icon={f?.is_verified ? UsersRound : ShieldCheck}
           eyebrow={t("priorityNow")}
-          title={f?.is_verified ? t("facilityPriority") : t("nextFac2")}
-          description={f?.is_verified ? t("facilityPriorityDesc") : t("nextFac2Sub")}
+           title={!f ? t("nextFac1") : f.is_verified ? t("facilityPriority") : t("nextFac2")}
+           description={!f ? t("nextFac1Sub") : f.is_verified ? t("facilityPriorityDesc") : t("nextFac2Sub")}
           actionLabel={f?.is_verified ? t("manageListings") : t("completeNow")}
            onPress={() => router.push(!f ? "/facility/profile" : f.is_verified ? "/discover" : { pathname: "/verification", params: { target: "facility" } })}
           tone={f?.is_verified ? "primary" : "warning"}
-        />
+         />}
         {f?.is_verified ? <>
           <SectionHeader title={t("quickActions")} />
           <View style={{ flexDirection: "row", gap: 10 }}>
@@ -125,11 +125,11 @@ export default function HomeTab() {
     );
   }
 
-  const profileIncomplete = !p?.headline;
+   const profileIncomplete = !p?.specialty_id || !p?.city || p?.years_experience == null;
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
       {header}
-      {profileIncomplete ? (
+       {professional.isPending ? <EmptyState text={t("loading")} /> : professional.isError ? <EmptyState text={lang === "ar" ? "تعذّر تحميل ملفك. اسحب للتحديث." : "Could not load your profile. Pull to refresh."} /> : profileIncomplete ? (
         <PriorityCard
           icon={UserRound}
           eyebrow={t("completeYourProfile")}
