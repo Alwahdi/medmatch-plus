@@ -114,7 +114,7 @@ export default function JobDetail() {
                 </Row>
                 <Button label={t("activity")} variant="secondary" small onPress={() => router.push("/activity")} />
               </Card>
-            ) : session ? (
+             ) : session && isProfessional ? (
               <Card>
                 <Field label={t("coverLetter")} value={cover} onChangeText={setCover} multiline />
                  {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
