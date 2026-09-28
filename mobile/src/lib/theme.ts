@@ -1,7 +1,7 @@
 import { I18nManager } from "react-native";
 
 export const colors = {
-  bg: "#F8FAFB",
+  bg: "#F5F8F9",
   surface: "#FFFFFF",
   surfaceMuted: "#F0F4F5",
   surfaceRaised: "#FBFCFD",
@@ -37,6 +37,9 @@ export const fonts = {
   medium: "Cairo_500Medium",
   semibold: "Cairo_600SemiBold",
   bold: "Cairo_700Bold",
+  latinRegular: "PlusJakartaSans_400Regular",
+  latinSemibold: "PlusJakartaSans_600SemiBold",
+  latinBold: "PlusJakartaSans_700Bold",
 } as const;
 
 /** Layout rhythm: one 4pt scale used everywhere. */
@@ -48,6 +51,9 @@ export const space = {
   xl: 20,
   xxl: 24,
   gutter: 16,
+  section: 28,
+  pageTop: 24,
+  pageBottom: 32,
 } as const;
 
 /**

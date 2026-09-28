@@ -54,7 +54,7 @@ export default function DiscoverTab() {
 
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.md }}>
+      <View style={{ paddingHorizontal: space.xl, paddingTop: space.pageTop, gap: space.lg }}>
         <ScreenHeader
           title={t("discover")}
           sub={lang === "ar" ? "وظائف ومناوبات تناسب مسارك" : "Jobs and shifts that fit you"}
@@ -99,7 +99,7 @@ export default function DiscoverTab() {
         <FlatList
           data={data as (JobRow | ShiftRow)[]}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 18, gap: 12, paddingBottom: 120 }}
+           contentContainerStyle={{ paddingHorizontal: space.xl, paddingTop: space.xl, gap: space.lg, paddingBottom: 120 }}
           keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={active.isFetching} onRefresh={() => void active.refetch()} tintColor={colors.primary} />}
           ListHeaderComponent={

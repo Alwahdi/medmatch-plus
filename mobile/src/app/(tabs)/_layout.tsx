@@ -46,8 +46,8 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 62 + bottomPad, paddingTop: 6, paddingBottom: bottomPad },
-         tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 17 },
+          tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 62 + bottomPad, paddingTop: 8, paddingBottom: bottomPad },
+          tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 17 },
         tabBarBadgeStyle: { backgroundColor: colors.danger, fontFamily: fonts.bold, fontSize: 10 },
         tabBarHideOnKeyboard: true,
       }}
