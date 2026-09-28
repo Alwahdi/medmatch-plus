@@ -120,7 +120,7 @@ export default function FacilityJobApplicants() {
                 {STAGES.filter((stage) => stage !== a.status).map((stage) => (
                   <Button key={stage} label={applicationStatusLabel(stage, lang)} variant={stage === "rejected" ? "danger" : "secondary"} small
                     loading={setStage.isPending && changingId === a.id} disabled={setStage.isPending || hire.isPending}
-                    onPress={() => { setDecisionId(null); changeStage(a.id, stage); }} />
+                     onPress={() => { setDecisionId(null); setTimeout(() => changeStage(a.id, stage), 350); }} />
                 ))}
                 {a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn" ? <>
                   <Button label={t("scheduleInterview")} variant="secondary" small onPress={() => { setDecisionId(null); setInterviewingId(a.id); setActionError(null); }} />

@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase";
 
 function TabIcon({ icon: Icon, color, focused }: { icon: LucideIcon; color: ColorValue; focused: boolean }) {
   return (
-    <View style={{ width: 44, height: 28, borderRadius: 12, backgroundColor: focused ? colors.primarySoft : "transparent", alignItems: "center", justifyContent: "center" }}>
+     <View style={{ width: 44, height: 30, borderRadius: 12, backgroundColor: focused ? colors.primarySoft : "transparent", alignItems: "center", justifyContent: "center" }}>
       <Icon size={21} color={String(color)} strokeWidth={focused ? 2.5 : 2} />
     </View>
   );
@@ -46,8 +46,8 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 58 + bottomPad, paddingTop: 6, paddingBottom: bottomPad },
-        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
+         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 62 + bottomPad, paddingTop: 6, paddingBottom: bottomPad },
+         tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 17 },
         tabBarBadgeStyle: { backgroundColor: colors.danger, fontFamily: fonts.bold, fontSize: 10 },
         tabBarHideOnKeyboard: true,
       }}
