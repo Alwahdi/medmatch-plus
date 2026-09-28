@@ -75,8 +75,8 @@ export default function HomeTab() {
   }, [bookings.data]);
 
   const refreshing = notifications.isFetching || (isFacility
-    ? facilityJobs.isFetching || facilityShifts.isFetching
-    : applications.isFetching || bookings.isFetching || invitations.isFetching || jobs.isFetching || shifts.isFetching);
+    ? facility.isFetching || facilityJobs.isFetching || facilityShifts.isFetching
+    : professional.isFetching || applications.isFetching || bookings.isFetching || invitations.isFetching || jobs.isFetching || shifts.isFetching);
 
   const refresh = () => {
     void notifications.refetch();
@@ -115,7 +115,7 @@ export default function HomeTab() {
            onPress={() => router.push(!f ? "/facility/profile" : f.is_verified ? "/discover" : { pathname: "/verification", params: { target: "facility" } })}
           tone={f?.is_verified ? "primary" : "warning"}
          />}
-        {f?.is_verified ? <>
+         {f?.is_verified ? <>
           <SectionHeader title={t("quickActions")} />
           <View style={{ flexDirection: "row", gap: 10 }}>
             <View style={{ flex: 1 }}><Button label={t("publishJob")} onPress={() => router.push("/facility/create-job")} /></View>
