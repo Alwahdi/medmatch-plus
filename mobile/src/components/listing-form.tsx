@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Text, View } from "react-native";
-import { Badge, Button, Card, Chip, Field, KeyValue, Row, ScreenHeader, styles as ui } from "@/components/ui";
+import { Badge, Button, Chip, Field, KeyValue, Row, ScreenHeader, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
 import { Sheet } from "@/components/sheet";
