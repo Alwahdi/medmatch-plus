@@ -217,7 +217,7 @@ export function KeyValue({ k, v }: { k: string; v: string }) { return <View styl
 export const styles = StyleSheet.create({
   fill: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.bg },
-  screenInner: { paddingHorizontal: space.gutter, paddingTop: space.md, gap: space.md },
+   screenInner: { paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.md },
   scrollContent: { paddingBottom: space.xxl },
 
   titleWrap: { gap: space.xs, marginBottom: space.xs },
@@ -234,7 +234,7 @@ export const styles = StyleSheet.create({
   label: { ...typo.label, color: colors.text },
   error: { ...typo.caption, fontSize: 12, color: colors.danger },
 
-  card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: space.sm },
+   card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: space.lg, gap: space.sm },
   button: { borderRadius: radii.md, borderWidth: 1, alignItems: "center", justifyContent: "center" },
   buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: space.sm },
   buttonLabel: { fontFamily: fonts.bold, lineHeight: 24 },
@@ -243,7 +243,7 @@ export const styles = StyleSheet.create({
   field: { gap: 6 },
   fieldMeta: { flexDirection: "row", alignItems: "flex-start", gap: space.sm },
   helper: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
-  input: { minHeight: 48, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.md, paddingVertical: 10, color: colors.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
+   input: { minHeight: 52, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.md, paddingVertical: 10, color: colors.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
   inputMultiline: { minHeight: 112, paddingTop: space.md, textAlignVertical: "top" },
   inputError: { borderColor: colors.danger, borderWidth: 1.5 },
   inputFocused: { borderColor: colors.primary, borderWidth: 1.5 },
