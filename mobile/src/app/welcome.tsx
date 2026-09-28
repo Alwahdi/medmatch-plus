@@ -7,11 +7,13 @@ import { Button, Card, MenuRow, Screen, styles as ui } from "@/components/ui";
 import { Brand } from "@/components/brand";
 import { useI18n } from "@/lib/i18n";
 import { colors, fonts, radii } from "@/lib/theme";
+import { useAuth } from "@/lib/auth";
 
 type Step = { icon: LucideIcon; title: string; sub: string; href: "/profile" | "/facility/profile" | "/facility/create-job" | "/verification" | "/(tabs)"; target?: "professional" | "facility"; tone?: "primary" | "accent" | "violet" };
 
 export default function Welcome() {
   const { t } = useI18n();
+  const { roles } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams<{ name?: string; role?: string }>();
   const isFacility = params.role === "facility";
@@ -62,7 +64,7 @@ export default function Welcome() {
       </Card>
 
       <Button label={t("startNow")} onPress={() => go(steps[0])} />
-      <Button label={t("laterLabel")} variant="ghost" small onPress={() => go(steps[0])} />
+       {roles.length > 0 ? <Button label={t("laterLabel")} variant="ghost" small onPress={() => router.replace("/(tabs)")} /> : null}
       <View style={{ height: radii.lg }} />
     </Screen>
   );
