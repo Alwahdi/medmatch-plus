@@ -10,7 +10,7 @@ import {
   UserRound,
   UsersRound,
 } from "lucide-react-native";
-import { Button, EmptyState, IconButton, PriorityCard, Screen, ScreenHeader, SectionHeader } from "@/components/ui";
+import { Button, EmptyState, ErrorState, IconButton, Loading, PriorityCard, Screen, ScreenHeader, SectionHeader } from "@/components/ui";
 import { JobCard, ShiftCard, StatusCard } from "@/components/cards";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -30,6 +30,7 @@ import {
 } from "@/lib/queries";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { colors, fonts, radii } from "@/lib/theme";
+import { userMessage } from "@/lib/errors";
 
 function NotificationButton({ count, onPress, label }: { count: number; onPress: () => void; label: string }) {
   return (
@@ -57,10 +58,10 @@ export default function HomeTab() {
   const bookings = useMyBookings();
   const invitations = useMyInvitations();
   const notifications = useNotifications();
-  const jobs = useJobSearch({ q: "" });
-  const shifts = useShiftSearch({ q: "" });
+  const jobs = useJobSearch({ specialtyId: professional.data?.specialty_id ?? null });
+  const shifts = useShiftSearch({ specialtyId: professional.data?.specialty_id ?? null });
 
-  const p = professional.data as { full_name?: string; headline?: string | null; is_verified?: boolean } | null;
+  const p = professional.data as { full_name?: string; specialty_id?: string | null; city?: string | null; years_experience?: number | null; is_verified?: boolean } | null;
   const f = facility.data as { name_ar?: string; name_en?: string | null; is_verified?: boolean } | null;
   const name = ((lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "").split("@")[0] ?? "";
   const unread = (notifications.data ?? []).filter((item) => !item.read_at).length;
@@ -74,8 +75,8 @@ export default function HomeTab() {
   }, [bookings.data]);
 
   const refreshing = notifications.isFetching || (isFacility
-    ? facilityJobs.isFetching || facilityShifts.isFetching
-    : applications.isFetching || bookings.isFetching || invitations.isFetching || jobs.isFetching || shifts.isFetching);
+    ? facility.isFetching || facilityJobs.isFetching || facilityShifts.isFetching
+    : professional.isFetching || applications.isFetching || bookings.isFetching || invitations.isFetching || jobs.isFetching || shifts.isFetching);
 
   const refresh = () => {
     void notifications.refetch();
@@ -105,16 +106,16 @@ export default function HomeTab() {
     return (
       <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
         {header}
-        <PriorityCard
+         {facility.isPending ? <Loading rows={1} /> : facility.isError ? <ErrorState message={userMessage(facility.error, lang)} onRetry={() => void facility.refetch()} /> : <PriorityCard
           icon={f?.is_verified ? UsersRound : ShieldCheck}
           eyebrow={t("priorityNow")}
-          title={f?.is_verified ? t("facilityPriority") : t("nextFac2")}
-          description={f?.is_verified ? t("facilityPriorityDesc") : t("nextFac2Sub")}
+           title={!f ? t("nextFac1") : f.is_verified ? t("facilityPriority") : t("nextFac2")}
+           description={!f ? t("nextFac1Sub") : f.is_verified ? t("facilityPriorityDesc") : t("nextFac2Sub")}
           actionLabel={f?.is_verified ? t("manageListings") : t("completeNow")}
            onPress={() => router.push(!f ? "/facility/profile" : f.is_verified ? "/discover" : { pathname: "/verification", params: { target: "facility" } })}
           tone={f?.is_verified ? "primary" : "warning"}
-        />
-        {f?.is_verified ? <>
+         />}
+         {f?.is_verified ? <>
           <SectionHeader title={t("quickActions")} />
           <View style={{ flexDirection: "row", gap: 10 }}>
             <View style={{ flex: 1 }}><Button label={t("publishJob")} onPress={() => router.push("/facility/create-job")} /></View>
@@ -125,11 +126,11 @@ export default function HomeTab() {
     );
   }
 
-  const profileIncomplete = !p?.headline;
+   const profileIncomplete = !p?.specialty_id || !p?.city || p?.years_experience == null;
   return (
     <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />}>
       {header}
-      {profileIncomplete ? (
+       {professional.isPending ? <Loading rows={1} /> : professional.isError ? <ErrorState message={userMessage(professional.error, lang)} onRetry={() => void professional.refetch()} /> : profileIncomplete ? (
         <PriorityCard
           icon={UserRound}
           eyebrow={t("completeYourProfile")}
@@ -157,14 +158,16 @@ export default function HomeTab() {
           tone="accent"
         />
       )}
-      <SectionHeader title={t("matchedForYou")} />
-      {((jobs.data ?? []) as JobRow[]).slice(0, 2).map((job) => (
+       {!profileIncomplete && !professional.isError && !professional.isPending ? <SectionHeader title={t("matchedForYou")} /> : null}
+       {!profileIncomplete && !professional.isError && !professional.isPending && jobs.isError ? <ErrorState message={userMessage(jobs.error, lang)} onRetry={() => void jobs.refetch()} /> : null}
+       {!profileIncomplete && !professional.isError && !professional.isPending && shifts.isError ? <ErrorState message={userMessage(shifts.error, lang)} onRetry={() => void shifts.refetch()} /> : null}
+       {!profileIncomplete && !professional.isError && !professional.isPending && ((jobs.data ?? []) as JobRow[]).slice(0, 2).map((job) => (
         <JobCard key={job.id} job={job} lang={lang} onPress={() => router.push({ pathname: "/job/[id]", params: { id: job.id } })} />
       ))}
-      {((shifts.data ?? []) as ShiftRow[]).slice(0, 1).map((shift) => (
+       {!profileIncomplete && !professional.isError && !professional.isPending && ((shifts.data ?? []) as ShiftRow[]).slice(0, 1).map((shift) => (
         <ShiftCard key={shift.id} shift={shift} lang={lang} urgentLabel={t("urgent")} perHour={t("perHour")} onPress={() => router.push({ pathname: "/shift/[id]", params: { id: shift.id } })} />
       ))}
-      {(jobs.data ?? []).length === 0 && (shifts.data ?? []).length === 0 ? (
+       {!profileIncomplete && !professional.isError && !professional.isPending && !jobs.isPending && !shifts.isPending && !jobs.isError && !shifts.isError && (jobs.data ?? []).length === 0 && (shifts.data ?? []).length === 0 ? (
         <EmptyState icon={BriefcaseBusiness} text={t("emptyJobs")} desc={t("emptyJobsDesc")}  />
       ) : null}
     </Screen>

@@ -144,3 +144,14 @@ export const bookingStatusLabel = (status: string, lang: Lang) => {
   };
   return map[status]?.[lang] ?? status;
 };
+
+/** Owner-facing opportunity status is not a booking status. */
+export const shiftStatusLabel = (status: string, lang: Lang) => {
+  const map: Record<string, { ar: string; en: string }> = {
+    open: { ar: "متاحة", en: "Open" },
+    filled: { ar: "اكتملت", en: "Filled" },
+    closed: { ar: "مغلقة", en: "Closed" },
+    cancelled: { ar: "ملغاة", en: "Cancelled" },
+  };
+  return map[status]?.[lang] ?? status;
+};

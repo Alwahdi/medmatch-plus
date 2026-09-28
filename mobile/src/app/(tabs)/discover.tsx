@@ -3,12 +3,13 @@ import { FlatList, RefreshControl, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { BriefcaseBusiness, CalendarClock, SlidersHorizontal, Search } from "lucide-react-native";
-import { Button, Chip, EmptyState, ErrorState, Field, Loading, Row, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
+import { Button, EmptyState, ErrorState, Loading, Row, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { Sheet } from "@/components/sheet";
+import { ChoiceField } from "@/components/listing-form";
 import { JobCard, ShiftCard } from "@/components/cards";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import { useJobSearch, useShiftSearch, useSpecialties, type JobRow, type ShiftRow } from "@/lib/queries";
+import { useJobSearch, useShiftSearch, useLocations, useSpecialties, type JobRow, type ShiftRow } from "@/lib/queries";
 import FacilityHome from "@/app/facility";
 import { userMessage } from "@/lib/errors";
 import { colors, radii, space } from "@/lib/theme";
@@ -30,6 +31,9 @@ export default function DiscoverTab() {
 
 
   const specialties = useSpecialties();
+  const locations = useLocations();
+  const cityOptions = [...new Map((locations.data ?? []).map((row) => [row.city_ar, { value: row.city_ar, label: lang === "ar" ? row.city_ar : row.city_en || row.city_ar, keywords: `${row.city_ar} ${row.city_en ?? ""}` }])).values()];
+  if (cityDraft && !cityOptions.some((option) => option.value === cityDraft)) cityOptions.unshift({ value: cityDraft, label: cityDraft, keywords: cityDraft });
   const jobs = useJobSearch({ q: term, specialtyId, city: city || null });
   const shifts = useShiftSearch({ q: term, specialtyId, city: city || null });
   const active = mode === "jobs" ? jobs : shifts;
@@ -70,7 +74,7 @@ export default function DiscoverTab() {
             <Search size={20} color={colors.textMuted} />
             <TextInput
               value={q}
-              onChangeText={setQ}
+               onChangeText={(value) => { setQ(value); if (!value.trim()) setTerm(""); }}
               onSubmitEditing={() => setTerm(q.trim())}
               returnKeyType="search"
               placeholder={mode === "jobs" ? t("search") : t("searchShifts")}
@@ -143,19 +147,8 @@ export default function DiscoverTab() {
           </Row>
         }
       >
-        <Text style={ui.label}>{t("specialty")}</Text>
-        <Row gap={8} wrap>
-          <Chip label={t("all")} active={!specialtyDraft} onPress={() => setSpecialtyDraft(null)} />
-          {(specialties.data ?? []).map((s) => (
-            <Chip
-              key={s.id}
-              label={lang === "ar" ? s.name_ar : s.name_en || s.name_ar}
-              active={specialtyDraft === s.id}
-              onPress={() => setSpecialtyDraft(specialtyDraft === s.id ? null : s.id)}
-            />
-          ))}
-        </Row>
-        <Field label={t("city")} value={cityDraft} onChangeText={setCityDraft} returnKeyType="done" />
+         {specialties.isError ? <ErrorState message={userMessage(specialties.error, lang)} onRetry={() => void specialties.refetch()} /> : specialties.isPending ? <Loading rows={1} /> : <ChoiceField label={t("specialty")} value={specialtyDraft ?? ""} onChange={(value) => setSpecialtyDraft(value || null)} options={[{ value: "", label: t("all") }, ...(specialties.data ?? []).map((s) => ({ value: s.id, label: lang === "ar" ? s.name_ar : s.name_en || s.name_ar }))]} />}
+         {locations.isError ? <ErrorState message={userMessage(locations.error, lang)} onRetry={() => void locations.refetch()} /> : locations.isPending ? <Loading rows={1} /> : <ChoiceField label={t("city")} value={cityDraft} onChange={setCityDraft} options={[{ value: "", label: t("all") }, ...cityOptions]} />}
       </Sheet>
     </SafeAreaView>
   );

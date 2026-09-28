@@ -102,7 +102,7 @@ export default function ProfileScreen() {
     setBusy(false);
     setSaved(true);
     void qc.invalidateQueries({ queryKey: ["professional-profile"] });
-    const returnTo = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : null;
+    const returnTo = typeof params.returnTo === "string" && /^\/(job|shift)\/[0-9a-f-]{36}$/.test(params.returnTo) ? params.returnTo : null;
     if (returnTo) router.replace(returnTo as never);
   };
 
@@ -126,17 +126,17 @@ export default function ProfileScreen() {
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
              <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
              <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" required maxLength={2} />
-             <CityChoice label={t("city")} country={country} value={city} onChange={setCity} />
             <CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} />
+              <CityChoice label={t("city")} country={country} value={city} onChange={setCity} />
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
-            <Field label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChangeText={setLicenseCountry} />
+             <CountryChoice label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChange={setLicenseCountry} />
             <Field label={lang === "ar" ? "الأجر المفضل" : "Preferred rate"} value={preferredRate} onChangeText={setPreferredRate} keyboardType="numeric" />
             <Field label={lang === "ar" ? "نبذة" : "Bio"} value={bio} onChangeText={setBio} multiline />
             <View style={{ gap: 10 }}>
               <View style={{ minHeight: 52, flexDirection: "row", alignItems: "center", gap: 12 }}><View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "متاح للمناوبات" : "Available for shifts"}</Text><Text style={ui.muted}>{lang === "ar" ? "اظهر توفرّك للمناوبات المطابقة" : "Show availability for matching shifts"}</Text></View><Switch value={openToShifts} onValueChange={setOpenToShifts} trackColor={{ true: colors.primary }} /></View>
               <View style={{ minHeight: 52, flexDirection: "row", alignItems: "center", gap: 12 }}><View style={{ flex: 1 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "الظهور في بحث المنشآت" : "Visible in facility search"}</Text><Text style={ui.muted}>{lang === "ar" ? "تظهر بيانات مهنية محدودة وفق الخصوصية" : "Only limited professional details appear"}</Text></View><Switch value={searchable} onValueChange={setSearchable} trackColor={{ true: colors.primary }} /></View>
             </View>
-            {error ? <Text style={ui.error}>{error}</Text> : null}
+             {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
             {saved ? <Text style={ui.muted}>{lang === "ar" ? "تم الحفظ." : "Saved."}</Text> : null}
             <View>
               <Button label={(roles ?? []).length === 0 ? (lang === "ar" ? "حفظ وتفعيل ملفي" : "Save and activate profile") : t("save")} onPress={save} loading={busy} disabled={!fullName.trim()} />

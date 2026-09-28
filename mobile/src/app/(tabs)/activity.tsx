@@ -44,7 +44,7 @@ export default function ActivityTab() {
   const { isFacility } = useAuth();
   const initialTab: Tab = ["applications", "bookings", "invitations", "interviews", "reviews"].includes(params.tab ?? "") ? params.tab as Tab : "applications";
   const [tab, setTab] = useState<Tab>(initialTab);
-  const [actionError, setActionError] = useState<string | null>(null);
+   const [actionError, setActionError] = useState<{ id: string; message: string } | null>(null);
   useEffect(() => { setTab(initialTab); }, [initialTab]);
   const [range, setRange] = useState<TimeRange>("upcoming");
 
@@ -196,26 +196,26 @@ export default function ActivityTab() {
               <Card key={inv.id}>
                 <Row gap={8} wrap>
                   <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{title}</Text>
-                  <Badge label={inv.status} tone={inv.status === "pending" ? "warning" : "neutral"} />
+                    <Badge label={inv.status === "pending" ? (lang === "ar" ? "بانتظار ردك" : "Awaiting your response") : inv.status === "accepted" ? (lang === "ar" ? "مقبولة" : "Accepted") : inv.status === "declined" ? (lang === "ar" ? "مرفوضة" : "Declined") : inv.status === "cancelled" ? (lang === "ar" ? "ملغاة" : "Cancelled") : t("status")} tone={inv.status === "pending" ? "warning" : "neutral"} />
                 </Row>
                 {inv.message ? <Text style={ui.muted}>{inv.message}</Text> : null}
                 {inv.status === "pending" ? (
                   <Row gap={8}>
                     <View style={{ flex: 1 }}>
-                       <Button label={t("accept")} small loading={respond.isPending} onPress={() => { setActionError(null); respond.mutate({ id: inv.id, accept: true }, { onError: (cause) => setActionError(userMessage(cause, lang)) }); }} />
+                        <Button label={t("accept")} small loading={respond.isPending} onPress={() => { setActionError(null); respond.mutate({ id: inv.id, accept: true }, { onError: (cause) => setActionError({ id: inv.id, message: userMessage(cause, lang) }) }); }} />
                     </View>
                     <View style={{ flex: 1 }}>
-                       <Button label={t("decline")} variant="secondary" small disabled={respond.isPending} onPress={() => { setActionError(null); respond.mutate({ id: inv.id, accept: false }, { onError: (cause) => setActionError(userMessage(cause, lang)) }); }} />
+                        <Button label={t("decline")} variant="secondary" small disabled={respond.isPending} onPress={() => { setActionError(null); respond.mutate({ id: inv.id, accept: false }, { onError: (cause) => setActionError({ id: inv.id, message: userMessage(cause, lang) }) }); }} />
                     </View>
                   </Row>
-                ) : null}
+                 ) : null}
+                 {actionError?.id === inv.id ? <Text accessibilityRole="alert" style={ui.error}>{actionError.message}</Text> : null}
               </Card>
             );
           })
         )
       ) : null}
 
-       {actionError ? <Text accessibilityRole="alert" style={ui.error}>{actionError}</Text> : null}
        {tab === "reviews" ? (
          reviews.isPending ? (
           <Loading />
@@ -232,7 +232,7 @@ export default function ActivityTab() {
       {tab === "interviews" ? interviews.isPending ? <Loading /> : interviews.isError ? <ErrorState message={userMessage(interviews.error, lang)} onRetry={() => void interviews.refetch()} /> : (interviews.data ?? []).length === 0 ? <EmptyState icon={CalendarClock} text={t("noUpcoming")} /> : (interviews.data ?? []).map((interview) => {
         const context = interview as unknown as { jobs?: { title?: string }; shifts?: { title?: string } };
         const title = context.jobs?.title ?? context.shifts?.title ?? t("interviewInvite");
-         return <Card key={interview.id}><Row gap={8} wrap><Text style={[ui.bodyStrong, { flex: 1 }]}>{title}</Text><Badge label={interview.status} tone={interview.status === "confirmed" ? "success" : interview.status === "declined" ? "danger" : "warning"} /></Row><Text style={ui.body}>{formatDateTime(interview.scheduled_at, lang)}</Text>{interview.location ? <Text style={ui.muted}>{interview.location}</Text> : null}{interview.status === "scheduled" ? <Row gap={8}><View style={{ flex: 1 }}><Button label={t("accept")} small loading={respondInterview.isPending} onPress={() => respondInterview.mutate({ id: interview.id, accept: true }, { onError: (cause) => setActionError(userMessage(cause, lang)) })} /></View><View style={{ flex: 1 }}><Button label={t("decline")} variant="secondary" small disabled={respondInterview.isPending} onPress={() => respondInterview.mutate({ id: interview.id, accept: false }, { onError: (cause) => setActionError(userMessage(cause, lang)) })} /></View></Row> : null}</Card>;
+          return <Card key={interview.id}><Row gap={8} wrap><Text style={[ui.bodyStrong, { flex: 1 }]}>{title}</Text><Badge label={interview.status === "scheduled" ? (lang === "ar" ? "بانتظار ردك" : "Awaiting your response") : interview.status === "confirmed" ? (lang === "ar" ? "مؤكدة" : "Confirmed") : interview.status === "declined" ? (lang === "ar" ? "مرفوضة" : "Declined") : interview.status === "cancelled" ? (lang === "ar" ? "ملغاة" : "Cancelled") : t("status")} tone={interview.status === "confirmed" ? "success" : interview.status === "declined" ? "danger" : "warning"} /></Row><Text style={ui.body}>{formatDateTime(interview.scheduled_at, lang)}</Text>{interview.location ? <Text style={ui.muted}>{interview.location}</Text> : null}{interview.status === "scheduled" ? <Row gap={8}><View style={{ flex: 1 }}><Button label={t("accept")} small loading={respondInterview.isPending} onPress={() => { setActionError(null); respondInterview.mutate({ id: interview.id, accept: true }, { onError: (cause) => setActionError({ id: interview.id, message: userMessage(cause, lang) }) }); }} /></View><View style={{ flex: 1 }}><Button label={t("decline")} variant="secondary" small disabled={respondInterview.isPending} onPress={() => { setActionError(null); respondInterview.mutate({ id: interview.id, accept: false }, { onError: (cause) => setActionError({ id: interview.id, message: userMessage(cause, lang) }) }); }} /></View></Row> : null}{actionError?.id === interview.id ? <Text accessibilityRole="alert" style={ui.error}>{actionError.message}</Text> : null}</Card>;
       }) : null}
     </Screen>
   );
@@ -248,8 +248,10 @@ function FacilityApplicantsOverview() {
   return (
     <Screen refreshControl={<RefreshControl refreshing={jobs.isFetching} onRefresh={() => void jobs.refetch()} tintColor={colors.primary} />}>
       <ScreenHeader title={t("applicants")} sub={t("facilityApplicantsSub")} />
-      {jobs.isPending ? <Loading /> : jobs.isError ? (
-        <ErrorState message={userMessage(jobs.error, lang)} onRetry={() => void jobs.refetch()} />
+       {facility.isPending || (facility.data && jobs.isPending) ? <Loading /> : facility.isError || jobs.isError ? (
+         <ErrorState message={userMessage(facility.error ?? jobs.error, lang)} onRetry={() => { void facility.refetch(); void jobs.refetch(); }} />
+       ) : !facility.data ? (
+         <EmptyState icon={UsersRound} text={t("completeProfile")} action={<Button label={t("completeNow")} onPress={() => router.push("/facility/profile")} />} />
       ) : withApplicants.length === 0 ? (
         <EmptyState icon={UsersRound} text={lang === "ar" ? "لا يوجد متقدمون جدد" : "No new applicants"} desc={t("facilityApplicantsSub")} action={<Button label={t("myListings")} small onPress={() => router.push("/discover")} />} />
       ) : withApplicants.map((job) => (

@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { Badge, Card, EmptyState, ErrorState, KeyValue, Loading, Screen, ScreenHeader, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useFacilityShift, useMyFacility } from "@/lib/queries";
-import { bookingStatusLabel, formatDateTime, formatMoney } from "@/lib/format";
+import { shiftStatusLabel, formatDateTime, formatMoney } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 
 export default function FacilityShiftDetail() {
@@ -19,7 +19,7 @@ export default function FacilityShiftDetail() {
       <ErrorState message={userMessage(facility.error ?? shift.error, lang)} onRetry={() => { void facility.refetch(); void shift.refetch(); }} /> : !data ?
       <EmptyState text={lang === "ar" ? "لم نعد نجد هذه المناوبة ضمن فرص منشأتك." : "This shift is not in your facility listings."} /> : <>
         <Text style={ui.title}>{data.title}</Text>
-        <Badge label={bookingStatusLabel(data.status, lang)} tone={data.status === "open" ? "success" : "neutral"} />
+        <Badge label={shiftStatusLabel(data.status, lang)} tone={data.status === "open" ? "success" : "neutral"} />
         <Card>
           <KeyValue k={t("startsAt")} v={formatDateTime(data.starts_at, lang)} />
           <KeyValue k={t("endsAt")} v={formatDateTime(data.ends_at, lang)} />

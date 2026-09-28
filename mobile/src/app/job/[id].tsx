@@ -30,7 +30,7 @@ export default function JobDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useI18n();
   const router = useRouter();
-  const { session, isProfessional } = useAuth();
+   const { session, isProfessional, isFacility } = useAuth();
   const job = useJob(String(id));
   const applications = useMyApplications();
   const professional = useProfessionalProfile();
@@ -114,10 +114,10 @@ export default function JobDetail() {
                 </Row>
                 <Button label={t("activity")} variant="secondary" small onPress={() => router.push("/activity")} />
               </Card>
-            ) : session ? (
+             ) : session && !isFacility ? (
               <Card>
                 <Field label={t("coverLetter")} value={cover} onChangeText={setCover} multiline />
-                {error ? <Text style={ui.error}>{error}</Text> : null}
+                 {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
               </Card>
             ) : null}
           </>
@@ -125,10 +125,10 @@ export default function JobDetail() {
         {consent.node}
       </Screen>
 
-       {data && !applied && !existingApplication ? (
+        {data && !isFacility && !applied && !existingApplication ? (
         <StickyBar>
           {session ? (
-             <Button label={(professional.data as { is_verified?: boolean } | null)?.is_verified ? t("apply") : t("verificationDocuments")} onPress={apply} loading={busy} disabled={applications.isPending || professional.isPending} />
+              <Button label={!isProfessional ? t("completeNow") : (professional.data as { is_verified?: boolean } | null)?.is_verified ? t("apply") : t("verificationDocuments")} onPress={apply} loading={busy} disabled={applications.isPending || professional.isPending} />
           ) : (
             <>
               <Text style={ui.muted}>{t("needSignIn")}</Text>

@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useFacilityJobs, useFacilityShifts, useMyFacility, useVerificationDocuments } from "@/lib/queries";
-import { bookingStatusLabel, formatDate, formatDateTime } from "@/lib/format";
+import { shiftStatusLabel, formatDate, formatDateTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { Building2, CalendarClock, FilePlus2, ShieldCheck, UsersRound } from "lucide-react-native";
 import { colors } from "@/lib/theme";
@@ -109,7 +109,7 @@ export default function FacilityHome({ embedded = false }: { embedded?: boolean 
                  <Pressable key={s.id} accessibilityRole="button" accessibilityLabel={s.title} onPress={() => router.push({ pathname: "/facility/shift/[id]", params: { id: s.id } })}><Card>
                   <Row gap={8} wrap>
                     <Text style={[ui.bodyStrong, { flexShrink: 1 }]}>{s.title}</Text>
-                     <Badge label={bookingStatusLabel(s.status, lang)} />
+                      <Badge label={shiftStatusLabel(s.status, lang)} />
                   </Row>
                   <Text style={ui.muted}>{formatDateTime(s.starts_at, lang)}</Text>
                  </Card></Pressable>
