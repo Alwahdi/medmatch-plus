@@ -1,6 +1,6 @@
 # Mobile experience quality pass
 
-- [x] Replace free-text cities with administrator-managed searchable choices in mobile profiles and publishing; preserve historic values
+- [x] Replace free-text countries and cities with administrator-managed searchable choices in mobile profiles and publishing; preserve historic values
 - [x] Replace free-text facility type with existing categories and retain historic types
 - [x] Consolidate applicant decisions into one action and remove repeated home actions/statistics
 

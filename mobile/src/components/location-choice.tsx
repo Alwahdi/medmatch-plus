@@ -35,6 +35,9 @@ export function CountryChoice({ value, onChange, label }: {
   const locations = useLocations();
   const unique = [...new Set((locations.data ?? []).map((row) => row.country))];
   if (value && !unique.includes(value)) unique.unshift(value);
-  if (!unique.length) unique.push("YE");
-  return <ChoiceField label={label} value={value} onChange={onChange} options={unique.map((country) => ({ value: country, label: country === "YE" ? (lang === "ar" ? "اليمن" : "Yemen") : country }))} />;
+  if (!unique.length && !locations.isPending && !locations.isError) unique.push("YE");
+  return <>
+    <ChoiceField label={label} value={value} onChange={onChange} options={unique.map((country) => ({ value: country, label: country === "YE" ? (lang === "ar" ? "اليمن" : "Yemen") : country }))} />
+    {locations.isError ? <Text accessibilityRole="alert" style={ui.error}>{lang === "ar" ? "تعذّر تحميل الدول. أعد المحاولة." : "Could not load countries. Please retry."}</Text> : null}
+  </>;
 }
