@@ -3,7 +3,7 @@ import { Text } from "react-native";
 import { ChoiceField } from "@/components/listing-form";
 import { useI18n } from "@/lib/i18n";
 import { useLocations } from "@/lib/queries";
-import { styles as ui } from "@/components/ui";
+import { Button, styles as ui } from "@/components/ui";
 
 /** Persist the canonical Arabic city name used by listings and search, regardless of display language. */
 export function CityChoice({ country, value, onChange, label }: {
@@ -22,7 +22,7 @@ export function CityChoice({ country, value, onChange, label }: {
   if (value && !seen.has(value)) options.unshift({ value, label: value, keywords: value });
   return <>
     <ChoiceField label={label} value={value} onChange={onChange} options={options} />
-    {locations.isError ? <Text accessibilityRole="alert" style={ui.error}>{lang === "ar" ? "تعذّر تحميل المدن. أعد المحاولة." : "Could not load cities. Please retry."}</Text> : null}
+    {locations.isError ? <><Text accessibilityRole="alert" style={ui.error}>{lang === "ar" ? "تعذّر تحميل المدن." : "Could not load cities."}</Text><Button label={lang === "ar" ? "إعادة المحاولة" : "Retry"} variant="ghost" onPress={() => void locations.refetch()} /></> : null}
     {!locations.isError && !locations.isPending && options.length === 0 ? <Text style={ui.muted}>{lang === "ar" ? "لا توجد مدن متاحة لهذه الدولة حالياً." : "No cities available for this country yet."}</Text> : null}
   </>;
 }
@@ -35,9 +35,8 @@ export function CountryChoice({ value, onChange, label }: {
   const locations = useLocations();
   const unique = [...new Set((locations.data ?? []).map((row) => row.country))];
   if (value && !unique.includes(value)) unique.unshift(value);
-  if (!unique.length && !locations.isPending && !locations.isError) unique.push("YE");
   return <>
     <ChoiceField label={label} value={value} onChange={onChange} options={unique.map((country) => ({ value: country, label: country === "YE" ? (lang === "ar" ? "اليمن" : "Yemen") : country }))} />
-    {locations.isError ? <Text accessibilityRole="alert" style={ui.error}>{lang === "ar" ? "تعذّر تحميل الدول. أعد المحاولة." : "Could not load countries. Please retry."}</Text> : null}
+    {locations.isError ? <><Text accessibilityRole="alert" style={ui.error}>{lang === "ar" ? "تعذّر تحميل الدول." : "Could not load countries."}</Text><Button label={lang === "ar" ? "إعادة المحاولة" : "Retry"} variant="ghost" onPress={() => void locations.refetch()} /></> : null}
   </>;
 }
