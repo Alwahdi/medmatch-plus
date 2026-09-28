@@ -86,8 +86,8 @@ export default function ShiftDetail() {
               <Badge label={`${formatMoney(data.hourly_rate, data.currency, lang)} / ${t("perHour")}`} tone="primary" />
             </Row>
 
-            <Card style={{ borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
-              <Text style={ui.label}>{t("startsIn").replace("{t}", relativeTime(data.starts_at, lang))}</Text>
+             <Card style={{ borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
+               {new Date(data.starts_at).getTime() > Date.now() ? <Text style={ui.label}>{t("startsIn").replace("{t}", relativeTime(data.starts_at, lang))}</Text> : null}
               <Text style={ui.body}>{formatDateTime(data.starts_at, lang)}</Text>
             </Card>
 
@@ -112,15 +112,15 @@ export default function ShiftDetail() {
                 </Row>
                 <Button label={t("activity")} variant="secondary" small onPress={() => router.push("/activity")} />
               </Card>
-            ) : error ? (
-              <Text style={ui.error}>{error}</Text>
+             ) : error ? (
+               <Text accessibilityRole="alert" style={ui.error}>{error}</Text>
             ) : null}
           </>
         )}
         {consent.node}
       </Screen>
 
-       {data && !booked && !existingBooking ? (
+        {data && data.status === "open" && new Date(data.starts_at).getTime() > Date.now() && !booked && !existingBooking ? (
         <StickyBar>
           {session ? (
              <Button label={(professional.data as { is_verified?: boolean } | null)?.is_verified ? t("book") : t("verificationDocuments")} onPress={book} loading={busy} disabled={bookings.isPending || professional.isPending} />

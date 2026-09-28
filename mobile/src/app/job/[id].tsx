@@ -117,7 +117,7 @@ export default function JobDetail() {
             ) : session ? (
               <Card>
                 <Field label={t("coverLetter")} value={cover} onChangeText={setCover} multiline />
-                {error ? <Text style={ui.error}>{error}</Text> : null}
+                 {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
               </Card>
             ) : null}
           </>
