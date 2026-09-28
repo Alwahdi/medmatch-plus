@@ -16,7 +16,7 @@ export default function Welcome() {
   const { roles } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams<{ name?: string; role?: string }>();
-  const isFacility = params.role === "facility";
+  const isFacility = roles.includes("facility") || (roles.length === 0 && params.role === "facility");
   const name = (params.name ?? "").trim();
 
   const steps: Step[] = isFacility

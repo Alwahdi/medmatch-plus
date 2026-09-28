@@ -58,8 +58,8 @@ export default function HomeTab() {
   const bookings = useMyBookings();
   const invitations = useMyInvitations();
   const notifications = useNotifications();
-  const jobs = useJobSearch({ q: "" });
-  const shifts = useShiftSearch({ q: "" });
+  const jobs = useJobSearch({ specialtyId: professional.data?.specialty_id ?? null });
+  const shifts = useShiftSearch({ specialtyId: professional.data?.specialty_id ?? null });
 
   const p = professional.data as { full_name?: string; specialty_id?: string | null; city?: string | null; years_experience?: number | null; is_verified?: boolean } | null;
   const f = facility.data as { name_ar?: string; name_en?: string | null; is_verified?: boolean } | null;
@@ -158,14 +158,16 @@ export default function HomeTab() {
           tone="accent"
         />
       )}
-      <SectionHeader title={t("matchedForYou")} />
-      {((jobs.data ?? []) as JobRow[]).slice(0, 2).map((job) => (
+       {!profileIncomplete && !professional.isError && !professional.isPending ? <SectionHeader title={t("matchedForYou")} /> : null}
+       {!profileIncomplete && !professional.isError && !professional.isPending && jobs.isError ? <ErrorState message={userMessage(jobs.error, lang)} onRetry={() => void jobs.refetch()} /> : null}
+       {!profileIncomplete && !professional.isError && !professional.isPending && shifts.isError ? <ErrorState message={userMessage(shifts.error, lang)} onRetry={() => void shifts.refetch()} /> : null}
+       {!profileIncomplete && !professional.isError && !professional.isPending && ((jobs.data ?? []) as JobRow[]).slice(0, 2).map((job) => (
         <JobCard key={job.id} job={job} lang={lang} onPress={() => router.push({ pathname: "/job/[id]", params: { id: job.id } })} />
       ))}
-      {((shifts.data ?? []) as ShiftRow[]).slice(0, 1).map((shift) => (
+       {!profileIncomplete && !professional.isError && !professional.isPending && ((shifts.data ?? []) as ShiftRow[]).slice(0, 1).map((shift) => (
         <ShiftCard key={shift.id} shift={shift} lang={lang} urgentLabel={t("urgent")} perHour={t("perHour")} onPress={() => router.push({ pathname: "/shift/[id]", params: { id: shift.id } })} />
       ))}
-      {(jobs.data ?? []).length === 0 && (shifts.data ?? []).length === 0 ? (
+       {!profileIncomplete && !professional.isError && !professional.isPending && !jobs.isPending && !shifts.isPending && !jobs.isError && !shifts.isError && (jobs.data ?? []).length === 0 && (shifts.data ?? []).length === 0 ? (
         <EmptyState icon={BriefcaseBusiness} text={t("emptyJobs")} desc={t("emptyJobsDesc")}  />
       ) : null}
     </Screen>
