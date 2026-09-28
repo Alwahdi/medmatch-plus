@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { BriefcaseBusiness, CalendarClock, SlidersHorizontal, Search } from "lucide-react-native";
-import { Button, Chip, EmptyState, ErrorState, Loading, Row, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
+import { Button, EmptyState, ErrorState, Loading, Row, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { Sheet } from "@/components/sheet";
 import { ChoiceField } from "@/components/listing-form";
 import { JobCard, ShiftCard } from "@/components/cards";
