@@ -10,3 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Mobile legal consent records are inserted per document version; do not upsert on `(user_id, doc_key)` because the database uniqueness key also includes `version`.
+
+- Mobile city selection reads active administrator-managed locations and persists the Arabic city key across languages, because search and listings compare the stored city string.

@@ -114,7 +114,7 @@ export default function FacilityJobApplicants() {
               </Text>
               {a.cover_letter ? <Text style={ui.body} numberOfLines={4}>{a.cover_letter}</Text> : null}
 
-              <Button label={t("applicantDecision")} variant="secondary" small onPress={() => { setDecisionId(a.id); setActionError(null); }} />
+              {a.status !== "hired" && a.status !== "rejected" && a.status !== "withdrawn" ? <Button label={t("applicantDecision")} variant="secondary" small onPress={() => { setDecisionId(a.id); setActionError(null); }} /> : null}
               <Sheet visible={decisionId === a.id} title={professional?.full_name ?? t("applicantDecision")} onClose={() => setDecisionId(null)}>
                 <Text style={ui.muted}>{applicationStatusLabel(a.status, lang)}</Text>
                 {STAGES.filter((stage) => stage !== a.status).map((stage) => (

@@ -11,7 +11,7 @@ export function CityChoice({ country, value, onChange, label }: {
 }) {
   const { lang } = useI18n();
   const locations = useLocations();
-  const rows = (locations.data ?? []).filter((row) => row.country === country);
+  const rows = (locations.data ?? []).filter((row) => row.country === country || (country === "YE" && ["اليمن", "Yemen"].includes(row.country)) || (["اليمن", "Yemen"].includes(country) && row.country === "YE"));
   const seen = new Set<string>();
   const options = rows.filter((row) => {
     if (seen.has(row.city_ar)) return false;
