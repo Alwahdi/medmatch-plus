@@ -1,3 +1,4 @@
+import { CityChoice } from "@/components/location-choice";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -46,7 +47,7 @@ export default function CreateShiftScreen() {
     <DateTimeField label={t("startsAt")} value={form.startsAt} onChange={(v) => update("startsAt", v)} minimumDate={new Date()} required />
     <DateTimeField label={t("endsAt")} value={form.endsAt} onChange={(v) => update("endsAt", v)} minimumDate={form.startsAt ? new Date(form.startsAt) : new Date()} required />
     <ListingField label={t("hourlyRate")} value={form.hourlyRate} onChangeText={(v) => update("hourlyRate", v)} numeric />
-     <ListingField label={t("city")} value={form.city} onChangeText={(v) => update("city", v)} required maxLength={60} />
+     <CityChoice label={t("city")} country={form.country} value={form.city} onChange={(v) => update("city", v)} />
      <ListingField label={t("notes")} value={form.notes} onChangeText={(v) => update("notes", v)} multiline maxLength={1000} />
     {error ? <ErrorState message={error} /> : null}<Button label={t("reviewPublish")} icon={CheckCircle2} onPress={() => { const problem = validate(); setError(problem); if (!problem) setReviewing(true); }} />
   </>}</Screen></>;
