@@ -74,7 +74,7 @@ export function IconButton({ icon: Icon, label, onPress, tone = "neutral" }: { i
 export function MenuRow({ icon: Icon, title, subtitle, onPress, tone = "primary" }: { icon: LucideIcon; title: string; subtitle?: string; onPress?: () => void; tone?: "primary" | "accent" | "violet" | "danger" }) {
   const { rtl } = useI18n();
   const p = tone === "danger" ? { bg: colors.dangerSoft, fg: colors.danger } : tone === "accent" ? { bg: colors.accentSoft, fg: colors.accent } : tone === "violet" ? { bg: colors.brandVioletSoft, fg: colors.brandViolet } : { bg: colors.primarySoft, fg: colors.primary };
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1 }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityHint={subtitle} onPress={onPress} style={({ pressed }) => [styles.menuRow, { opacity: pressed ? .72 : 1, backgroundColor: pressed ? colors.surfaceMuted : colors.surface }]}><View style={[styles.menuIcon, { backgroundColor: p.bg }]}><Icon size={21} color={p.fg} strokeWidth={2.1} /></View><View style={styles.menuText}><Text style={styles.menuTitle}>{title}</Text>{subtitle ? <Text style={styles.menuSubtitle} numberOfLines={2}>{subtitle}</Text> : null}</View><View accessible={false} importantForAccessibility="no-hide-descendants"><ChevronLeft size={19} color={colors.textSubtle} style={{ transform: [{ scaleX: rtl ? 1 : -1 }] }} /></View></Pressable>;
 }
 
 type FieldProps = TextInputProps & { label?: string; error?: string | null; required?: boolean; helper?: string; showCount?: boolean };
@@ -217,15 +217,15 @@ export function KeyValue({ k, v }: { k: string; v: string }) { return <View styl
 export const styles = StyleSheet.create({
   fill: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.bg },
-   screenInner: { paddingHorizontal: space.gutter, paddingTop: space.lg, gap: space.md },
-  scrollContent: { paddingBottom: space.xxl },
+  screenInner: { paddingHorizontal: space.xl, paddingTop: space.pageTop, gap: space.lg },
+  scrollContent: { paddingBottom: space.pageBottom },
 
   titleWrap: { gap: space.xs, marginBottom: space.xs },
   eyebrow: { ...typo.micro, color: colors.primary },
   title: { ...typo.title, color: colors.text, writingDirection: "auto" },
-  screenHeader: { minHeight: 52, flexDirection: "row", alignItems: "center", gap: space.md, marginBottom: space.xs },
-  screenHeaderText: { flex: 1, minWidth: 0, gap: 2 },
-  sectionHeader: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: space.sm },
+  screenHeader: { minHeight: 52, flexDirection: "row", alignItems: "center", gap: space.md, marginBottom: space.sm },
+  screenHeaderText: { flex: 1, minWidth: 0, gap: space.xs },
+  sectionHeader: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: space.lg },
   sectionTitle: { ...typo.section, color: colors.text },
 
   body: { ...typo.body, color: colors.text, writingDirection: "auto" },
@@ -234,7 +234,7 @@ export const styles = StyleSheet.create({
   label: { ...typo.label, color: colors.text },
   error: { ...typo.caption, fontSize: 12, color: colors.danger },
 
-   card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: space.lg, gap: space.sm },
+  card: { backgroundColor: colors.surface, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, padding: space.xl, gap: space.md },
   button: { borderRadius: radii.md, borderWidth: 1, alignItems: "center", justifyContent: "center" },
   buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: space.sm },
   buttonLabel: { fontFamily: fonts.bold, lineHeight: 24 },
@@ -243,7 +243,7 @@ export const styles = StyleSheet.create({
   field: { gap: 6 },
   fieldMeta: { flexDirection: "row", alignItems: "flex-start", gap: space.sm },
   helper: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
-   input: { minHeight: 52, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.md, paddingVertical: 10, color: colors.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
+  input: { minHeight: 52, borderRadius: radii.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.lg, paddingVertical: 10, color: colors.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
   inputMultiline: { minHeight: 112, paddingTop: space.md, textAlignVertical: "top" },
   inputError: { borderColor: colors.danger, borderWidth: 1.5 },
   inputFocused: { borderColor: colors.primary, borderWidth: 1.5 },
@@ -257,17 +257,17 @@ export const styles = StyleSheet.create({
   chip: { paddingHorizontal: space.lg, minHeight: 44, justifyContent: "center", borderRadius: radii.pill, borderWidth: 1 },
   chipLabel: { ...typo.micro, fontSize: 13 },
 
-  menuRow: { minHeight: 60, flexDirection: "row", alignItems: "center", gap: space.md, paddingHorizontal: space.md, paddingVertical: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  menuIcon: { width: 44, height: 44, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
-  menuText: { flex: 1, minWidth: 0, gap: 1 },
+  menuRow: { minHeight: 64, flexDirection: "row", alignItems: "center", gap: space.lg, paddingHorizontal: space.lg, paddingVertical: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  menuIcon: { width: 40, height: 40, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
+  menuText: { flex: 1, minWidth: 0, gap: space.xs },
   menuTitle: { ...typo.label, fontSize: 15, color: colors.text },
-  menuSubtitle: { ...typo.caption, fontSize: 12, lineHeight: 18, color: colors.textMuted },
+  menuSubtitle: { ...typo.caption, color: colors.textMuted },
 
   state: { alignItems: "center", justifyContent: "center", borderRadius: radii.lg, borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: space.xl, paddingVertical: space.xl, gap: space.sm },
   stateIcon: { width: 56, height: 56, borderRadius: radii.lg, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
   stateTitle: { ...typo.cardTitle, color: colors.text, textAlign: "center" },
 
-  priorityCard: { borderRadius: radii.xl, borderWidth: 1, padding: space.lg, gap: space.md },
+  priorityCard: { borderRadius: radii.xl, borderWidth: 1, padding: space.xl, gap: space.lg },
   priorityIcon: { width: 48, height: 48, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
   priorityCopy: { gap: space.xs },
   priorityTitle: { ...typo.section, color: colors.text },

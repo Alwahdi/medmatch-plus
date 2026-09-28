@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import Constants from "expo-constants";
 import { Bell, Building2, FileText, Globe2, LogOut, ShieldCheck, Stethoscope, UserRound } from "lucide-react-native";
@@ -7,7 +7,7 @@ import { Badge, MenuRow, Row, Screen, ScreenHeader, Segmented, styles as ui } fr
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useMyFacility, useProfessionalProfile } from "@/lib/queries";
-import { colors, fonts, radii, raisedShadow } from "@/lib/theme";
+import { colors, fonts, radii, shadow, space } from "@/lib/theme";
 
 export default function AccountTab() {
   const { t, lang, setLang } = useI18n();
@@ -24,34 +24,50 @@ export default function AccountTab() {
 
   return <Screen>
     <ScreenHeader title={t("account")} sub={lang === "ar" ? "ملفك وإعداداتك" : "Your profile and settings"}/>
-    <View style={[{ backgroundColor: colors.surface, borderRadius: radii.xl, padding: 20, alignItems: "center", gap: 8 }, raisedShadow]}>
-      <View style={{ width: 82, height: 82, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: colors.surface }}><UserRound size={38} color={colors.primary}/></View>
-      <Text style={{ fontFamily: fonts.bold, fontSize: 20, color: colors.text, textAlign: "center" }}>{displayName}</Text>
-      {detail ? <Text style={ui.muted}>{detail}</Text> : null}
-      <Row gap={6} wrap>{verified ? <Badge label={t("verified")} tone="success"/> : null}{roles.map((r) => <Badge key={r} label={r === "facility" ? t("roleFacility") : r === "professional" ? t("roleProfessional") : "Admin"} tone="primary"/>)}</Row>
+    <View style={[s.identity, shadow]}>
+      <View style={s.avatar}><UserRound size={42} color={colors.primary}/></View>
+      <Text style={s.name} numberOfLines={2}>{displayName}</Text>
+      {detail ? <Text style={s.detail} numberOfLines={2}>{detail}</Text> : null}
+      <Row gap={space.sm} wrap>{verified ? <Badge label={t("verified")} tone="success"/> : null}{roles.map((r) => <Badge key={r} label={r === "facility" ? t("roleFacility") : r === "professional" ? t("roleProfessional") : "Admin"} tone="primary"/>)}</Row>
     </View>
 
-    <Text style={[ui.label, { color: colors.textMuted, marginTop: 4 }]}>{lang === "ar" ? "إدارة الحساب" : "ACCOUNT"}</Text>
-    {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
-     {isFacility ? <MenuRow icon={Building2} title={t("editFacility")} subtitle={lang === "ar" ? "الاسم والنوع والموقع" : "Name, type and location"} onPress={() => router.push("/facility/profile")}/> : null}
-    <MenuRow
+    <View style={s.group}>
+      <Text style={s.groupTitle}>{lang === "ar" ? "الملف والتوثيق" : "PROFILE & VERIFICATION"}</Text>
+      {isProfessional ? <MenuRow icon={Stethoscope} title={t("profile")} subtitle={lang === "ar" ? "بياناتك المهنية والسيرة" : "Professional details and CV"} onPress={() => router.push("/profile")}/> : null}
+      {isFacility ? <MenuRow icon={Building2} title={t("editFacility")} subtitle={lang === "ar" ? "الاسم والنوع والموقع" : "Name, type and location"} onPress={() => router.push("/facility/profile")}/> : null}
+      <MenuRow
       icon={ShieldCheck}
       title={lang === "ar" ? "مستندات التوثيق" : "Verification documents"}
        subtitle={verified ? (lang === "ar" ? "حسابك موثّق" : "Your account is verified") : (lang === "ar" ? "قدّم المستندات للمراجعة؛ الشارة بعد اعتمادها" : "Submit documents for review; the badge follows approval")}
       tone={verified ? "primary" : "accent"}
       onPress={() => router.push({ pathname: "/verification", params: { target: isFacility ? "facility" : "professional" } })}
-    />
-    <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
-    <MenuRow icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 12, paddingVertical: 12, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}>
-      <View style={{ width: 44, height: 44, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}><Globe2 size={21} color={colors.primary}/></View>
-      <Text style={[ui.menuTitle, { flex: 1 }]}>{t("language")}</Text>
-      <View style={{ width: 168 }}>
-        <Segmented value={lang} options={[{ value: "ar", label: t("arabic") }, { value: "en", label: t("english") }]} onChange={(v) => void setLang(v)}/>
-      </View>
+      />
     </View>
 
-    {webUrl ? <MenuRow icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
-    <MenuRow icon={LogOut} title={t("signOut")} tone="danger" onPress={() => void signOut()}/>
+    <View style={s.group}>
+      <Text style={s.groupTitle}>{lang === "ar" ? "الإعدادات" : "SETTINGS"}</Text>
+      <MenuRow icon={Bell} title={t("notifications")} onPress={() => router.push("/notifications")}/>
+      <View style={s.languageRow}>
+        <View style={s.languageIcon}><Globe2 size={21} color={colors.primary}/></View>
+        <Text style={[ui.menuTitle, { flex: 1 }]}>{t("language")}</Text>
+        <View style={s.languageControl}><Segmented value={lang} options={[{ value: "ar", label: t("arabic") }, { value: "en", label: t("english") }]} onChange={(v) => void setLang(v)}/></View>
+      </View>
+      <MenuRow icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/>
+      {webUrl ? <MenuRow icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
+    </View>
+    <View style={s.signOut}><MenuRow icon={LogOut} title={t("signOut")} tone="danger" onPress={() => void signOut()}/></View>
   </Screen>;
 }
+
+const s = StyleSheet.create({
+  identity: { backgroundColor: colors.surface, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, paddingHorizontal: space.xl, paddingVertical: space.xxl, alignItems: "center", gap: space.sm },
+  avatar: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", marginBottom: space.sm },
+  name: { fontFamily: fonts.bold, fontSize: 20, lineHeight: 30, color: colors.primary, textAlign: "center" },
+  detail: { ...ui.muted, textAlign: "center" },
+  group: { gap: space.md, marginTop: space.md },
+  groupTitle: { ...ui.label, color: colors.textMuted, marginBottom: space.xs },
+  languageRow: { minHeight: 64, flexDirection: "row", alignItems: "center", gap: space.md, padding: space.md, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  languageIcon: { width: 40, height: 40, borderRadius: radii.md, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
+  languageControl: { width: 148, flexShrink: 1 },
+  signOut: { marginTop: space.lg, marginBottom: space.xl },
+});

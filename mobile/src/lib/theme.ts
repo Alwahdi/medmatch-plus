@@ -1,7 +1,7 @@
 import { I18nManager } from "react-native";
 
 export const colors = {
-  bg: "#F8FAFB",
+  bg: "#F5F8F9",
   surface: "#FFFFFF",
   surfaceMuted: "#F0F4F5",
   surfaceRaised: "#FBFCFD",
@@ -48,6 +48,9 @@ export const space = {
   xl: 20,
   xxl: 24,
   gutter: 16,
+  section: 28,
+  pageTop: 24,
+  pageBottom: 32,
 } as const;
 
 /**
