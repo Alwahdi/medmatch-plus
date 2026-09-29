@@ -29,7 +29,8 @@ export function AdminDocumentRenewal() {
     if (error) throw error;
   }, onSuccess: () => { toast.success(lang === "ar" ? "حُفظت نافذة التجديد" : "Renewal window saved"); setDays(""); void qc.invalidateQueries({ queryKey: ["admin-document-renewal"] }); }, onError: (error) => toast.error(friendlyError(error, lang)) });
   const review = useMutation({ mutationFn: async ({ id, approve }: { id: string; approve: boolean }) => {
-    const { error } = await supabase.rpc("admin_review_document_upload_request", { _id: id, _approve: approve, _note: notes[id]?.trim() || undefined });
+    const note = notes[id]?.trim();
+    const { error } = await supabase.rpc("admin_review_document_upload_request", { _id: id, _approve: approve, ...(note ? { _note: note } : {}) });
     if (error) throw error;
   }, onSuccess: () => { toast.success(lang === "ar" ? "حُفظ القرار" : "Decision saved"); void qc.invalidateQueries({ queryKey: ["admin-document-upload-requests"] }); }, onError: (error) => toast.error(friendlyError(error, lang)) });
   return <section className="space-y-5 rounded-lg border border-border bg-card p-4 sm:p-6">
