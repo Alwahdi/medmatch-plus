@@ -349,7 +349,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             return (
               <Link
                 key={item.to}
-                to={path}
+                to={path ?? item.to}
                 {...(adminTab ? { search: { tab: adminTab } } : {})}
                         className={cn(
                   "relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-xs font-medium transition-colors",
