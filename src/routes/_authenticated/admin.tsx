@@ -543,7 +543,7 @@ function AdminPage() {
         <p className="mt-2 text-muted-foreground">{c.stepUpText}</p>
         <a
           href="/mfa-challenge?next=/admin"
-          className="mt-6 inline-block text-primary underline underline-offset-4"
+          className="mt-6 inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {c.stepUpAction}
         </a>
