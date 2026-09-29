@@ -104,7 +104,7 @@ export function useAdminCounts(enabled: boolean) {
         supabase.from("facility_documents").select("id", head).eq("status", "pending"),
         supabase.from("profile_change_requests").select("id", head).eq("status", "pending"),
         supabase.from("safety_reports").select("id", head).eq("status", "open"),
-        supabase.from("contact_messages").select("id", head).eq("status", "new"),
+        supabase.from("contact_messages").select("id", head).eq("is_handled", false),
       ]);
       return {
         docs: docs.count ?? 0,
@@ -129,7 +129,7 @@ const WS_KEY = "syndeo.workspace";
 export function DashboardShell({ children }: { children: ReactNode }) {
   const { user } = useSession();
   const { data: roles } = useRoles(user);
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const { total: unreadTotal } = useUnread(user);
@@ -150,7 +150,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   };
   const { data: counts } = useAdminCounts(adminMode);
   const currentTab = onAdminPath && pathname === "/admin" ? (typeof search?.tab === "string" ? search.tab : "overview") : "";
-  const { lang } = useLang();
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
 
   const { name: accountName, image: accountImage, verified: accountVerified } = useAccountIdentity();
