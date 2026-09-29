@@ -44,7 +44,7 @@ export default function CreateShiftScreen() {
     <ScreenHeader title={t("publishShift")} sub={t("draftSaved")} />
       {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
       <ListingField label={t("shiftTitle")} value={form.title} onChangeText={(v) => update("title", v)} required maxLength={120} error={showFieldErrors && form.title.trim().length < 2 ? t("requiredField") : null} />
-    <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
+    <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar, keywords: `${item.name_ar} ${item.name_en ?? ""}` }))} />
     <DateTimeField label={t("startsAt")} value={form.startsAt} onChange={(v) => update("startsAt", v)} minimumDate={new Date()} required />
     <DateTimeField label={t("endsAt")} value={form.endsAt} onChange={(v) => update("endsAt", v)} minimumDate={form.startsAt ? new Date(form.startsAt) : new Date()} required />
      <ListingField label={t("hourlyRate")} value={form.hourlyRate} onChangeText={(v) => update("hourlyRate", v)} numeric error={showFieldErrors && (!form.hourlyRate.trim() || !Number.isFinite(Number(form.hourlyRate)) || Number(form.hourlyRate) < 0) ? t("invalidAmount") : null} />

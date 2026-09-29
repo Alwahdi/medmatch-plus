@@ -17,3 +17,4 @@
 
 - Web Google authentication uses Google Identity Services directly on externally hosted custom domains, because Lovable's OAuth broker exists only on Lovable-hosted origins; Lovable preview and production origins keep the managed broker.
 - Established account locations are locked by database triggers and changed through admin-reviewed requests; mobile profile saves exclude location after creation to avoid accidental bypass or errors.
+- Mobile selectors use the shared searchable ChoiceField and notification links are mapped to existing Expo routes; this keeps RTL/LTR selections consistent and prevents web-only notification paths from opening missing pages.

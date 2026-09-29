@@ -123,7 +123,7 @@ export default function ProfileScreen() {
             </Row>
              <Field label={t("fullName")} value={fullName} onChangeText={setFullName} required maxLength={100} />
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
-             <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
+             <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar, keywords: `${item.name_ar} ${item.name_en ?? ""}` }))} />
              <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" required maxLength={2} />
              {profile.data && country && city ? <EstablishedLocation target="professional" country={country} city={city} /> : <><CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} /><CityChoice label={t("city")} country={country} value={city} onChange={setCity} /></>}
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
