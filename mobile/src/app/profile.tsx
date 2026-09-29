@@ -69,7 +69,7 @@ export default function ProfileScreen() {
         headline: headline.trim() || null,
         bio: bio.trim() || null,
         years_experience: Number.isFinite(parsedYears) ? parsedYears : 0,
-        specialty_id: specialtyId || null,
+        ...((profile.data as { specialty_id?: string | null } | null)?.specialty_id ? {} : { specialty_id: specialtyId || null }),
         license_number: licenseNumber.trim() || null,
         license_country: licenseCountry.trim() || null,
         preferred_rate: Number(preferredRate) || null,
@@ -123,9 +123,9 @@ export default function ProfileScreen() {
             </Row>
              <Field label={t("fullName")} value={fullName} onChangeText={setFullName} required maxLength={100} />
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
-             <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar, keywords: `${item.name_ar} ${item.name_en ?? ""}` }))} />
+             {profile.data && (profile.data as { specialty_id?: string | null }).specialty_id ? null : <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar, keywords: `${item.name_ar} ${item.name_en ?? ""}` }))} />}
              <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" required maxLength={2} />
-             {profile.data && country && city ? <EstablishedLocation target="professional" country={country} city={city} /> : <><CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} /><CityChoice label={t("city")} country={country} value={city} onChange={setCity} /></>}
+             {profile.data && country && city ? <EstablishedLocation target="professional" country={country} city={city} specialtyId={(profile.data as { specialty_id?: string | null }).specialty_id ?? undefined} specialties={specialties.data ?? []} /> : <><CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} /><CityChoice label={t("city")} country={country} value={city} onChange={setCity} /></>}
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
              <CountryChoice label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChange={setLicenseCountry} />
             <Field label={lang === "ar" ? "الأجر المفضل" : "Preferred rate"} value={preferredRate} onChangeText={setPreferredRate} keyboardType="numeric" />
