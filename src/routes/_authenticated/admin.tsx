@@ -23,6 +23,7 @@ import { AdminLocations } from "@/components/admin-locations";
 import { AdminLegalContent } from "@/components/admin-legal";
 import { AdminPlatformSettings } from "@/components/admin-platform-settings";
 import { AdminDocumentRequirements } from "@/components/admin-requirements";
+import { AdminDocumentRenewal } from "@/components/admin-document-renewal";
 import { reqName, useAllDocumentRequirements } from "@/lib/document-requirements";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
@@ -1079,6 +1080,7 @@ function AdminPage() {
 
         <TabsContent value="requirements" className="mt-6">
           <AdminDocumentRequirements />
+          <div className="mt-6"><AdminDocumentRenewal /></div>
         </TabsContent>
 
 
