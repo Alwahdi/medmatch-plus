@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleOneTap } from "@/components/GoogleOneTap";
 import { consumeOAuthNext, signInWithGoogle } from "@/lib/google-auth";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
@@ -152,6 +153,7 @@ function AuthPage() {
 
   return (
     <div className="bg-background px-4 py-8 sm:py-12">
+      <GoogleOneTap enabled={!user} errorText={tx("googleError")} />
       <div className="card-lift mx-auto grid max-w-5xl overflow-hidden rounded-lg border border-border bg-card lg:grid-cols-2">
         <div className="p-6 sm:p-10">
           <div className="mx-auto w-full max-w-sm">
