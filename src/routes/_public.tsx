@@ -30,6 +30,14 @@ function PublicLayout() {
     };
   }, [loading, user, pathname, navigate]);
 
+  // صفحة التحقق بخطوتين خطوة أمنية مستقلة: بلا قوائم ولا إطار لوحة.
+  if (pathname === "/mfa-challenge")
+    return (
+      <main id="main-content" tabIndex={-1} className="flex min-h-dvh items-center justify-center bg-background px-4 py-10 outline-none">
+        <Outlet />
+      </main>
+    );
+
   return (
     <PageChrome>
       <Outlet />
