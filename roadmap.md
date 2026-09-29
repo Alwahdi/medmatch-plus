@@ -1,5 +1,7 @@
 # Mobile experience quality pass
 
+- [x] Keep Google One Tap and the visible Google sign-in button on syndeocare.ai, completing the session in place instead of returning to the Lovable domain
+
 - [x] Establish logo-derived teal/violet visual direction and Cairo typography for the mobile shell and sign-in
 - [x] Improve shared listing cards, publishing-field feedback, applicant decisions, interview form, message composer, and verification-gated facility actions
 - [ ] Complete an award-caliber visual/interaction pass across every mobile workspace and form (requires screen-by-screen native device review)
