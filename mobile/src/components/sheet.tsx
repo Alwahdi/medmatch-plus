@@ -26,7 +26,7 @@ export function Sheet({ visible, title, onClose, children, footer }: {
             <X size={20} color={colors.textMuted} />
           </Pressable>
         </View>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 12, gap: 12 }} keyboardShouldPersistTaps="handled">
+        <ScrollView nestedScrollEnabled contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 12, gap: 12 }} keyboardShouldPersistTaps="always">
           {children}
         </ScrollView>
         {footer ? (

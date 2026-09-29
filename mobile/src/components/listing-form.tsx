@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import { Check, ChevronDown, Search } from "lucide-react-native";
+import { Check, ChevronDown } from "lucide-react-native";
 import { Badge, Button, Field, KeyValue, Row, ScreenHeader, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
