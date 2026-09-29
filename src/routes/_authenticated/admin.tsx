@@ -37,6 +37,7 @@ import { VerificationPanel, type DocState, type RequiredDoc } from "@/components
 import { AdminReviewQueue, type ReviewOwner } from "@/components/admin-review-queue";
 import { friendlyError } from "@/lib/user-errors";
 import { useSessionAal2, useVerifiedTotp } from "@/lib/admin-mfa";
+import { ADMIN_GROUPS } from "@/components/dashboard-shell";
 import { VALIDITY_TXT, isExpired, isValidEvidence } from "@/lib/doc-validity";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -215,7 +216,7 @@ function AdminPage() {
   const [changeRejectId, setChangeRejectId] = useState<string | null>(null);
   const [logQuery, setLogQuery] = useState("");
   const adminNavigate = useNavigate();
-  const tab = Route.useSearch().tab ?? "docs";
+  const tab = Route.useSearch().tab ?? "overview";
   const setTab = (value: string) =>
     void adminNavigate({ to: "/admin", search: { tab: value }, replace: true });
 
@@ -691,85 +692,41 @@ function AdminPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{c.title}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{c.sub}</p>
+      <AdminHeader tab={tab} lang={lang} />
 
-      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label={c.statPending} value={pendingDocs.length} icon={FileText} />
-        <StatCard label={c.statFacilities} value={(facilities ?? []).filter((f) => !f.is_verified).length} icon={Building2} />
-        <StatCard label={c.statPros} value={(pros ?? []).filter((p) => p.is_verified).length} icon={Stethoscope} />
-        <StatCard label={c.statInbox} value={newMsgs.length} icon={Inbox} />
-      </div>
+      <Tabs value={tab} onValueChange={setTab} className="mt-6">
+        <TabsList className="sr-only">
+          {ADMIN_GROUPS.flatMap((g) => g.items).map((it) => (
+            <TabsTrigger key={it.tab} value={it.tab}>{lang === "ar" ? it.ar : it.en}</TabsTrigger>
+          ))}
+        </TabsList>
 
-      <Tabs value={tab} onValueChange={setTab} className="mt-8">
-        <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <TabsList className="w-max justify-start">
-            <TabsTrigger value="docs" className="shrink-0">
-              {c.tabDocs}
-              {pendingDocs.length > 0 && (
-                <Badge variant="destructive" className="ms-2">
-                  {pendingDocs.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="facdocs" className="shrink-0">
-              {c.tabFacDocs}
-              {pendingFacDocs.length > 0 && (
-                <Badge variant="destructive" className="ms-2">
-                  {pendingFacDocs.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="facilities" className="shrink-0">{c.tabFacilities}</TabsTrigger>
-            <TabsTrigger value="pros" className="shrink-0">{c.tabPros}</TabsTrigger>
-            <TabsTrigger value="inbox" className="shrink-0">
-              {c.tabInbox}
-              {newMsgs.length > 0 && (
-                <Badge variant="destructive" className="ms-2">
-                  {newMsgs.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="changes" className="shrink-0">
-              {lang === "ar" ? "طلبات تعديل البيانات" : "Data change requests"}
-              {pendingChanges.length > 0 && (
-                <Badge variant="destructive" className="ms-2">
-                  {pendingChanges.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="changelog" className="shrink-0">
-              {lang === "ar" ? "سجل التعديلات" : "Change log"}
-            </TabsTrigger>
-            <TabsTrigger value="deletions" className="shrink-0">
-              {lang === "ar" ? "طلبات حذف الحساب" : "Account deletion"}
-            </TabsTrigger>
-            <TabsTrigger value="safety" className="shrink-0">
-              {lang === "ar" ? "بلاغات السلامة" : "Safety reports"}
-              {openReports > 0 && (
-                <Badge variant="destructive" className="ms-2">
-                  {openReports}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="requirements" className="shrink-0">
-              {lang === "ar" ? "متطلبات المستندات" : "Document requirements"}
-            </TabsTrigger>
-            <TabsTrigger value="locations" className="shrink-0">
-              {lang === "ar" ? "المدن والمديريات" : "Cities & districts"}
-            </TabsTrigger>
-            <TabsTrigger value="legal" className="shrink-0">
-              {lang === "ar" ? "المحتوى القانوني" : "Legal content"}
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="shrink-0">
-              {lang === "ar" ? "إعدادات المنصة" : "Platform settings"}
-            </TabsTrigger>
-            <TabsTrigger value="readiness" className="shrink-0">
-              {lang === "ar" ? "جاهزية الإطلاق" : "Release readiness"}
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
+        <TabsContent value="overview" className="mt-0">
+          <AdminOverview
+            lang={lang}
+            queues={[
+              { tab: "docs", n: pendingDocs.length, icon: FileText, ar: "وثائق كوادر بانتظار القرار", en: "Professional documents awaiting decision" },
+              { tab: "facdocs", n: pendingFacDocs.length, icon: Building2, ar: "مستندات منشآت بانتظار القرار", en: "Facility documents awaiting decision" },
+              { tab: "changes", n: pendingChanges.length, icon: FileText, ar: "طلبات تعديل بيانات", en: "Data change requests" },
+              { tab: "safety", n: openReports, icon: ShieldCheck, ar: "بلاغات سلامة مفتوحة", en: "Open safety reports" },
+              { tab: "inbox", n: newMsgs.length, icon: Inbox, ar: "رسائل تواصل غير معالجة", en: "Unhandled contact messages" },
+            ]}
+            oldest={[
+              ...pendingDocs.map((d) => ({ id: d.id, tab: "docs", at: d.created_at, title: credentialLabel(d.type, lang) })),
+              ...pendingFacDocs.map((d) => ({ id: d.id, tab: "facdocs", at: d.created_at, title: facilityDocTypeLabel(d.doc_type, lang) })),
+              ...pendingChanges.map((r) => ({ id: r.id, tab: "changes", at: r.created_at, title: fieldLabel(r.field, lang) })),
+            ]
+              .sort((a, b) => a.at.localeCompare(b.at))
+              .slice(0, 5)
+              .map((o) => ({ ...o, when: formatDate(o.at, lang) }))}
+            people={{
+              pros: (pros ?? []).length,
+              prosVerified: (pros ?? []).filter((p) => p.is_verified).length,
+              facilities: (facilities ?? []).length,
+              facilitiesUnverified: (facilities ?? []).filter((f) => !f.is_verified).length,
+            }}
+          />
+        </TabsContent>
 
         <TabsContent value="docs" className="mt-6">
           <div className="flex flex-wrap items-center gap-2">
@@ -1141,6 +1098,128 @@ function AdminPage() {
           <AdminReadiness />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+
+function AdminHeader({ tab, lang }: { tab: string; lang: "ar" | "en" }) {
+  const group = ADMIN_GROUPS.find((g) => g.items.some((i) => i.tab === tab)) ?? ADMIN_GROUPS[0];
+  const item = group.items.find((i) => i.tab === tab) ?? group.items[0];
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground">{lang === "ar" ? group.ar : group.en}</p>
+      <h1 className="mt-1 font-display text-2xl font-extrabold sm:text-3xl">{lang === "ar" ? item.ar : item.en}</h1>
+      {group.items.length > 1 && (
+        <nav
+          aria-label={lang === "ar" ? group.ar : group.en}
+          className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {group.items.map((it) => (
+            <Link
+              key={it.tab}
+              to="/admin"
+              search={{ tab: it.tab }}
+              aria-current={it.tab === tab ? "page" : undefined}
+              className={
+                "inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-medium transition-colors " +
+                (it.tab === tab ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground")
+              }
+            >
+              {lang === "ar" ? it.ar : it.en}
+            </Link>
+          ))}
+        </nav>
+      )}
+    </div>
+  );
+}
+
+type Queue = { tab: string; n: number; icon: typeof FileText; ar: string; en: string };
+type Oldest = { id: string; tab: string; title: string; when: string };
+
+function AdminOverview({
+  lang,
+  queues,
+  oldest,
+  people,
+}: {
+  lang: "ar" | "en";
+  queues: Queue[];
+  oldest: Oldest[];
+  people: { pros: number; prosVerified: number; facilities: number; facilitiesUnverified: number };
+}) {
+  const ar = lang === "ar";
+  const active = queues.filter((q) => q.n > 0);
+  const total = active.reduce((a, q) => a + q.n, 0);
+  return (
+    <div className="space-y-8">
+      <section aria-labelledby="needs">
+        <h2 id="needs" className="text-sm font-semibold text-muted-foreground">
+          {total > 0 ? (ar ? `${total} عنصرًا ينتظر قرارك` : `${total} items need your decision`) : ar ? "لا شيء ينتظر قرارك الآن" : "Nothing needs your decision right now"}
+        </h2>
+        {total === 0 ? (
+          <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-card p-5">
+            <CheckCircle2 className="size-6 shrink-0 text-primary" aria-hidden />
+            <p className="text-sm text-muted-foreground">
+              {ar ? "كل الطوابير فارغة. ستظهر هنا الوثائق والطلبات والبلاغات الجديدة فور وصولها." : "All queues are clear. New documents, requests and reports will appear here."}
+            </p>
+          </div>
+        ) : (
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {active.map((q) => {
+              const Icon = q.icon;
+              return (
+                <Link
+                  key={q.tab}
+                  to="/admin"
+                  search={{ tab: q.tab }}
+                  className="group flex min-h-20 items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Icon className="size-5" aria-hidden />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-display text-2xl font-extrabold leading-none">{q.n}</span>
+                    <span className="mt-1 block truncate text-sm text-muted-foreground">{ar ? q.ar : q.en}</span>
+                  </span>
+                  <span className="text-sm font-semibold text-primary">{ar ? "راجع" : "Review"}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {oldest.length > 0 && (
+        <section aria-labelledby="oldest">
+          <h2 id="oldest" className="text-sm font-semibold text-muted-foreground">{ar ? "الأقدم أولًا" : "Oldest first"}</h2>
+          <ul className="mt-3 divide-y divide-border rounded-lg border border-border bg-card">
+            {oldest.map((o) => (
+              <li key={`${o.tab}-${o.id}`}>
+                <Link to="/admin" search={{ tab: o.tab }} className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-secondary">
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">{o.title}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{o.when}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section aria-labelledby="people" className="grid gap-3 sm:grid-cols-2">
+        <h2 id="people" className="sr-only">{ar ? "الأشخاص" : "People"}</h2>
+        <Link to="/admin" search={{ tab: "pros" }} className="rounded-lg border border-border bg-card p-4 hover:border-primary">
+          <span className="flex items-center gap-2 text-sm text-muted-foreground"><Stethoscope className="size-4 text-primary" aria-hidden />{ar ? "الكوادر" : "Professionals"}</span>
+          <span className="mt-2 block font-display text-2xl font-extrabold">{people.pros}</span>
+          <span className="text-xs text-muted-foreground">{ar ? `${people.prosVerified} موثّق` : `${people.prosVerified} verified`}</span>
+        </Link>
+        <Link to="/admin" search={{ tab: "facilities" }} className="rounded-lg border border-border bg-card p-4 hover:border-primary">
+          <span className="flex items-center gap-2 text-sm text-muted-foreground"><Building2 className="size-4 text-primary" aria-hidden />{ar ? "المنشآت" : "Facilities"}</span>
+          <span className="mt-2 block font-display text-2xl font-extrabold">{people.facilities}</span>
+          <span className="text-xs text-muted-foreground">{ar ? `${people.facilitiesUnverified} غير موثّقة` : `${people.facilitiesUnverified} unverified`}</span>
+        </Link>
+      </section>
     </div>
   );
 }
