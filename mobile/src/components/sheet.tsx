@@ -3,7 +3,6 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, Vie
 import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 import { colors, fonts, radii } from "@/lib/theme";
-import { styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 
 export function Sheet({ visible, title, onClose, children, footer }: {
@@ -36,7 +35,6 @@ export function Sheet({ visible, title, onClose, children, footer }: {
           </SafeAreaView>
         ) : null}
       </KeyboardAvoidingView>
-      <View style={ui.fill} pointerEvents="none" />
     </Modal>
   );
 }
