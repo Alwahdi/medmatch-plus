@@ -149,9 +149,11 @@ export function GoogleOneTap({
 export function GoogleIdentityButton({
   errorText,
   lang,
+  onBeforeSignIn,
 }: {
   errorText: string;
   lang: "ar" | "en";
+  onBeforeSignIn?: () => void;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const rendered = useRef(false);
@@ -171,6 +173,7 @@ export function GoogleIdentityButton({
         client_id: clientId,
         use_fedcm_for_prompt: true,
         callback: async (response) => {
+          onBeforeSignIn?.();
           const accepted = await acceptCredential(response.credential);
           if (!accepted) toast.error(errorText);
         },
@@ -191,7 +194,7 @@ export function GoogleIdentityButton({
     return () => {
       cancelled = true;
     };
-  }, [errorText, lang]);
+  }, [errorText, lang, onBeforeSignIn]);
 
   return <div ref={hostRef} className="flex min-h-11 w-full items-center justify-center overflow-hidden" />;
 }

@@ -15,6 +15,7 @@ import { ConsentNote } from "@/components/consent-note";
 import { friendlyError } from "@/lib/user-errors";
 import { PHONE_PLACEHOLDER_AR, PHONE_PLACEHOLDER_EN, isValidPhone, normalizePhone } from "@/lib/phone";
 import { NOINDEX } from "@/lib/seo";
+import { GoogleIdentityButton, usesDirectGoogleIdentity } from "@/components/GoogleOneTap";
 
 export const Route = createFileRoute("/_public/register/")({
   head: () => ({
@@ -130,6 +131,19 @@ function RegisterSeeker() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [directIdentity, setDirectIdentity] = useState(false);
+
+  useEffect(() => {
+    setDirectIdentity(usesDirectGoogleIdentity());
+  }, []);
+
+  function rememberProfessionalIntent() {
+    try {
+      localStorage.setItem("sc_signup_intent", "professional");
+    } catch {
+      /* storage unavailable */
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -144,11 +158,7 @@ function RegisterSeeker() {
 
   async function googleSignUp() {
     setGoogleBusy(true);
-    try {
-      localStorage.setItem("sc_signup_intent", "professional");
-    } catch {
-      /* storage unavailable */
-    }
+    rememberProfessionalIntent();
     // العودة إلى صفحة عامة تتحقق من الجلسة ثم توجّه إلى الإعداد (مسار داخلي ثابت).
     const back = new URL("/auth", window.location.origin);
     back.searchParams.set("next", "/onboarding");
@@ -256,14 +266,24 @@ function RegisterSeeker() {
             <p className="mt-6 rounded-lg bg-secondary p-4 text-sm leading-relaxed">{L.sent}</p>
           ) : (
             <>
-              <Button
-                variant="outline"
-                className="mt-5 w-full"
-                onClick={googleSignUp}
-                disabled={googleBusy}
-              >
-                {L.google}
-              </Button>
+              <div className="mt-5">
+                {directIdentity ? (
+                  <GoogleIdentityButton
+                    errorText={L.invalid}
+                    lang={lang === "ar" ? "ar" : "en"}
+                    onBeforeSignIn={rememberProfessionalIntent}
+                  />
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={googleSignUp}
+                    disabled={googleBusy}
+                  >
+                    {L.google}
+                  </Button>
+                )}
+              </div>
               <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
                 <span className="h-px flex-1 bg-border" /> {L.or}
                 <span className="h-px flex-1 bg-border" />
