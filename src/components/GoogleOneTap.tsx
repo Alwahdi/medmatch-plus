@@ -77,6 +77,24 @@ async function acceptCredential(credential: string | undefined): Promise<boolean
   return !error;
 }
 
+let googleInitialized = false;
+let credentialReceiver: ((credential: string | undefined) => Promise<void>) | undefined;
+
+function initializeGoogleIdentity(
+  googleId: NonNullable<NonNullable<Window["google"]>["accounts"]>["id"],
+  clientId: string,
+  receiver: (credential: string | undefined) => Promise<void>,
+) {
+  credentialReceiver = receiver;
+  if (googleInitialized) return;
+  googleId.initialize({
+    client_id: clientId,
+    use_fedcm_for_prompt: true,
+    callback: async (response) => credentialReceiver?.(response.credential),
+  });
+  googleInitialized = true;
+}
+
 /** Vercel does not host Lovable's /~oauth broker, so GIS completes in place. */
 export function usesDirectGoogleIdentity(): boolean {
   if (typeof window === "undefined") return false;
@@ -115,18 +133,15 @@ export function GoogleOneTap({
       await loadGis().catch(() => undefined);
       if (cancelled || !window.google?.accounts?.id) return;
 
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        use_fedcm_for_prompt: true,
-        callback: async (response) => {
-          const accepted = await acceptCredential(response.credential);
+      const googleId = window.google.accounts.id;
+      initializeGoogleIdentity(googleId, clientId, async (credential) => {
+          const accepted = await acceptCredential(credential);
           if (!accepted) {
             toast.error(errorText);
           }
           // نجاح: useSession في الصفحة يلتقط الجلسة ويوجّه المستخدم.
-        },
       });
-      window.google.accounts.id.prompt();
+      googleId.prompt();
     })();
 
     return () => {
@@ -169,14 +184,10 @@ export function GoogleIdentityButton({
       const host = hostRef.current;
       if (cancelled || !googleId || !host) return;
 
-      googleId.initialize({
-        client_id: clientId,
-        use_fedcm_for_prompt: true,
-        callback: async (response) => {
+      initializeGoogleIdentity(googleId, clientId, async (credential) => {
           onBeforeSignIn?.();
-          const accepted = await acceptCredential(response.credential);
+          const accepted = await acceptCredential(credential);
           if (!accepted) toast.error(errorText);
-        },
       });
       host.replaceChildren();
       googleId.renderButton(host, {
