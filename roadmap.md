@@ -32,4 +32,5 @@
 - [ ] Improve mobile photo, document renewal and manager-controlled upload window
 - [ ] Add city then optional district in publishing with manager policy
 - [ ] Repair mobile sheets, date/time, conversations and attachments
+- [x] Make mobile city and specialty selections searchable lists; map notification links to existing mobile pages
 - [ ] Enable dark mode and review role-specific onboarding and form polish

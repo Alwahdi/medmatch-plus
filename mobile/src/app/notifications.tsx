@@ -16,20 +16,37 @@ export default function NotificationsScreen() {
   const markRead = useMarkNotificationRead();
   const unreadCount = (list.data ?? []).filter((n) => !n.read_at).length;
   const openNotification = (rawLink: string | null) => {
-    const link = rawLink?.trim().split("#")[0];
-    if (!link?.startsWith("/") || link.startsWith("//") || link.includes("\\")) return;
-    if (/^\/(settings|alerts|preferences)(\?|$)/.test(link)) return router.push("/account");
-    if (/^\/facility\/verification(\?|$)/.test(link)) return router.push({ pathname: "/verification", params: { target: "facility" } });
-    if (/^\/credentials(\?|$)/.test(link)) return router.push({ pathname: "/verification", params: { target: "professional" } });
-    if (link === "/profile?tab=credentials") return router.push({ pathname: "/verification", params: { target: "professional" } });
-    const applicantJob = link.match(/^\/facility\/applicants\/([0-9a-f-]{36})$/i);
-    if (applicantJob) return router.push({ pathname: "/facility/job/[id]", params: { id: applicantJob[1] } });
-    if (/^\/(my-shifts|activity\?tab=shifts)/.test(link)) return router.push({ pathname: "/activity", params: { tab: "bookings" } });
-    if (/^\/(applications|activity\?tab=applications)/.test(link)) return router.push({ pathname: "/activity", params: { tab: "applications" } });
-     if (link === "/facility" || /^\/facility\?tab=(jobs|shifts)$/.test(link)) return router.push(link as never);
-    if (["/activity", "/discover", "/account", "/profile", "/verification", "/messages", "/notifications", "/facility/profile"].includes(link)) return router.push(link as never);
-    const detail = link.match(/^\/(job|shift|conversation|facility\/job|facility\/shift)\/([0-9a-f-]{36})$/i);
-    if (detail) return router.push(link as never);
+    const raw = rawLink?.trim();
+    if (!raw?.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) return;
+    let url: URL;
+    try { url = new URL(raw, "https://syndeocare.invalid"); } catch { return; }
+    const path = url.pathname.replace(/\/$/, "") || "/";
+    const tab = url.searchParams.get("tab");
+    const uuid = "[0-9a-f-]{36}";
+    const conversation = path.match(new RegExp(`^/(?:conversation|conversations)/(${uuid})$`, "i"))?.[1] ?? (path === "/messages" ? url.searchParams.get("c") : null);
+    if (conversation && new RegExp(`^${uuid}$`, "i").test(conversation)) return router.push({ pathname: "/conversation/[id]", params: { id: conversation } });
+    const applicants = path.match(new RegExp(`^/facility/applicants/(${uuid})$`, "i"));
+    if (applicants) return router.push({ pathname: "/facility/job/[id]", params: { id: applicants[1] } });
+    const detail = path.match(new RegExp(`^/(jobs?|shifts?|facility/jobs?|facility/shifts?)/(${uuid})$`, "i"));
+    if (detail) {
+      const kind = detail[1]; const id = detail[2];
+      if (kind.startsWith("facility/job")) return router.push({ pathname: "/facility/job/[id]", params: { id } });
+      if (kind.startsWith("facility/shift")) return router.push({ pathname: "/facility/shift/[id]", params: { id } });
+      if (kind.startsWith("job")) return router.push({ pathname: "/job/[id]", params: { id } });
+      return router.push({ pathname: "/shift/[id]", params: { id } });
+    }
+    if (path === "/facility/verification") return router.push({ pathname: "/verification", params: { target: "facility" } });
+    if (path === "/credentials" || path === "/profile" && tab === "credentials") return router.push({ pathname: "/verification", params: { target: "professional" } });
+    if (path === "/profile" && tab === "reviews" || path === "/activity" && tab === "reviews") return router.push({ pathname: "/activity", params: { tab: "reviews" } });
+    if (["/settings", "/alerts", "/preferences", "/account"].includes(path)) return router.push("/account");
+    if (["/my-shifts", "/bookings"].includes(path) || path === "/activity" && tab === "shifts") return router.push({ pathname: "/activity", params: { tab: "bookings" } });
+    if (path === "/applications") return router.push({ pathname: "/activity", params: { tab: "applications" } });
+    if (path === "/saved") return router.push("/discover");
+    if (path === "/activity") return router.push(tab && ["applications", "bookings", "invitations", "interviews", "reviews"].includes(tab) ? { pathname: "/activity", params: { tab } } : "/activity");
+    if (path === "/facility") return router.push({ pathname: "/facility", params: { tab: tab === "shifts" || tab === "bookings" ? "shifts" : "jobs" } });
+    if (path === "/jobs" || path === "/shifts" || path === "/discover") return router.push("/discover");
+    if (path === "/messages") return router.push("/messages");
+    if (path === "/profile" || path === "/facility/profile" || path === "/verification" || path === "/notifications" || path === "/legal") return router.push(path as "/profile" | "/facility/profile" | "/verification" | "/notifications" | "/legal");
     router.push("/activity");
   };
 
