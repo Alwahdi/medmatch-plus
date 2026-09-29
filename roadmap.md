@@ -28,7 +28,8 @@
 - [ ] Complete native screen-by-screen design-system and information-architecture review after critical flows are reliable (requires real device captures)
 
 - [x] Fix publisher-consent persistence and human-readable shift review dates
-- [ ] Lock mobile professional/facility country and city after first save; route changes to admin approval
+- [x] Lock mobile professional/facility country and city after first save; route changes to admin approval
+- [x] Route established mobile professional specialty changes through the administrator's data-change review queue
 - [ ] Improve mobile photo, document renewal and manager-controlled upload window
 - [ ] Add city then optional district in publishing with manager policy
 - [ ] Repair mobile sheets, date/time, conversations and attachments
