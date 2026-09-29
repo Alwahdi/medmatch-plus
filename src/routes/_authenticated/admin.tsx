@@ -20,9 +20,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminLocations } from "@/components/admin-locations";
+import { AdminDistricts } from "@/components/admin-districts";
 import { AdminLegalContent } from "@/components/admin-legal";
 import { AdminPlatformSettings } from "@/components/admin-platform-settings";
 import { AdminDocumentRequirements } from "@/components/admin-requirements";
+import { AdminDocumentRenewal } from "@/components/admin-document-renewal";
 import { reqName, useAllDocumentRequirements } from "@/lib/document-requirements";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/lib/auth";
@@ -1079,11 +1081,13 @@ function AdminPage() {
 
         <TabsContent value="requirements" className="mt-6">
           <AdminDocumentRequirements />
+          <div className="mt-6"><AdminDocumentRenewal /></div>
         </TabsContent>
 
 
         <TabsContent value="locations" className="mt-6">
           <AdminLocations />
+          <div className="mt-6"><AdminDistricts /></div>
         </TabsContent>
 
         <TabsContent value="legal" className="mt-6">

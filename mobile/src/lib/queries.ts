@@ -367,6 +367,16 @@ export function useLocations() {
   });
 }
 
+export function useDistricts(country: string, city: string) {
+  const locations = useLocations();
+  const matching = (locations.data ?? []).filter((row) => row.city_ar === city && (row.country === country || (country === "YE" && ["YE", "اليمن", "Yemen"].includes(row.country)) || (row.country === "YE" && ["اليمن", "Yemen"].includes(country))));
+  return useQuery({
+    queryKey: ["districts", matching.map((r) => r.id).join(",")],
+    enabled: !!city && !locations.isPending && !locations.isError && matching.length > 0,
+    queryFn: async () => unwrap(await supabase.from("districts").select("id,name_ar,name_en,city_location_id").eq("is_active", true).in("city_location_id", matching.map((row) => row.id)).order("sort_order")),
+  });
+}
+
 export function useFacilityJobs(facilityId: string | undefined) {
   return useQuery({
     queryKey: ["facility-jobs", facilityId],
@@ -512,7 +522,7 @@ export function useInviteSuggestedCandidate(jobId: string) {
 export type CreateJobInput = {
   facilityId: string; title: string; description: string; specialtyId: string | null;
   employmentType: "full_time" | "part_time" | "contract" | "locum" | "shift";
-  country: string; city: string; salaryMin: number; salaryMax: number;
+  country: string; city: string; districtId?: string | null; salaryMin: number; salaryMax: number;
   minExperience: number; vacancies: number; requiredLicense: string | null;
 };
 
@@ -523,7 +533,7 @@ export function useCreateJob() {
       const res = await supabase.from("jobs").insert({
         facility_id: input.facilityId, title: input.title, description: input.description,
         specialty_id: input.specialtyId, employment_type: input.employmentType,
-        country: input.country, city: input.city, salary_min: input.salaryMin,
+        country: input.country, city: input.city, district_id: input.districtId ?? null, salary_min: input.salaryMin,
         salary_max: input.salaryMax, currency: "YER", min_experience: input.minExperience,
         vacancies: input.vacancies, required_license: input.requiredLicense,
       }).select("id").single();
@@ -539,7 +549,7 @@ export function useCreateJob() {
 
 export type CreateShiftInput = {
   facilityId: string; title: string; specialtyId: string | null; startsAt: string;
-  endsAt: string; hourlyRate: number; country: string; city: string; notes: string | null;
+  endsAt: string; hourlyRate: number; country: string; city: string; districtId?: string | null; notes: string | null;
 };
 
 export function useCreateShift() {
@@ -549,7 +559,7 @@ export function useCreateShift() {
       const res = await supabase.from("shifts").insert({
         facility_id: input.facilityId, title: input.title, specialty_id: input.specialtyId,
         starts_at: input.startsAt, ends_at: input.endsAt, hourly_rate: input.hourlyRate,
-        currency: "YER", country: input.country, city: input.city, notes: input.notes,
+        currency: "YER", country: input.country, city: input.city, district_id: input.districtId ?? null, notes: input.notes,
       }).select("id").single();
       if (res.error) throw new Error(res.error.message);
       return res.data.id;

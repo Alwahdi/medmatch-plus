@@ -63,6 +63,10 @@ const MAP: Record<string, { ar: string; en: string }> = {
   shifts_rate_ck: { ar: "أجر الساعة غير صالح.", en: "The hourly rate is invalid." },
   hp_searchable_requires_consent: { ar: "أكد موافقتك قبل الظهور في بحث المنشآت.", en: "Confirm your consent before appearing in facility search." },
   FILE_TOO_LARGE: { ar: "حجم الملف يتجاوز 10 م.ب. اختر ملفاً أصغر.", en: "File exceeds 10 MB. Choose a smaller file." },
+  DOCUMENT_RENEWAL_LOCKED: { ar: "هذه الوثيقة معتمدة. اطلب إذنًا لاستبدالها أو انتظر فتح نافذة التجديد قبل انتهاء صلاحيتها.", en: "This document is approved. Request permission to replace it or wait for its renewal window." },
+  LOCATION_CHANGE_REQUIRES_APPROVAL: { ar: "تعديل البلد أو المدينة يتطلب موافقة الإدارة. أرسل طلب تعديل من صفحة الملف.", en: "Changing your country or city requires approval. Request a change from your profile." },
+  LISTING_FACILITY_LOCATION_MISMATCH: { ar: "مدينة النشر يجب أن تطابق مدينة المنشأة المعتمدة. راجع ملف المنشأة أو اطلب تعديل موقعها.", en: "The listing city must match your facility's registered city. Review your facility profile or request a location change." },
+  INVALID_LISTING_DISTRICT: { ar: "المديرية المحددة غير متاحة لهذه المدينة؛ اختر مديرية أخرى أو اتركها فارغة.", en: "This district is unavailable for the city. Choose another or leave it blank." },
   JOB_CLOSED: { ar: "هذه الوظيفة مغلقة.", en: "This job is closed." },
 };
 
