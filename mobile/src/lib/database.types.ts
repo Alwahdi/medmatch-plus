@@ -411,6 +411,47 @@ export type Database = {
         }
         Relationships: []
       }
+      districts: {
+        Row: {
+          city_location_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name_ar: string
+          name_en: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          city_location_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_ar: string
+          name_en: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          city_location_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_ar?: string
+          name_en?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "districts_city_location_id_fkey"
+            columns: ["city_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_renewal_policy: {
         Row: {
           id: boolean
@@ -1154,6 +1195,7 @@ export type Database = {
           created_at: string
           currency: string
           description: string
+          district_id: string | null
           employment_type: Database["public"]["Enums"]["employment_type"]
           expires_at: string | null
           facility_id: string
@@ -1180,6 +1222,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string
+          district_id?: string | null
           employment_type?: Database["public"]["Enums"]["employment_type"]
           expires_at?: string | null
           facility_id: string
@@ -1206,6 +1249,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string
+          district_id?: string | null
           employment_type?: Database["public"]["Enums"]["employment_type"]
           expires_at?: string | null
           facility_id?: string
@@ -1225,6 +1269,13 @@ export type Database = {
           vacancies?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "jobs_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobs_facility_id_fkey"
             columns: ["facility_id"]
@@ -1843,6 +1894,7 @@ export type Database = {
           country: string
           created_at: string
           currency: string
+          district_id: string | null
           ends_at: string
           facility_id: string
           facility_verified: boolean
@@ -1863,6 +1915,7 @@ export type Database = {
           country: string
           created_at?: string
           currency?: string
+          district_id?: string | null
           ends_at: string
           facility_id: string
           facility_verified?: boolean
@@ -1883,6 +1936,7 @@ export type Database = {
           country?: string
           created_at?: string
           currency?: string
+          district_id?: string | null
           ends_at?: string
           facility_id?: string
           facility_verified?: boolean
@@ -1897,6 +1951,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shifts_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shifts_facility_id_fkey"
             columns: ["facility_id"]
@@ -2265,6 +2326,17 @@ export type Database = {
       admin_update_safety_report: {
         Args: { _id: string; _note?: string; _status: string }
         Returns: undefined
+      }
+      admin_upsert_district: {
+        Args: {
+          _city_location_id: string
+          _id: string
+          _is_active: boolean
+          _name_ar: string
+          _name_en: string
+          _sort_order: number
+        }
+        Returns: string
       }
       admin_upsert_document_requirement: {
         Args: {
