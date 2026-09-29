@@ -147,8 +147,8 @@ export default function DiscoverTab() {
           </Row>
         }
       >
-         {specialties.isError ? <ErrorState message={userMessage(specialties.error, lang)} onRetry={() => void specialties.refetch()} /> : specialties.isPending ? <Loading rows={1} /> : <ChoiceField label={t("specialty")} value={specialtyDraft ?? ""} onChange={(value) => setSpecialtyDraft(value || null)} options={[{ value: "", label: t("all") }, ...(specialties.data ?? []).map((s) => ({ value: s.id, label: lang === "ar" ? s.name_ar : s.name_en || s.name_ar }))]} />}
-         {locations.isError ? <ErrorState message={userMessage(locations.error, lang)} onRetry={() => void locations.refetch()} /> : locations.isPending ? <Loading rows={1} /> : <ChoiceField label={t("city")} value={cityDraft} onChange={setCityDraft} options={[{ value: "", label: t("all") }, ...cityOptions]} />}
+         {specialties.isError ? <ErrorState message={userMessage(specialties.error, lang)} onRetry={() => void specialties.refetch()} /> : specialties.isPending ? <Loading rows={1} /> : <ChoiceField inline label={t("specialty")} value={specialtyDraft ?? ""} onChange={(value) => setSpecialtyDraft(value || null)} options={[{ value: "", label: t("all") }, ...(specialties.data ?? []).map((s) => ({ value: s.id, label: lang === "ar" ? s.name_ar : s.name_en || s.name_ar, keywords: `${s.name_ar} ${s.name_en ?? ""}` }))]} />}
+         {locations.isError ? <ErrorState message={userMessage(locations.error, lang)} onRetry={() => void locations.refetch()} /> : locations.isPending ? <Loading rows={1} /> : <ChoiceField inline label={t("city")} value={cityDraft} onChange={setCityDraft} options={[{ value: "", label: t("all") }, ...cityOptions]} />}
       </Sheet>
     </SafeAreaView>
   );

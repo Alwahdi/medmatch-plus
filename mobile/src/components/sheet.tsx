@@ -3,7 +3,6 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, Vie
 import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 import { colors, fonts, radii } from "@/lib/theme";
-import { styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 
 export function Sheet({ visible, title, onClose, children, footer }: {
@@ -27,7 +26,7 @@ export function Sheet({ visible, title, onClose, children, footer }: {
             <X size={20} color={colors.textMuted} />
           </Pressable>
         </View>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 12, gap: 12 }} keyboardShouldPersistTaps="handled">
+        <ScrollView nestedScrollEnabled contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 12, gap: 12 }} keyboardShouldPersistTaps="always">
           {children}
         </ScrollView>
         {footer ? (
@@ -36,7 +35,6 @@ export function Sheet({ visible, title, onClose, children, footer }: {
           </SafeAreaView>
         ) : null}
       </KeyboardAvoidingView>
-      <View style={ui.fill} pointerEvents="none" />
     </Modal>
   );
 }

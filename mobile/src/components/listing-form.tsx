@@ -1,19 +1,38 @@
 import React, { useState } from "react";
-import { Text, View } from "react-native";
-import { Badge, Button, Chip, Field, KeyValue, Row, ScreenHeader, styles as ui } from "@/components/ui";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { Check, ChevronDown } from "lucide-react-native";
+import { Badge, Button, Field, KeyValue, Row, ScreenHeader, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { colors } from "@/lib/theme";
 import { Sheet } from "@/components/sheet";
 
-export function ChoiceField<T extends string>({ label, value, options, onChange }: {
-  label: string; value: T; options: { value: T; label: string; keywords?: string }[]; onChange: (value: T) => void;
+export function ChoiceField<T extends string>({ label, value, options, onChange, inline = false }: {
+  label: string; value: T; options: { value: T; label: string; keywords?: string }[]; onChange: (value: T) => void; inline?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const { lang } = useI18n();
   const selected = options.find((option) => option.value === value);
-  if (options.length > 6) return <View style={{ gap: 8 }}><Text style={ui.label}>{label}</Text><Button label={selected?.label ?? (lang === "ar" ? "اختر من القائمة" : "Choose from list")} variant="secondary" onPress={() => setOpen(true)} /><Sheet visible={open} title={label} onClose={() => setOpen(false)}><Field label={lang === "ar" ? "ابحث في الخيارات" : "Search options"} value={search} onChangeText={setSearch} /><Row gap={8} wrap>{options.filter((option) => `${option.label} ${option.keywords ?? ""}`.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).map((option) => <Chip key={option.value} label={option.label} active={option.value === value} onPress={() => { onChange(option.value); setOpen(false); setSearch(""); }} />)}</Row></Sheet></View>;
-  return <View style={{ gap: 8 }}><Text style={ui.label}>{label}</Text><Row gap={8} wrap>{options.map((option) => <Chip key={option.value} label={option.label} active={option.value === value} onPress={() => onChange(option.value)} />)}</Row></View>;
+  const filtered = options.filter((option) => `${option.label} ${option.keywords ?? ""}`.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
+  const choices = <View style={{ gap: 4 }}>
+    {filtered.length ? filtered.map((option) => <Pressable key={option.value} accessibilityRole="button" accessibilityState={{ selected: option.value === value }} accessibilityLabel={option.label} onPress={() => { onChange(option.value); setOpen(false); setSearch(""); }} style={({ pressed }) => ({ minHeight: 48, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 8, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: option.value === value ? colors.primarySoft : pressed ? colors.surfaceMuted : colors.surface })}>
+      <Text style={[ui.bodyStrong, { flex: 1, color: option.value === value ? colors.primary : colors.text }]}>{option.label}</Text>
+      {option.value === value ? <Check size={19} color={colors.primary} /> : null}
+    </Pressable>) : <Text style={[ui.muted, { paddingVertical: 14 }]}>{lang === "ar" ? "لا توجد نتائج مطابقة" : "No matching results"}</Text>}
+  </View>;
+  const list = <View style={{ gap: 8 }}>
+    {options.length > 5 ? <Field label={lang === "ar" ? `ابحث عن ${label}` : `Search ${label}`} value={search} onChangeText={setSearch} /> : null}
+    {inline ? <ScrollView nestedScrollEnabled style={{ maxHeight: 240 }} keyboardShouldPersistTaps="always">{choices}</ScrollView> : choices}
+  </View>;
+  return <View style={{ gap: 8 }}>
+    <Text style={ui.label}>{label}</Text>
+    {inline ? list : <>
+      <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityHint={lang === "ar" ? "افتح قائمة الخيارات" : "Open choices"} accessibilityState={{ expanded: open, disabled: !options.length }} disabled={!options.length} onPress={() => setOpen(true)} style={({ pressed }) => ({ minHeight: 48, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 8, backgroundColor: pressed ? colors.surfaceMuted : colors.surface, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 })}>
+        <Text style={[ui.bodyStrong, { flex: 1, color: selected ? colors.text : colors.textMuted }]}>{selected?.label ?? (lang === "ar" ? "اختر من القائمة" : "Choose from list")}</Text><ChevronDown size={20} color={colors.textMuted} />
+      </Pressable>
+      <Sheet visible={open} title={label} onClose={() => { setOpen(false); setSearch(""); }}>{list}</Sheet>
+    </>}
+  </View>;
 }
 
 export function ListingReview({ title, rows, privacyNote, busy, onBack, onConfirm, consentNode, error }: {
