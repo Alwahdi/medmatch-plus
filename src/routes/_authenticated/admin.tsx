@@ -712,7 +712,7 @@ function AdminPage() {
               { tab: "inbox", n: newMsgs.length, icon: Inbox, ar: "رسائل تواصل غير معالجة", en: "Unhandled contact messages" },
             ]}
             oldest={[
-              ...pendingDocs.map((d) => ({ id: d.id, tab: "docs", at: d.created_at, title: credentialLabel(d.type, lang) })),
+              ...pendingDocs.map((d) => ({ id: d.id, tab: "docs", at: d.created_at, title: credentialLabel(d.doc_type, lang) })),
               ...pendingFacDocs.map((d) => ({ id: d.id, tab: "facdocs", at: d.created_at, title: facilityDocTypeLabel(d.doc_type, lang) })),
               ...pendingChanges.map((r) => ({ id: r.id, tab: "changes", at: r.created_at, title: fieldLabel(r.field, lang) })),
             ]
@@ -1104,8 +1104,8 @@ function AdminPage() {
 
 
 function AdminHeader({ tab, lang }: { tab: string; lang: "ar" | "en" }) {
-  const group = ADMIN_GROUPS.find((g) => g.items.some((i) => i.tab === tab)) ?? ADMIN_GROUPS[0];
-  const item = group.items.find((i) => i.tab === tab) ?? group.items[0];
+  const group = ADMIN_GROUPS.find((g) => g.items.some((i) => i.tab === tab)) ?? ADMIN_GROUPS[0]!;
+  const item = group.items.find((i) => i.tab === tab) ?? group.items[0]!;
   return (
     <div>
       <p className="text-xs font-semibold text-muted-foreground">{lang === "ar" ? group.ar : group.en}</p>

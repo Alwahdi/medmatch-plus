@@ -149,7 +149,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     window.localStorage.setItem(WS_KEY, to);
   };
   const { data: counts } = useAdminCounts(adminMode);
-  const currentTab = onAdminPath && pathname === "/admin" ? (typeof search?.tab === "string" ? search.tab : "overview") : "";
+  const currentTab = onAdminPath && pathname === "/admin" ? (typeof search?.["tab"] === "string" ? (search["tab"] as string) : "overview") : "";
   const items = [...(isFacility ? FACILITY_NAV : PRO_NAV)];
 
   const { name: accountName, image: accountImage, verified: accountVerified } = useAccountIdentity();
@@ -350,7 +350,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.to}
                 to={path}
-                search={adminTab ? { tab: adminTab } : undefined}
+                {...(adminTab ? { search: { tab: adminTab } } : {})}
                         className={cn(
                   "relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-xs font-medium transition-colors",
                   active ? "text-primary" : "text-muted-foreground",
