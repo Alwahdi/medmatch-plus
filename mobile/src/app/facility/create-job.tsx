@@ -1,4 +1,3 @@
-import { CityChoice } from "@/components/location-choice";
 import { DistrictChoice } from "@/components/district-choice";
 import React, { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
@@ -9,7 +8,7 @@ import { Button, EmptyState, ErrorState, Loading, Screen, ScreenHeader, styles a
 import { ChoiceField, ListingField, ListingReview } from "@/components/listing-form";
 import { useConsentGate } from "@/components/consent-gate";
 import { useI18n } from "@/lib/i18n";
-import { useCreateJob, useMyFacility, useSpecialties } from "@/lib/queries";
+import { useCreateJob, useDistricts, useMyFacility, useSpecialties } from "@/lib/queries";
 import { userMessage } from "@/lib/errors";
 
 type Employment = "full_time" | "part_time" | "contract" | "locum" | "shift";
@@ -43,6 +42,8 @@ export default function CreateJobScreen() {
   useEffect(() => { const f = facility.data; if (f && ready) setForm((current) => current.city === f.city && current.country === f.country ? current : ({ ...current, city: f.city, country: f.country, districtId: "" })); }, [facility.data, ready]);
 
   const f = facility.data;
+  const districts = useDistricts(f?.country ?? "", f?.city ?? "");
+  const districtName = districts.data?.find((item) => item.id === form.districtId);
   const specialty = (specialties.data ?? []).find((item) => item.id === form.specialtyId);
   const specialtyName = lang === "ar" ? specialty?.name_ar : specialty?.name_en || specialty?.name_ar;
   const facilityNames = useMemo(() => [f?.name_ar, f?.name_en].filter(Boolean).map((value) => String(value).toLowerCase()), [f]);
@@ -69,7 +70,7 @@ export default function CreateJobScreen() {
   if (!f.is_verified) return <Screen><EmptyState icon={BriefcaseBusiness} text={lang === "ar" ? "وثّق المنشأة قبل النشر" : "Verify your facility before publishing"} desc={userMessage("FACILITY_NOT_VERIFIED", lang)} action={<Button label={t("verificationDocuments")} onPress={() => router.replace({ pathname: "/verification", params: { target: "facility" } })} />} /></Screen>;
   return <><Stack.Screen options={{ title: t("publishJob") }} /><Screen>
     {reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} error={error} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[
-      { label: t("jobTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("employmentType"), value: t(form.employmentType === "full_time" ? "fullTime" : form.employmentType === "part_time" ? "partTime" : form.employmentType as "contract" | "locum") }, { label: t("city"), value: f.city }, { label: lang === "ar" ? "المديرية" : "District", value: form.districtId ? (lang === "ar" ? "محددة" : "Selected") : "—" }, { label: t("salary"), value: `${form.salaryMin} – ${form.salaryMax} YER` }, { label: t("description"), value: form.description },
+      { label: t("jobTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("employmentType"), value: t(form.employmentType === "full_time" ? "fullTime" : form.employmentType === "part_time" ? "partTime" : form.employmentType as "contract" | "locum") }, { label: t("city"), value: f.city }, { label: lang === "ar" ? "المديرية" : "District", value: districtName ? (lang === "ar" ? districtName.name_ar : districtName.name_en) : "—" }, { label: t("salary"), value: `${form.salaryMin} – ${form.salaryMax} YER` }, { label: t("description"), value: form.description },
     ]} /> : <>
       <ScreenHeader title={t("publishJob")} sub={t("draftSaved")} />
         {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}

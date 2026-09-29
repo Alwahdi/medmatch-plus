@@ -1,4 +1,3 @@
-import { CityChoice } from "@/components/location-choice";
 import { DistrictChoice } from "@/components/district-choice";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
@@ -10,7 +9,7 @@ import { ChoiceField, ListingField, ListingReview } from "@/components/listing-f
 import { DateTimeField } from "@/components/date-time-field";
 import { useConsentGate } from "@/components/consent-gate";
 import { useI18n } from "@/lib/i18n";
-import { useCreateShift, useMyFacility, useSpecialties } from "@/lib/queries";
+import { useCreateShift, useDistricts, useMyFacility, useSpecialties } from "@/lib/queries";
 import { userMessage } from "@/lib/errors";
 import { formatDateTime, formatMoney } from "@/lib/format";
 
@@ -33,7 +32,7 @@ export default function CreateShiftScreen() {
   }, []);
   useEffect(() => { if (ready) void AsyncStorage.setItem(key, JSON.stringify(form)); }, [form, ready]);
   useEffect(() => { const f = facility.data; if (f && ready) setForm((current) => current.city === f.city && current.country === f.country ? current : ({ ...current, city: f.city, country: f.country, districtId: "" })); }, [facility.data, ready]);
-  const f = facility.data; const specialty = (specialties.data ?? []).find((item) => item.id === form.specialtyId); const specialtyName = lang === "ar" ? specialty?.name_ar : specialty?.name_en || specialty?.name_ar;
+  const f = facility.data; const districts = useDistricts(f?.country ?? "", f?.city ?? ""); const districtName = districts.data?.find((item) => item.id === form.districtId); const specialty = (specialties.data ?? []).find((item) => item.id === form.specialtyId); const specialtyName = lang === "ar" ? specialty?.name_ar : specialty?.name_en || specialty?.name_ar;
    const update = <K extends keyof Draft>(field: K, value: Draft[K]) => { setError(null); setForm((current) => ({ ...current, [field]: value })); };
    const validate = () => { if (form.title.trim().length < 2 || form.title.trim().length > 120 || !form.specialtyId || !form.city.trim() || form.city.trim().length > 60 || !form.startsAt || !form.endsAt || form.notes.length > 1000) return t("requiredField"); const start = new Date(form.startsAt).getTime(); const end = new Date(form.endsAt).getTime(); if (!Number.isFinite(start) || !Number.isFinite(end) || start <= Date.now() || end <= start || end - start > 86_400_000) return t("invalidTime"); const rate = Number(form.hourlyRate); if (!form.hourlyRate.trim() || !Number.isFinite(rate) || rate < 0 || rate > 1_000_000_000) return t("invalidAmount"); return null; };
   const submit = async () => { const problem = validate(); if (problem) return setError(problem); if (!(await consent.ensure()) || !f) return; create.mutate({ facilityId: f.id, title: form.title.trim(), specialtyId: form.specialtyId || null, startsAt: new Date(form.startsAt).toISOString(), endsAt: new Date(form.endsAt).toISOString(), hourlyRate: Number(form.hourlyRate), country: f.country, city: f.city, districtId: form.districtId || null, notes: form.notes.trim() || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) }); };
