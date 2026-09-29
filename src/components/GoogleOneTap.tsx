@@ -81,7 +81,7 @@ let googleInitialized = false;
 let credentialReceiver: ((credential: string | undefined) => Promise<void>) | undefined;
 
 function initializeGoogleIdentity(
-  googleId: NonNullable<NonNullable<Window["google"]>["accounts"]>["id"],
+  googleId: NonNullable<NonNullable<NonNullable<Window["google"]>["accounts"]>["id"]>,
   clientId: string,
   receiver: (credential: string | undefined) => Promise<void>,
 ) {
@@ -135,11 +135,11 @@ export function GoogleOneTap({
 
       const googleId = window.google.accounts.id;
       initializeGoogleIdentity(googleId, clientId, async (credential) => {
-          const accepted = await acceptCredential(credential);
-          if (!accepted) {
-            toast.error(errorText);
-          }
-          // نجاح: useSession في الصفحة يلتقط الجلسة ويوجّه المستخدم.
+        const accepted = await acceptCredential(credential);
+        if (!accepted) {
+          toast.error(errorText);
+        }
+        // نجاح: useSession في الصفحة يلتقط الجلسة ويوجّه المستخدم.
       });
       googleId.prompt();
     })();
@@ -185,9 +185,9 @@ export function GoogleIdentityButton({
       if (cancelled || !googleId || !host) return;
 
       initializeGoogleIdentity(googleId, clientId, async (credential) => {
-          onBeforeSignIn?.();
-          const accepted = await acceptCredential(credential);
-          if (!accepted) toast.error(errorText);
+        onBeforeSignIn?.();
+        const accepted = await acceptCredential(credential);
+        if (!accepted) toast.error(errorText);
       });
       host.replaceChildren();
       googleId.renderButton(host, {
