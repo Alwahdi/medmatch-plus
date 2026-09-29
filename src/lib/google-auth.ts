@@ -21,6 +21,31 @@ function isLovableHost(hostname: string): boolean {
   );
 }
 
+const NEXT_KEY = "sc_oauth_next";
+
+function stripQuery(redirectUrl: string): string {
+  const url = new URL(redirectUrl, window.location.origin);
+  const next = url.searchParams.get("next");
+  try {
+    if (next && next.startsWith("/") && !next.startsWith("//")) sessionStorage.setItem(NEXT_KEY, next);
+    else sessionStorage.removeItem(NEXT_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+  return `${url.origin}${url.pathname}`;
+}
+
+/** يقرأ الوجهة الداخلية المحفوظة قبل الانتقال إلى جوجل ثم يحذفها. */
+export function consumeOAuthNext(): string | undefined {
+  try {
+    const v = sessionStorage.getItem(NEXT_KEY);
+    if (v) sessionStorage.removeItem(NEXT_KEY);
+    return v ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function signInWithGoogle(redirectUrl: string): Promise<GoogleSignInResult> {
   if (isLovableHost(window.location.hostname)) {
     const result = await lovable.auth.signInWithOAuth("google", {
@@ -32,7 +57,9 @@ export async function signInWithGoogle(redirectUrl: string): Promise<GoogleSignI
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: redirectUrl,
+      // عنوان الرجوع بلا معاملات استعلام حتى يطابق قائمة العناوين المسموحة حرفياً؛
+      // وإلا تعيد الخلفية المستخدم إلى العنوان الافتراضي (نطاق Lovable).
+      redirectTo: stripQuery(redirectUrl),
       skipBrowserRedirect: false,
     },
   });
