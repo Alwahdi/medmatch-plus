@@ -1,5 +1,7 @@
 # Mobile experience quality pass
 
+- [ ] Redesign the complete mobile onboarding and role-based journeys: resumable account setup, honest verification status, progressive forms, polished Arabic/English screens, and real-device validation (device and isolated QA accounts required)
+
 - [x] Keep Google One Tap and the visible Google sign-in button on syndeocare.ai, completing the session in place instead of returning to the Lovable domain
 
 - [x] Establish logo-derived teal/violet visual direction and Cairo typography for the mobile shell and sign-in
