@@ -103,14 +103,14 @@ export function useAdminCounts(enabled: boolean) {
         supabase.from("credentials").select("id", head).eq("status", "pending"),
         supabase.from("facility_documents").select("id", head).eq("status", "pending"),
         supabase.from("profile_change_requests").select("id", head).eq("status", "pending"),
-        supabase.from("safety_reports").select("id", head).eq("status", "open"),
+        supabase.rpc("admin_list_safety_reports"),
         supabase.from("contact_messages").select("id", head).eq("is_handled", false),
       ]);
       return {
         docs: docs.count ?? 0,
         facdocs: facdocs.count ?? 0,
         changes: changes.count ?? 0,
-        safety: safety.count ?? 0,
+        safety: ((safety.data as { status: string }[] | null) ?? []).filter((r) => r.status === "open").length,
         inbox: inbox.count ?? 0,
       };
     },
