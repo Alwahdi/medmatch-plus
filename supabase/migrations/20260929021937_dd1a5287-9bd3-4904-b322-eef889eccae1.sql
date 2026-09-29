@@ -1,0 +1,13 @@
+ALTER FUNCTION public.admin_set_document_renewal_days(integer) SET SCHEMA private;
+ALTER FUNCTION public.admin_review_document_upload_request(uuid,boolean,text) SET SCHEMA private;
+REVOKE ALL ON FUNCTION private.admin_set_document_renewal_days(integer) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION private.admin_review_document_upload_request(uuid,boolean,text) FROM PUBLIC, anon;
+GRANT USAGE ON SCHEMA private TO authenticated;
+GRANT EXECUTE ON FUNCTION private.admin_set_document_renewal_days(integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION private.admin_review_document_upload_request(uuid,boolean,text) TO authenticated;
+CREATE FUNCTION public.admin_set_document_renewal_days(_days integer) RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path = public AS $fn$ SELECT private.admin_set_document_renewal_days(_days); $fn$;
+CREATE FUNCTION public.admin_review_document_upload_request(_id uuid,_approve boolean,_note text DEFAULT NULL) RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path = public AS $fn$ SELECT private.admin_review_document_upload_request(_id,_approve,_note); $fn$;
+REVOKE ALL ON FUNCTION public.admin_set_document_renewal_days(integer) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.admin_review_document_upload_request(uuid,boolean,text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_set_document_renewal_days(integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_review_document_upload_request(uuid,boolean,text) TO authenticated;
