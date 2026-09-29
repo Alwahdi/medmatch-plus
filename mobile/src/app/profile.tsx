@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { userMessage } from "@/lib/errors";
 import { ChoiceField } from "@/components/listing-form";
 import { colors, space } from "@/lib/theme";
+import { EstablishedLocation } from "@/components/location-change";
 
 export default function ProfileScreen() {
   const { t, lang } = useI18n();
@@ -67,8 +68,6 @@ export default function ProfileScreen() {
         full_name: fullName.trim(),
         headline: headline.trim() || null,
         bio: bio.trim() || null,
-        city: city.trim() || null,
-        country: country.trim() || "YE",
         years_experience: Number.isFinite(parsedYears) ? parsedYears : 0,
         specialty_id: specialtyId || null,
         license_number: licenseNumber.trim() || null,
@@ -79,7 +78,7 @@ export default function ProfileScreen() {
     const existing = profile.data;
     const result = existing
       ? await supabase.from("healthcare_professionals").update(payload).eq("user_id", user?.id ?? "")
-      : await supabase.from("healthcare_professionals").insert({ ...payload, user_id: user?.id ?? "" });
+      : await supabase.from("healthcare_professionals").insert({ ...payload, city: city.trim(), country: country.trim() || "YE", user_id: user?.id ?? "" });
     const err = result.error;
     if (err) {
       setBusy(false);
@@ -126,8 +125,7 @@ export default function ProfileScreen() {
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
              <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar }))} />
              <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" required maxLength={2} />
-            <CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} />
-              <CityChoice label={t("city")} country={country} value={city} onChange={setCity} />
+             {profile.data && country && city ? <EstablishedLocation target="professional" country={country} city={city} /> : <><CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} /><CityChoice label={t("city")} country={country} value={city} onChange={setCity} /></>}
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
              <CountryChoice label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChange={setLicenseCountry} />
             <Field label={lang === "ar" ? "الأجر المفضل" : "Preferred rate"} value={preferredRate} onChangeText={setPreferredRate} keyboardType="numeric" />

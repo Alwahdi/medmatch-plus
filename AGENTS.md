@@ -16,3 +16,4 @@
 - Mobile visual and interaction primitives live in `mobile/src/components/` and use `mobile/src/lib/theme.ts`, so Arabic and English screens share one coherent system instead of divergent one-off styles.
 
 - Web Google authentication uses Google Identity Services directly on externally hosted custom domains, because Lovable's OAuth broker exists only on Lovable-hosted origins; Lovable preview and production origins keep the managed broker.
+- Established account locations are locked by database triggers and changed through admin-reviewed requests; mobile profile saves exclude location after creation to avoid accidental bypass or errors.
