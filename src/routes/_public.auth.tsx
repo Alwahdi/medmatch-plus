@@ -259,7 +259,13 @@ function GoogleButton({
   lang: "ar" | "en";
 }) {
   const [busy, setBusy] = useState(false);
-  if (usesDirectGoogleIdentity()) {
+  const [directIdentity, setDirectIdentity] = useState(false);
+
+  useEffect(() => {
+    setDirectIdentity(usesDirectGoogleIdentity());
+  }, []);
+
+  if (directIdentity) {
     return <GoogleIdentityButton errorText={errorText} lang={lang} />;
   }
   async function signIn() {
