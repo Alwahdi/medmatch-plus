@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { signInWithGoogle } from "@/lib/google-auth";
+import { consumeOAuthNext, signInWithGoogle } from "@/lib/google-auth";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
 import { DICT, useLang } from "@/lib/i18n";
@@ -123,7 +123,7 @@ function AuthPage() {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    const back = safeNext(next);
+    const back = safeNext(next ?? consumeOAuthNext());
     if (back) {
       navigate({ href: back, replace: true });
       return;
