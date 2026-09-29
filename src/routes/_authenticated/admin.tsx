@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminLocations } from "@/components/admin-locations";
+import { AdminDistricts } from "@/components/admin-districts";
 import { AdminLegalContent } from "@/components/admin-legal";
 import { AdminPlatformSettings } from "@/components/admin-platform-settings";
 import { AdminDocumentRequirements } from "@/components/admin-requirements";
@@ -1086,6 +1087,7 @@ function AdminPage() {
 
         <TabsContent value="locations" className="mt-6">
           <AdminLocations />
+          <div className="mt-6"><AdminDistricts /></div>
         </TabsContent>
 
         <TabsContent value="legal" className="mt-6">
