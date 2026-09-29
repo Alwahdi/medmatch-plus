@@ -18,7 +18,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { GoogleOneTap } from "@/components/GoogleOneTap";
+import {
+  GoogleIdentityButton,
+  GoogleOneTap,
+  usesDirectGoogleIdentity,
+} from "@/components/GoogleOneTap";
 import { consumeOAuthNext, signInWithGoogle } from "@/lib/google-auth";
 import { useSession } from "@/lib/auth";
 import { resolveLanding } from "@/lib/landing";
@@ -164,7 +168,12 @@ function AuthPage() {
             <p className="mt-1 text-center text-sm text-muted-foreground">{tx("welcomeSub")}</p>
 
             <div className="mt-6">
-              <GoogleButton label={tx("google")} errorText={tx("googleError")} next={next} />
+              <GoogleButton
+                label={tx("google")}
+                errorText={tx("googleError")}
+                next={next}
+                lang={lang === "en" ? "en" : "ar"}
+              />
             </div>
 
             <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
@@ -238,8 +247,21 @@ function AuthPage() {
   );
 }
 
-function GoogleButton({ label, errorText, next }: { label: string; errorText: string; next?: string | undefined }) {
+function GoogleButton({
+  label,
+  errorText,
+  next,
+  lang,
+}: {
+  label: string;
+  errorText: string;
+  next?: string | undefined;
+  lang: "ar" | "en";
+}) {
   const [busy, setBusy] = useState(false);
+  if (usesDirectGoogleIdentity()) {
+    return <GoogleIdentityButton errorText={errorText} lang={lang} />;
+  }
   async function signIn() {
     setBusy(true);
     // نعود دائماً إلى /auth حتى يعمل توجيه الدور (resolveLanding) بعد نجاح الدخول،

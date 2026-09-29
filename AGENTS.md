@@ -14,3 +14,5 @@
 - Mobile country and city selection reads active administrator-managed locations and persists the Arabic city key across languages, because search and listings compare the stored city string.
 
 - Mobile visual and interaction primitives live in `mobile/src/components/` and use `mobile/src/lib/theme.ts`, so Arabic and English screens share one coherent system instead of divergent one-off styles.
+
+- Web Google authentication uses Google Identity Services directly on externally hosted custom domains, because Lovable's OAuth broker exists only on Lovable-hosted origins; Lovable preview and production origins keep the managed broker.
