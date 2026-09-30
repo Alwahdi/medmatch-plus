@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { colors } from "@/lib/theme";
 
 export default function Entry() {
-  const { loading, session } = useAuth();
+  const { loading, session, roles, rolesError } = useAuth();
 
   if (loading) {
     return (
@@ -16,5 +16,6 @@ export default function Entry() {
   }
 
   if (!session) return <Redirect href="/sign-in" />;
+  if (!rolesError && roles.length === 0) return <Redirect href="/welcome" />;
   return <Redirect href="/(tabs)" />;
 }

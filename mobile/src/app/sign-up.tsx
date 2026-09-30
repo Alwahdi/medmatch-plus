@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Platform, Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Link, useRouter } from "expo-router";
-import { Building2, Check, Stethoscope, UserPlus } from "lucide-react-native";
+import { Building2, Check, MailCheck, Stethoscope, UserPlus } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
 import { Button, ErrorState, Field, styles as ui } from "@/components/ui";
 import { AuthScaffold } from "@/components/auth-scaffold";
@@ -82,6 +82,8 @@ export default function SignUp() {
   const [googleBusy, setGoogleBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
+  const [resending, setResending] = useState(false);
   const [touched, setTouched] = useState<{ name?: boolean; email?: boolean }>({});
 
   const nameError = touched.name && !fullName.trim() ? t("nameRequired") : null;
@@ -123,12 +125,7 @@ export default function SignUp() {
     });
     setBusy(false);
     if (err) return setError(userMessage(err, lang));
-    if (!data.session)
-      return setNotice(
-        lang === "ar"
-          ? "أنشأنا حسابك. افتح بريدك لتأكيد التسجيل ثم سجّل الدخول."
-          : "Account created. Confirm your email, then sign in.",
-      );
+    if (!data.session) { setEmailSent(true); return; }
     if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     router.replace({ pathname: "/welcome", params: { name: fullName.trim(), role: role ?? "professional" } });
   };
@@ -148,6 +145,29 @@ export default function SignUp() {
   const strengthColors = [colors.danger, colors.warning, colors.success];
   const strengthLabels = [t("strengthWeak"), t("strengthMedium"), t("strengthStrong")];
   const strengthIdx = score >= 4 ? 2 : score >= 2 ? 1 : 0;
+
+  const resend = async () => {
+    if (resending) return;
+    setResending(true); setError(null); setNotice(null);
+    const { error: resendError } = await supabase.auth.resend({ type: "signup", email: email.trim() });
+    setResending(false);
+    if (resendError) return setError(userMessage(resendError, lang));
+    setNotice(lang === "ar" ? "إذا كان الحساب بانتظار التأكيد، أُعيد إرسال الرابط. تحقق من البريد غير المرغوب فيه أيضًا." : "If confirmation is pending, a new link was sent. Check your spam folder too.");
+  };
+
+  if (emailSent) return <AuthScaffold title={lang === "ar" ? "تحقق من بريدك" : "Check your email"}>
+    <View style={{ gap: 18, alignItems: "center" }}>
+      <View style={{ width: 72, height: 72, borderRadius: radii.xl, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}><MailCheck size={34} color={colors.primary} /></View>
+      <Text style={[ui.bodyStrong, { textAlign: "center", writingDirection: "ltr" }]}>{email.trim()}</Text>
+      <Text style={[ui.muted, { textAlign: "center" }]}>{lang === "ar" ? "أرسلنا رابط تأكيد التسجيل إلى بريدك. افتحه، ثم عد لتسجيل الدخول. إذا لم تجده، افحص البريد غير المرغوب فيه." : "We sent a confirmation link to your email. Open it, then return to sign in. Check your spam folder if needed."}</Text>
+      {notice ? <Text accessibilityLiveRegion="polite" style={[ui.muted, { textAlign: "center" }]}>{notice}</Text> : null}
+      {error ? <ErrorState message={error} /> : null}
+      <View style={{ alignSelf: "stretch", width: "100%", gap: 10 }}>
+        <Button label={lang === "ar" ? "العودة إلى تسجيل الدخول" : "Back to sign in"} onPress={() => router.replace("/sign-in")} />
+        <Button label={lang === "ar" ? "إعادة إرسال الرابط" : "Resend confirmation link"} variant="secondary" onPress={() => void resend()} loading={resending} />
+      </View>
+    </View>
+  </AuthScaffold>;
 
   return (
     <AuthScaffold

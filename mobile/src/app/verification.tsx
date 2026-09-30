@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Alert, Platform, Text, View } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import * as Haptics from "expo-haptics";
 import { FileBadge2, FileCheck2, Upload } from "lucide-react-native";
@@ -18,6 +18,7 @@ type PickedFile = { uri: string; name: string; mimeType?: string; size?: number 
 
 export default function VerificationScreen() {
   const { target: rawTarget } = useLocalSearchParams<{ target?: string }>();
+  const router = useRouter();
   const { user, isFacility } = useAuth();
   const { t, lang } = useI18n();
   const facility = useMyFacility();
@@ -116,6 +117,7 @@ export default function VerificationScreen() {
         {requests.data?.find((r) => r.doc_type === requirement.code && r.status === "rejected")?.admin_note ? <Text style={ui.error}>{requests.data.find((r) => r.doc_type === requirement.code && r.status === "rejected")?.admin_note}</Text> : null}
       </> : <Button label={replacementState(requirement.code, items) === "renewal" ? (lang === "ar" ? "تجديد الوثيقة" : "Renew document") : t("uploadDocument")} icon={Upload} variant="secondary" small onPress={() => { setSelected(requirement); setFile(null); setError(null); }} />}
     </Card>)}
+     {target === "facility" && !facility.isPending && !facility.data?.id ? <Card><Text style={ui.bodyStrong}>{lang === "ar" ? "أكمل بيانات المنشأة أولًا" : "Complete your facility profile first"}</Text><Text style={ui.muted}>{lang === "ar" ? "احفظ اسم المنشأة وموقعها قبل رفع مستنداتها." : "Save your facility name and location before uploading its documents."}</Text><Button label={lang === "ar" ? "إكمال بيانات المنشأة" : "Complete facility profile"} onPress={() => router.push("/facility/profile")} /></Card> : null}
      {selected ? <Card style={{ borderColor: colors.primary }}><Text style={ui.bodyStrong}>{lang === "ar" ? selected.name_ar : selected.name_en}</Text><Button label={file?.name ?? t("chooseFile")} variant="secondary" onPress={() => void pick()} />{selected.requires_issuer ? <Field label={t("issuer")} value={issuer} onChangeText={setIssuer} required /> : null}{selected.requires_issue_date ? <DateTimeField label={t("issueDate")} value={issueDate} onChange={setIssueDate} dateOnly required /> : null}{selected.requires_expiry ? <DateTimeField label={t("expiryDate")} value={expiryDate} onChange={setExpiryDate} dateOnly required /> : null}<Text style={ui.muted}>{t("fileFormatsHint")}</Text>{error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}<Row gap={8}><View style={{ flex: 1 }}><Button label={t("submit")} loading={busy} onPress={() => void upload()} /></View><View style={{ flex: 1 }}><Button label={t("cancel")} variant="ghost" onPress={() => setSelected(null)} /></View></Row></Card> : null}
     {requestType ? <Card style={{ gap: 12 }}><Text style={ui.bodyStrong}>{lang === "ar" ? "طلب السماح برفع بديل" : "Request a replacement upload"}</Text><Field label={lang === "ar" ? "سبب الاستبدال" : "Reason for replacement"} value={reason} onChangeText={setReason} multiline maxLength={500} />{error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}<Button label={lang === "ar" ? "إرسال للإدارة" : "Send for review"} loading={busy} onPress={() => void requestReplacement()} /><Button label={t("cancel")} variant="ghost" onPress={() => setRequestType(null)} /></Card> : null}
   </Screen></>;

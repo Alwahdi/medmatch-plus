@@ -36,7 +36,7 @@ export default function SignIn() {
     setTimeout(() => passwordRef.current?.focus(), 120);
   };
 
-  const destination = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : "/(tabs)";
+  const destination = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : "/";
   const finish = () => router.replace(destination as never);
 
   const submit = async () => {
