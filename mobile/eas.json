@@ -18,6 +18,10 @@
   },
   "submit": {
     "production": {
+      "ios": {
+        "ascAppId": "6795712203",
+        "appleId": "abdullahalwahdi@icloud.com"
+      },
       "android": {
         "serviceAccountKeyPath": "./google-play-key.json",
         "track": "internal"

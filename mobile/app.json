@@ -12,7 +12,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.syndeocare.mobile",
+      "bundleIdentifier": "ai.syndeocare.mobile",
+      "buildNumber": "7",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "SyndeoCare uses your camera to capture profile photos and verification documents. / نستخدم الكاميرا لالتقاط صورة الملف الشخصي أو وثائق التوثيق.",
