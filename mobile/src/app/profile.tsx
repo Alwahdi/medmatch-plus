@@ -103,6 +103,7 @@ export default function ProfileScreen() {
     void qc.invalidateQueries({ queryKey: ["professional-profile"] });
     const returnTo = typeof params.returnTo === "string" && /^\/(job|shift)\/[0-9a-f-]{36}$/.test(params.returnTo) ? params.returnTo : null;
     if (returnTo) router.replace(returnTo as never);
+    else if (roles.length === 0) router.replace("/welcome");
   };
 
   return (

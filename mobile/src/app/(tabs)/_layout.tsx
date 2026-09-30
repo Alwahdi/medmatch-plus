@@ -36,8 +36,7 @@ export default function TabsLayout() {
   if (!session) return <Redirect href="/sign-in" />;
   if (rolesError) return <Screen><ErrorState message={userMessage(rolesError, lang)} onRetry={() => void refreshRoles()} /><Button label={t("signOut")} variant="ghost" onPress={() => void supabase.auth.signOut()} /></Screen>;
   if (roles.length === 0) {
-    const intendedRole = user?.user_metadata?.intended_role;
-    return <Redirect href={intendedRole === "facility" ? "/facility/profile" : "/profile"} />;
+    return <Redirect href="/welcome" />;
   }
 
   return (
