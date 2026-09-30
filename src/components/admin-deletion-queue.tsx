@@ -30,7 +30,7 @@ const TXT = {
       rejected: "مرفوض",
       cancelled: "ملغى",
     } as Record<string, string>,
-    hint: "هذه الشاشة تسجّل حالة الطلب فقط. لا يُعتبر الحساب محذوفاً حتى تُنفَّذ عملية الحذف/إخفاء الهوية الموثوقة، ولذلك لا توجد هنا علامة «تم الحذف».",
+    hint: "ابدأ المعالجة بعد مراجعة الطلب؛ عند تشغيل مهمة الحذف الموثوقة ستزيل حساب الدخول والملفات وتُخفي الهوية ثم تسجّل الاكتمال. لا يمكن تعيين الاكتمال يدوياً هنا.",
     checklistTitle: "ما الذي يجب أن يغطيه الحذف الموثوق قبل اعتباره مكتملاً:",
     checklist: [
       "إزالة حساب الدخول نفسه.",
@@ -40,7 +40,7 @@ const TXT = {
       "عدم المساس بسجلات الطرف الآخر.",
     ],
     processingNote:
-      "قيد المعالجة — لا يتم اعتبار الحساب محذوفاً حتى تُنفَّذ عملية الحذف/إخفاء الهوية الموثوقة.",
+      "قيد المعالجة — بانتظار مهمة الحذف الموثوقة؛ راقب أي طلب عالق وأصلح سبب الإخفاق قبل إعادة المحاولة.",
   },
   en: {
     empty: "No account deletion requests.",
@@ -58,7 +58,7 @@ const TXT = {
       rejected: "Rejected",
       cancelled: "Cancelled",
     } as Record<string, string>,
-    hint: "This screen only records the request state. An account is not deleted until the trusted deletion/anonymisation process runs, so there is no “mark deleted” action here.",
+    hint: "After reviewing the request, start processing. The trusted deletion worker removes the login and files, anonymises records, then marks the request complete. Completion cannot be set manually here.",
     checklistTitle: "What trusted deletion must cover before it counts as completed:",
     checklist: [
       "Remove the sign-in account itself.",
@@ -68,7 +68,7 @@ const TXT = {
       "Leave counterparty records untouched.",
     ],
     processingNote:
-      "Processing — the account is not considered deleted until the trusted deletion/anonymisation process runs.",
+      "Processing — awaiting the trusted deletion worker. Investigate stalled requests and retry after fixing failures.",
   },
 } as const;
 

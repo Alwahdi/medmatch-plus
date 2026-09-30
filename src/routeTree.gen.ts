@@ -66,6 +66,7 @@ import { Route as PublicSpecialtiesSlugRouteImport } from './routes/_public.spec
 import { Route as ApiPublicDispatchAlertsRouteImport } from './routes/api/public/dispatch-alerts'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push-dispatch'
 import { Route as ApiPublicRefreshVerificationRouteImport } from './routes/api/public/refresh-verification'
+import { Route as ApiPublicSweepAccountDeletionsRouteImport } from './routes/api/public/sweep-account-deletions'
 import { Route as AuthenticatedAdminUsersUserIdRouteImport } from './routes/_authenticated/admin.users.$userId'
 import { Route as AuthenticatedFacilityCandidatesUserIdRouteImport } from './routes/_authenticated/facility.candidates.$userId'
 
@@ -367,6 +368,12 @@ const ApiPublicRefreshVerificationRoute =
     path: '/api/public/refresh-verification',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicSweepAccountDeletionsRoute =
+  ApiPublicSweepAccountDeletionsRouteImport.update({
+    id: '/api/public/sweep-account-deletions',
+    path: '/api/public/sweep-account-deletions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminUsersUserIdRoute =
   AuthenticatedAdminUsersUserIdRouteImport.update({
     id: '/users/$userId',
@@ -428,6 +435,7 @@ export interface FileRoutesByFullPath {
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/api/public/refresh-verification': typeof ApiPublicRefreshVerificationRoute
+  '/api/public/sweep-account-deletions': typeof ApiPublicSweepAccountDeletionsRoute
   '/facility/': typeof AuthenticatedFacilityIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/guides/': typeof PublicGuidesIndexRoute
@@ -487,6 +495,7 @@ export interface FileRoutesByTo {
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/api/public/refresh-verification': typeof ApiPublicRefreshVerificationRoute
+  '/api/public/sweep-account-deletions': typeof ApiPublicSweepAccountDeletionsRoute
   '/facility': typeof AuthenticatedFacilityIndexRoute
   '/blog': typeof PublicBlogIndexRoute
   '/guides': typeof PublicGuidesIndexRoute
@@ -549,6 +558,7 @@ export interface FileRoutesById {
   '/api/public/dispatch-alerts': typeof ApiPublicDispatchAlertsRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/api/public/refresh-verification': typeof ApiPublicRefreshVerificationRoute
+  '/api/public/sweep-account-deletions': typeof ApiPublicSweepAccountDeletionsRoute
   '/_authenticated/facility/': typeof AuthenticatedFacilityIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_public/guides/': typeof PublicGuidesIndexRoute
@@ -610,6 +620,7 @@ export interface FileRouteTypes {
     | '/api/public/dispatch-alerts'
     | '/api/public/push-dispatch'
     | '/api/public/refresh-verification'
+    | '/api/public/sweep-account-deletions'
     | '/facility/'
     | '/blog/'
     | '/guides/'
@@ -669,6 +680,7 @@ export interface FileRouteTypes {
     | '/api/public/dispatch-alerts'
     | '/api/public/push-dispatch'
     | '/api/public/refresh-verification'
+    | '/api/public/sweep-account-deletions'
     | '/facility'
     | '/blog'
     | '/guides'
@@ -730,6 +742,7 @@ export interface FileRouteTypes {
     | '/api/public/dispatch-alerts'
     | '/api/public/push-dispatch'
     | '/api/public/refresh-verification'
+    | '/api/public/sweep-account-deletions'
     | '/_authenticated/facility/'
     | '/_public/blog/'
     | '/_public/guides/'
@@ -750,6 +763,7 @@ export interface RootRouteChildren {
   ApiPublicDispatchAlertsRoute: typeof ApiPublicDispatchAlertsRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   ApiPublicRefreshVerificationRoute: typeof ApiPublicRefreshVerificationRoute
+  ApiPublicSweepAccountDeletionsRoute: typeof ApiPublicSweepAccountDeletionsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1153,6 +1167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRefreshVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/sweep-account-deletions': {
+      id: '/api/public/sweep-account-deletions'
+      path: '/api/public/sweep-account-deletions'
+      fullPath: '/api/public/sweep-account-deletions'
+      preLoaderRoute: typeof ApiPublicSweepAccountDeletionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/users/$userId': {
       id: '/_authenticated/admin/users/$userId'
       path: '/users/$userId'
@@ -1324,6 +1345,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDispatchAlertsRoute: ApiPublicDispatchAlertsRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   ApiPublicRefreshVerificationRoute: ApiPublicRefreshVerificationRoute,
+  ApiPublicSweepAccountDeletionsRoute: ApiPublicSweepAccountDeletionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

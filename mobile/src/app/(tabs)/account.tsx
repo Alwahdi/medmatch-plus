@@ -2,7 +2,7 @@ import React from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import Constants from "expo-constants";
-import { Bell, Building2, FileText, Globe2, LogOut, ShieldCheck, Stethoscope, UserRound } from "lucide-react-native";
+import { Bell, Building2, FileText, Globe2, LogOut, ShieldCheck, Stethoscope, UserRound, LifeBuoy, UserRoundX } from "lucide-react-native";
 import { Badge, MenuRow, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -60,6 +60,8 @@ export default function AccountTab() {
         <Segmented value={lang} options={[{ value: "ar", label: t("arabic") }, { value: "en", label: t("english") }]} onChange={(v) => void setLang(v)}/>
       </View>
       <View style={s.listItem}><MenuRow plain icon={FileText} title={t("legal")} subtitle={lang === "ar" ? "الخصوصية والشروط والموافقات" : "Privacy, terms and consent"} tone="violet" onPress={() => router.push("/legal")}/></View>
+       <View style={s.listItem}><MenuRow plain icon={LifeBuoy} title={lang === "ar" ? "تواصل معنا" : "Contact support"} onPress={() => void Linking.openURL("https://www.syndeocare.ai/contact")}/></View>
+       <View style={s.listItem}><MenuRow plain icon={UserRoundX} title={lang === "ar" ? "حذف الحساب" : "Delete account"} subtitle={lang === "ar" ? "تقديم طلب ومتابعة حالته" : "Request deletion and track its status"} tone="danger" onPress={() => router.push("/account-deletion")}/></View>
       {webUrl ? <MenuRow plain icon={FileText} title={t("openWeb")} subtitle={webUrl.replace(/^https?:\/\//, "")} onPress={() => void Linking.openURL(webUrl)}/> : null}
       </View>
     </View>

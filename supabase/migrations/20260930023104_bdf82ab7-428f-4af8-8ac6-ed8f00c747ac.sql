@@ -1,0 +1,1 @@
+CREATE POLICY "service role audit only" ON public.account_deletion_audit_log FOR ALL TO service_role USING (true) WITH CHECK (true);

@@ -14,8 +14,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.syndeocare.mobile",
       "infoPlist": {
-        "NSCameraUsageDescription": "نستخدم الكاميرا لالتقاط صورة الملف الشخصي أو الوثائق المطلوبة للتوثيق.",
-        "NSPhotoLibraryUsageDescription": "نستخدم معرض الصور لاختيار صورة الملف الشخصي أو الوثائق المطلوبة للتوثيق."
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "SyndeoCare uses your camera to capture profile photos and verification documents. / نستخدم الكاميرا لالتقاط صورة الملف الشخصي أو وثائق التوثيق.",
+        "NSPhotoLibraryUsageDescription": "SyndeoCare uses your photo library to select profile photos and verification documents. / نستخدم معرض الصور لاختيار صورة الملف الشخصي أو وثائق التوثيق."
       }
     },
     "android": {
@@ -44,8 +45,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "نستخدم معرض الصور لاختيار صورة الملف الشخصي أو الوثائق المطلوبة للتوثيق.",
-          "cameraPermission": "نستخدم الكاميرا لالتقاط صورة الملف الشخصي أو الوثائق المطلوبة للتوثيق."
+          "photosPermission": "SyndeoCare uses your photo library to select profile photos and verification documents. / نستخدم معرض الصور لاختيار صورة الملف الشخصي أو وثائق التوثيق.",
+          "cameraPermission": "SyndeoCare uses your camera to capture profile photos and verification documents. / نستخدم الكاميرا لالتقاط صورة الملف الشخصي أو وثائق التوثيق."
         }
       ],
       "@react-native-community/datetimepicker"

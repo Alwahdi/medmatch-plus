@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_audit_log: {
+        Row: {
+          created_at: string
+          removed_files: number
+          request_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          removed_files?: number
+          request_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          removed_files?: number
+          request_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_deletion_audit_log_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "account_deletion_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_deletion_requests: {
         Row: {
           admin_note: string | null
@@ -2741,6 +2770,18 @@ export type Database = {
           _shift_id?: string
         }
         Returns: string
+      }
+      service_role_collect_deletion_artifacts: {
+        Args: { _request_id: string }
+        Returns: {
+          bucket_id: string
+          object_name: string
+          user_id: string
+        }[]
+      }
+      service_role_finalize_account_deletion: {
+        Args: { _removed_files?: number; _request_id: string }
+        Returns: undefined
       }
       set_application_stage: {
         Args: {

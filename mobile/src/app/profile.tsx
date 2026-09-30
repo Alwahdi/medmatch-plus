@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Switch, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Badge, Button, ErrorState, Field, Loading, Row, Screen, Title, styles as ui } from "@/components/ui";
+import { Badge, Button, ErrorState, Field, Loading, Row, Screen, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useProfessionalProfile, useSpecialties } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
@@ -58,6 +58,12 @@ export default function ProfileScreen() {
     setSearchable(Boolean(p.is_searchable));
   }, [profile.data]);
 
+  useEffect(() => {
+    if (profile.isPending || profile.data) return;
+    const initialName = user?.user_metadata?.full_name;
+    if (typeof initialName === "string") setFullName((current) => current || initialName);
+  }, [profile.isPending, profile.data, user?.id]);
+
   const save = async () => {
     if (fullName.trim().length < 2 || fullName.trim().length > 100 || !specialtyId || !city.trim() || !country.trim() || !/^\d+$/.test(years.trim()) || Number(years) > 60 || (preferredRate.trim() && (!(Number(preferredRate) > 0) || !Number.isFinite(Number(preferredRate))))) { setError(lang === "ar" ? "أكمل الاسم والتخصص والمدينة وسنوات الخبرة الصحيحة (0–60)." : "Complete your name, specialty, city and valid experience (0–60)." ); return; }
     setBusy(true);
@@ -110,7 +116,6 @@ export default function ProfileScreen() {
     <>
       <Stack.Screen options={{ title: t("profile") }} />
       <Screen>
-        <Title>{t("profile")}</Title>
         {profile.isPending ? (
           <Loading />
         ) : profile.isError ? (

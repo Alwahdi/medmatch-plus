@@ -4,8 +4,8 @@ const MAP: Record<string, { ar: string; en: string }> = {
   NOT_AUTHENTICATED: { ar: "سجّل الدخول أولاً ثم أعد المحاولة.", en: "Sign in first, then try again." },
   UNAUTHENTICATED: { ar: "سجّل الدخول أولاً ثم أعد المحاولة.", en: "Sign in first, then try again." },
   MFA_REQUIRED: {
-    ar: "تحتاج هذه العملية إلى تأكيد التحقق بخطوتين من صفحة الأمان.",
-    en: "This action needs two-step verification from Security.",
+    ar: "تحتاج هذه العملية إلى تأكيد التحقق بخطوتين في التطبيق.",
+    en: "This action needs two-step verification in the app.",
   },
   PROFESSIONAL_REQUIRED: {
     ar: "هذا الإجراء متاح لحسابات الكوادر الصحية فقط.",

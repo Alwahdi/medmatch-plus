@@ -37,7 +37,14 @@ export default function SignIn() {
   };
 
   const destination = typeof params.returnTo === "string" && params.returnTo.startsWith("/") && !params.returnTo.startsWith("//") ? params.returnTo : "/";
-  const finish = () => router.replace(destination as never);
+  const finish = async () => {
+    const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (data?.nextLevel === "aal2" && data.currentLevel !== "aal2") {
+      router.replace({ pathname: "/mfa-challenge", params: { returnTo: destination } });
+      return;
+    }
+    router.replace(destination as never);
+  };
 
   const submit = async () => {
     if (!password || busy) return;
@@ -49,7 +56,7 @@ export default function SignIn() {
       if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return setError(userMessage(err, lang));
     }
-    finish();
+    void finish();
   };
 
   const google = async () => {
@@ -58,7 +65,7 @@ export default function SignIn() {
     setNotice(null);
     const result = await signInWithGoogle();
     setGoogleBusy(false);
-    if (result.ok) return finish();
+    if (result.ok) return void finish();
     if (result.cancelled) return setNotice(t("googleCancelled"));
     setError(result.error ? userMessage(result.error, lang) : t("googleFailed"));
   };
@@ -107,12 +114,12 @@ export default function SignIn() {
           {error ? <ErrorState message={error} /> : null}
           {notice ? <Text style={ui.muted}>{notice}</Text> : null}
           <Button label={t("continueLabel")} icon={Mail} onPress={goToPassword} disabled={!email.trim() || googleBusy} />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 8 }}>
+          {Platform.OS !== "ios" ? <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 8 }}>
             <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
             <Text style={ui.muted}>{t("orDivider")}</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
-          </View>
-          <GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} />
+          </View> : null}
+           {Platform.OS !== "ios" ? <GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} /> : null}
         </View>
       ) : null}
 

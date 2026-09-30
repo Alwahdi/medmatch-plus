@@ -19,3 +19,6 @@
 - Established account locations are locked by database triggers and changed through admin-reviewed requests; mobile profile saves exclude location after creation to avoid accidental bypass or errors.
 - Established professional specialties are locked by database trigger and changed through the same admin-reviewed requests; mobile saves omit established specialty values to preserve review authority.
 - Mobile selectors use the shared searchable ChoiceField and notification links are mapped to existing Expo routes; this keeps RTL/LTR selections consistent and prevents web-only notification paths from opening missing pages.
+- Mobile account deletion requests reuse the protected web RPC and remain review-only until a trusted deletion finalizer exists; this avoids falsely marking accounts erased.
+- Mobile sign-in challenges enrolled TOTP factors natively and resumes only a known internal destination; protected deletion requests must not weaken the database MFA gate.
+- iOS exposes email/password authentication without Google until compliant Apple sign-in is configured; third-party-only login would block store review.

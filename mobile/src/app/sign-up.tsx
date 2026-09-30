@@ -187,8 +187,7 @@ export default function SignUp() {
             <Text style={ui.muted}>{t("orDivider")}</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
           </View>
-          <GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} />
-          <Text style={[ui.muted, { textAlign: "center" }]}>{t("googleRoleNotice")}</Text>
+           {Platform.OS !== "ios" ? <><GoogleButton label={t("continueWithGoogle")} onPress={google} loading={googleBusy} disabled={busy} /><Text style={[ui.muted, { textAlign: "center" }]}>{t("googleRoleNotice")}</Text></> : null}
         </View>
       ) : null}
 

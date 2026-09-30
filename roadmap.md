@@ -1,6 +1,15 @@
 # Mobile experience quality pass
 
+- [ ] Finish store release only after verified deletion fulfillment (not merely request submission), physical iPad/Android reviewer login tests, and store-owner credentials; do not submit automatically
+
+- [x] Store resubmission essentials in the mobile interface: direct support, account deletion request with review status, and iOS email/password login without third-party-only login
+- [x] Allow enrolled-MFA mobile users to complete a TOTP challenge in-app before protected account deletion requests
+- [x] Implement service-role account deletion finalizer and guarded endpoint; reject requests without cron authentication
+- [ ] Configure and test a production scheduler for the deletion endpoint; validate end-to-end deletion/retries on a dedicated disposable account, plus reviewer login on a physical iPad before submission
+- [ ] Submit iOS replacement and Android internal test only after device QA and store credentials are available (account-holder action; do not publish automatically)
+
 - [ ] Redesign the complete mobile onboarding and role-based journeys: resumable account setup, honest verification status, progressive forms, polished Arabic/English screens, and real-device validation (device and isolated QA accounts required)
+- [x] Resume roleless accounts at the setup checklist; provide confirmation-email recovery, profile-to-checklist return, accurate document review states, and browse access after a completed professional profile
 
 - [x] Keep Google One Tap and the visible Google sign-in button on syndeocare.ai, completing the session in place instead of returning to the Lovable domain
 
