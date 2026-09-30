@@ -29,7 +29,7 @@ export function AuthScaffold({
   const { t, rtl } = useI18n();
 
   return (
-    <FormScreen contentStyle={{ gap: space.xl, paddingTop: space.lg, paddingHorizontal: space.xl, paddingBottom: 40 }}>
+    <FormScreen contentStyle={{ gap: space.lg, paddingTop: space.sm, paddingHorizontal: space.xl, paddingBottom: 40 }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", minHeight: 44 }}>
         {onBack ? (
           <Pressable
@@ -56,7 +56,7 @@ export function AuthScaffold({
         ) : null}
       </View>
 
-      <View style={{ alignItems: "center", gap: 12, paddingTop: onBack ? 4 : 20, paddingBottom: 8 }}>
+      <View style={{ alignItems: "center", gap: 8, paddingTop: onBack ? 0 : 4, paddingBottom: 4 }}>
         <Brand />
         <View style={{ width: 56, height: 3, borderRadius: 2, backgroundColor: colors.accent }} />
       </View>

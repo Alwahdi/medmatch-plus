@@ -39,7 +39,7 @@ function RoleCard({ icon: Icon, title, description, active, onPress }: {
         alignItems: "center",
         gap: 14,
         padding: 16,
-        minHeight: 88,
+        minHeight: 96,
         borderRadius: radii.lg,
         borderWidth: active ? 2 : 1,
         borderColor: active ? colors.primary : colors.border,
@@ -53,15 +53,13 @@ function RoleCard({ icon: Icon, title, description, active, onPress }: {
       }}>
         <Icon size={26} color={active ? colors.primaryText : colors.primary} strokeWidth={2.1} />
       </View>
-      <View style={{ flex: 1, gap: 3 }}>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{title}</Text>
+       <View style={{ flex: 1, gap: 3 }}>
+         <Text style={{ fontFamily: fonts.bold, fontSize: 16, color: colors.text }}>{title}</Text>
         <Text style={ui.muted}>{description}</Text>
       </View>
-      {active ? (
-        <View style={{ width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: colors.primary }}>
-          <Check size={15} color={colors.primaryText} strokeWidth={3} />
-        </View>
-      ) : null}
+      <View style={{ width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: active ? colors.primary : colors.surface, borderWidth: active ? 0 : 2, borderColor: colors.borderStrong }}>
+        {active ? <Check size={15} color={colors.primaryText} strokeWidth={3} /> : null}
+      </View>
     </Pressable>
   );
 }
