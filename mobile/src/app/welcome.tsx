@@ -28,8 +28,6 @@ export default function Welcome() {
   const documents = useVerificationDocuments(target, facility.data?.id);
   const hasRole = roles.includes(target);
   const profileReady = hasRole && Boolean(isFacility ? facility.data?.id : professional.data?.id);
-  const required = (requirements.data ?? []).filter((r) => r.is_required);
-  const approved = required.length > 0 && required.every((r) => (documents.data ?? []).filter((d) => d.doc_type === r.code && d.status === "approved").length >= r.min_count);
   const submitted = (documents.data ?? []).some((d) => d.status === "pending");
   const rejected = (documents.data ?? []).some((d) => d.status === "rejected");
   const verified = isFacility ? Boolean(facility.data?.is_verified) : Boolean(professional.data?.is_verified);
@@ -37,11 +35,11 @@ export default function Welcome() {
 
   const steps: Step[] = isFacility ? [
     { icon: Building2, title: t("nextFac1"), sub: t("nextFac1Sub"), href: "/facility/profile", status: profileReady ? "done" : "current" },
-    { icon: FileBadge, title: t("nextFac2"), sub: t("nextFac2Sub"), href: "/verification", target: "facility", status: verified || approved ? "done" : profileReady ? "current" : "pending" },
+    { icon: FileBadge, title: t("nextFac2"), sub: t("nextFac2Sub"), href: "/verification", target: "facility", status: verified ? "done" : profileReady ? "current" : "pending" },
     { icon: BriefcaseBusiness, title: t("nextFac3"), sub: t("nextFac3Sub"), href: "/facility/create-job", status: verified ? "current" : "pending" },
   ] : [
     { icon: Stethoscope, title: t("nextPro1"), sub: t("nextPro1Sub"), href: "/profile", status: profileReady ? "done" : "current" },
-    { icon: ShieldCheck, title: t("nextPro2"), sub: t("nextPro2Sub"), href: "/verification", target: "professional", status: verified || approved ? "done" : profileReady ? "current" : "pending" },
+    { icon: ShieldCheck, title: t("nextPro2"), sub: t("nextPro2Sub"), href: "/verification", target: "professional", status: verified ? "done" : profileReady ? "current" : "pending" },
     { icon: BriefcaseBusiness, title: t("nextPro3"), sub: t("nextPro3Sub"), href: "/(tabs)/discover", status: profileReady ? "optional" : "pending" },
   ];
   const next = steps.find((step) => step.status === "current") ?? steps[0];
