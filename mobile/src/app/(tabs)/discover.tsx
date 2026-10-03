@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 import { FlatList, RefreshControl, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -9,7 +11,7 @@ import { ChoiceField } from "@/components/listing-form";
 import { JobCard, ShiftCard } from "@/components/cards";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import { useJobSearch, useShiftSearch, useLocations, useSpecialties, type JobRow, type ShiftRow } from "@/lib/queries";
+import { useJobSearch, useShiftSearch, useLocations, useSpecialties, useProfessionalProfile, type JobRow, type ShiftRow } from "@/lib/queries";
 import FacilityHome from "@/app/facility";
 import { userMessage } from "@/lib/errors";
 import { colors, radii, space } from "@/lib/theme";
@@ -28,6 +30,15 @@ export default function DiscoverTab() {
   const [cityDraft, setCityDraft] = useState("");
   const [specialtyDraft, setSpecialtyDraft] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const profile = useProfessionalProfile();
+  const ownCityFeed = useQuery({ queryKey: ["platform-setting", "professional_own_city_feed"], staleTime: 300_000, queryFn: async () => { const { data } = await supabase.from("platform_settings").select("enabled").eq("key", "professional_own_city_feed").maybeSingle(); return Boolean(data?.enabled); } });
+  const defaultApplied = useRef(false);
+  useEffect(() => {
+    const ownCity = (profile.data as { city?: string | null } | null | undefined)?.city;
+    if (defaultApplied.current || !ownCityFeed.data || !ownCity) return;
+    defaultApplied.current = true;
+    setCity(ownCity);
+  }, [ownCityFeed.data, profile.data]);
 
 
   const specialties = useSpecialties();

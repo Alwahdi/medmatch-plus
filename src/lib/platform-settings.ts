@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type PlatformSettingKey =
   | "require_facility_verification"
-  | "require_professional_verification";
+  | "require_professional_verification"
+  | "allow_cross_city_listings"
+  | "professional_own_city_feed";
+
+const DEFAULT_OFF: PlatformSettingKey[] = ["allow_cross_city_listings", "professional_own_city_feed"];
 
 /** إعدادات المنصة القابلة للتحكم من لوحة الإدارة (الافتراضي: مفعّلة). */
 export function usePlatformSettings() {
@@ -25,7 +29,7 @@ export function settingEnabled(
   key: PlatformSettingKey,
 ): boolean {
   const row = rows?.find((r) => r.key === key);
-  return row ? row.enabled : true;
+  return row ? row.enabled : !DEFAULT_OFF.includes(key);
 }
 
 /** هل يشترط توثيق المنشأة قبل النشر؟ */

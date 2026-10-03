@@ -440,6 +440,24 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_tokens: {
+        Row: {
+          created_at: string
+          name: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          token?: string
+        }
+        Relationships: []
+      }
       districts: {
         Row: {
           city_location_id: string
@@ -1480,6 +1498,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mobile_push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          last_used_at: string | null
+          platform: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          platform: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          platform?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -2580,6 +2625,10 @@ export type Database = {
         Returns: undefined
       }
       refresh_verification_expiry: { Args: never; Returns: Json }
+      register_mobile_push_token: {
+        Args: { _platform: string; _token: string }
+        Returns: undefined
+      }
       rehire_shift: {
         Args: {
           _ends_at: string

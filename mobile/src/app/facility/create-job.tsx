@@ -1,4 +1,5 @@
 import { DistrictChoice } from "@/components/district-choice";
+import { CityChoice } from "@/components/location-choice";
 import React, { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,7 +9,7 @@ import { Button, EmptyState, ErrorState, Loading, Screen, ScreenHeader, styles a
 import { ChoiceField, ListingField, ListingReview } from "@/components/listing-form";
 import { useConsentGate } from "@/components/consent-gate";
 import { useI18n } from "@/lib/i18n";
-import { useCreateJob, useDistricts, useMyFacility, useSpecialties } from "@/lib/queries";
+import { useCreateJob, useDistricts, useMyFacility, usePlatformFlag, useSpecialties } from "@/lib/queries";
 import { userMessage } from "@/lib/errors";
 
 type Employment = "full_time" | "part_time" | "contract" | "locum" | "shift";
@@ -42,7 +43,7 @@ export default function CreateJobScreen() {
   useEffect(() => { const f = facility.data; if (f && ready) setForm((current) => current.city === f.city && current.country === f.country ? current : ({ ...current, city: f.city, country: f.country, districtId: "" })); }, [facility.data, ready]);
 
   const f = facility.data;
-  const districts = useDistricts(f?.country ?? "", f?.city ?? "");
+  const districts = useDistricts(form.country, form.city); const crossCity = usePlatformFlag("allow_cross_city_listings").data === true;
   const districtName = districts.data?.find((item) => item.id === form.districtId);
   const specialty = (specialties.data ?? []).find((item) => item.id === form.specialtyId);
   const specialtyName = lang === "ar" ? specialty?.name_ar : specialty?.name_en || specialty?.name_ar;
@@ -61,7 +62,7 @@ export default function CreateJobScreen() {
   const submit = async () => {
     const problem = validate(); if (problem) return setError(problem);
     if (!(await consent.ensure()) || !f) return;
-      create.mutate({ facilityId: f.id, title: form.title.trim(), description: form.description.trim(), specialtyId: form.specialtyId || null, employmentType: form.employmentType, country: f.country, city: f.city, districtId: form.districtId || null, salaryMin: Number(form.salaryMin), salaryMax: Number(form.salaryMax), minExperience: Number(form.minExperience), vacancies: Number(form.vacancies), requiredLicense: form.requiredLicense || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) });
+      create.mutate({ facilityId: f.id, title: form.title.trim(), description: form.description.trim(), specialtyId: form.specialtyId || null, employmentType: form.employmentType, country: form.country || f.country, city: form.city || f.city, districtId: form.districtId || null, salaryMin: Number(form.salaryMin), salaryMax: Number(form.salaryMax), minExperience: Number(form.minExperience), vacancies: Number(form.vacancies), requiredLicense: form.requiredLicense || null }, { onSuccess: () => { void AsyncStorage.removeItem(key); setForm(blank); router.replace("/discover"); }, onError: (cause) => setError(userMessage(cause, lang)) });
   };
 
    if (facility.isPending || specialties.isPending) return <Screen><Loading /></Screen>;
@@ -70,15 +71,15 @@ export default function CreateJobScreen() {
   if (!f.is_verified) return <Screen><EmptyState icon={BriefcaseBusiness} text={lang === "ar" ? "وثّق المنشأة قبل النشر" : "Verify your facility before publishing"} desc={userMessage("FACILITY_NOT_VERIFIED", lang)} action={<Button label={t("verificationDocuments")} onPress={() => router.replace({ pathname: "/verification", params: { target: "facility" } })} />} /></Screen>;
   return <><Stack.Screen options={{ title: t("publishJob") }} /><Screen>
     {reviewing ? <ListingReview title={form.title} privacyNote={t("privacyListingHint")} busy={create.isPending} error={error} onBack={() => setReviewing(false)} onConfirm={() => void submit()} consentNode={consent.node} rows={[
-      { label: t("jobTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("employmentType"), value: t(form.employmentType === "full_time" ? "fullTime" : form.employmentType === "part_time" ? "partTime" : form.employmentType as "contract" | "locum") }, { label: t("city"), value: f.city }, { label: lang === "ar" ? "المديرية" : "District", value: districtName ? (lang === "ar" ? districtName.name_ar : districtName.name_en) : "—" }, { label: t("salary"), value: `${form.salaryMin} – ${form.salaryMax} YER` }, { label: t("description"), value: form.description },
+      { label: t("jobTitle"), value: form.title }, { label: t("specialty"), value: specialtyName ?? "—" }, { label: t("employmentType"), value: t(form.employmentType === "full_time" ? "fullTime" : form.employmentType === "part_time" ? "partTime" : form.employmentType as "contract" | "locum") }, { label: t("city"), value: form.city }, { label: lang === "ar" ? "المديرية" : "District", value: districtName ? (lang === "ar" ? districtName.name_ar : districtName.name_en) : "—" }, { label: t("salary"), value: `${form.salaryMin} – ${form.salaryMax} YER` }, { label: t("description"), value: form.description },
     ]} /> : <>
       <ScreenHeader title={t("publishJob")} sub={t("draftSaved")} />
         {error ? <Text accessibilityRole="alert" style={ui.error}>{error}</Text> : null}
         <ListingField label={t("jobTitle")} value={form.title} onChangeText={(v) => update("title", v)} required maxLength={120} error={showFieldErrors && (form.title.trim().length < 3 || form.title.trim().length > 120) ? t("requiredField") : null} />
       <ChoiceField label={t("employmentType")} value={form.employmentType} onChange={(v) => update("employmentType", v)} options={[{ value: "full_time", label: t("fullTime") }, { value: "part_time", label: t("partTime") }, { value: "contract", label: t("contract") }, { value: "locum", label: t("locum") }]} />
        <ChoiceField label={t("specialty")} value={form.specialtyId} onChange={(v) => update("specialtyId", v)} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar, keywords: `${item.name_ar} ${item.name_en ?? ""}` }))} />
-       <Text style={ui.muted}>{lang === "ar" ? `المدينة: ${f.city} (حسب ملف المنشأة)` : `City: ${f.city} (from facility profile)`}</Text>
-       <DistrictChoice country={f.country} city={f.city} value={form.districtId} onChange={(v) => update("districtId", v)} />
+       {crossCity ? <CityChoice label={t("city")} country={form.country} value={form.city} onChange={(v) => setForm((c) => ({ ...c, city: v, districtId: "" }))} /> : <Text style={ui.muted}>{lang === "ar" ? `المدينة: ${f.city} (حسب ملف المنشأة)` : `City: ${f.city} (from facility profile)`}</Text>}
+       <DistrictChoice country={form.country} city={form.city} value={form.districtId} onChange={(v) => update("districtId", v)} />
        <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("salaryFrom")} value={form.salaryMin} onChangeText={(v) => update("salaryMin", v)} numeric error={showFieldErrors && (!form.salaryMin.trim() || Number(form.salaryMin) < 0 || !Number.isFinite(Number(form.salaryMin))) ? t("invalidAmount") : null} /></View><View style={{ flex: 1 }}><ListingField label={t("salaryTo")} value={form.salaryMax} onChangeText={(v) => update("salaryMax", v)} numeric error={showFieldErrors && (!form.salaryMax.trim() || Number(form.salaryMax) < Number(form.salaryMin) || !Number.isFinite(Number(form.salaryMax))) ? t("salaryOrder") : null} /></View></View>
       <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><ListingField label={t("minExperience")} value={form.minExperience} onChangeText={(v) => update("minExperience", v)} numeric /></View><View style={{ flex: 1 }}><ListingField label={t("vacancies")} value={form.vacancies} onChangeText={(v) => update("vacancies", v)} numeric /></View></View>
         <ListingField label={t("description")} value={form.description} onChangeText={(v) => update("description", v)} multiline required maxLength={5000} error={showFieldErrors && form.description.trim().length < 20 ? t("requiredField") : null} />

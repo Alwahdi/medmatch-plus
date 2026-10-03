@@ -173,18 +173,116 @@ export function useRespondInvitation() {
   });
 }
 
+export type ConversationRow = {
+  id: string;
+  subject: string | null;
+  last_message_at: string;
+  identity_revealed: boolean;
+  facility_id: string;
+  professional_user_id: string;
+  job_id: string | null;
+  shift_id: string | null;
+};
+
+export type ConversationParty = {
+  name: string;
+  sub: string;
+  verified: boolean;
+  image: string | null;
+  kind: "facility" | "pro";
+  linkId: string | null;
+  hidden: boolean;
+};
+
+export type ConversationsData = {
+  list: ConversationRow[];
+  facilities: Record<string, { id: string; name_ar: string; name_en: string | null; city: string; country: string; is_verified: boolean; logo_url: string | null }>;
+  pros: Record<string, { user_id: string; full_name: string; headline: string | null; is_verified: boolean; avatar_url: string | null }>;
+  jobs: Record<string, { id: string; title: string }>;
+  shifts: Record<string, { id: string; title: string }>;
+};
+
+async function fetchConversationsData(): Promise<ConversationsData> {
+  const list = unwrap(
+    await supabase
+      .from("conversations")
+      .select("id,subject,last_message_at,identity_revealed,facility_id,professional_user_id,job_id,shift_id")
+      .order("last_message_at", { ascending: false }),
+  ) as ConversationRow[];
+  const empty: ConversationsData = { list, facilities: {}, pros: {}, jobs: {}, shifts: {} };
+  if (list.length === 0) return empty;
+
+  const [facilitiesRes, prosRes, jobsRes, shiftsRes] = await Promise.all([
+    supabase
+      .from("facilities")
+      .select("id,name_ar,name_en,city,country,is_verified,logo_url")
+      .in("id", Array.from(new Set(list.map((c) => c.facility_id)))),
+    supabase
+      .from("healthcare_professionals")
+      .select("user_id,full_name,headline,is_verified,avatar_url")
+      .in("user_id", Array.from(new Set(list.map((c) => c.professional_user_id)))),
+    supabase.from("jobs").select("id,title").in("id", list.map((c) => c.job_id).filter(Boolean) as string[]),
+    supabase.from("shifts").select("id,title").in("id", list.map((c) => c.shift_id).filter(Boolean) as string[]),
+  ]);
+  for (const row of unwrap(facilitiesRes)) empty.facilities[row.id] = row;
+  for (const row of unwrap(prosRes)) empty.pros[row.user_id] = row;
+  for (const row of unwrap(jobsRes)) empty.jobs[row.id] = row;
+  for (const row of unwrap(shiftsRes)) empty.shifts[row.id] = row;
+  return empty;
+}
+
+/** يحدد الطرف الآخر في المحادثة مع احترام إخفاء هوية المنشأة قبل الكشف. */
+export function conversationParty(
+  conv: ConversationRow,
+  data: ConversationsData,
+  myUserId: string | undefined,
+  lang: "ar" | "en",
+): ConversationParty {
+  const isPro = conv.professional_user_id === myUserId;
+  if (isPro) {
+    const f = data.facilities[conv.facility_id];
+    const revealed = conv.identity_revealed && Boolean(f);
+    return {
+      name: revealed ? (lang === "ar" ? f!.name_ar : f!.name_en || f!.name_ar) : lang === "ar" ? "منشأة صحية" : "Healthcare facility",
+      sub: revealed && f ? [f.city, f.country].filter(Boolean).join("، ") : lang === "ar" ? "الهوية مخفية حتى بدء التواصل" : "Identity hidden until contact",
+      verified: revealed ? f!.is_verified : false,
+      image: revealed ? f!.logo_url : null,
+      kind: "facility",
+      linkId: revealed ? conv.facility_id : null,
+      hidden: !revealed,
+    };
+  }
+  const p = data.pros[conv.professional_user_id];
+  return {
+    name: p?.full_name ?? (lang === "ar" ? "مختص صحي" : "Healthcare professional"),
+    sub: p?.headline ?? "",
+    verified: p?.is_verified ?? false,
+    image: p?.avatar_url ?? null,
+    kind: "pro",
+    linkId: p ? conv.professional_user_id : null,
+    hidden: false,
+  };
+}
+
 export function useConversations() {
   const { user } = useAuth();
   return useQuery({
     queryKey: ["conversations", user?.id],
     enabled: Boolean(user?.id),
-    queryFn: async () =>
-      unwrap(
-        await supabase
-          .from("conversations")
-          .select("id,subject,last_message_at,identity_revealed,facility_id,professional_user_id,job_id,shift_id")
-          .order("last_message_at", { ascending: false }),
-      ),
+    queryFn: fetchConversationsData,
+  });
+}
+
+export function useConversation(id: string) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["conversation", id, user?.id],
+    enabled: Boolean(user?.id) && Boolean(id),
+    queryFn: async () => {
+      const data = await fetchConversationsData();
+      const conv = data.list.find((c) => c.id === id) ?? null;
+      return { ...data, conv };
+    },
   });
 }
 
@@ -567,6 +665,18 @@ export function useCreateShift() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["facility-shifts"] });
       void qc.invalidateQueries({ queryKey: ["shifts"] });
+    },
+  });
+}
+
+/** Admin-controlled platform switch (defaults to off when unset). */
+export function usePlatformFlag(key: "allow_cross_city_listings" | "professional_own_city_feed") {
+  return useQuery({
+    queryKey: ["platform-setting", key],
+    staleTime: 300_000,
+    queryFn: async () => {
+      const { data } = await supabase.from("platform_settings").select("enabled").eq("key", key).maybeSingle();
+      return Boolean(data?.enabled);
     },
   });
 }

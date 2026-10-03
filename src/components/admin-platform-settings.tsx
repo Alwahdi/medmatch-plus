@@ -26,6 +26,10 @@ const TXT = {
     facilityBody: "عند التفعيل، لا تستطيع المنشأة نشر وظيفة أو مناوبة قبل اعتماد مستنداتها.",
     pro: "اشتراط توثيق الكادر قبل التقديم",
     proBody: "عند التفعيل، لا يستطيع الكادر التقديم على وظيفة أو حجز مناوبة قبل اعتماد مستنداته.",
+    cross: "السماح للمنشآت بالنشر خارج مدينتها",
+    crossBody: "عند الإيقاف، تُنشر الوظائف والمناوبات في مدينة المنشأة فقط. عند التفعيل، تختار المنشأة أي مدينة معتمدة.",
+    feed: "عرض وظائف مدينة الكادر فقط افتراضيًا",
+    feedBody: "عند التفعيل، تبدأ صفحة الاكتشاف في التطبيق بمدينة الكادر، ويستطيع تغيير الفلتر بنفسه.",
     confirmTitle: "إيقاف شرط التوثيق؟",
     confirmBody: "سيتمكن أي حساب غير موثّق من المتابعة فوراً. يبقى هذا سارياً حتى تعيد التفعيل.",
     confirmCta: "نعم، أوقف الشرط",
@@ -41,6 +45,10 @@ const TXT = {
     facilityBody: "When on, a facility cannot publish a job or shift until its documents are approved.",
     pro: "Require professional verification before applying",
     proBody: "When on, a professional cannot apply or book a shift until their documents are approved.",
+    cross: "Allow facilities to publish outside their city",
+    crossBody: "When off, jobs and shifts are published in the facility's own city only. When on, a facility can pick any approved city.",
+    feed: "Show professionals their own city by default",
+    feedBody: "When on, the app's discover page starts filtered to the professional's city; they can change it.",
     confirmTitle: "Turn the verification requirement off?",
     confirmBody: "Any unverified account will be able to continue immediately, until you turn it back on.",
     confirmCta: "Yes, turn it off",
@@ -71,16 +79,18 @@ export function AdminPlatformSettings() {
   });
 
   function onToggle(key: PlatformSettingKey, next: boolean) {
-    if (!next) {
+    if (!next && (key === "require_facility_verification" || key === "require_professional_verification")) {
       setPendingOff(key);
       return;
     }
-    save.mutate({ key, enabled: true });
+    save.mutate({ key, enabled: next });
   }
 
   const rows: { key: PlatformSettingKey; label: string; body: string }[] = [
     { key: "require_facility_verification", label: c.facility, body: c.facilityBody },
     { key: "require_professional_verification", label: c.pro, body: c.proBody },
+    { key: "allow_cross_city_listings", label: c.cross, body: c.crossBody },
+    { key: "professional_own_city_feed", label: c.feed, body: c.feedBody },
   ];
 
   return (
@@ -101,7 +111,7 @@ export function AdminPlatformSettings() {
                 <div className="min-w-0">
                   <p className="font-bold">{r.label}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{r.body}</p>
-                  {!on && (
+                  {!on && (r.key === "require_facility_verification" || r.key === "require_professional_verification") && (
                     <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-warning">
                       <ShieldAlert className="size-3.5" /> {c.confirmBody}
                     </p>

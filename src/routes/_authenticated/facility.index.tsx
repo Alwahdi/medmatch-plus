@@ -61,6 +61,8 @@ import { PendingReviews } from "@/components/pending-reviews";
 import { Combobox, comboText } from "@/components/ui/combobox";
 import { countryOptions, currencyOptions } from "@/lib/geo";
 import { cityOptionsFrom, useLocations } from "@/lib/locations";
+import { DistrictSelect } from "@/components/district-select";
+import { settingEnabled, usePlatformSettings } from "@/lib/platform-settings";
 import {
   countryLabel,
   employmentLabel,
@@ -1009,6 +1011,7 @@ function JobForm({
   const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
+  const crossCity = settingEnabled(usePlatformSettings().data, "allow_cross_city_listings");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState<"form" | "review">("form");
@@ -1026,6 +1029,7 @@ function JobForm({
     min_experience: "0",
     vacancies: "1",
     required_license: "",
+    district_id: "",
   });
   const draftKey = `syndeocare:listing-draft:job:${facilityId}`;
 
@@ -1100,6 +1104,7 @@ function JobForm({
           employment_type: form.employment_type as "full_time",
           country: form.country,
           city: form.city.trim(),
+          district_id: form.district_id || null,
           salary_min: parsed.salary_min,
           salary_max: parsed.salary_max,
           currency: form.currency,
@@ -1216,7 +1221,8 @@ function JobForm({
           <Combobox
             options={countryOptions(lang)}
             value={form.country}
-            onChange={(v) => setForm({ ...form, country: v, city: "" })}
+            disabled={!crossCity}
+            onChange={(v) => setForm({ ...form, country: v, city: "", district_id: "" })}
             placeholder={c.pickCountry}
             searchPlaceholder={ct.search}
             emptyText={ct.empty}
@@ -1227,8 +1233,8 @@ function JobForm({
           <Combobox
             options={cityOptionsFrom(locationRows, form.country, lang)}
             value={form.city}
-            disabled={!form.country}
-            onChange={(v) => setForm({ ...form, city: v })}
+            disabled={!form.country || !crossCity}
+            onChange={(v) => setForm({ ...form, city: v, district_id: "" })}
             placeholder={form.country ? ct.choose : ct.pickCountryFirst}
             searchPlaceholder={ct.search}
             emptyText={ct.empty}
@@ -1236,6 +1242,7 @@ function JobForm({
             customLabel={ct.add}
           />
         </div>
+        <DistrictSelect country={form.country} city={form.city} value={form.district_id} onChange={(v) => setForm({ ...form, district_id: v })} lang={lang} />
         <div>
           <Label htmlFor="jmin">{c.salaryFrom}</Label>
           <Input id="jmin" type="number" min={0} value={form.salary_min}
@@ -1310,6 +1317,7 @@ function ShiftForm({
   const { data: locationRows } = useLocations();
   const c = TXT[lang];
   const ct = comboText(lang);
+  const crossCity = settingEnabled(usePlatformSettings().data, "allow_cross_city_listings");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState<"form" | "review">("form");
@@ -1323,6 +1331,7 @@ function ShiftForm({
     currency: "YER",
     country: defaults.country,
     city: defaults.city,
+    district_id: "",
     notes: "",
   });
   const draftKey = `syndeocare:listing-draft:shift:${facilityId}`;
@@ -1389,6 +1398,7 @@ function ShiftForm({
           currency: form.currency,
           country: form.country,
           city: form.city.trim(),
+          district_id: form.district_id || null,
           notes: form.notes.trim() || null,
         })
         .select("id")
@@ -1559,7 +1569,8 @@ function ShiftForm({
           <Combobox
             options={countryOptions(lang)}
             value={form.country}
-            onChange={(v) => setForm({ ...form, country: v, city: "" })}
+            disabled={!crossCity}
+            onChange={(v) => setForm({ ...form, country: v, city: "", district_id: "" })}
             placeholder={c.pickCountry}
             searchPlaceholder={ct.search}
             emptyText={ct.empty}
@@ -1570,8 +1581,8 @@ function ShiftForm({
           <Combobox
             options={cityOptionsFrom(locationRows, form.country, lang)}
             value={form.city}
-            disabled={!form.country}
-            onChange={(v) => setForm({ ...form, city: v })}
+            disabled={!form.country || !crossCity}
+            onChange={(v) => setForm({ ...form, city: v, district_id: "" })}
             placeholder={form.country ? ct.choose : ct.pickCountryFirst}
             searchPlaceholder={ct.search}
             emptyText={ct.empty}
@@ -1579,6 +1590,7 @@ function ShiftForm({
             customLabel={ct.add}
           />
         </div>
+        <DistrictSelect country={form.country} city={form.city} value={form.district_id} onChange={(v) => setForm({ ...form, district_id: v })} lang={lang} />
       </div>
       <div>
         <Label htmlFor="snotes">{c.notes}</Label>

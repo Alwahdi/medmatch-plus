@@ -82,8 +82,10 @@ export default function ProfileScreen() {
         is_open_to_shifts: openToShifts,
       };
     const existing = profile.data;
+    const storedLoc = existing as { city?: string | null; country?: string | null } | null;
+    const locationEstablished = Boolean(storedLoc?.city?.trim() && storedLoc?.country?.trim());
     const result = existing
-      ? await supabase.from("healthcare_professionals").update(payload).eq("user_id", user?.id ?? "")
+      ? await supabase.from("healthcare_professionals").update(locationEstablished ? payload : { ...payload, city: city.trim(), country: country.trim() || "YE" }).eq("user_id", user?.id ?? "")
       : await supabase.from("healthcare_professionals").insert({ ...payload, city: city.trim(), country: country.trim() || "YE", user_id: user?.id ?? "" });
     const err = result.error;
     if (err) {
@@ -131,7 +133,7 @@ export default function ProfileScreen() {
             <Field label={lang === "ar" ? "المسمى المهني" : "Headline"} value={headline} onChangeText={setHeadline} />
              {profile.data && (profile.data as { specialty_id?: string | null }).specialty_id ? null : <ChoiceField label={t("specialty")} value={specialtyId} onChange={setSpecialtyId} options={(specialties.data ?? []).map((item) => ({ value: item.id, label: lang === "ar" ? item.name_ar : item.name_en || item.name_ar, keywords: `${item.name_ar} ${item.name_en ?? ""}` }))} />}
              <Field label={t("experience")} value={years} onChangeText={setYears} keyboardType="number-pad" required maxLength={2} />
-             {profile.data && country && city ? <EstablishedLocation target="professional" country={country} city={city} specialtyId={(profile.data as { specialty_id?: string | null }).specialty_id ?? undefined} specialties={specialties.data ?? []} /> : <><CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} /><CityChoice label={t("city")} country={country} value={city} onChange={setCity} /></>}
+             {(profile.data as { city?: string | null; country?: string | null } | null)?.city?.trim() && (profile.data as { country?: string | null }).country?.trim() ? <EstablishedLocation target="professional" country={country} city={city} specialtyId={(profile.data as { specialty_id?: string | null }).specialty_id ?? undefined} specialties={specialties.data ?? []} /> : <><CountryChoice label={t("country")} value={country} onChange={(next) => { setCountry(next); setCity(""); }} /><CityChoice label={t("city")} country={country} value={city} onChange={setCity} /></>}
             <Field label={lang === "ar" ? "رقم ترخيص المزاولة" : "Practice license number"} value={licenseNumber} onChangeText={setLicenseNumber} />
              <CountryChoice label={lang === "ar" ? "دولة الترخيص" : "License country"} value={licenseCountry} onChange={setLicenseCountry} />
             <Field label={lang === "ar" ? "الأجر المفضل" : "Preferred rate"} value={preferredRate} onChangeText={setPreferredRate} keyboardType="numeric" />

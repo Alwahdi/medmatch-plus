@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "142939954916",
+    "project_id": "syndeocare-46ca7",
+    "storage_bucket": "syndeocare-46ca7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142939954916:android:3572dfd969d4ce36a0d6f1",
+        "android_client_info": {
+          "package_name": "ai.syndeocare.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0qO_aBJ3IawI-Zn57jiL1oeEkf4fKIRk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,62 @@
+name: EAS Release iOS (auto)
+
+# يبني نسخة iOS إنتاجية ويرفعها إلى App Store Connect تلقائيًا
+# عند كل push على main يمس مجلد mobile/، أو يدويًا من تبويب Actions.
+# رقم البناء يزيد تلقائيًا (autoIncrement في eas.json) — لا حاجة لأي تدخل.
+#
+# الأسرار المطلوبة في GitHub → Settings → Secrets and variables → Actions:
+#   EXPO_TOKEN                    — من expo.dev → Account Settings → Access Tokens
+#   APPLE_APP_SPECIFIC_PASSWORD   — من appleid.apple.com → Sign-In and Security
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/eas-release.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: eas-release-ios
+  cancel-in-progress: false
+
+jobs:
+  build-and-submit:
+    name: Build iOS & Submit to App Store Connect
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Expo & EAS
+        uses: expo/expo-github-action@v9
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: mobile
+        run: npx tsc --noEmit
+
+      - name: Build production IPA (cloud, auto-increment build number)
+        working-directory: mobile
+        run: eas build --platform ios --profile production --non-interactive --wait
+
+      - name: Submit to App Store Connect
+        working-directory: mobile
+        env:
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: eas submit --platform ios --profile production --latest --non-interactive

@@ -31,9 +31,7 @@ function vapid() {
 
 export async function dispatchPush() {
   const keys = vapid();
-  if (!keys.publicKey || !keys.privateKey) {
-    return { skipped: "missing_vapid_keys", sent: 0, pruned: 0, notifications: 0 };
-  }
+  const webEnabled = Boolean(keys.publicKey && keys.privateKey);
 
   const supabase = supabaseAdmin;
 
@@ -48,11 +46,11 @@ export async function dispatchPush() {
   if (!pending?.length) return { sent: 0, pruned: 0, notifications: 0 };
 
   const userIds = Array.from(new Set(pending.map((n) => n.user_id)));
-  const { data: subs, error: subsError } = await supabase
-    .from("push_subscriptions")
-    .select("id,user_id,endpoint,p256dh,auth")
-    .in("user_id", userIds);
+  const { data: subs, error: subsError } = webEnabled
+    ? await supabase.from("push_subscriptions").select("id,user_id,endpoint,p256dh,auth").in("user_id", userIds)
+    : { data: [] as (Sub & { user_id: string })[], error: null };
   if (subsError) throw subsError;
+  const mobile = await sendExpoPush(pending, userIds);
 
   const byUser = new Map<string, Sub[]>();
   for (const s of subs ?? []) {
@@ -80,7 +78,7 @@ export async function dispatchPush() {
         const req = await buildPushPayload(
           { data: payload, options: { ttl: 60 * 60 * 24, urgency: "normal" } },
           { endpoint: sub.endpoint, expirationTime: null, keys: { auth: sub.auth, p256dh: sub.p256dh } },
-          keys,
+          keys as { subject: string; publicKey: string; privateKey: string },
         );
         const res = await fetch(sub.endpoint, {
           method: req.method,
@@ -120,5 +118,42 @@ export async function dispatchPush() {
       .in("id", Array.from(new Set(used)));
   }
 
-  return { sent, pruned: dead.length, notifications: pending.length };
+  return { sent, mobileSent: mobile.sent, pruned: dead.length + mobile.pruned, notifications: pending.length };
+}
+
+type Pending = { id: string; user_id: string; title_ar: string | null; title_en: string | null; body_ar: string | null; body_en: string | null; link: string | null; type: string | null };
+
+/** Sends to native app devices through Expo's push service (no private message text). */
+async function sendExpoPush(pending: Pending[], userIds: string[]) {
+  const supabase = supabaseAdmin;
+  const { data: tokens, error } = await supabase.from("mobile_push_tokens").select("id,user_id,token").in("user_id", userIds);
+  if (error) { console.error("[push] mobile tokens", error.message); return { sent: 0, pruned: 0 }; }
+  if (!tokens?.length) return { sent: 0, pruned: 0 };
+  const messages: { to: string; tokenId: string; title: string; body: string; sound: string; data: Record<string, string> }[] = [];
+  for (const n of pending) {
+    for (const t of tokens.filter((x) => x.user_id === n.user_id)) {
+      messages.push({ to: t.token, tokenId: t.id, title: n.title_ar || n.title_en || "SyndeoCare", body: n.body_ar || n.body_en || "", sound: "default", data: { link: n.link || "/notifications", id: n.id } });
+    }
+  }
+  let sent = 0;
+  const dead = new Set<string>();
+  for (let i = 0; i < messages.length; i += 100) {
+    const chunk = messages.slice(i, i + 100);
+    try {
+      const res = await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(chunk.map(({ tokenId: _t, ...m }) => m)),
+      });
+      const json = (await res.json()) as { data?: { status: string; details?: { error?: string } }[] };
+      json.data?.forEach((r, idx) => {
+        if (r.status === "ok") sent += 1;
+        else if (r.details?.error === "DeviceNotRegistered") dead.add(chunk[idx]!.tokenId);
+      });
+    } catch (e) {
+      console.error("[push] expo send failed", e);
+    }
+  }
+  if (dead.size) await supabase.from("mobile_push_tokens").delete().in("id", [...dead]);
+  return { sent, pruned: dead.size };
 }

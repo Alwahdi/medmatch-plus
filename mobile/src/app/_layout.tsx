@@ -6,6 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { I18nProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
+import { PushRegistrar } from "@/lib/push";
 import { colors } from "@/lib/theme";
 import { useFonts, Cairo_400Regular, Cairo_500Medium, Cairo_600SemiBold, Cairo_700Bold } from "@expo-google-fonts/cairo";
 import { PlusJakartaSans_400Regular, PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold } from "@expo-google-fonts/plus-jakarta-sans";
@@ -27,6 +28,7 @@ export default function RootLayout() {
           <I18nProvider>
             <AuthProvider>
               <StatusBar style="dark" />
+              <PushRegistrar />
               <Stack
                 screenOptions={{
                   headerStyle: { backgroundColor: colors.surface },

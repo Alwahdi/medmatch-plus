@@ -21,4 +21,7 @@
 - Mobile selectors use the shared searchable ChoiceField and notification links are mapped to existing Expo routes; this keeps RTL/LTR selections consistent and prevents web-only notification paths from opening missing pages.
 - Mobile account deletion requests reuse the protected web RPC and remain review-only until a trusted deletion finalizer exists; this avoids falsely marking accounts erased.
 - Mobile sign-in challenges enrolled TOTP factors natively and resumes only a known internal destination; protected deletion requests must not weaken the database MFA gate.
-- iOS exposes email/password authentication without Google until compliant Apple sign-in is configured; third-party-only login would block store review.
+- iOS has email/password login without Google until Apple sign-in is configured. Keep existing iPad target for old App Store record until Apple confirms device support may be removed; updates may not drop supported devices.
+- Native app push uses Expo push tokens in mobile_push_tokens and is sent by the same notifications dispatcher as web push, so every server-created notification reaches both channels without message text.
+
+- Push-dispatch cron auth: pg_cron (job `push-dispatch`, every 5 min) calls /api/public/push-dispatch with a Bearer token stored in private table public.cron_tokens (service_role SELECT only); the endpoint accepts either LOVABLE_CRON_SECRET or that DB token, because DB-side cron cannot read server env secrets. Job targets the dev preview URL until the app is published, then switch it to the production URL.

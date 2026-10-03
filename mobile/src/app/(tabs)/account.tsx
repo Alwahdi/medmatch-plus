@@ -1,12 +1,15 @@
 import React from "react";
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { Image } from "expo-image";
 import Constants from "expo-constants";
-import { Bell, Building2, FileText, Globe2, LogOut, ShieldCheck, Stethoscope, UserRound, LifeBuoy, UserRoundX } from "lucide-react-native";
+import { useQueryClient } from "@tanstack/react-query";
+import { Bell, Building2, Camera, FileText, Globe2, LogOut, ShieldCheck, Stethoscope, UserRound, LifeBuoy, UserRoundX } from "lucide-react-native";
 import { Badge, MenuRow, Row, Screen, ScreenHeader, Segmented, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useMyFacility, useProfessionalProfile } from "@/lib/queries";
+import { pickAndUploadAvatar, useAvatarUrl } from "@/lib/avatar";
 import { colors, fonts, radii, space } from "@/lib/theme";
 
 export default function AccountTab() {
@@ -15,9 +18,42 @@ export default function AccountTab() {
   const { user, roles, isFacility, isProfessional, signOut } = useAuth();
   const professional = useProfessionalProfile();
   const facility = useMyFacility();
+  const qc = useQueryClient();
+  const [avatarBusy, setAvatarBusy] = React.useState(false);
   const webUrl = (Constants.expoConfig?.extra as { webUrl?: string } | undefined)?.webUrl;
-  const p = professional.data as { full_name?: string; headline?: string | null; city?: string | null; is_verified?: boolean } | null;
-  const f = facility.data as { name_ar?: string; name_en?: string | null; city?: string | null; is_verified?: boolean } | null;
+  const p = professional.data as { full_name?: string; headline?: string | null; city?: string | null; is_verified?: boolean; avatar_url?: string | null } | null;
+  const f = facility.data as { id?: string; name_ar?: string; name_en?: string | null; city?: string | null; is_verified?: boolean; logo_url?: string | null } | null;
+  const avatarPath = (isFacility ? f?.logo_url : p?.avatar_url) ?? null;
+  const avatarUrl = useAvatarUrl(avatarPath);
+
+  const changeAvatar = async () => {
+    if (!user?.id || avatarBusy) return;
+    if (isFacility && !f?.id) return;
+    setAvatarBusy(true);
+    try {
+      const target = isFacility ? { kind: "facility" as const, facilityId: f!.id! } : { kind: "professional" as const };
+      const uploaded = await pickAndUploadAvatar(user.id, target, avatarPath);
+      if (uploaded) {
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: ["professional-profile"] }),
+          qc.invalidateQueries({ queryKey: ["my-facility"] }),
+          qc.invalidateQueries({ queryKey: ["avatar-url"] }),
+        ]);
+      }
+    } catch (error) {
+      const key = error instanceof Error ? error.message : "";
+      Alert.alert(
+        lang === "ar" ? "تعذّر تغيير الصورة" : "Couldn't change the photo",
+        key === "permission"
+          ? (lang === "ar" ? "اسمح بالوصول إلى الصور من إعدادات الجهاز ثم أعد المحاولة." : "Allow photo access in device settings and try again.")
+          : key === "too_large"
+            ? (lang === "ar" ? "حجم الصورة يجب ألا يتجاوز 5 ميغابايت." : "The photo must be 5MB or smaller.")
+            : (lang === "ar" ? "حدث خطأ أثناء الرفع. تحقق من الاتصال وأعد المحاولة." : "Upload failed. Check your connection and try again."),
+      );
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
   const displayName = (lang === "ar" ? f?.name_ar : f?.name_en || f?.name_ar) ?? p?.full_name ?? user?.email ?? "—";
   const detail = f?.city ?? p?.headline ?? p?.city ?? (displayName !== user?.email ? user?.email : "");
   const verified = isFacility ? Boolean(f?.is_verified) : isProfessional ? Boolean(p?.is_verified) : false;
@@ -26,7 +62,18 @@ export default function AccountTab() {
     <ScreenHeader title={t("account")} sub={lang === "ar" ? "ملفك وإعداداتك" : "Your profile and settings"}/>
     <View style={s.identity}>
       <View style={s.identityTop}>
-        <View style={s.avatar}><UserRound size={27} color={colors.primary}/></View>
+        <Pressable
+          style={s.avatar}
+          onPress={() => void changeAvatar()}
+          disabled={avatarBusy}
+          accessibilityRole="button"
+          accessibilityLabel={lang === "ar" ? "تغيير الصورة الشخصية" : "Change profile photo"}
+        >
+          {avatarUrl ? <Image source={{ uri: avatarUrl }} style={s.avatarImage} contentFit="cover" transition={150}/> : <UserRound size={27} color={colors.primary}/>}
+          <View style={s.avatarBadge}>
+            {avatarBusy ? <ActivityIndicator size={10} color={colors.onPrimary}/> : <Camera size={11} color={colors.onPrimary}/>}
+          </View>
+        </Pressable>
         <View style={s.identityText}>
           <Text style={s.name} numberOfLines={2}>{displayName}</Text>
           {detail ? <Text style={s.detail} numberOfLines={2}>{detail}</Text> : null}
@@ -73,7 +120,9 @@ const s = StyleSheet.create({
   identity: { paddingHorizontal: space.sm, paddingVertical: space.md, gap: space.md },
   identityTop: { flexDirection: "row", alignItems: "center", gap: space.md },
   identityText: { flex: 1, minWidth: 0, gap: space.xs },
-  avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" },
+  avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  avatarImage: { width: 56, height: 56, borderRadius: 28 },
+  avatarBadge: { position: "absolute", bottom: -2, end: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: colors.surface },
   name: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 26, color: colors.primary, writingDirection: "auto" },
   detail: { ...ui.muted, writingDirection: "auto" },
   group: { gap: space.md, marginTop: space.md },

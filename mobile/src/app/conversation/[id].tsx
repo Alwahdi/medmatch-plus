@@ -1,31 +1,48 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Image } from "expo-image";
 import { EmptyState, ErrorState, Loading, styles as ui } from "@/components/ui";
 import { useI18n } from "@/lib/i18n";
-import { useMarkConversationRead, useMessages, useSendMessage } from "@/lib/queries";
+import { conversationParty, useConversation, useMarkConversationRead, useMessages, useSendMessage } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
+import { useAvatarUrl } from "@/lib/avatar";
 import { dayKey, formatDayLabel, formatTime } from "@/lib/format";
 import { userMessage } from "@/lib/errors";
 import { colors, radii } from "@/lib/theme";
-import { Send } from "lucide-react-native";
+import { Building2, LockKeyhole, Send, UserRound } from "lucide-react-native";
 
 export default function Conversation() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, lang } = useI18n();
   const { user } = useAuth();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList>(null);
   const messages = useMessages(String(id));
+  const conversation = useConversation(String(id));
   const send = useSendMessage(String(id));
   const markRead = useMarkConversationRead(String(id));
   const [body, setBody] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
 
+  const conv = conversation.data?.conv ?? null;
+  const party = conv && conversation.data ? conversationParty(conv, conversation.data, user?.id, lang) : null;
+  const partyAvatarUrl = useAvatarUrl(party?.image ?? null);
+
   useEffect(() => {
     if (id) markRead.mutate();
   }, [id]);
+
+  const openPartyProfile = () => {
+    if (!party?.linkId) return;
+    if (party.kind === "facility") {
+      router.push({ pathname: "/facility/[id]", params: { id: party.linkId } });
+    } else {
+      router.push({ pathname: "/professional/[id]", params: { id: party.linkId } });
+    }
+  };
 
   const submit = () => {
     const text = body.trim();
@@ -36,7 +53,44 @@ export default function Conversation() {
 
   return (
     <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Stack.Screen options={{ title: t("messages") }} />
+      <Stack.Screen options={{ title: party?.name ?? t("messages") }} />
+      {party ? (
+        <Pressable
+          onPress={openPartyProfile}
+          disabled={!party.linkId}
+          accessibilityRole="button"
+          accessibilityLabel={lang === "ar" ? `الملف العام: ${party.name}` : `Public profile: ${party.name}`}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 10,
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+            backgroundColor: colors.surface,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+          }}
+        >
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+            {partyAvatarUrl ? (
+              <Image source={{ uri: partyAvatarUrl }} style={{ width: 40, height: 40 }} contentFit="cover" transition={150} />
+            ) : party.kind === "facility" ? (
+              <Building2 size={19} color={colors.primary} />
+            ) : (
+              <UserRound size={19} color={colors.primary} />
+            )}
+          </View>
+          <View style={{ flex: 1, minWidth: 0, gap: 1 }}>
+            <Text style={ui.bodyStrong} numberOfLines={1}>{party.name}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+              {party.hidden ? <LockKeyhole size={12} color={colors.textSubtle} /> : null}
+              <Text style={ui.muted} numberOfLines={1}>
+                {party.hidden ? (lang === "ar" ? "الهوية مخفية" : "Identity hidden") : party.sub || (party.linkId ? (lang === "ar" ? "اضغط لعرض الملف" : "Tap to view profile") : "")}
+              </Text>
+            </View>
+          </View>
+        </Pressable>
+      ) : null}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}

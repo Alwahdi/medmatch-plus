@@ -70,6 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isFacility: roles.includes("facility"),
       refreshRoles: () => loadRoles(session?.user?.id),
       signOut: async () => {
+        const { unregisterDevice } = await import("./push");
+        await unregisterDevice();
         await supabase.auth.signOut();
         setRoles([]);
         setRolesError(null);
