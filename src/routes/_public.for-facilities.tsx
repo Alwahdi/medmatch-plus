@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_public/for-facilities")({
           "انشر وظائفك ومناوباتك على SyndeoCare، وشاهد حالة توثيق ترخيص كل متقدم مع لوحة فرز واضحة.",
       },
       { property: "og:title", content: "للمنشآت الصحية | SyndeoCare" },
-      { property: "og:description", content: "غطِّ مناوباتك خلال ساعات مع حالة توثيق ظاهرة لكل مرشح." },
+      { property: "og:description", content: "توظيف طبي مجاني للمنشآت، دون اشتراكات أو شراء لفتح مزايا." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       ...shareMeta("/for-facilities"),
@@ -44,7 +44,7 @@ const TXT = {
     benefits: [
       ["حالة توثيق واضحة", "الوثائق المرفوعة يراجعها فريقنا، وشارة «موثّق» لا تظهر إلا بعد الاعتماد الفعلي."],
       ["نشر مناوبات عاجلة", "انشر مناوبة الليلة لتظهر للكوادر المسجّلة المطابقة بعد النشر."],
-      ["تكلفة أقل من الوساطة", "بدون عمولات وكالات التوظيف التقليدية."],
+      ["استخدام مجاني مستمر", "يستمر بعد 30 يومًا، بلا رسوم أو اشتراكات أو شراء لفتح مزايا. حدود الاستخدام والتوثيق تبقى نافذة."],
       ["تنبيهات داخل المنصة", "يصلك تنبيه داخل المنصة لحظة تقدّم أي مرشّح."],
       ["خصوصية هوية المنشأة", "اكشف اسم منشأتك فقط عند التواصل الجاد مع المرشح."],
       ["بحث المرشحين للمنشآت الموثّقة", "بعد توثيق منشأتك يمكنك البحث عن الكوادر التي وافقت على الظهور، ومقارنتها بالتخصص والخبرة والترخيص."],
@@ -70,7 +70,7 @@ const TXT = {
     benefits: [
       ["Clear verification status", "Uploaded documents are reviewed by our team, and the “verified” badge only appears after actual approval."],
       ["Urgent shift posting", "Post tonight's shift and it appears to matching registered professionals once published."],
-      ["Lower cost than agencies", "No traditional recruitment agency commissions."],
+      ["Ongoing free access", "Continues after 30 days, with no fees, subscriptions, or paid feature unlocks. Verification and fair-use limits still apply."],
       ["In-app alerts", "Get an in-app notification the moment a candidate applies."],
       ["Facility identity privacy", "Only reveal your facility's name once you seriously engage with a candidate."],
       ["Candidate search for verified facilities", "Once your facility is verified you can search professionals who opted in, and compare them by specialty, experience, and license."],

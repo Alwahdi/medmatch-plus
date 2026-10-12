@@ -103,6 +103,8 @@ export const Route = createFileRoute("/_authenticated/facility/")({
       { name: "description", content: "أعمالك المنشورة والمتقدمون والحجوزات وتوثيق المنشأة في مكان واحد." },
       { property: "og:title", content: "لوحة المنشأة | SyndeoCare" },
       { property: "og:description", content: "إدارة الوظائف والمناوبات والمتقدمين." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: FacilityDashboard,
@@ -589,7 +591,7 @@ function FacilityDashboard() {
             </div>
 
             <p className="mt-1 text-xs text-muted-foreground">
-              {sub?.ends_at ? c.endsAt(formatDateTime(sub.ends_at, lang)) : c.activeSub}{" "}
+              {c.activeSub}{" "}
                · {c.activeJobsCount(activeJobs, plan.active_jobs)} · {c.activeShiftsCount(activeShifts, plan.active_shifts)}
                {searchesRemaining !== null ? ` · ${c.searchesRemaining(searchesRemaining)}` : ""}
             </p>

@@ -8,6 +8,27 @@
       "when": 1790995961046,
       "tag": "0000_city_policy_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791766894095,
+      "tag": "0001_continuing_free_facility_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791767100867,
+      "tag": "0002_free_access_trusted_diagnostics",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791767145428,
+      "tag": "0003_verify_free_access_rules",
+      "breakpoints": true
     }
   ]
 }

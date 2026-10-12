@@ -10,6 +10,8 @@ import { colors, fonts, radii, space } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { useDocumentRequirements, useMyFacility, useProfessionalProfile, useVerificationDocuments } from "@/lib/queries";
 import { userMessage } from "@/lib/errors";
+import { canSaveFacilityProfile } from "@/lib/registration";
+import { FacilityRegistrationUnavailable } from "@/components/facility-registration-unavailable";
 
 type Destination = "/profile" | "/facility/profile" | "/facility/create-job" | "/verification" | "/(tabs)/discover";
 type Step = { icon: LucideIcon; title: string; sub: string; href: Destination; status: "done" | "pending" | "current" | "optional"; target?: "professional" | "facility" };
@@ -42,6 +44,9 @@ export default function Welcome() {
 
   if (loading) return <Screen><Loading rows={2} /></Screen>;
   if (!user) return <Redirect href="/sign-in" />;
+  if (isFacility && facility.isPending) return <Screen><Loading rows={2} /></Screen>;
+  if (isFacility && facility.isError) return <Screen><ErrorState message={userMessage(facility.error, lang)} onRetry={() => void facility.refetch()} /></Screen>;
+  if (isFacility && !canSaveFacilityProfile(Platform.OS, facility.data?.id)) return <FacilityRegistrationUnavailable />;
 
   const steps: Step[] = isFacility ? [
     { icon: Building2, title: t("nextFac1"), sub: t("nextFac1Sub"), href: "/facility/profile", status: profileReady ? "done" : "current" },

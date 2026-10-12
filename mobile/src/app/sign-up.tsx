@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { signInWithGoogle } from "@/lib/oauth";
 import { userMessage } from "@/lib/errors";
 import { colors, fonts, radii } from "@/lib/theme";
+import { canRegisterRole } from "@/lib/registration";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 type Role = "professional" | "facility";
@@ -75,7 +76,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [role, setRole] = useState<Role | null>(null);
+  const [role, setRole] = useState<Role | null>(Platform.OS === "ios" ? "professional" : null);
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,9 +89,10 @@ export default function SignUp() {
   const emailError = touched.email && email.trim() && !EMAIL_RE.test(email.trim()) ? t("emailInvalid") : null;
   const score = passwordScore(password);
   const confirmMismatch = confirm.length > 0 && confirm !== password;
-  const canSubmit = Boolean(role) && Boolean(fullName.trim()) && EMAIL_RE.test(email.trim()) && password.length >= 8 && password === confirm;
+  const canSubmit = role !== null && canRegisterRole(Platform.OS, role) && Boolean(fullName.trim()) && EMAIL_RE.test(email.trim()) && password.length >= 8 && password === confirm;
 
   const pickRole = (r: Role) => {
+    if (!canRegisterRole(Platform.OS, r)) return;
     if (Platform.OS !== "web") void Haptics.selectionAsync();
     setRole(r);
   };
@@ -130,6 +132,7 @@ export default function SignUp() {
 
   const google = async () => {
     if (!role) return setError(t("chooseRoleSub"));
+    if (!canRegisterRole(Platform.OS, role)) return;
     setGoogleBusy(true);
     setError(null);
     setNotice(null);
@@ -178,7 +181,7 @@ export default function SignUp() {
       {step === 1 ? (
         <View style={{ gap: 12 }}>
           <RoleCard icon={Stethoscope} title={t("roleProfessional")} description={t("roleProfessionalDesc")} active={role === "professional"} onPress={() => pickRole("professional")} />
-          <RoleCard icon={Building2} title={t("roleFacility")} description={t("roleFacilityDesc")} active={role === "facility"} onPress={() => pickRole("facility")} />
+          {canRegisterRole(Platform.OS, "facility") ? <RoleCard icon={Building2} title={t("roleFacility")} description={t("roleFacilityDesc")} active={role === "facility"} onPress={() => pickRole("facility")} /> : null}
           {error ? <ErrorState message={error} /> : null}
           {notice ? <Text style={ui.muted}>{notice}</Text> : null}
           <Button label={t("continueLabel")} onPress={next} disabled={!role || googleBusy} />

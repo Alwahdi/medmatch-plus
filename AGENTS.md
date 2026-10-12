@@ -24,4 +24,8 @@
 - iOS has email/password login without Google until Apple sign-in is configured. Keep existing iPad target for old App Store record until Apple confirms device support may be removed; updates may not drop supported devices.
 - Native app push uses Expo push tokens in mobile_push_tokens and is sent by the same notifications dispatcher as web push, so every server-created notification reaches both channels without message text.
 
+- Facility access uses the shared database predicate and web lifecycle helper: active/trialing legacy states are time-independent, while missing/inactive records remain blocked; this keeps free-access dates from contradicting posting/search permissions without bypassing quotas or verification.
+
 - Push-dispatch cron auth: pg_cron (job `push-dispatch`, every 5 min) calls /api/public/push-dispatch with a Bearer token stored in private table public.cron_tokens (service_role SELECT only); the endpoint accepts either LOVABLE_CRON_SECRET or that DB token, because DB-side cron cannot read server env secrets. Job targets the dev preview URL until the app is published, then switch it to the production URL.
+
+- Mobile registration availability uses a shared platform policy at signup, onboarding and facility-profile save boundaries; this keeps iOS creation restrictions consistent without replacing database authorization or blocking existing profile edits.

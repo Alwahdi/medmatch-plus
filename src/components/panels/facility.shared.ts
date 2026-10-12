@@ -7,18 +7,18 @@ export const TXT = {
     verified: " · منشأة موثّقة",
     unverified: " · بانتظار التوثيق",
     applicants: "المتقدمون",
-    trial: "تجربة مجانية",
+    trial: "استخدام مجاني",
     expired: "منتهية",
-    subStateTrial: "تجربة نشطة",
-    subStateActive: "اشتراك نشط",
+    subStateTrial: "وصول مجاني نشط",
+    subStateActive: "وصول مجاني نشط",
     subStateExpired: "انتهت المدة",
     subStateInactive: "غير نشط",
-    subStateNone: "لا يوجد اشتراك",
+    subStateNone: "لم يُفعّل الوصول",
     subNoteExpired: "انتهت مدة وصولك، فتوقف النشر والبحث عن مرشحين. تواصل مع الدعم لإعادة التفعيل.",
     subNoteInactive: "وصول هذا الحساب غير نشط حالياً، فالنشر والبحث عن مرشحين متوقفان. تواصل مع الدعم للمراجعة.",
-    subNoteNone: "لا يوجد اشتراك مرتبط بهذه المنشأة بعد، لذا النشر والبحث عن مرشحين غير متاحين. تواصل مع الدعم لتفعيل الوصول.",
+    subNoteNone: "لم يُفعّل الوصول المجاني لهذه المنشأة بعد. تواصل مع الدعم للمساعدة؛ لا يلزم دفع أو شراء.",
     endsAt: (d: string) => `تنتهي في ${d}`,
-    activeSub: "الاستخدام التجريبي متاح",
+    activeSub: "استخدام مجاني مستمر دون تجديد أو شراء",
     activeJobsCount: (a: number, b: number) => `الوظائف النشطة ${a}/${b}`,
     activeShiftsCount: (a: number, b: number) => `المناوبات المتاحة ${a}/${b}`,
     publish: "نشر جديد",
@@ -119,7 +119,7 @@ export const TXT = {
     jobPublished: "تم نشر الوظيفة",
     publishFailed: "تعذّر النشر",
     subExpiredJob: "النشر متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة",
-    quotaReachedJob: "وصلت حد الوظائف النشطة في النسخة التجريبية — أغلق وظيفة نشطة للنشر من جديد",
+    quotaReachedJob: "وصلت حد الوظائف النشطة — أغلق وظيفة نشطة للنشر من جديد. لا توجد ترقية مدفوعة.",
     titleMin: "أدخل المسمى الوظيفي",
     descMin: "اكتب وصفاً لا يقل عن ٢٠ حرفاً",
     salaryMaxGt: "الحد الأعلى للراتب يجب أن يكون أكبر",
@@ -135,7 +135,7 @@ export const TXT = {
     publishShift: "نشر المناوبة",
     shiftPublished: "تم نشر المناوبة",
     subExpiredShift: "النشر متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة",
-    quotaReachedShift: "وصلت حد المناوبات النشطة في النسخة التجريبية — أنهِ مناوبة قائمة للنشر من جديد",
+    quotaReachedShift: "وصلت حد المناوبات المتاحة — أغلق أو ألغِ مناوبة متاحة للنشر من جديد. لا توجد ترقية مدفوعة.",
     shiftTitleMin: "أدخل عنوان المناوبة",
     setTimes: "حدّد وقت البداية والنهاية",
     endAfterStart: "وقت النهاية يجب أن يكون بعد البداية",
@@ -184,7 +184,7 @@ export const TXT = {
     applicantsTitle: (n: number) => `${n} طلب جديد بانتظار المراجعة`,
     applicantsBody: "ابدأ من الفرصة المرتبطة لمراجعة المتقدمين واتخاذ الخطوة التالية.",
     reviewWork: "فتح الأعمال المنشورة",
-    trialUsage: "حدود الاستخدام التجريبي",
+    trialUsage: "حدود الاستخدام المجاني",
     viewPublished: "عرض الفرصة",
   },
   en: {
@@ -192,18 +192,18 @@ export const TXT = {
     verified: " · Verified facility",
     unverified: " · Verification pending",
     applicants: "Applicants",
-    trial: "Free trial",
+    trial: "Free access",
     expired: "Expired",
-    subStateTrial: "Trial active",
-    subStateActive: "Active",
+    subStateTrial: "Free access active",
+    subStateActive: "Free access active",
     subStateExpired: "Ended",
     subStateInactive: "Inactive",
-    subStateNone: "No subscription",
+    subStateNone: "Access not activated",
     subNoteExpired: "Your access period ended, so posting and candidate search are paused. Contact support to reactivate.",
     subNoteInactive: "This account's access is not active right now, so posting and candidate search are paused. Contact support for a review.",
-    subNoteNone: "No subscription is linked to this facility yet, so posting and candidate search are unavailable. Contact support to activate access.",
+    subNoteNone: "Free access has not been activated for this facility yet. Contact support for help; no payment or purchase is required.",
     endsAt: (d: string) => `Ends on ${d}`,
-    activeSub: "Trial access available",
+    activeSub: "Ongoing free access; no renewal or purchase",
     activeJobsCount: (a: number, b: number) => `Active jobs ${a}/${b}`,
     activeShiftsCount: (a: number, b: number) => `Open shifts ${a}/${b}`,
     publish: "Publish opportunity",
@@ -304,7 +304,7 @@ export const TXT = {
     jobPublished: "Job posted",
     publishFailed: "Failed to publish",
     subExpiredJob: "Publishing is temporarily paused for this account — contact support for help",
-    quotaReachedJob: "You've reached the trial's active job limit — close an active job to post again",
+    quotaReachedJob: "You've reached the active job limit — close an active job to post again. There is no paid upgrade.",
     titleMin: "Enter a job title",
     descMin: "Write a description of at least 20 characters",
     salaryMaxGt: "The maximum salary must be higher",
@@ -320,7 +320,7 @@ export const TXT = {
     publishShift: "Post shift",
     shiftPublished: "Shift posted",
     subExpiredShift: "Publishing is temporarily paused for this account — contact support for help",
-    quotaReachedShift: "You've reached the trial's active shift limit — complete an existing shift to post again",
+    quotaReachedShift: "You've reached the open shift limit — close or cancel an open shift to post again. There is no paid upgrade.",
     shiftTitleMin: "Enter a shift title",
     setTimes: "Set the start and end time",
     endAfterStart: "End time must be after start time",
@@ -369,7 +369,7 @@ export const TXT = {
     applicantsTitle: (n: number) => `${n} new application(s) await review`,
     applicantsBody: "Open the related opportunity to review candidates and take the next step.",
     reviewWork: "Open published work",
-    trialUsage: "Trial usage limits",
+    trialUsage: "Free usage limits",
     viewPublished: "View opportunity",
   },
 } as const;
@@ -393,15 +393,14 @@ export type SubRow = {
 
 export type SubLifecycle = "none" | "trial" | "active" | "expired" | "inactive";
 
-/** حالة الاشتراك الواحدة المستخدمة في كل الواجهة — لا تُشتق من التاريخ وحده. */
+/** Legacy subscription fields describe free access; dates never end current free access. */
 export function subscriptionLifecycle(
   sub: { status: string; ends_at: string | null } | null | undefined,
-  isTrialPlan?: boolean,
+  _isTrialPlan?: boolean,
 ): SubLifecycle {
   if (!sub) return "none";
   if (sub.status !== "active" && sub.status !== "trialing") return "inactive";
-  if (!sub.ends_at || new Date(sub.ends_at).getTime() <= Date.now()) return "expired";
-  return sub.status === "trialing" || isTrialPlan ? "trial" : "active";
+  return "active";
 }
 
 export function subscriptionAllowsAccess(state: SubLifecycle) {

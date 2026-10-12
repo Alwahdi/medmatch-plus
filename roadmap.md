@@ -1,5 +1,18 @@
 # Mobile experience quality pass
 
+## iOS facility registration restriction
+- [x] Hide facility signup and guard new-facility onboarding/profile creation on iOS; preserve existing facility access and Android/web signup
+- [x] Test platform rules and update review notes; do not automatically build or submit
+- [ ] Verify on iPhone and submit a replacement build (device and store-owner action required)
+
+## Free access and Apple appeal
+- [x] Ensure facility access continues free after day 30, preserving verification, privacy and quotas
+- [x] Align Arabic/English web copy and shared mobile legal terms with the actual free service; no native build changes
+- [x] Run access regression checks and capture public-page preview evidence and signed-in review-account access
+- [x] Prepare an honest Apple appeal draft and evidence checklist
+- [ ] Publish/deploy corrected website and verify public URLs (owner publication required)
+- [ ] Capture genuine replacement-build iPhone workflows and submit for review, following the owner's iOS registration decision (physical device and Apple account owner required)
+
 - [ ] Finish store release only after verified deletion fulfillment (not merely request submission), physical iPhone/Android reviewer login tests, and store-owner credentials; do not submit automatically
 
 - [x] Store resubmission essentials in the mobile interface: direct support, account deletion request with review status, and iOS email/password login without third-party-only login

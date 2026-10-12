@@ -1,6 +1,6 @@
 import { CityChoice, CountryChoice } from "@/components/location-choice";
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Building2 } from "lucide-react-native";
@@ -13,6 +13,8 @@ import { useAuth } from "@/lib/auth";
 import { ChoiceField } from "@/components/listing-form";
 import { space } from "@/lib/theme";
 import { EstablishedLocation } from "@/components/location-change";
+import { canSaveFacilityProfile } from "@/lib/registration";
+import { FacilityRegistrationUnavailable } from "@/components/facility-registration-unavailable";
 
 export default function FacilityProfileScreen() {
   const { t, lang } = useI18n(); const queryClient = useQueryClient(); const facility = useMyFacility(); const { user, refreshRoles, roles } = useAuth();
@@ -20,9 +22,10 @@ export default function FacilityProfileScreen() {
    const documents = useVerificationDocuments("facility", facility.data?.id);
   const [nameAr, setNameAr] = useState(""); const [nameEn, setNameEn] = useState(""); const [type, setType] = useState(""); const [city, setCity] = useState(""); const [country, setCountry] = useState("YE"); const [website, setWebsite] = useState(""); const [description, setDescription] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null); const [saved, setSaved] = useState(false);
   useEffect(() => { const f = facility.data; if (!f) return; setNameAr(f.name_ar); setNameEn(f.name_en ?? ""); setType(f.facility_type); setCity(f.city); setCountry(f.country); setWebsite(f.website ?? ""); setDescription(f.description ?? ""); }, [facility.data]);
-   const save = async () => { const f = facility.data; if (nameAr.trim().length < 2 || nameAr.trim().length > 120 || !city.trim() || city.trim().length > 60 || !country.trim() || !user?.id) return setError(lang === "ar" ? "أكمل اسم المنشأة والمدينة ببيانات صحيحة." : "Complete the facility name and city with valid information."); setBusy(true); setError(null); setSaved(false); const payload = { name_ar: nameAr.trim(), name_en: nameEn.trim() || null, facility_type: type.trim() || "hospital", website: website.trim() || null, description: description.trim() || null }; const res = f ? await supabase.from("facilities").update(payload).eq("id", f.id) : await supabase.from("facilities").insert({ ...payload, city: city.trim(), country: country.trim(), user_id: user.id }); if (res.error) { setBusy(false); return setError(userMessage(res.error, lang)); } // Retry role claiming whenever the account has no role yet so a previously
+   const save = async () => { const f = facility.data; if (facility.isPending || facility.isError || !canSaveFacilityProfile(Platform.OS, f?.id)) return; if (nameAr.trim().length < 2 || nameAr.trim().length > 120 || !city.trim() || city.trim().length > 60 || !country.trim() || !user?.id) return setError(lang === "ar" ? "أكمل اسم المنشأة والمدينة ببيانات صحيحة." : "Complete the facility name and city with valid information."); setBusy(true); setError(null); setSaved(false); const payload = { name_ar: nameAr.trim(), name_en: nameEn.trim() || null, facility_type: type.trim() || "hospital", website: website.trim() || null, description: description.trim() || null }; const res = f ? await supabase.from("facilities").update(payload).eq("id", f.id) : await supabase.from("facilities").insert({ ...payload, city: city.trim(), country: country.trim(), user_id: user.id }); if (res.error) { setBusy(false); return setError(userMessage(res.error, lang)); } // Retry role claiming whenever the account has no role yet so a previously
   // incomplete first save can still activate the account.
    if ((roles ?? []).length === 0) { const claimed = await supabase.rpc("claim_facility_role"); if (claimed.error) { setBusy(false); return setError(userMessage(claimed.error, lang)); } if (!claimed.data) { setBusy(false); return setError(userMessage("FACILITY_PROFILE_INCOMPLETE", lang)); } await refreshRoles(); } setBusy(false); setSaved(true); void queryClient.invalidateQueries({ queryKey: ["my-facility"] }); if (roles.length === 0) router.replace("/welcome"); };
+    if (!facility.isPending && !facility.isError && !canSaveFacilityProfile(Platform.OS, facility.data?.id)) return <FacilityRegistrationUnavailable />;
     return <><Stack.Screen options={{ title: t("editFacility") }} /><Screen><ScreenHeader title={t("editFacility")} sub={lang === "ar" ? "حافظ على معلومات منشأتك دقيقة ومحدثة" : "Keep your facility information accurate"} />{facility.isPending ? <Loading /> : facility.isError ? <ErrorState message={userMessage(facility.error, lang)} onRetry={() => void facility.refetch()} /> : <View style={{ gap: space.xl }}>
      <Badge label={facility.data?.is_verified ? t("verified") : documents.isPending ? t("loading") : documents.isError ? t("errorTitle") : documents.data?.some((d) => d.status === "rejected") ? t("documentRejected") : documents.data?.some((d) => d.status === "pending") ? t("documentPending") : lang === "ar" ? "لم يبدأ التوثيق" : "Verification not started"} tone={facility.data?.is_verified ? "success" : documents.data?.some((d) => d.status === "rejected") ? "danger" : documents.data?.some((d) => d.status === "pending") ? "warning" : "neutral"} />
      <Field label={t("facilityNameAr")} value={nameAr} onChangeText={setNameAr} required maxLength={120} />

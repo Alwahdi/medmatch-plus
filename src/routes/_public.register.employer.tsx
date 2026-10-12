@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_public/register/employer")({
       {
         name: "description",
         content:
-          "أنشئ حساب ناشر وظائف على SyndeoCare بتسجيل مختصر، مع تجربة مجانية 30 يومًا.",
+          "أنشئ حساب منشأة على SyndeoCare مجانًا. يستمر الوصول بعد 30 يومًا دون رسوم أو اشتراكات أو شراء لفتح مزايا.",
       },
       { property: "og:title", content: "إنشاء حساب منشأة | Create an employer account | SyndeoCare" },
       { property: "og:description", content: "تسجيل مختصر لبدء التوظيف، بدون بطاقة ائتمان." },
@@ -46,17 +46,15 @@ const AR = {
   seekerHint: "طبيب - صيدلي - ممرض - فني",
   employer: "ناشر وظائف",
   employerHint: "وظّف الباحثين عن عمل",
-  badge: "مجاني للبدء",
+   badge: "استخدام مجاني",
   title: "أنشئ حساب ناشر وظائف",
   subtitle: "تسجيل مختصر بدون نماذج طويلة، وأكمل بيانات ناشر الوظائف لاحقًا عندما تكون جاهزًا.",
   included: "مشمولة مع التسجيل",
-  trialTitle: "تجربة تسجيل ناشر الوظائف",
-  trialNum: "30",
-  trialUnit: "يوم مجانًا",
-  trialBody: "احصل تلقائيًا على وصول لناشر الوظائف لمدة 30 يومًا بعد التسجيل وتأكيد البريد الإلكتروني.",
-  t1: "تبدأ تلقائيًا بعد تأكيد البريد الإلكتروني",
+  trialTitle: "حساب منشأة مجاني",
+  trialBody: "يستمر حساب المنشأة مجانًا بعد 30 يومًا، دون رسوم أو اشتراكات أو شراء لفتح مزايا.",
+  t1: "النشر والبحث متاحان بعد إكمال الملف واعتماد توثيق المنشأة",
   t2: "لا تحتاج إلى بطاقة دفع أو إتمام شراء",
-  t3: "متاحة مرة واحدة وغير قابلة للتجديد",
+  t3: "حدود الاستخدام عادلة، ولا توجد ترقية مدفوعة لتجاوزها",
   formTitle: "أنشئ حسابك",
   google: "التسجيل عبر جوجل",
   or: "أو",
@@ -83,8 +81,8 @@ const AR = {
   sideTitle: "ملف ناشر الوظائف",
   sideName: "اسمك",
   sideLater: "أكمل ملفك لاحقًا",
-  s1: "وصول فوري إلى الباحثين عن عمل، مع ظهور حالة التوثيق في كل ملف",
-  s2: "انشر وظائف وشيفتات ضمن باقة أساسية مجانية",
+  s1: "البحث عن الكوادر بعد توثيق منشأتك، مع ظهور حالة التوثيق في كل ملف",
+  s2: "انشر وظائف ومناوبات مجانًا ضمن حدود الاستخدام",
   s3: "تابع طلبات التوظيف من لوحة تحكم مخصصة",
   f1: "شارة توثيق للحسابات التي راجعنا وثائقها",
   f2: "تواصل مباشر مع المرشحين داخل المنصة",
@@ -102,17 +100,15 @@ const EN: typeof AR = {
   seekerHint: "Doctor - pharmacist - nurse - technician",
   employer: "Employer",
   employerHint: "Hire job seekers",
-  badge: "Free to start",
+  badge: "Free access",
   title: "Create an employer account",
   subtitle: "A streamlined signup without long forms — complete your employer details later.",
   included: "Included with sign-up",
-  trialTitle: "Employer sign-up trial",
-  trialNum: "30",
-  trialUnit: "days free",
-  trialBody: "Get employer access automatically for 30 days after signing up and confirming your email.",
-  t1: "Starts automatically after email confirmation",
+  trialTitle: "Free facility account",
+  trialBody: "Facility access continues free after 30 days, with no fees, subscriptions, or purchases to unlock features.",
+  t1: "Publishing and search are available after profile completion and facility verification",
   t2: "No payment card or checkout required",
-  t3: "Available once, non-renewable",
+  t3: "Fair-use limits apply; no paid upgrade is offered to bypass them",
   formTitle: "Create your account",
   google: "Sign up with Google",
   or: "or",
@@ -139,8 +135,8 @@ const EN: typeof AR = {
   sideTitle: "Employer profile",
   sideName: "Your name",
   sideLater: "Complete your profile later",
-  s1: "Instant access to job seekers, with verification status shown on every profile",
-  s2: "Post jobs and shifts on a free starter plan",
+  s1: "Search professionals after facility verification, with each profile's verification status shown",
+  s2: "Post jobs and shifts free within usage limits",
   s3: "Track applications from a dedicated dashboard",
   f1: "A verification badge for accounts whose documents we reviewed",
   f2: "Direct messaging with candidates in one place",
@@ -301,12 +297,6 @@ function RegisterEmployer() {
               <p className="text-xs font-bold text-muted-foreground">{L.included}</p>
               <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
                 <p className="font-display text-lg font-extrabold">{L.trialTitle}</p>
-                <p className="flex items-baseline gap-2">
-                  <span className="font-display text-4xl font-extrabold text-primary">
-                    {L.trialNum}
-                  </span>
-                  <span className="text-sm font-bold text-muted-foreground">{L.trialUnit}</span>
-                </p>
               </div>
               <p className="mt-3 text-sm text-muted-foreground">{L.trialBody}</p>
               <ul className="mt-4 space-y-2 text-sm">

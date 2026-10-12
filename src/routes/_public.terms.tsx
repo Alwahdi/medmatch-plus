@@ -30,7 +30,7 @@ const TXT = {
   ar: {
     badge: "الاستخدام المسؤول",
     title: "شروط الاستخدام",
-    lastUpdated: "آخر تحديث: سبتمبر ٢٠٢٦",
+    lastUpdated: "آخر تحديث: أكتوبر ٢٠٢٦",
     contactUs: "تواصل معنا",
     sections: [
       {
@@ -62,18 +62,18 @@ const TXT = {
         ],
       },
       {
-        h: "٥. النسخة التجريبية",
+        h: "٥. الاستخدام المجاني والتعويض عن العمل",
         p: [
-          "تعمل المنصة حالياً كنسخة إطلاق تجريبية مجانية دون بوابة دفع.",
+          "استخدام SyndeoCare مجاني للكوادر الصحية والمنشآت ويستمر بعد 30 يومًا دون رسوم أو اشتراكات أو شراء لفتح مزايا.",
           "قد تطبق حدود استخدام عادلة على النشر والبحث لحماية جودة الخدمة، وتظهر هذه الحدود داخل حساب المنشأة.",
-          "سيتم توضيح أي تغيير مستقبلي قبل تطبيقه، ولن تُطلب بيانات دفع خلال النسخة التجريبية الحالية.",
+          "لا توجد بوابة دفع أو مشتريات داخل التطبيق أو الموقع. الأجور المعروضة مقابل عمل صحي حقيقي حضوري يتفق عليه الأطراف خارج المنصة؛ ولا تعالج المنصة تلك الدفعات.",
         ],
       },
       {
         h: "٦. السلوك المقبول",
         p: [
           "يُمنع التحرش أو التمييز أو الرسائل التجارية غير المرغوبة داخل المنصة.",
-          "يُمنع محاولة استخراج البيانات آلياً أو تجاوز حدود الباقة بأي وسيلة.",
+          "يُمنع محاولة استخراج البيانات آلياً أو تجاوز حدود الاستخدام بأي وسيلة.",
         ],
       },
       {
@@ -96,7 +96,7 @@ const TXT = {
   en: {
     badge: "Responsible use",
     title: "Terms of use",
-    lastUpdated: "Last updated: September 2026",
+    lastUpdated: "Last updated: October 2026",
     contactUs: "Contact us",
     sections: [
       {
@@ -128,18 +128,18 @@ const TXT = {
         ],
       },
       {
-        h: "5. Trial release",
+        h: "5. Free access and work compensation",
         p: [
-          "The platform currently operates as a free trial release with no payment gateway.",
+          "SyndeoCare is free for professionals and facilities. Access continues free after 30 days, with no fees, subscriptions, or purchases to unlock features.",
           "Fair-use limits may apply to posting and talent search to protect service quality, and appear inside the facility account.",
-          "Any future change will be explained before it takes effect, and no payment details are requested during the current trial.",
+          "There is no payment gateway or purchasing in the app or website. Displayed compensation is for real-world in-person healthcare work agreed between the parties outside the platform; SyndeoCare does not process those payments.",
         ],
       },
       {
         h: "6. Acceptable conduct",
         p: [
           "Harassment, discrimination, or unsolicited commercial messages within the platform are prohibited.",
-          "Automated data scraping or bypassing plan limits by any means is prohibited.",
+          "Automated data scraping or bypassing usage limits by any means is prohibited.",
         ],
       },
       {

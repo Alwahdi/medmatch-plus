@@ -48,7 +48,7 @@ const LABEL: Record<string, { ar: string; en: string }> = {
   cron_secret_configured: { ar: "مفتاح تشغيل المهام المجدولة", en: "Scheduled dispatch secret" },
   cv_ai_ready: { ar: "قراءة السيرة الذاتية آلياً", en: "Automatic CV reading" },
   canonical_public_site_url: { ar: "عنوان الموقع الرسمي", en: "Canonical public site URL" },
-  payments_disabled_for_trial: { ar: "الدفع معطّل في نسخة التجربة", en: "Payments disabled for the trial launch" },
+  payments_disabled_for_trial: { ar: "استخدام مجاني دون مدفوعات", en: "Free access without payments" },
 };
 
 /** نص المعالجة — يذكر أسماء الإعدادات فقط، بلا أي قيم. */
@@ -87,8 +87,8 @@ function remediation(code: string, missing: string[], lang: "ar" | "en"): string
         : null;
     case "payments_disabled_for_trial":
       return lang === "ar"
-        ? "سياسة منتج معلنة لنسخة التجربة، وليست إعداداً ناقصاً."
-        : "A stated product policy for the trial launch, not a missing setting.";
+        ? "الخدمة مجانية بلا اشتراكات أو شراء لفتح مزايا؛ ليست إعداداً ناقصاً."
+        : "The service is free without subscriptions or paid unlocks; this is not a missing setting.";
     default:
       return null;
   }

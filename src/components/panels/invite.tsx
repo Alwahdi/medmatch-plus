@@ -82,7 +82,7 @@ export const INVITE_TXT = {
     errors: {
       NOT_A_FACILITY: "هذه الميزة متاحة لحسابات المنشآت فقط.",
       NO_ACTIVE_SUBSCRIPTION: "البحث متوقف مؤقتاً لهذا الحساب — تواصل مع الدعم للمساعدة.",
-      SEARCH_QUOTA_EXCEEDED: "استهلكت حصة البحث في باقتك.",
+      SEARCH_QUOTA_EXCEEDED: "استهلكت حصة البحث المجانية؛ لا توجد ترقية مدفوعة.",
     },
     searchFailed: "تعذّر تنفيذ البحث",
   },
@@ -130,7 +130,7 @@ export const INVITE_TXT = {
     errors: {
       NOT_A_FACILITY: "This feature is available for facility accounts only.",
       NO_ACTIVE_SUBSCRIPTION: "Search is temporarily paused for this account — contact support for help.",
-      SEARCH_QUOTA_EXCEEDED: "You've used the trial search allowance.",
+      SEARCH_QUOTA_EXCEEDED: "You've used the free search allowance; there is no paid upgrade.",
     },
     searchFailed: "Failed to run the search",
   },
